@@ -8,7 +8,7 @@ const path: typeof import('path') = require('path');
 export const DATA_DIR = path.join(__dirname, '.data');
 
 /** kaikki `lang_code` values we keep. FrequencyWords uses the same codes for its folders. */
-export const LANG_CODES = ['en', 'es', 'de', 'et'] as const;
+export const LANG_CODES = ['en', 'es', 'de', 'et', 'fr'] as const;
 export type LangCode = (typeof LANG_CODES)[number];
 
 /** kaikki `pos` value → the app's `PartOfSpeech` value (frontend/src/ts/enums.ts). Other kaikki PoS are ignored. */

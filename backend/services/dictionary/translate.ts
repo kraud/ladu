@@ -1,11 +1,11 @@
 /**
  * The translate lookup (autocomplete-data-source-strategy.md Slice F, step F2; decision D22):
- * one word in any of the four languages → the senses it belongs to → for each sense, the words in
+ * one word in any of the languages → the senses it belongs to → for each sense, the words in
  * every language. Reads `lexeme_translations` (English Wiktionary translation tables).
  *
  * English is the hub. From English: the senses of that English word. From another language
  * (reverse lookup): the English senses that list the word, then the other words of those senses.
- * Every sense lists all four languages (the English word too), an empty list where the data has
+ * Every sense lists every language (the English word too), an empty list where the data has
  * none: no language is "primary" (design commandment 4).
  *
  * Order of the senses:
@@ -20,16 +20,18 @@
  * then says so.
  */
 
-const { and, asc, eq, inArray, like, min, notLike, sql }: typeof import('drizzle-orm') = require('drizzle-orm');
+const { and, asc, eq, inArray, like, min, sql }: typeof import('drizzle-orm') = require('drizzle-orm');
 const { db }: typeof import('../../src/db') = require('../../src/db');
 const { lexemes, lexemeTranslations }: typeof import('../../src/db/schema') = require('../../src/db/schema');
 const { searchKey }: typeof import('../../lib/lexicon/searchKey') = require('../../lib/lexicon/searchKey');
 const { estonianEquivalents }: typeof import('./eki') = require('./eki');
 const { escapeLike }: typeof import('./lexicon') = require('./lexicon');
 
-export const TRANSLATE_LANGUAGES = ['English', 'Spanish', 'German', 'Estonian'] as const;
+const { LANGUAGE_NAMES }: typeof import('../../lib/languages') = require('../../lib/languages');
+
+export const TRANSLATE_LANGUAGES = LANGUAGE_NAMES;
 export const TRANSLATE_PARTS_OF_SPEECH = ['Noun', 'Verb', 'Adjective', 'Adverb', 'Conjunction', 'Preposition'] as const;
-type Language = (typeof TRANSLATE_LANGUAGES)[number];
+type Language = import('../../lib/languages').LanguageName;
 
 /** Senses returned at most; a common word ("run", "set") has dozens. */
 const MAX_SENSES = 20;
@@ -63,7 +65,8 @@ function compareOrder(a: number[], b: number[]): number {
     return 0;
 }
 
-const emptyWords = (): Record<Language, TranslationWord[]> => ({ English: [], Spanish: [], German: [], Estonian: [] });
+const emptyWords = (): Record<Language, TranslationWord[]> =>
+    Object.fromEntries(TRANSLATE_LANGUAGES.map((language) => [language, []])) as unknown as Record<Language, TranslationWord[]>;
 
 export async function translate(fromLanguage: Language, partOfSpeech: string, query: string): Promise<TranslateResult> {
     const key = searchKey(query);
@@ -146,25 +149,6 @@ async function ekilexEstonian(word: string, language: string, partOfSpeech: stri
     } catch {
         return { unavailable: true };
     }
-}
-
-/**
- * Estonian "Search verb in English" (step F3, D22): the first English sense of `english` (Wiktionary
- * order: entry, sense, then the word's place in the sense) that has a one-word Estonian "-ma" verb,
- * and that verb ("run" → "jooksma"). undefined when the table has none; the caller then asks Ekilex.
- */
-export async function firstEstonianVerb(english: string): Promise<string | undefined> {
-    const t = lexemeTranslations;
-    const [row] = await db
-        .select({ word: t.word })
-        .from(t)
-        .where(and(
-            eq(t.partOfSpeech, 'Verb'), eq(t.englishSearchKey, searchKey(english)), eq(t.language, 'Estonian'),
-            like(t.word, '%ma'), notLike(t.word, '% %'),
-        ))
-        .orderBy(asc(t.entryOrder), asc(t.senseOrder), asc(t.wordOrder))
-        .limit(1);
-    return row?.word;
 }
 
 /** Senses listed per word in the sense type-ahead ("bank" has many); the rest are reached by typing more. */

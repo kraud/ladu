@@ -1,0 +1,91 @@
+{
+  "start": {
+    "blurb": "Essaie la démo : une étagère remplie de mots, d’étiquettes et d’exercices d’exemple, sans compte.",
+    "kicker": "Démo",
+    "kickerNote": "aucun compte nécessaire",
+    "title": "Toute la plateforme, prête à essayer.",
+    "lead": "Entre dans un compte Ladu d’exemple. Des mots en cinq langues, des étiquettes qui les regroupent déjà et une série d’exercices prête à démarrer — <strong>sans inscription, sans configuration</strong>.",
+    "insideTitle": "Dans la démo",
+    "insideMeta": "Aucune configuration nécessaire",
+    "features": {
+      "words": {
+        "title": "Chaque mot, de cinq façons.",
+        "text": "Lis le même mot en English, Deutsch, Español, Eesti et Français."
+      },
+      "tags": {
+        "title": "Les étiquettes font le tri.",
+        "text": "Chapitre 1, Cuisine, Préparation d’examen et plus encore — déjà appliquées."
+      },
+      "practice": {
+        "title": "Un entraînement déjà configuré.",
+        "text": "Réponds à une courte série d’exercices construite à partir de tes mots d’exemple."
+      }
+    },
+    "resetNote": "Quelques minutes · rien de ce que tu modifies n’est enregistré",
+    "getStarted": "Commencer",
+    "back": "Retour",
+    "languagesTitle": "Quelles langues utilises-tu ?",
+    "languagesHint": "Choisis-en 2 ou plus. La démo affiche ses mots d’exemple dans ces langues.",
+    "languageCountEmpty": "Sélectionne au moins deux langues",
+    "languageCountSelected_one": "1 langue sélectionnée",
+    "languageCountSelected_other": "{{count}} langues sélectionnées",
+    "termsNote": "En lançant la démo, tu confirmes avoir au moins 13 ans (avec l’autorisation d’un parent si tu as moins de 16 ans) et tu acceptes les <terms>conditions d’utilisation</terms> et la <privacy>politique de confidentialité</privacy>.",
+    "logoutWarning": "Tu es connecté. Lancer la démo te déconnecte de ton compte.",
+    "button": "Lancer",
+    "buttonLogout": "Se déconnecter et lancer",
+    "starting": "Lancement de la démo…",
+    "loading": "Chargement…",
+    "haveAccount": "Tu as un compte ?",
+    "signIn": "Se connecter"
+  },
+  "off": {
+    "kicker": "Démo actuellement indisponible",
+    "title": "La démo est désactivée",
+    "text": "La démo n’est pas disponible pour le moment. Tu peux créer un compte gratuit à la place.",
+    "createAccount": "Créer un compte"
+  },
+  "ended": {
+    "blurb": "Merci d’avoir essayé Ladu.",
+    "title": "La démo est terminée",
+    "text": "Toutes les modifications faites dans la démo sont supprimées. Crée un compte pour conserver tes propres mots.",
+    "signUp": "Créer un compte",
+    "tryAgain": "Lancer une nouvelle démo"
+  },
+  "errors": {
+    "demo_disabled": "La démo est désactivée pour le moment.",
+    "demo_busy": "Trop de démos sont en cours. Réessaie dans quelques minutes.",
+    "demo_rate_limited": "Trop de démos ont été lancées depuis ton réseau. Réessaie plus tard.",
+    "demo_unavailable": "La démo n’est pas disponible pour le moment. Réessaie plus tard.",
+    "demo_invalid_languages": "Sélectionne au moins deux langues.",
+    "generic": "La démo n’a pas pu démarrer. Réessaie.",
+    "demo_restricted": "Ce n’est pas disponible dans la démo.",
+    "demo_word_limit": "La démo ne peut pas contenir plus de mots. Crée un compte pour en ajouter davantage.",
+    "demo_tag_limit": "La démo ne peut pas contenir plus d’étiquettes. Crée un compte pour en ajouter davantage."
+  },
+  "badge": {
+    "demo": "Démo",
+    "label": "Démo : il reste {{time}}. Ouvrir la page de ton compte."
+  },
+  "account": {
+    "title": "Compte de démo",
+    "accountLabel": "Compte de démo",
+    "timeLeft": "Temps restant : {{time}}",
+    "text": "Ceci est un compte de démo. Quand le temps est écoulé, le compte et toutes tes modifications sont supprimés.",
+    "createAccount": "Créer un compte",
+    "namesLocked": "Un compte de démo ne peut pas modifier son nom ni son nom d’utilisateur.",
+    "wordsLeft": "Mots que tu peux ajouter : {{count}}",
+    "tagsLeft": "Étiquettes que tu peux ajouter : {{count}}"
+  },
+  "transition": {
+    "label": "Lancement de la démo",
+    "progress": "Progression du lancement de la démo",
+    "lines": {
+      "line1": "On dépoussière les dictionnaires…",
+      "line2": "On apprend aux verbes à se conjuguer…",
+      "line3": "On demande aux noms quel est leur genre…",
+      "line4": "On met les accents sur les bonnes lettres…",
+      "line5": "On compte les cas estoniens. Il y en a 14…",
+      "line6": "On range les mots sur l’étagère…"
+    }
+  }
+}

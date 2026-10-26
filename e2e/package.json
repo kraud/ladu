@@ -12,6 +12,7 @@
     "test:smoke": "playwright test --config=playwright.deploy.config.ts",
     "report": "playwright show-report",
     "install:browsers": "playwright install chromium",
+    "db:ensure": "tsx fixtures/ensure-db.ts",
     "stub:oidc": "tsx fixtures/oidc-stub/server.ts",
     "stub:eki": "tsx fixtures/eki-stub/server.ts"
   },

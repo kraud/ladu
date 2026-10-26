@@ -9,10 +9,11 @@ afterEach(() => {
 });
 
 describe('turnstileLanguage', () => {
-    it('passes English, Spanish and German on, and leaves Estonian (not supported by Turnstile) to "auto"', () => {
+    it('passes English, Spanish, German and French on, and leaves Estonian (not supported by Turnstile) to "auto"', () => {
         expect(turnstileLanguage('en')).toBe('en');
         expect(turnstileLanguage('es')).toBe('es');
         expect(turnstileLanguage('de-AT')).toBe('de');
+        expect(turnstileLanguage('fr-CA')).toBe('fr');
         expect(turnstileLanguage('ee')).toBe('auto');
         expect(turnstileLanguage('')).toBe('auto');
     });

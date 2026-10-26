@@ -17,7 +17,7 @@ const stringsOf = (source, code) => {
 describe('storage notice texts', () => {
     const app = read('app.js');
 
-    for (const code of ['en', 'es', 'de', 'ee']) {
+    for (const code of ['en', 'es', 'de', 'ee', 'fr']) {
         it(`${code} has the label, the text and the button`, () => {
             const block = stringsOf(app, code);
             for (const key of ['noticeLabel', 'noticeText', 'noticeOk']) {

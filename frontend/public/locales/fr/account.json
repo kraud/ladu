@@ -1,0 +1,37 @@
+{
+  "title": "Compte",
+  "subtitle": "Gère ton profil et tes langues",
+  "sections": {
+    "details": "Informations du profil",
+    "languages": "Langues",
+    "edit": "Modifier le profil"
+  },
+  "fields": {
+    "emailHint": "L’e-mail est géré séparément et ne peut pas être modifié ici",
+    "nativeLanguage": "Langue maternelle",
+    "nativeLanguageNone": "Aucune",
+    "nativeLanguageHint": "Facultatif. L’entraînement peut ignorer les exercices monolingues dans ta langue maternelle."
+  },
+  "languages": {
+    "count": "{{count}} sur {{total}} sélectionnées",
+    "none": "aucune configurée",
+    "orderHint": "2 langues minimum — les colonnes de tes mots et tes exercices suivent cet ordre",
+    "emptyTitle": "Aucune langue configurée",
+    "emptyBody": "Sélectionne au moins deux langues pour que ton espace soit correctement localisé.",
+    "emptyCta": "Sélectionner des langues"
+  },
+  "toasts": {
+    "discarded": "Modifications annulées"
+  },
+  "signInMethods": {
+    "title": "Méthodes de connexion",
+    "passwordLabel": "Mot de passe",
+    "googleLabel": "Google",
+    "connect": "Connecter Google",
+    "disconnect": "Déconnecter",
+    "connectSuccess": "Ta connexion avec Google est configurée !",
+    "disconnectSuccess": "Déconnecté",
+    "confirmDisconnectTitle": "Déconnecter Google ?",
+    "confirmDisconnectDescription": "Tu peux le reconnecter à tout moment."
+  }
+}

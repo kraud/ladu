@@ -25,7 +25,8 @@ export default defineConfig({
         // Same idea as frontend/: the browser sees one origin, Vite forwards /api.
         proxy: {
             '/api': {
-                target: 'http://localhost:5001',
+                // The e2e suite points this at its own backend (API_PROXY_TARGET).
+                target: process.env.API_PROXY_TARGET ?? 'http://localhost:5001',
                 changeOrigin: true,
             },
         },

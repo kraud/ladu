@@ -200,8 +200,8 @@ frontend/src/
 │   │   ├── keys.ts              # ['autocomplete', lang, pos, query, extra, entryId], ['autocomplete', 'suggestions', …]
 │   │   ├── types.ts             # `DictionaryResponse` ({ status, cases }) and `AutocompleteResult` —
 │   │   │                        #   `cases: Map<CaseName, string>` (a `Record` can't index the `CaseName` union)
-│   │   └── transforms.ts        # AUTOCOMPLETE_REGISTRY (the 9-entry lang×PoS table: query field + the
-│   │                            #   Estonian searchInEnglish field) + `toAutocompleteResult`. Which source answers
+│   │   └── transforms.ts        # AUTOCOMPLETE_REGISTRY (the 9-entry lang×PoS table: query field)
+│   │                            #   + `toAutocompleteResult`. Which source answers
 │   │                            #   a pair is the backend's business (autocomplete-data-source-strategy.md Slice A)
 │   │
 │   ├── exercises/              # Phase 5

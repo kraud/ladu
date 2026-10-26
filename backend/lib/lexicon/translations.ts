@@ -6,8 +6,10 @@
  * A kaikki translation item: { lang: 'de', word: 'See', tags: ['masculine'], sense: 'body of water' }.
  */
 
-/** Target languages: the kaikki code → the app's value. English is the hub, never a target. */
-export const TRANSLATION_LANGUAGES: Record<string, string> = { es: 'Spanish', de: 'German', et: 'Estonian' };
+import { TARGET_BY_WIKTIONARY_CODE } from '../languages';
+
+/** Target languages: the kaikki code → the app's value (the table in lib/languages.ts). English is the hub, never a target. */
+export const TRANSLATION_LANGUAGES: Record<string, string> = TARGET_BY_WIKTIONARY_CODE;
 
 /**
  * kaikki part of speech → the app's value. Nouns, verbs, adjectives and adverbs (D22); conjunctions
@@ -23,6 +25,7 @@ const MAX_WORD_LENGTH = 100; // the dictionary routes refuse longer queries
 const GENDERS: Record<string, Record<string, string>> = {
     German: { masculine: 'der', feminine: 'die', neuter: 'das' },
     Spanish: { masculine: 'el', feminine: 'la' },
+    French: { masculine: 'le', feminine: 'la' },
 };
 
 /**
@@ -30,6 +33,7 @@ const GENDERS: Record<string, Record<string, string>> = {
  * - German: one of masculine / feminine / neuter → der / die / das. Two genders → null: the
  *   German form has no "der/das" option.
  * - Spanish: masculine → el, feminine → la, both → "el/la" (the form's GenderES.N).
+ * - French: masculine → le, feminine → la, both → "le/la" (the form's GenderFR.N).
  * - Estonian has no gender.
  */
 export function translationGender(language: string, tags: string[] = []): string | null {
@@ -38,6 +42,7 @@ export function translationGender(language: string, tags: string[] = []): string
     const found = Object.keys(genders).filter((tag) => tags.includes(tag));
     if (found.length === 1) return genders[found[0]];
     if (language === 'Spanish' && found.length === 2) return 'el/la';
+    if (language === 'French' && found.length === 2) return 'le/la';
     return null;
 }
 

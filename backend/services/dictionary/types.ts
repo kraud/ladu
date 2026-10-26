@@ -21,8 +21,6 @@ export interface LookupResult {
 }
 
 export interface LookupOptions {
-    /** Estonian verb only: search by an English word (the translation table, then Ekilex; registry.ts). */
-    searchInEnglish?: boolean;
     /** A type-ahead pick (Slice E): the `lexemes` row to return, instead of the D15 choice. */
     entryId?: string;
     /**

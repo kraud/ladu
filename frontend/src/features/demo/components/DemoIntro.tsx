@@ -55,6 +55,7 @@ export function DemoIntro({ off = false }: { off?: boolean }) {
                             ['DE', 'der Baum'],
                             ['ES', 'el árbol'],
                             ['EE', 'puu'],
+                            ['FR', 'l’arbre'],
                         ].map(([lang, word]) => (
                             <span key={lang} className="demo-word">
                                 <FlagIcon lang={lang} width={16} height={11} />

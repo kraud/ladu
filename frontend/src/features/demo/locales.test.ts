@@ -3,6 +3,7 @@ import de from '../../../public/locales/de/demo.json';
 import ee from '../../../public/locales/ee/demo.json';
 import en from '../../../public/locales/en/demo.json';
 import es from '../../../public/locales/es/demo.json';
+import fr from '../../../public/locales/fr/demo.json';
 
 /** Every key path of a nested strings object, sorted. */
 const keys = (value: unknown, prefix = ''): string[] =>
@@ -16,6 +17,7 @@ describe.each([
     ['es', es],
     ['de', de],
     ['ee', ee],
+    ['fr', fr],
     ['en', en],
 ])('demo.json (%s)', (_code, file) => {
     it('has the same keys as English', () => {
@@ -37,13 +39,14 @@ const strings = (value: unknown, prefix = ''): [string, string][] =>
         : [[prefix, String(value)]];
 
 // The files began as English drafts. A string that is still the English one shows English to a
-// visitor who chose another language. "Demo" is the same word in all four languages.
+// visitor who chose another language. "Demo" is the same word in all five languages.
 const SAME_IN_EVERY_LANGUAGE = new Set(['badge.demo', 'start.kicker']);
 
 describe.each([
     ['es', es],
     ['de', de],
     ['ee', ee],
+    ['fr', fr],
 ])('demo.json (%s) is translated', (_code, file) => {
     it('has no string left in English', () => {
         const english = new Map(strings(en));

@@ -7,8 +7,8 @@ import { PageThemeToggle } from '@/components/layout/PageThemeToggle';
 
 /**
  * 404 — built from `MOCKUPS/auth/404.html`: the shared brand shell, serif
- * oversized numeral, hairline divider, and one line that cycles through the
- * four languages every 2.6s with a 300ms cross-fade. Single CTA, target
+ * oversized numeral, hairline divider, and one line that cycles through every
+ * language every 2.6s with a 300ms cross-fade. Single CTA, target
  * depending on session.
  *
  * The cycling lines live in `common:notFound.lines` (identical in every
@@ -25,6 +25,7 @@ const FALLBACK_LINES = [
     'Hier gibt es nichts zu sehen…',
     'No hay nada que ver aquí…',
     'Siin pole midagi vaadata…',
+    'Il n\u2019y a rien à voir ici…',
 ];
 
 const CYCLE_MS = 2600;

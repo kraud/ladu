@@ -43,7 +43,7 @@ interface InternalUser {
 
 const futureExp = () => Math.floor(Date.now() / 1000) + 30 * 24 * 3600;
 
-const SUPPORTED_LANGUAGES = ['English', 'Spanish', 'German', 'Estonian'];
+const SUPPORTED_LANGUAGES = ['English', 'Spanish', 'German', 'Estonian', 'French'];
 const isSupportedLanguage = (v: unknown): v is string =>
     typeof v === 'string' && SUPPORTED_LANGUAGES.includes(v);
 

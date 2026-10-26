@@ -15,6 +15,7 @@ const FIXTURE = path.join(__dirname, '../scripts/lexicon/fixtures/lexicon-de-fix
 const ES_FIXTURE = path.join(__dirname, '../scripts/lexicon/fixtures/lexicon-es-fixture.jsonl');
 const EN_FIXTURE = path.join(__dirname, '../scripts/lexicon/fixtures/lexicon-en-fixture.jsonl');
 const ET_FIXTURE = path.join(__dirname, '../scripts/lexicon/fixtures/lexicon-et-fixture.jsonl');
+const FR_FIXTURE = path.join(__dirname, '../scripts/lexicon/fixtures/lexicon-fr-fixture.jsonl');
 
 beforeAll(() => db.connectDB());
 beforeEach(() => db.clearDB());
@@ -249,11 +250,6 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
                 return json(entry ? [entry[1]] : []);
             }
             if ((match = /^\/api\/word\/details\/(\d+)$/.exec(path))) return json(DETAILS[match[1]] ?? {});
-            if ((match = /^\/api\/meaning\/search\/(.+)$/.exec(path))) {
-                // Like the real answer for "run": "astuma" (to step) is listed first, "jooksma" is in more meanings.
-                const meaning = (...est) => ({ meaningWords: [...est.map((wordValue) => ({ wordValue, lang: 'est' })), { wordValue: 'run', lang: 'eng' }] });
-                return json({ results: match[1] === 'run' ? [meaning('astuma'), meaning('jooks', 'jooksma'), meaning('jooksma')] : [] });
-            }
             return json({});
         });
         return global.fetch;
@@ -410,13 +406,6 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
         expect((await lookup('Estonian/Noun/zorplata')).body).toEqual({ status: 'not-found', cases: [] });
     });
 
-    it('searchInEnglish takes the Estonian -ma verb found in the most meanings, then its paradigm', async () => {
-        const fetchMock = fakeEkilex();
-        const res = await lookup('Estonian/Verb/run?searchInEnglish=true');
-        expect(casesOf(res.body)).toEqual({ infinitiveMaEE: 'jooksma', infinitiveDaEE: 'joosta' });
-        expect(fetchMock.mock.calls[0][0]).toBe('https://ekilex.test/api/meaning/search/run');
-    });
-
     it('uses https://ekilex.ee when EKILEX_API_URL is not set', async () => {
         const configured = process.env.EKILEX_API_URL;
         delete process.env.EKILEX_API_URL;
@@ -451,34 +440,6 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
             const res = await lookup(`Estonian/Noun/${encodeURIComponent('õun')}`);
             expect(res.body.status).toBe('found');
             expect(fetchMock).toHaveBeenCalled();
-        });
-
-        it('search in English, empty translation table: Ekilex picks the verb, the lexicon gives its forms (F3)', async () => {
-            const fetchMock = fakeEkilex();
-            const res = await lookup('Estonian/Verb/run?searchInEnglish=true');
-            expect(res.body.status).toBe('found');
-            expect(casesOf(res.body)).toMatchObject({ infinitiveMaEE: 'jooksma', infinitiveDaEE: 'joosta', kindelPresent1sEE: 'jooksen' });
-            // Only the meaning search: "jooksma" is in the Estonian lexicon, so no paradigm call.
-            expect(fetchMock.mock.calls.map(([url]) => url)).toEqual(['https://ekilex.test/api/meaning/search/run']);
-        });
-
-        describe('and the translation table (step F3)', () => {
-            beforeEach(() => loadLexiconFile(pool, path.join(__dirname, '../scripts/lexicon/fixtures/translations-en-fixture.jsonl')));
-
-            it('search in English takes the verb from the table ("run" → "jooksma"): Ekilex is not asked', async () => {
-                const fetchMock = fakeEkilex();
-                const res = await lookup('Estonian/Verb/run?searchInEnglish=true');
-                expect(res.body.status).toBe('found');
-                expect(casesOf(res.body)).toMatchObject({ infinitiveMaEE: 'jooksma', infinitiveDaEE: 'joosta' });
-                expect(fetchMock).not.toHaveBeenCalled();
-            });
-
-            it('an English verb the table has no Estonian verb for goes to Ekilex', async () => {
-                const fetchMock = fakeEkilex();
-                const res = await lookup('Estonian/Verb/stroll?searchInEnglish=true');
-                expect(res.body).toEqual({ status: 'not-found', cases: [] });
-                expect(fetchMock.mock.calls.map(([url]) => url)).toEqual(['https://ekilex.test/api/meaning/search/stroll']);
-            });
         });
     });
 
@@ -766,14 +727,14 @@ describe('translate (Slice F: GET /api/dictionary/translate/:fromLanguage/:partO
     });
     afterEach(() => { global.fetch = originalFetch; });
 
-    it('from English: the senses in Wiktionary order, each with all four languages and the noun gender', async () => {
+    it('from English: the senses in Wiktionary order, each with all five languages and the noun gender', async () => {
         const res = await translate('English/Noun/lake');
         expect(res.statusCode).toBe(200);
         expect(res.body.senses.map((s) => s.sense)).toEqual(['body of water', 'a kind of coloring agent']);
         const [water] = res.body.senses;
         expect(water.english).toBe('lake');
         expect(Object.fromEntries(Object.entries(water.words).map(([language, list]) => [language, words(list)]))).toEqual({
-            English: ['lake'], Spanish: ['el lago'], German: ['der See'], Estonian: ['järv'],
+            English: ['lake'], Spanish: ['el lago'], German: ['der See'], Estonian: ['järv'], French: ['le lac'],
         });
         // Some sense has an Estonian word: Ekilex is not asked.
         expect(res.body.ekilex).toBeUndefined();
@@ -892,13 +853,13 @@ describe('sense type-ahead (Slice G, G1: GET /api/dictionary/translate/:fromLang
         expect(res.body.suggestions[0]).toEqual({
             word: 'lake', partOfSpeech: 'Noun', english: 'lake', sense: 'body of water',
             key: { englishLemma: 'lake', entryOrder: 0, senseOrder: 0 },
-            languages: ['English', 'Spanish', 'German', 'Estonian'],
+            languages: ['English', 'Spanish', 'German', 'Estonian', 'French'],
         });
     });
 
     it('each line lists the languages its sense covers (English is the hub, so always), in the fixed language order', async () => {
         const [lake] = (await senses('German?prefix=See&partOfSpeech=Noun')).body.suggestions.filter((s) => s.english === 'lake');
-        expect(lake.languages).toEqual(['English', 'Spanish', 'German', 'Estonian']);
+        expect(lake.languages).toEqual(['English', 'Spanish', 'German', 'Estonian', 'French']);
         const all = (await senses('English?prefix=ba')).body.suggestions;
         for (const suggestion of all) {
             expect(suggestion.languages[0]).toBe('English');
@@ -1002,11 +963,11 @@ describe('one sense with its words (Slice G, G2: GET /api/dictionary/translate/s
         expect(res.body.ekilex).toBeUndefined();
     });
 
-    it('only the asked languages come back; with no languages given, all four', async () => {
+    it('only the asked languages come back; with no languages given, all five (French has no words yet)', async () => {
         const some = await sense('Noun', 'english=lake&entry=0&sense=0&languages=German,English');
         expect(Object.keys(some.body.sense.words).sort()).toEqual(['English', 'German']);
         const all = await sense('Noun', 'english=lake&entry=0&sense=0');
-        expect(Object.keys(all.body.sense.words).sort()).toEqual(['English', 'Estonian', 'German', 'Spanish']);
+        expect(Object.keys(all.body.sense.words).sort()).toEqual(['English', 'Estonian', 'French', 'German', 'Spanish']);
     });
 
     it('words keep their listed order (the common one first)', async () => {
@@ -1202,6 +1163,134 @@ describe('draft (Slice G, G3: POST /api/dictionary/draft)', () => {
         const five = ['English', 'Spanish', 'German', 'Estonian', 'English'].map((language) => ({ language, word: 'x' }));
         expect((await draft({ partOfSpeech: 'Noun', picks: five })).statusCode).toBe(400);
         expect((await request(app).post('/api/dictionary/draft').send({ partOfSpeech: 'Noun', picks: [ok] })).statusCode).toBe(401);
+    });
+});
+
+describe('French (slices 9a and 9b: the lexicon alone, a miss is not-found)', () => {
+    const suggest = (path) => request(app).get(`/api/dictionary/${path}`).set('Authorization', `Bearer ${token}`);
+    const draft = (body) => request(app).post('/api/dictionary/draft').set('Authorization', `Bearer ${token}`).send(body);
+    const genderOf = async (word, gender) =>
+        casesOf({ cases: (await draft({ partOfSpeech: 'Noun', picks: [{ language: 'French', word, gender }] })).body.translations[0].cases }).genderFR;
+
+    beforeEach(() => loadLexiconFile(pool, FR_FIXTURE));
+
+    it('a noun: gender, singular and plural, also an irregular plural', async () => {
+        const maison = (await lookup('French/Noun/maison')).body;
+        expect(maison.status).toBe('found');
+        expect(casesOf(maison)).toEqual({ genderFR: 'la', singularFR: 'maison', pluralFR: 'maisons' });
+        expect(casesOf((await lookup('French/Noun/cheval')).body).pluralFR).toBe('chevaux');
+        expect(casesOf((await lookup('French/Noun/%C5%93il')).body)).toMatchObject({ genderFR: 'le', pluralFR: 'yeux' });
+    });
+
+    it('a noun with both genders is "le/la"; a plural-only noun has no plural', async () => {
+        expect(casesOf((await lookup('French/Noun/enfant')).body).genderFR).toBe('le/la');
+        expect(casesOf((await lookup('French/Noun/gens')).body)).toEqual({ genderFR: 'le', singularFR: 'gens' });
+    });
+
+    it('the gender chooses between homographs: le livre / la livre', async () => {
+        expect(await genderOf('livre', 'le')).toBe('le');
+        expect(await genderOf('livre', 'la')).toBe('la');
+        expect(await genderOf('livre', 'le/la')).toBe('le');
+    });
+
+    it('an adjective fills the four agreement forms; "facile" has one shape for both genders', async () => {
+        expect(casesOf((await lookup('French/Adjective/grand')).body)).toEqual({
+            maleSingularFR: 'grand', femaleSingularFR: 'grande', malePluralFR: 'grands', femalePluralFR: 'grandes',
+        });
+        expect(casesOf((await lookup('French/Adjective/facile')).body)).toEqual({
+            maleSingularFR: 'facile', femaleSingularFR: 'facile', malePluralFR: 'faciles', femalePluralFR: 'faciles',
+        });
+    });
+
+    it('an adjective with a vowel form or an irregular comparative sends them; the superlative is never sent', async () => {
+        expect(casesOf((await lookup('French/Adjective/beau')).body)).toMatchObject({ femaleSingularFR: 'belle', vowelFormFR: 'bel', hasVowelFormFR: 'true' });
+        const bon = casesOf((await lookup('French/Adjective/bon')).body);
+        expect(bon.comparativeFR).toBe('meilleur');
+        expect(bon).not.toHaveProperty('superlativeFR');
+    });
+
+    it('an adverb is Gradable only when a degree row exists', async () => {
+        expect(casesOf((await lookup('French/Adverb/bien')).body)).toEqual({ gradableFR: 'Gradable', adverbFR: 'bien', comparativeFR: 'mieux' });
+        expect(casesOf((await lookup('French/Adverb/vite')).body)).toEqual({ adverbFR: 'vite' });
+    });
+
+    it('a conjunction has a type only when Wiktionary states one; a preposition gets its position', async () => {
+        expect(casesOf((await lookup('French/Conjunction/et')).body)).toEqual({ conjunctionFR: 'et', conjunctionTypeFR: 'Coordinating' });
+        expect(casesOf((await lookup('French/Conjunction/parce%20que')).body)).toEqual({ conjunctionFR: 'parce que', conjunctionTypeFR: 'Subordinating' });
+        expect(casesOf((await lookup('French/Preposition/dans')).body)).toEqual({ prepositionFR: 'dans', positionFR: 'Before the noun' });
+    });
+
+    it('a word not in the lexicon is not-found; a noun and an adjective with the same spelling do not mix', async () => {
+        expect((await lookup('French/Adjective/zorplate')).body).toEqual({ status: 'not-found', cases: [] });
+        expect((await lookup('French/Noun/grand')).body.status).not.toBe('found');
+    });
+
+    it('type-ahead lists French lemmas', async () => {
+        const lemmas = (await suggest('French/Noun?prefix=mais')).body.suggestions.map(({ lemma }) => lemma);
+        expect(lemmas).toEqual(['maison']);
+    });
+
+    it('a verb: infinitive, group, auxiliary, participles, tense boxes and the passé composé boxes', async () => {
+        const aimer = casesOf((await lookup('French/Verb/aimer')).body);
+        expect(aimer).toMatchObject({
+            infinitiveFR: 'aimer', verbGroupFR: '1er groupe', auxVerbFR: 'avoir', reflexivityFR: 'Not reflexive',
+            pastParticipleFR: 'aimé', presentParticipleFR: 'aimant', indicativePresent1sFR: 'aime', indicativeImperfect3plFR: 'aimaient',
+            indicativeSimpleFuture2sFR: 'aimeras', indicativePerfect3plFR: 'aimé',
+        });
+        // 4 properties and 2 participles, 18 tense boxes, 6 passé composé boxes.
+        expect(Object.keys(aimer)).toHaveLength(4 + 2 + 18 + 6);
+        expect(casesOf((await lookup('French/Verb/aller')).body)).toMatchObject({ auxVerbFR: 'être', indicativePresent1sFR: 'vais' });
+    });
+
+    it('a verb that takes avoir and être leaves the auxiliary empty; a pronominal-only verb is Always reflexive', async () => {
+        const partir = casesOf((await lookup('French/Verb/partir')).body);
+        expect(partir).not.toHaveProperty('auxVerbFR');
+        expect(partir.pastParticipleFR).toBe('parti');
+        expect(casesOf((await lookup('French/Verb/se%20souvenir')).body)).toMatchObject({
+            infinitiveFR: 'se souvenir', reflexivityFR: 'Always reflexive', auxVerbFR: 'être', indicativePresent1sFR: 'souviens',
+        });
+        expect(casesOf((await lookup('French/Verb/laver')).body)).toMatchObject({ infinitiveFR: 'laver', reflexivityFR: 'Optionally reflexive' });
+    });
+
+    it('"se laver" has no entry of its own: the forms of "laver" come back as a partial answer, Always reflexive, with the auxiliary être', async () => {
+        const res = await lookup('French/Verb/se%20laver');
+        expect(res.body.status).toBe('partial');
+        expect(casesOf(res.body)).toMatchObject({
+            infinitiveFR: 'se laver', reflexivityFR: 'Always reflexive', auxVerbFR: 'être', verbGroupFR: '1er groupe', indicativePresent1sFR: 'lave', pastParticipleFR: 'lavé',
+        });
+        expect(casesOf((await lookup("French/Verb/s'appeler")).body).infinitiveFR).toBe("s'appeler");
+    });
+
+    it('the pronominal fallback guesses nothing: a verb that is not marked reflexive stays not-found', async () => {
+        expect((await lookup('French/Verb/se%20aimer')).body).toEqual({ status: 'not-found', cases: [] });
+        expect((await lookup('French/Verb/se%20zzzer')).body).toEqual({ status: 'not-found', cases: [] });
+        expect((await lookup('French/Verb/se')).body).toEqual({ status: 'not-found', cases: [] });
+    });
+
+    it('type-ahead lists French verbs, and an unknown verb is not-found', async () => {
+        const lemmas = (await suggest('French/Verb?prefix=aim')).body.suggestions.map(({ lemma }) => lemma);
+        expect(lemmas).toContain('aimer');
+        expect((await lookup('French/Verb/zzzer')).body).toEqual({ status: 'not-found', cases: [] });
+    });
+
+    it('a draft can have one pick for each of the five languages', async () => {
+        for (const file of [FIXTURE, ES_FIXTURE, EN_FIXTURE, ET_FIXTURE]) await loadLexiconFile(pool, file);
+        const res = await draft({
+            partOfSpeech: 'Noun',
+            picks: [
+                { language: 'French', word: 'maison', gender: 'la' },
+                { language: 'Spanish', word: 'casa', gender: 'la' },
+                { language: 'German', word: 'Haus', gender: 'das' },
+                { language: 'Estonian', word: 'maja' },
+                { language: 'English', word: 'house' },
+            ],
+        });
+        expect(res.statusCode).toBe(200);
+        expect(res.body.translations.map((t) => [t.language, t.status])).toEqual([
+            ['French', 'found'], ['Spanish', 'found'], ['German', 'found'], ['Estonian', 'found'], ['English', 'found'],
+        ]);
+        const six = [...res.body.translations.map(({ language, word }) => ({ language, word })), { language: 'English', word: 'x' }];
+        expect((await draft({ partOfSpeech: 'Noun', picks: six })).statusCode).toBe(400);
     });
 });
 

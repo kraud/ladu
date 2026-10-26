@@ -1,0 +1,19 @@
+{
+  "title": "Notifications",
+  "noNotifications": "Rien à voir ici (pour l’instant !)…",
+  "missingNotificationType": "- une erreur inattendue s’est produite avec cette notification -",
+  "friendRequest": {
+    "accept": "Accepter la demande d’ami",
+    "ignore": "Marquer la notification comme lue",
+    "delete": "Supprimer la notification",
+    "toastSuccess": "Demande d’ami acceptée",
+    "notificationLabel": "{{friendUsername}} t’a envoyé une demande d’ami."
+  },
+  "shareTagRequest": {
+    "accept": "Accepter l’étiquette",
+    "ignore": "Marquer la notification comme lue",
+    "delete": "Supprimer la notification",
+    "toastSuccess": "L’étiquette a bien été ajoutée à ton compte",
+    "notificationLabel": "{{otherUserUsername}} veut partager l’étiquette « {{tagName}} » avec toi."
+  }
+}

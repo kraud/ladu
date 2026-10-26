@@ -7,8 +7,12 @@
  * explicitly set to `"Non-gradable"` — the one `visibleWhen` that needs `invert` rather than a positive
  * match, since every other branch in the engine shows fields only once a sibling matches.
  *
- * A periphrastic checkbox (EN "more / most", ES "más", EE "kõige") locks the field it derives and fills
+ * A periphrastic checkbox (EN "more / most", ES "más", EE "kõige", FR "plus") locks the field it derives and fills
  * it with the prefix + the base word. The derived text is stored together with the checkbox (decision Q9).
+ *
+ * French (language-french.md, slice 6) works like the French adjective: the box "Uses plus" derives the
+ * comparative ("plus vite"), and the superlative is always locked: "le " + the comparative ("le plus vite",
+ * or "le mieux" after the typed irregular comparative "mieux").
  */
 import { AdverbCases, Lang, PartOfSpeech } from '@/ts/enums';
 import type { FieldConfig, FieldDerivation, FieldLayout, FieldVisibility, RadioOption, TranslationFormConfig } from './types';
@@ -138,9 +142,34 @@ function buildEeConfig(): TranslationFormConfig {
     };
 }
 
+function buildFrConfig(): TranslationFormConfig {
+    const suffix = 'FR';
+    // The comparative and the superlative share one row, equal in width, on a phone too (as for the adjective).
+    const degreeRow = (column: string): FieldLayout => ({ row: 'degree', column, block: 'frDegree', fitRow: true, alignTop: true });
+    return {
+        pos: PartOfSpeech.adverb,
+        lang: Lang.FR,
+        fields: [
+            gradableRadio(suffix, AdverbCases.gradableFR),
+            degreeField(AdverbCases.adverbFR, 'adverb', true, adverbErrorKey(suffix, 'adverbRequired')),
+            periphrasticCheckbox('periphrastic', AdverbCases.periphrasticFR),
+            degreeField(AdverbCases.comparativeFR, 'comparative', false, undefined, hiddenWhenNonGradable, degreeRow('comparative'), derivedFrom('periphrastic', 'plus ', 'adverb')),
+            // Never typed: "le " + the comparative ("le plus vite", or "le mieux" for the typed irregular "mieux").
+            degreeField(AdverbCases.superlativeFR, 'superlative', false, undefined, hiddenWhenNonGradable, degreeRow('superlative'), {
+                prefix: 'le ',
+                fromField: 'comparative',
+                via: { when: { field: 'periphrastic', equals: true }, prefix: 'plus ', fromField: 'adverb' },
+                store: true,
+                emptyPlaceholderKey: 'wordRelated:wordForm.adjective.derivedFromComparative',
+            }),
+        ],
+    };
+}
+
 export const ADVERB_CONFIGS: Partial<Record<Lang, TranslationFormConfig>> = {
     [Lang.EN]: buildEnConfig(),
     [Lang.ES]: buildEsConfig(),
     [Lang.DE]: buildDeConfig(),
     [Lang.EE]: buildEeConfig(),
+    [Lang.FR]: buildFrConfig(),
 };

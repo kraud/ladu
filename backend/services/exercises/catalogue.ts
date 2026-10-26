@@ -6,6 +6,7 @@
  * Single-language: a "drill" asks for one case of a translation, given another case of the same translation.
  */
 
+import { LANGUAGE_SUFFIX } from '../../lib/languages';
 import type { CardType, Language, PartOfSpeech } from './types';
 
 export type SlotByLanguage = Partial<Record<Language, string>>;
@@ -24,7 +25,7 @@ export type SingleLanguageCatalogue = Record<Language, Record<CardType, Drill[]>
 
 const nouns: MultiLanguageCatalogue = {
     singular: {
-        nominative: { English: 'singularEN', Spanish: 'singularES', German: 'singularNominativDE', Estonian: 'singularNimetavEE' },
+        nominative: { English: 'singularEN', Spanish: 'singularES', German: 'singularNominativDE', Estonian: 'singularNimetavEE', French: 'singularFR' },
         accusative: { German: 'singularAkkusativDE', Estonian: 'singularOsastavEE' },
         genitive: { German: 'singularGenitivDE', Estonian: 'singularOmastavEE' },
         dative: { German: 'singularDativDE' },
@@ -32,7 +33,7 @@ const nouns: MultiLanguageCatalogue = {
         // is not always feminine in German).
     },
     plural: {
-        nominative: { English: 'pluralEN', Spanish: 'pluralES', German: 'pluralNominativDE', Estonian: 'pluralNimetavEE' },
+        nominative: { English: 'pluralEN', Spanish: 'pluralES', German: 'pluralNominativDE', Estonian: 'pluralNimetavEE', French: 'pluralFR' },
         accusative: { German: 'pluralAkkusativDE', Estonian: 'pluralOsastavEE' },
         genitive: { German: 'pluralGenitivDE', Estonian: 'pluralOmastavEE' },
         dative: { German: 'pluralDativDE' },
@@ -50,11 +51,11 @@ const PERSONS: Array<[slot: string, code: string]> = [
 
 // Case-name stem per language, per tense. A missing language has no such tense.
 const VERB_TENSES: Record<string, SlotByLanguage> = {
-    present: { English: 'simplePresent', Spanish: 'indicativePresent', German: 'indicativePresent', Estonian: 'kindelPresent' },
-    past: { English: 'simplePast', Spanish: 'indicativePerfectSimplePast', German: 'indicativeSimplePast', Estonian: 'kindelSimplePast' },
-    future: { English: 'simpleFuture', Spanish: 'indicativeFuture', German: 'indicativeSimpleFuture' },
+    present: { English: 'simplePresent', Spanish: 'indicativePresent', German: 'indicativePresent', Estonian: 'kindelPresent', French: 'indicativePresent' },
+    // French "past" is the imparfait: the passé composé form is only a participle, so it would be too easy (plan language-french.md, M3).
+    past: { English: 'simplePast', Spanish: 'indicativePerfectSimplePast', German: 'indicativeSimplePast', Estonian: 'kindelSimplePast', French: 'indicativeImperfect' },
+    future: { English: 'simpleFuture', Spanish: 'indicativeFuture', German: 'indicativeSimpleFuture', French: 'indicativeSimpleFuture' },
 };
-const LANGUAGE_SUFFIX: Record<Language, string> = { English: 'EN', Spanish: 'ES', German: 'DE', Estonian: 'EE' };
 
 const verbs: MultiLanguageCatalogue = Object.fromEntries(
     Object.entries(VERB_TENSES).map(([tense, stems]) => [
@@ -94,6 +95,10 @@ const nounDrills: SingleLanguageCatalogue = {
         'Text-Input': [{ questionWord: 'singularNimetavEE', correctValue: 'shortFormEE' }],
     },
     English: noDrills,
+    French: {
+        'Multiple-Choice': [{ questionWord: 'singularFR', correctValue: 'genderFR', otherValues: ['le', 'la', 'le/la'] }],
+        'Text-Input': [],
+    },
 };
 
 const verbDrills: SingleLanguageCatalogue = {
@@ -113,6 +118,13 @@ const verbDrills: SingleLanguageCatalogue = {
         'Text-Input': [],
     },
     Estonian: noDrills,
+    French: {
+        'Multiple-Choice': [
+            { questionWord: 'infinitiveFR', correctValue: 'auxVerbFR', otherValues: ['avoir', 'être'] },
+            { questionWord: 'infinitiveFR', correctValue: 'verbGroupFR', otherValues: ['1er groupe', '2e groupe', '3e groupe'] },
+        ],
+        'Text-Input': [{ questionWord: 'infinitiveFR', correctValue: 'pastParticipleFR' }],
+    },
 };
 
 export const SINGLE_LANGUAGE: Partial<Record<PartOfSpeech, SingleLanguageCatalogue>> = {
@@ -130,6 +142,7 @@ export const PROPERTY_PREFIXES = [
     'gradable',
     'regularity',
     'auxVerb',
+    'verbGroup', // French verb: the group radio (1er / 2e / 3e groupe) that replaces regularity
     'caseType',
     'prefix',
     'periphrastic',
@@ -141,6 +154,7 @@ export const PROPERTY_PREFIXES = [
     'governedCase',
     'spatialSeries',
     'contracts',
+    'hasVowelForm', // French adjective: the checkbox that shows the vowel form (beau → bel)
 ];
 export const isPropertyCase = (caseName: string): boolean =>
     PROPERTY_PREFIXES.some((prefix) => caseName.startsWith(prefix));

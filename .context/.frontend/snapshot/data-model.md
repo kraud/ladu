@@ -20,9 +20,9 @@ The old app implements forms for 4 PoS: **noun, verb, adjective, adverb**. The o
 
 ### 1.2 Lang
 ```ts
-enum Lang { ES = "Spanish", EN = "English", DE = "German", EE = "Estonian" }
+enum Lang { ES = "Spanish", EN = "English", DE = "German", EE = "Estonian", FR = "French" }
 ```
-`Lang` is the canonical language key throughout (stored on `TranslationItem.language`, `WordItem.caseName` suffix, filters). Values are the display names; **keys** (`ES/EN/DE/EE`) are the wire values.
+`Lang` is the canonical language key throughout (stored on `TranslationItem.language`, `WordItem.caseName` suffix, filters). Values are the display names; **keys** (`ES/EN/DE/EE/FR`) are the wire values. French was added in 2026-10 (plan `plans/language-french.md`); its forms are in `forms-french.md`.
 
 ### 1.3 NounCases
 ```ts
@@ -43,6 +43,8 @@ enum NounCases {
   singularOmastavEE = "singularOmastavEE", pluralOmastavEE = "pluralOmastavEE",
   singularOsastavEE = "singularOsastavEE", pluralOsastavEE = "pluralOsastavEE",
   shortFormEE = "shortFormEE",
+  // FRENCH
+  regularityFR = "regularityFR", genderFR = "genderFR", singularFR = "singularFR", pluralFR = "pluralFR",
 }
 ```
 
@@ -62,6 +64,14 @@ enum AdjectiveCases {
   pluralNimetavEE = "pluralNimetavEE",          // NB! singularNimetav == algvorre
   singularOmastavEE = "singularOmastavEE", pluralOmastavEE = "pluralOmastavEE",
   singularOsastavEE = "singularOsastavEE", pluralOsastavEE = "pluralOsastavEE",
+  // FRENCH (see forms-french.md)
+  maleSingularFR = "maleSingularFR", malePluralFR = "malePluralFR",
+  femaleSingularFR = "femaleSingularFR", femalePluralFR = "femalePluralFR",
+  comparativeFR = "comparativeFR",
+  superlativeFR = "superlativeFR",              // locked: "le " + the comparative, saved
+  periphrasticFR = "periphrasticFR",            // stored checkbox: comparative = "plus " + male singular
+  hasVowelFormFR = "hasVowelFormFR", vowelFormFR = "vowelFormFR",   // checkbox + form (beau → bel)
+  positionFR = "positionFR",                    // property: before / after / either
 }
 ```
 
@@ -80,16 +90,21 @@ enum AdverbCases {
 > the stored checkboxes `periphrasticEN` ("more / most"), `periphrasticComparativeES` ("más") and
 > `periphrasticSuperlativeEE` ("kõige"), and the Estonian `adverbEE`, `comparativeEE`, `superlativeEE`.
 > The backend treats every case that starts with `gradable` or `periphrastic` as a property, not a written form.
+>
+> **French (2026-10-26, plan `plans/language-french.md` slice 6):** `adverbFR`, `comparativeFR`, `superlativeFR`,
+> `gradableFR` (required radio) and the stored checkbox `periphrasticFR` (comparative = "plus " + adverb; the
+> superlative is locked: "le " + the comparative). Same property rule. Fields and layout: `forms-french.md`.
 
 ### 1.5b ConjunctionCases and PrepositionCases (v2 only; no old-app source)
 
 ```ts
-enum ConjunctionCases {            // every key is <role><LANG>; LANG = EN, ES, DE, EE
+enum ConjunctionCases {            // every key is <role><LANG>; LANG = EN, ES, DE, EE, FR
   conjunctionXX,                   // the word ("weil"; for a pair the first part: "weder")
   conjunctionTypeXX,               // property: "Coordinating" | "Subordinating" (optional)
   correlativeXX,                   // property, stored checkbox: "true" when the conjunction has a second part
   secondPartXX,                    // written form, the second part of a pair ("noch")
   moodES,                          // property, Spanish only: "Indicative" | "Subjunctive" | "Depends on meaning"
+  moodFR,                          // property, French only: the same, plus "Conditional" (au cas où, quand bien même)
 }
 enum PrepositionCases {
   prepositionXX,                   // the word ("wegen")
@@ -98,16 +113,17 @@ enum PrepositionCases {
   contractsDE, withDemDE, withDerDE, withDasDE,        // stored checkbox + three written forms (zum, zur, ins)
   governedCasePreEE, governedCasePostEE,               // property: "Genitive", "Partitive", "Elative", ...
   spatialSeriesEE, directionToEE, directionFromEE,     // stored checkbox + two written forms (sisse / seest)
+  // French: prepositionFR and positionFR only ("durant" can follow the noun); au, aux, du, des are a general rule
 }
 ```
 
 The backend treats a case as a property (not a written form: search and exercises skip it) when its name starts with a
 prefix of `PROPERTY_PREFIXES` in `backend/services/exercises/catalogue.ts`: `gender`, `gradable`, `regularity`,
 `auxVerb`, `caseType`, `prefix`, `periphrastic`, `reflexiv`, `conjunctionType`, `correlative`, `mood`, `position`,
-`governedCase`, `spatialSeries`, `contracts`. A written-form name must not start with one of them (`positiveEN` is
+`governedCase`, `spatialSeries`, `contracts`, `hasVowelForm` (French adjective), `verbGroup` (French verb). No new prefix came with the French adverb, conjunction and preposition: `gradableFR`, `periphrasticFR`, `conjunctionTypeFR`, `correlativeFR`, `moodFR` and `positionFR` start with an old one. A written-form name must not start with one of them (`positiveEN` is
 not a `position...` case). Field lists, order and rules: `forms-conjunctions-prepositions.md`.
 
-### 1.6 VerbCases (all four languages; each key is a `caseName`)
+### 1.6 VerbCases (all five languages; each key is a `caseName`)
 Verbatim, grouped:
 
 **English** (`*EN`): `regularityEN`; simple-present/past/future/conditional × `1s,2s,3s,1pl,3pl` (note: no `2pl` — English 2s/2pl merge); `progressivePPFCAllEN`, `perfectPPFCAllEN`, `perfectProgressivePPFCAllEN` (single all-pronoun rows).
@@ -117,6 +133,8 @@ Verbatim, grouped:
 **Estonian** (`*EE`): `regularityEE`; `infinitiveMaEE`, `infinitiveDaEE`; kindel present / simple-past / past-perfect × `1s,2s,3s,1pl,2pl,3pl`.
 
 **German** (`*DE`): `infinitiveDE`, `auxVerbDE`, `caseTypeDE`, `prefixDE`, `regularityDE`; indicative present / perfect / simple-future / simple-past × `1s,2s,3s,1pl,2pl,3pl`.
+
+**French** (`*FR`, v2 only, plan `plans/language-french.md` slice 5): `infinitiveFR`, `verbGroupFR` (replaces regularity), `auxVerbFR`, `reflexivityFR`, `pastParticipleFR`, `presentParticipleFR`; indicative present / imperfect / perfect (passé composé) / simple-future × `1s,2s,3s,1pl,2pl,3pl` (24 forms). Fields and rules: `forms-french.md`.
 
 > Full enumeration is mechanical (language × tense × pronoun) and reproducible from the source file; the schema/pronoun inventory below and `word-cases-data.md` enumerate every concrete instance. Do **not** hand-retype — copy `enums.ts` verbatim.
 
@@ -131,17 +149,22 @@ Verbatim, grouped:
 | `VerbMoodEN` | `indicativeEN`, `subjunctiveEN`, `imperativeEN`, `conditionalEN` | |
 | `VerbMoodES` | `indicativeES`, `subjunctiveES`, `imperativeES`, `conditionalES` | |
 | `VerbMoodEE` | `indicativeEE`, `subjunctiveEE`, `conditionalEE`, `jussiveEE` | |
+| `VerbMoodFR` | `indicativeFR` | v2 only. Only the indicative has forms; subjunctive, conditional and imperative come in a later round |
 | `VerbTensesIndicativeDE` | `presentDE`, `simplePastDE`, `presentPerfectDE`, `pastPerfectDE`, `simpleFutureDE`, `futurePerfectDE` | |
 | `TenseVerbEN` | `pastSimple, pastPerfect, pastContinuous, pastPerfectContinuous, presentSimple, presentPerfect, presentContinuous, presentPerfectContinuous, futureSimple, futurePerfect, futureContinuous, futurePerfectContinuous, conditionalSimple` | display labels "Past-Simple" etc. |
 | `TenseVerbES` | `present, imperfectPast, perfectSimplePast, future, conditional` | |
 | `TenseVerbDE` | `present, perfect, simpleFuture, simplePast` | |
 | `TenseVerbEE` | `present, simplePast, pastPerfect, conditionalPresent, indirectPresent, indirectPast, imperative` | |
+| `TenseVerbFR` | `present, imperfect, perfect, simpleFuture` | v2 only. Values `"Present"`, `"Imperfect"` (imparfait), `"Perfect"` (passé composé), `"Simple-Future"` (futur simple) |
+| `VerbGroupFR` | `first = "1er groupe"`, `second = "2e groupe"`, `third = "3e groupe"` | v2 only. -er verbs; -ir verbs with -issant; all the others |
 
 ### 1.8 Gender / plural / declension
 ```ts
 enum GenderDE { M = "der", F = "die", N = "das" }
 enum GenderES { M = "el", F = "la", N = "el/la" }
+enum GenderFR { M = "le", F = "la", N = "le/la" }
 enum AuxVerbDE { H = "haben", S = "sein", W = "werden" }
+enum AuxVerbFR { A = "avoir", E = "être" }
 enum Plurality { S = "Singular", P = "Plural" }
 enum DeclensionNoun { nominative, accusative, genitive, dative, partitive }
 ```

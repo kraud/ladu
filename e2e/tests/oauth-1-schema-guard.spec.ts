@@ -1,3 +1,4 @@
+import { E2E_API_URL } from '../fixtures/env';
 import { randomUUID } from 'node:crypto';
 import { test, expect } from '@playwright/test';
 import { closePool, createPasswordlessUser, deleteUsersByEmail } from '../fixtures/db';
@@ -13,11 +14,11 @@ import { closePool, createPasswordlessUser, deleteUsersByEmail } from '../fixtur
  * distinct, provider-naming message instead of "Invalid credentials"; an
  * ordinary password account still gets the generic message.
  *
- * Runs against `keelapp_v2_dev`. Each run uses unique `e2e-*@ladu.test`
+ * Runs against `keelapp_e2e`. Each run uses unique `e2e-*@ladu.test`
  * emails and deletes them in `afterAll`.
  */
 
-const API = process.env.E2E_API_URL ?? 'http://localhost:5001';
+const API = E2E_API_URL;
 
 // Random, not `Date.now()`: the two tests of this file run in two parallel workers, and two
 // workers that load this module in the same millisecond got the same `run`, so the same email.

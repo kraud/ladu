@@ -47,17 +47,17 @@ Your older languages get no practice, so they fade.
 - Ladu uses this data to build **practice between any two of your languages**, not only "native ↔ target".
 
 ```text
-          ┌──────────────────────────────┐
-          │   Word · "to dance" · Verb   │
-          └───────────────┬──────────────┘
-    ┌─────────────┬───────┴─────┬─────────────┐
-    ▼             ▼             ▼             ▼
-    🇬🇧 EN         🇪🇸 ES         🇩🇪 DE         🇪🇪 EE
-    dance         bailar        tanzen        tantsima
-    + forms       + forms       + forms       + forms
+                ┌──────────────────────────────┐
+                │   Word · "to dance" · Verb   │
+                └───────────────┬──────────────┘
+    ┌─────────────┬─────────────┼─────────────┬─────────────┐
+    ▼             ▼             ▼             ▼             ▼
+    🇬🇧 EN         🇪🇸 ES         🇩🇪 DE         🇪🇪 EE         🇫🇷 FR
+    dance         bailar        tanzen        tantsima      danser
+    + forms       + forms       + forms       + forms       + forms
 ```
 
-> **Supported languages:** English, Spanish, German, Estonian.
+> **Supported languages:** English, Spanish, German, Estonian, French.
 > A Word needs translations in at least **two** languages.
 
 > [!NOTE]
@@ -95,7 +95,7 @@ Your older languages get no practice, so they fade.
 | 🎯 | **Adaptive practice** | Spaced repetition (forgetting curve) picks what to practise next. Text-input and multiple-choice cards. |
 | ✅ | **Mastery control** | Mark a translation as *Mastered* or *Revise*. See your recent results at all times. |
 | 📊 | **Dashboard** | Charts for vocabulary by language and part of speech, growth over time, and mastery. |
-| 🌗 | **Dark mode & UI languages** | The interface works in EN, ES, DE and EE, in light and dark themes. |
+| 🌗 | **Dark mode & UI languages** | The interface works in EN, ES, DE, EE and FR, in light and dark themes. |
 | 🛡️ | **Verified badges** | The owner can mark official accounts. Tags from these accounts show a seal. |
 | 🧑‍💼 | **Admin dashboard** | A separate staff tool for access requests, badges and the audit log. |
 

@@ -53,7 +53,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { TypeAheadInput, type TypeAheadConfig } from './TypeAheadInput';
-import { matchesVisibility, reflexivePronoun, type FieldConfig } from './configs/types';
+import { derivationSourceText, isDerivationActive, matchesVisibility, reflexivePronoun, type FieldConfig } from './configs/types';
 import { capitalizeFirst, isEmptyValue, isHiddenInDisplayOnly } from './fieldLayout';
 import { cn } from '@/lib/utils';
 
@@ -101,7 +101,7 @@ function FieldLabelRow({ label, required, bold }: { label: string; required: boo
         <div className="flex items-center gap-1">
             <FormLabel className={bold ? 'font-bold' : undefined}>{label}</FormLabel>
             {required && (
-                <span aria-hidden="true" className="text-destructive">
+                <span aria-hidden="true" className="text-sm leading-none text-destructive">
                     *
                 </span>
             )}
@@ -144,18 +144,32 @@ export function FieldRenderer({
     const pronoun = reflexivePronoun(field.reflexive, reflexiveOn, reflexiveCase);
     const pronounBefore = field.reflexive?.position === 'before' ? pronoun : undefined;
     const pronounAfter = field.reflexive?.position === 'after' ? pronoun : undefined;
-    /** What stands before the input: the auxiliary, then the pronoun ("habe mich"). */
-    const beforeText = [adornmentText, pronounBefore].filter(Boolean).join(' ');
+    const pronounFirst = field.reflexive?.position === 'beforeAuxiliary' ? pronoun : undefined;
+    /** What stands before the input: the auxiliary, then the pronoun ("habe mich"); or the pronoun first ("me suis"). */
+    const beforeText = [pronounFirst, adornmentText, pronounBefore].filter(Boolean).join(' ');
 
     // `derivedWhen` (D20): while it matches, the field is read-only text built from a sibling — the
     // Estonian superlative "kõige " + comparative. Same dummy-name trick as above when unused.
     const derivation = field.kind === 'text' ? field.derivedWhen : undefined;
-    const derivationControl = useWatch({ control, name: derivation?.when.field ?? field.name });
+    const derivationControl = useWatch({ control, name: derivation?.when?.field ?? field.name });
     const derivationSource = useWatch({ control, name: derivation?.fromField ?? field.name });
+    const viaControl = useWatch({ control, name: derivation?.via?.when.field ?? field.name });
+    const viaSource = useWatch({ control, name: derivation?.via?.fromField ?? field.name });
+    // The few values a derivation reads, by field name (one watch each, so a keystroke elsewhere does not re-render this field).
+    const derivationValues: Record<string, unknown> = {};
+    if (derivation) {
+        if (derivation.when) derivationValues[derivation.when.field] = derivationControl;
+        derivationValues[derivation.fromField] = derivationSource;
+        if (derivation.via) {
+            derivationValues[derivation.via.when.field] = viaControl;
+            derivationValues[derivation.via.fromField] = viaSource;
+        }
+    }
+    const derivedSource = derivation && isDerivationActive(derivation, derivationValues) ? derivationSourceText(derivation, derivationValues) : undefined;
+    // With a placeholder key a blank source shows an empty box with that placeholder; otherwise "prefix …".
+    const derivedPlaceholder = derivedSource === '' && derivation?.emptyPlaceholderKey ? t(derivation.emptyPlaceholderKey) : undefined;
     const derivedText =
-        derivation && matchesVisibility(derivation.when, derivationControl)
-            ? `${derivation.prefix}${String(derivationSource ?? '').trim() || '…'}`
-            : undefined;
+        derivedSource === undefined ? undefined : derivedPlaceholder !== undefined ? '' : `${derivation?.prefix ?? ''}${derivedSource || '…'}`;
 
     if (!isVisible) {
         return null;
@@ -168,6 +182,8 @@ export function FieldRenderer({
             name={field.name}
             render={({ field: rhf }) => {
                 if (derivedText !== undefined) {
+                    // Nothing to show in the read-only view while the source is blank.
+                    if (displayOnly && derivedPlaceholder !== undefined) return <></>;
                     // Before the display-only "empty optional field is hidden" rule: the stored value is empty on purpose.
                     return displayOnly ? (
                         <FormItem className={compact ? 'flex flex-row flex-wrap items-baseline gap-x-2 gap-y-0' : undefined}>
@@ -180,7 +196,7 @@ export function FieldRenderer({
                         <FormItem className={itemClass}>
                             <FieldLabelRow label={label} required={false} />
                             <FormControl>
-                                <Input value={derivedText} readOnly data-testid={`derived-${field.name}`} className="bg-muted text-muted-foreground" />
+                                <Input value={derivedText} placeholder={derivedPlaceholder} readOnly data-testid={`derived-${field.name}`} className="bg-muted text-muted-foreground" />
                             </FormControl>
                         </FormItem>
                     );

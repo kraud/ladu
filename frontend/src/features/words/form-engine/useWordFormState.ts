@@ -15,6 +15,7 @@ import type { Lang, PartOfSpeech } from '@/ts/enums';
 import type { TranslationItem, WordItem } from '@/ts/interfaces';
 import type { TranslationCardChange } from './TranslationCard';
 import type { WordBE } from '../types';
+import { MAX_TRANSLATIONS } from '@/lib/language';
 
 /** Why the Save button is disabled (`null` when it is enabled). */
 export type SaveBlockReason = 'minTranslations' | 'incomplete' | 'noChanges';
@@ -28,7 +29,6 @@ export function translationHasData(translation: TranslationItem): boolean {
     return translation.hasData ?? translation.cases.length > 0;
 }
 
-const MAX_TRANSLATIONS = 4;
 const MIN_TRANSLATIONS = 2;
 
 export interface UseWordFormStateOptions {

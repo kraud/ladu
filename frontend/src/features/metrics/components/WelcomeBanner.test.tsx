@@ -15,7 +15,7 @@ describe('WelcomeBanner', () => {
         ).toBeInTheDocument();
     });
 
-    it('cycles the greeting line through the four UI languages', () => {
+    it('cycles the greeting line through the five UI languages', () => {
         vi.useFakeTimers();
         const { container } = renderWithProviders(<WelcomeBanner name="Kai" />);
         const lang = () => container.querySelector('[data-lang]')?.getAttribute('data-lang');
@@ -28,6 +28,8 @@ describe('WelcomeBanner', () => {
         expect(lang()).toBe('de');
         act(() => vi.advanceTimersByTime(8000));
         expect(lang()).toBe('ee');
+        act(() => vi.advanceTimersByTime(8000));
+        expect(lang()).toBe('fr');
         act(() => vi.advanceTimersByTime(8000));
         expect(lang()).toBe('en'); // wraps
     });

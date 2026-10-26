@@ -1,36 +1,52 @@
 {"format":"ladu-translations/1","language":"English","source":"kaikki","licence":"CC BY-SA 4.0","sourceVersion":"2026-10-03","attribution":"Derived from English Wiktionary (https://en.wiktionary.org) via kaikki.org / Wiktextract, CC BY-SA 4.0."}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"contained by","senseOrder":0,"language":"Estonian","word":"sees","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"contained by","senseOrder":0,"language":"Estonian","word":"-s","wordOrder":1,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"contained by","senseOrder":0,"language":"French","word":"dans","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"contained by","senseOrder":0,"language":"German","word":"in","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"contained by","senseOrder":0,"language":"Spanish","word":"en","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"contained by","senseOrder":0,"language":"Spanish","word":"dentro de","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"surrounded by","senseOrder":1,"language":"Estonian","word":"-s","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"surrounded by","senseOrder":1,"language":"French","word":"dans","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"surrounded by","senseOrder":1,"language":"French","word":"en","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"surrounded by","senseOrder":1,"language":"German","word":"in","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"surrounded by","senseOrder":1,"language":"Spanish","word":"dentro de","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"surrounded by","senseOrder":1,"language":"Spanish","word":"adentro de","wordOrder":1,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"part or member of","senseOrder":2,"language":"French","word":"en","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"part or member of","senseOrder":2,"language":"German","word":"von","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"part or member of","senseOrder":2,"language":"Spanish","word":"en","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"during (a period of time)","senseOrder":3,"language":"French","word":"dans","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"during (a period of time)","senseOrder":3,"language":"French","word":"en","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"during (a period of time)","senseOrder":3,"language":"German","word":"unter","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"during (a period of time)","senseOrder":3,"language":"German","word":"in","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"during (a period of time)","senseOrder":3,"language":"German","word":"im","wordOrder":2,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"during (a period of time)","senseOrder":3,"language":"German","word":"während","wordOrder":3,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"during (a period of time)","senseOrder":3,"language":"Spanish","word":"durante","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"within (a certain elapsed time)","senseOrder":4,"language":"French","word":"en","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"within (a certain elapsed time)","senseOrder":4,"language":"German","word":"in","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"within (a certain elapsed time)","senseOrder":4,"language":"Spanish","word":"dentro de","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"after (a period of time)","senseOrder":5,"language":"French","word":"dans","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"after (a period of time)","senseOrder":5,"language":"German","word":"in","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"after (a period of time)","senseOrder":5,"language":"Spanish","word":"en","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"into, towards","senseOrder":6,"language":"French","word":"dans","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"into, towards","senseOrder":6,"language":"German","word":"in","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"into, towards","senseOrder":6,"language":"Spanish","word":"a","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"into, towards","senseOrder":6,"language":"Spanish","word":"hacia","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"into, towards","senseOrder":6,"language":"Spanish","word":"para","wordOrder":2,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"indicating a state","senseOrder":7,"language":"French","word":"en","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"indicating a state","senseOrder":7,"language":"French","word":"dans","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"indicating a state","senseOrder":7,"language":"German","word":"in","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"indicating a state","senseOrder":7,"language":"Spanish","word":"en","wordOrder":0,"gender":null,"tags":[]}
-{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"indicating language, script, or tone","senseOrder":8,"language":"German","word":"auf","wordOrder":0,"gender":null,"tags":[]}
-{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"indicating language, script, or tone","senseOrder":8,"language":"Spanish","word":"en","wordOrder":0,"gender":null,"tags":[]}
-{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"wearing","senseOrder":9,"language":"Spanish","word":"en","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"pertaining to","senseOrder":8,"language":"French","word":"en","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"indicating language, script, or tone","senseOrder":9,"language":"French","word":"en","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"indicating language, script, or tone","senseOrder":9,"language":"German","word":"auf","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"indicating language, script, or tone","senseOrder":9,"language":"Spanish","word":"en","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"wearing","senseOrder":10,"language":"Spanish","word":"en","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"by or for the cause that; on this account that; for the reason that","senseOrder":0,"language":"Estonian","word":"kuna","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"by or for the cause that; on this account that; for the reason that","senseOrder":0,"language":"Estonian","word":"seepärast","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"by or for the cause that; on this account that; for the reason that","senseOrder":0,"language":"Estonian","word":"sest","wordOrder":2,"gender":null,"tags":[]}
+{"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"by or for the cause that; on this account that; for the reason that","senseOrder":0,"language":"French","word":"parce que","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"by or for the cause that; on this account that; for the reason that","senseOrder":0,"language":"French","word":"car","wordOrder":1,"gender":null,"tags":[]}
+{"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"by or for the cause that; on this account that; for the reason that","senseOrder":0,"language":"French","word":"à cause que","wordOrder":2,"gender":null,"tags":[]}
 {"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"by or for the cause that; on this account that; for the reason that","senseOrder":0,"language":"German","word":"weil","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"by or for the cause that; on this account that; for the reason that","senseOrder":0,"language":"German","word":"denn","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"by or for the cause that; on this account that; for the reason that","senseOrder":0,"language":"German","word":"da","wordOrder":2,"gender":null,"tags":[]}
@@ -44,15 +60,18 @@
 {"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"as known because; as inferred because; as determined because","senseOrder":1,"language":"Spanish","word":"ya que","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"as known because; as inferred because; as determined because","senseOrder":1,"language":"Spanish","word":"por cuanto","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":0,"sense":"institution","senseOrder":0,"language":"Estonian","word":"pank","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":0,"sense":"institution","senseOrder":0,"language":"French","word":"banque","wordOrder":0,"gender":"la","tags":["feminine"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":0,"sense":"institution","senseOrder":0,"language":"German","word":"Bank","wordOrder":0,"gender":"die","tags":["feminine"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":0,"sense":"institution","senseOrder":0,"language":"Spanish","word":"banca","wordOrder":0,"gender":"la","tags":["feminine"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":0,"sense":"institution","senseOrder":0,"language":"Spanish","word":"banco","wordOrder":1,"gender":"el","tags":["masculine"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":0,"sense":"branch office","senseOrder":1,"language":"Estonian","word":"pank","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":0,"sense":"branch office","senseOrder":1,"language":"French","word":"banque","wordOrder":0,"gender":"la","tags":["feminine"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":0,"sense":"branch office","senseOrder":1,"language":"German","word":"Bank","wordOrder":0,"gender":"die","tags":["feminine"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":0,"sense":"branch office","senseOrder":1,"language":"Spanish","word":"banco","wordOrder":0,"gender":"el","tags":["masculine"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":0,"sense":"branch office","senseOrder":1,"language":"Spanish","word":"sucursal","wordOrder":1,"gender":"la","tags":["feminine"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":0,"sense":"controller of a card game","senseOrder":2,"language":"Spanish","word":"banca","wordOrder":0,"gender":"la","tags":["feminine"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":0,"sense":"gambling: banker's funds","senseOrder":3,"language":"German","word":"Bank","wordOrder":0,"gender":"die","tags":["feminine"]}
+{"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":0,"sense":"storage for important goods","senseOrder":4,"language":"French","word":"banque","wordOrder":0,"gender":"la","tags":["feminine"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":0,"sense":"storage for important goods","senseOrder":4,"language":"German","word":"Bank","wordOrder":0,"gender":"die","tags":["feminine"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":0,"sense":"storage for important goods","senseOrder":4,"language":"Spanish","word":"banco","wordOrder":0,"gender":"el","tags":["masculine"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":0,"sense":"storage for important goods","senseOrder":4,"language":"Spanish","word":"almacén","wordOrder":1,"gender":"el","tags":["masculine"]}
@@ -60,9 +79,11 @@
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":0,"sense":"device used to store coins or currency","senseOrder":5,"language":"Spanish","word":"hucha","wordOrder":0,"gender":"la","tags":["feminine"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":1,"sense":"edge of river or lake","senseOrder":0,"language":"Estonian","word":"pank","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":1,"sense":"edge of river or lake","senseOrder":0,"language":"Estonian","word":"kallas","wordOrder":1,"gender":null,"tags":[]}
+{"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":1,"sense":"edge of river or lake","senseOrder":0,"language":"French","word":"rive","wordOrder":0,"gender":"la","tags":["feminine"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":1,"sense":"edge of river or lake","senseOrder":0,"language":"German","word":"Ufer","wordOrder":0,"gender":"das","tags":["neuter"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":1,"sense":"edge of river or lake","senseOrder":0,"language":"Spanish","word":"ribera","wordOrder":0,"gender":"la","tags":["feminine"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":1,"sense":"edge of river or lake","senseOrder":0,"language":"Spanish","word":"orilla","wordOrder":1,"gender":"la","tags":["feminine"]}
+{"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":1,"sense":"an underwater area of higher elevation, a sandbank","senseOrder":1,"language":"French","word":"banc","wordOrder":0,"gender":"le","tags":["masculine"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":1,"sense":"an underwater area of higher elevation, a sandbank","senseOrder":1,"language":"German","word":"Bank","wordOrder":0,"gender":"die","tags":["feminine"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":1,"sense":"an underwater area of higher elevation, a sandbank","senseOrder":1,"language":"Spanish","word":"banco","wordOrder":0,"gender":"el","tags":["masculine"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":1,"sense":"an underwater area of higher elevation, a sandbank","senseOrder":1,"language":"Spanish","word":"bajío","wordOrder":1,"gender":"el","tags":["masculine"]}
@@ -70,20 +91,26 @@
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":1,"sense":"embankment, an earth slope","senseOrder":2,"language":"Spanish","word":"talud","wordOrder":0,"gender":"el","tags":["masculine"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":1,"sense":"embankment, an earth slope","senseOrder":2,"language":"Spanish","word":"terraplén","wordOrder":1,"gender":"el","tags":["masculine"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":1,"sense":"incline of an aircraft","senseOrder":3,"language":"Spanish","word":"ladeo","wordOrder":0,"gender":"el","tags":["masculine"]}
+{"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":2,"sense":"row or panel of items","senseOrder":0,"language":"French","word":"rang","wordOrder":0,"gender":"le","tags":["masculine"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":2,"sense":"row or panel of items","senseOrder":0,"language":"Spanish","word":"hilera","wordOrder":0,"gender":"la","tags":["feminine"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":2,"sense":"row of keys on a musical or typewriter keyboard","senseOrder":1,"language":"Spanish","word":"hilera","wordOrder":0,"gender":"la","tags":["feminine"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":2,"sense":"row of keys on a musical or typewriter keyboard","senseOrder":1,"language":"Spanish","word":"teclado","wordOrder":1,"gender":"el","tags":["masculine"]}
 {"englishLemma":"big","partOfSpeech":"Adjective","entryOrder":0,"sense":"of a great size — see also large","senseOrder":0,"language":"Estonian","word":"suur","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"big","partOfSpeech":"Adjective","entryOrder":0,"sense":"of a great size — see also large","senseOrder":0,"language":"French","word":"grand","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"big","partOfSpeech":"Adjective","entryOrder":0,"sense":"of a great size — see also large","senseOrder":0,"language":"French","word":"gros","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"big","partOfSpeech":"Adjective","entryOrder":0,"sense":"of a great size — see also large","senseOrder":0,"language":"German","word":"groß","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"big","partOfSpeech":"Adjective","entryOrder":0,"sense":"of a great size — see also large","senseOrder":0,"language":"Spanish","word":"grande","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"big","partOfSpeech":"Adjective","entryOrder":0,"sense":"adult","senseOrder":1,"language":"French","word":"grand","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"big","partOfSpeech":"Adjective","entryOrder":0,"sense":"adult","senseOrder":1,"language":"German","word":"groß","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"big","partOfSpeech":"Adjective","entryOrder":0,"sense":"adult","senseOrder":1,"language":"Spanish","word":"mayor","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"big","partOfSpeech":"Adjective","entryOrder":0,"sense":"adult","senseOrder":1,"language":"Spanish","word":"adulto","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"subsequently; following in time; later than","senseOrder":0,"language":"Estonian","word":"pärast","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"subsequently; following in time; later than","senseOrder":0,"language":"French","word":"après","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"subsequently; following in time; later than","senseOrder":0,"language":"German","word":"nach","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"subsequently; following in time; later than","senseOrder":0,"language":"Spanish","word":"después de","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"subsequently; following in time; later than","senseOrder":0,"language":"Spanish","word":"tras","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"subsequently; following in time; later than","senseOrder":0,"language":"Spanish","word":"en pos de","wordOrder":2,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"behind","senseOrder":1,"language":"French","word":"derrière","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"behind","senseOrder":1,"language":"German","word":"hinter","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"behind","senseOrder":1,"language":"Spanish","word":"detrás de","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"behind","senseOrder":1,"language":"Spanish","word":"tras","wordOrder":1,"gender":null,"tags":[]}
@@ -91,16 +118,24 @@
 {"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"in pursuit of, seeking","senseOrder":2,"language":"Spanish","word":"tras","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"in pursuit of, seeking","senseOrder":2,"language":"Spanish","word":"detrás de","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"in pursuit of, seeking","senseOrder":2,"language":"Spanish","word":"en pos de","wordOrder":2,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"in allusion to, in imitation of; following or referencing","senseOrder":3,"language":"French","word":"d'après","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"in allusion to, in imitation of; following or referencing","senseOrder":3,"language":"German","word":"nach","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"in allusion to, in imitation of; following or referencing","senseOrder":3,"language":"Spanish","word":"por","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"next in importance or rank","senseOrder":4,"language":"French","word":"après","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"next in importance or rank","senseOrder":4,"language":"French","word":"derrière","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"next in importance or rank","senseOrder":4,"language":"German","word":"nach","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"next in importance or rank","senseOrder":4,"language":"Spanish","word":"después de","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"as a result of","senseOrder":5,"language":"French","word":"à cause de","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"as a result of","senseOrder":5,"language":"German","word":"wegen","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"as a result of","senseOrder":5,"language":"Spanish","word":"debido a","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"as a result of","senseOrder":5,"language":"Spanish","word":"por causa de","wordOrder":1,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"in spite of","senseOrder":6,"language":"French","word":"malgré","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"in spite of","senseOrder":6,"language":"French","word":"malgré le fait que","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"in spite of","senseOrder":6,"language":"German","word":"trotz","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"in spite of","senseOrder":6,"language":"Spanish","word":"a pesar de","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"eat","partOfSpeech":"Verb","entryOrder":0,"sense":"to ingest — see also consume, ingest","senseOrder":0,"language":"Estonian","word":"sööma","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"eat","partOfSpeech":"Verb","entryOrder":0,"sense":"to ingest — see also consume, ingest","senseOrder":0,"language":"French","word":"manger","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"eat","partOfSpeech":"Verb","entryOrder":0,"sense":"to ingest — see also consume, ingest","senseOrder":0,"language":"French","word":"bouffer","wordOrder":1,"gender":null,"tags":["slang"]}
 {"englishLemma":"eat","partOfSpeech":"Verb","entryOrder":0,"sense":"to ingest — see also consume, ingest","senseOrder":0,"language":"German","word":"essen","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"eat","partOfSpeech":"Verb","entryOrder":0,"sense":"to ingest — see also consume, ingest","senseOrder":0,"language":"German","word":"fressen","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"eat","partOfSpeech":"Verb","entryOrder":0,"sense":"to ingest — see also consume, ingest","senseOrder":0,"language":"German","word":"ässe","wordOrder":2,"gender":null,"tags":["Alemannic-German"]}
@@ -114,9 +149,12 @@
 {"englishLemma":"eat","partOfSpeech":"Verb","entryOrder":0,"sense":"to ingest — see also consume, ingest","senseOrder":0,"language":"Spanish","word":"gandir","wordOrder":6,"gender":null,"tags":[]}
 {"englishLemma":"eat","partOfSpeech":"Verb","entryOrder":0,"sense":"to ingest — see also consume, ingest","senseOrder":0,"language":"Spanish","word":"manyar","wordOrder":7,"gender":null,"tags":[]}
 {"englishLemma":"eat","partOfSpeech":"Verb","entryOrder":0,"sense":"to ingest — see also consume, ingest","senseOrder":0,"language":"Spanish","word":"tapiñar","wordOrder":8,"gender":null,"tags":["Spain","slang"]}
+{"englishLemma":"eat","partOfSpeech":"Verb","entryOrder":0,"sense":"colloquial: cause to worry","senseOrder":1,"language":"French","word":"ronger","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"eat","partOfSpeech":"Verb","entryOrder":0,"sense":"colloquial: cause to worry","senseOrder":1,"language":"French","word":"bouffer","wordOrder":1,"gender":null,"tags":["familiar"]}
 {"englishLemma":"eat","partOfSpeech":"Verb","entryOrder":0,"sense":"colloquial: cause to worry","senseOrder":1,"language":"Spanish","word":"reconcomer","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"eat","partOfSpeech":"Verb","entryOrder":0,"sense":"colloquial: cause to worry","senseOrder":1,"language":"Spanish","word":"concomer","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"eat","partOfSpeech":"Verb","entryOrder":0,"sense":"colloquial: cause to worry","senseOrder":1,"language":"Spanish","word":"recomer","wordOrder":2,"gender":null,"tags":[]}
+{"englishLemma":"eat","partOfSpeech":"Verb","entryOrder":0,"sense":"eat a meal","senseOrder":2,"language":"French","word":"manger","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"eat","partOfSpeech":"Verb","entryOrder":0,"sense":"eat a meal","senseOrder":2,"language":"German","word":"essen","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"eat","partOfSpeech":"Verb","entryOrder":0,"sense":"eat a meal","senseOrder":2,"language":"German","word":"speisen","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"eat","partOfSpeech":"Verb","entryOrder":0,"sense":"eat a meal","senseOrder":2,"language":"Spanish","word":"comer","wordOrder":0,"gender":null,"tags":[]}
@@ -124,6 +162,7 @@
 {"englishLemma":"eat","partOfSpeech":"Verb","entryOrder":0,"sense":"eat a meal","senseOrder":2,"language":"Spanish","word":"manducar","wordOrder":2,"gender":null,"tags":[]}
 {"englishLemma":"eat","partOfSpeech":"Verb","entryOrder":0,"sense":"eat a meal","senseOrder":2,"language":"Spanish","word":"papear","wordOrder":3,"gender":null,"tags":[]}
 {"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"to move quickly on two feet","senseOrder":0,"language":"Estonian","word":"jooksma","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"to move quickly on two feet","senseOrder":0,"language":"French","word":"courir","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"to move quickly on two feet","senseOrder":0,"language":"German","word":"rennen","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"to move quickly on two feet","senseOrder":0,"language":"German","word":"laufen","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"to move quickly on two feet","senseOrder":0,"language":"Spanish","word":"correr","wordOrder":0,"gender":null,"tags":[]}
@@ -134,6 +173,8 @@
 {"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"to cause to move quickly","senseOrder":3,"language":"German","word":"laufen lassen","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"to be in charge of","senseOrder":4,"language":"German","word":"leiten","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"to be in charge of","senseOrder":4,"language":"German","word":"schmeißen","wordOrder":1,"gender":null,"tags":["slang"]}
+{"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"to flow","senseOrder":5,"language":"French","word":"s'écouler","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"to flow","senseOrder":5,"language":"French","word":"couler","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"to flow","senseOrder":5,"language":"German","word":"fließen","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"to flow","senseOrder":5,"language":"German","word":"rinnen","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"to flow","senseOrder":5,"language":"Spanish","word":"correr","wordOrder":0,"gender":null,"tags":[]}
@@ -146,6 +187,7 @@
 {"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"to extend in time, to last, to continue","senseOrder":9,"language":"German","word":"laufen","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"to make something extend in space","senseOrder":10,"language":"German","word":"führen","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"to make something extend in space","senseOrder":10,"language":"German","word":"verlaufen lassen","wordOrder":1,"gender":null,"tags":[]}
+{"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"of a machine, to be operating normally","senseOrder":11,"language":"French","word":"marcher","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"of a machine, to be operating normally","senseOrder":11,"language":"German","word":"laufen","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"of a machine, to be operating normally","senseOrder":11,"language":"Spanish","word":"andar","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"of a machine, to be operating normally","senseOrder":11,"language":"Spanish","word":"marchar","wordOrder":1,"gender":null,"tags":[]}
@@ -178,38 +220,49 @@
 {"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"to leak, spread or bleed in an undesirable fashion","senseOrder":20,"language":"Spanish","word":"correrse","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"to become different, usually worse","senseOrder":21,"language":"German","word":"gehen","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"to become different, usually worse","senseOrder":21,"language":"German","word":"werden","wordOrder":1,"gender":null,"tags":[]}
+{"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"to pass without stopping or yielding","senseOrder":22,"language":"French","word":"griller","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"to pass without stopping or yielding","senseOrder":22,"language":"German","word":"überfahren","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"to transport someone or something","senseOrder":23,"language":"German","word":"schaffen","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"of fish, to migrate for spawning","senseOrder":24,"language":"German","word":"wandern","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"of stitches, to unravel","senseOrder":25,"language":"German","word":"aufgehen","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"run","partOfSpeech":"Verb","entryOrder":0,"sense":"to control or have precedence in a card game","senseOrder":26,"language":"German","word":"übernehmen","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"lake","partOfSpeech":"Noun","entryOrder":0,"sense":"body of water","senseOrder":0,"language":"Estonian","word":"järv","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"lake","partOfSpeech":"Noun","entryOrder":0,"sense":"body of water","senseOrder":0,"language":"French","word":"lac","wordOrder":0,"gender":"le","tags":["masculine"]}
 {"englishLemma":"lake","partOfSpeech":"Noun","entryOrder":0,"sense":"body of water","senseOrder":0,"language":"German","word":"See","wordOrder":0,"gender":"der","tags":["masculine"]}
 {"englishLemma":"lake","partOfSpeech":"Noun","entryOrder":0,"sense":"body of water","senseOrder":0,"language":"Spanish","word":"lago","wordOrder":0,"gender":"el","tags":["masculine"]}
+{"englishLemma":"lake","partOfSpeech":"Noun","entryOrder":3,"sense":"a kind of coloring agent","senseOrder":0,"language":"French","word":"laque","wordOrder":0,"gender":"la","tags":["feminine"]}
 {"englishLemma":"lake","partOfSpeech":"Noun","entryOrder":3,"sense":"a kind of coloring agent","senseOrder":0,"language":"German","word":"Färberlack","wordOrder":0,"gender":"der","tags":["masculine"]}
 {"englishLemma":"lake","partOfSpeech":"Noun","entryOrder":3,"sense":"a kind of coloring agent","senseOrder":0,"language":"Spanish","word":"laca","wordOrder":0,"gender":"la","tags":["feminine"]}
 {"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"human abode","senseOrder":0,"language":"Estonian","word":"maja","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"human abode","senseOrder":0,"language":"Estonian","word":"hoone","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"human abode","senseOrder":0,"language":"Estonian","word":"elamu","wordOrder":2,"gender":null,"tags":[]}
+{"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"human abode","senseOrder":0,"language":"French","word":"maison","wordOrder":0,"gender":"la","tags":["feminine"]}
 {"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"human abode","senseOrder":0,"language":"German","word":"Haus","wordOrder":0,"gender":"das","tags":["neuter"]}
 {"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"human abode","senseOrder":0,"language":"German","word":"Huus","wordOrder":1,"gender":"das","tags":["Alemannic-German","neuter"]}
 {"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"human abode","senseOrder":0,"language":"Spanish","word":"casa","wordOrder":0,"gender":"la","tags":["feminine"]}
 {"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"human abode","senseOrder":0,"language":"Spanish","word":"casalicio","wordOrder":1,"gender":"el","tags":["masculine"]}
+{"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"archetypal structure of a human abode — see also chalet","senseOrder":1,"language":"French","word":"maison","wordOrder":0,"gender":"la","tags":["feminine"]}
 {"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"archetypal structure of a human abode — see also chalet","senseOrder":1,"language":"German","word":"Haus","wordOrder":0,"gender":"das","tags":["neuter"]}
 {"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"archetypal structure of a human abode — see also chalet","senseOrder":1,"language":"Spanish","word":"casa","wordOrder":0,"gender":"la","tags":["feminine"]}
 {"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"theatre","senseOrder":2,"language":"Spanish","word":"teatro","wordOrder":0,"gender":"el","tags":["masculine"]}
 {"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"debating chamber for government politicians","senseOrder":3,"language":"Estonian","word":"koda","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"debating chamber for government politicians","senseOrder":3,"language":"French","word":"chambre","wordOrder":0,"gender":"la","tags":["feminine"]}
 {"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"debating chamber for government politicians","senseOrder":3,"language":"German","word":"Haus","wordOrder":0,"gender":"das","tags":["neuter"]}
 {"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"debating chamber for government politicians","senseOrder":3,"language":"German","word":"Kammer","wordOrder":1,"gender":"die","tags":["feminine"]}
 {"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"debating chamber for government politicians","senseOrder":3,"language":"Spanish","word":"cámara","wordOrder":0,"gender":"la","tags":["feminine"]}
 {"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"an establishment, business","senseOrder":4,"language":"Spanish","word":"casa","wordOrder":0,"gender":"la","tags":["feminine"]}
+{"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"dynasty, familiar descendance","senseOrder":5,"language":"French","word":"maison","wordOrder":0,"gender":"la","tags":["feminine"]}
+{"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"dynasty, familiar descendance","senseOrder":5,"language":"French","word":"dynastie","wordOrder":1,"gender":"la","tags":["feminine"]}
 {"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"dynasty, familiar descendance","senseOrder":5,"language":"German","word":"Haus","wordOrder":0,"gender":"das","tags":["neuter"]}
 {"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"dynasty, familiar descendance","senseOrder":5,"language":"Spanish","word":"casa","wordOrder":0,"gender":"la","tags":["feminine"]}
 {"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"astrology: one of the twelve divisions of an astrological chart","senseOrder":6,"language":"Spanish","word":"casa","wordOrder":0,"gender":"la","tags":["feminine"]}
+{"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"children's game","senseOrder":7,"language":"French","word":"le papa et la maman","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"children's game","senseOrder":7,"language":"German","word":"Mutter","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"children's game","senseOrder":7,"language":"German","word":"Vater","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"house","partOfSpeech":"Noun","entryOrder":0,"sense":"children's game","senseOrder":7,"language":"German","word":"Kind","wordOrder":2,"gender":"das","tags":["neuter"]}
 {"englishLemma":"quickly","partOfSpeech":"Adverb","entryOrder":0,"sense":"rapidly, fast","senseOrder":0,"language":"Estonian","word":"kiiresti","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"quickly","partOfSpeech":"Adverb","entryOrder":0,"sense":"rapidly, fast","senseOrder":0,"language":"French","word":"rapidement","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"quickly","partOfSpeech":"Adverb","entryOrder":0,"sense":"rapidly, fast","senseOrder":0,"language":"French","word":"vite","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"quickly","partOfSpeech":"Adverb","entryOrder":0,"sense":"rapidly, fast","senseOrder":0,"language":"German","word":"schnell","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"quickly","partOfSpeech":"Adverb","entryOrder":0,"sense":"rapidly, fast","senseOrder":0,"language":"German","word":"rasch","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"quickly","partOfSpeech":"Adverb","entryOrder":0,"sense":"rapidly, fast","senseOrder":0,"language":"German","word":"geschwind","wordOrder":2,"gender":null,"tags":[]}
@@ -226,38 +279,47 @@
 {"englishLemma":"quickly","partOfSpeech":"Adverb","entryOrder":0,"sense":"rapidly, fast","senseOrder":0,"language":"Spanish","word":"aceleradamente","wordOrder":10,"gender":null,"tags":[]}
 {"englishLemma":"quickly","partOfSpeech":"Adverb","entryOrder":0,"sense":"rapidly, fast","senseOrder":0,"language":"Spanish","word":"acceleradamente","wordOrder":11,"gender":null,"tags":[]}
 {"englishLemma":"sea","partOfSpeech":"Noun","entryOrder":0,"sense":"body of water","senseOrder":0,"language":"Estonian","word":"meri","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"sea","partOfSpeech":"Noun","entryOrder":0,"sense":"body of water","senseOrder":0,"language":"French","word":"mer","wordOrder":0,"gender":"la","tags":["feminine"]}
 {"englishLemma":"sea","partOfSpeech":"Noun","entryOrder":0,"sense":"body of water","senseOrder":0,"language":"German","word":"Meer","wordOrder":0,"gender":"das","tags":["neuter"]}
 {"englishLemma":"sea","partOfSpeech":"Noun","entryOrder":0,"sense":"body of water","senseOrder":0,"language":"German","word":"See","wordOrder":1,"gender":"die","tags":["feminine"]}
 {"englishLemma":"sea","partOfSpeech":"Noun","entryOrder":0,"sense":"body of water","senseOrder":0,"language":"Spanish","word":"mar","wordOrder":0,"gender":"el/la","tags":["feminine","masculine"]}
 {"englishLemma":"sea","partOfSpeech":"Noun","entryOrder":0,"sense":"body of water","senseOrder":0,"language":"Spanish","word":"ponto","wordOrder":1,"gender":"el","tags":["masculine","poetic"]}
 {"englishLemma":"sea","partOfSpeech":"Noun","entryOrder":0,"sense":"body of water","senseOrder":0,"language":"Spanish","word":"piélago","wordOrder":2,"gender":"el","tags":["masculine"]}
 {"englishLemma":"ago","partOfSpeech":"Preposition","entryOrder":0,"sense":"past; gone by; since","senseOrder":0,"language":"Estonian","word":"tagasi","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"ago","partOfSpeech":"Preposition","entryOrder":0,"sense":"past; gone by; since","senseOrder":0,"language":"French","word":"il y a","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"ago","partOfSpeech":"Preposition","entryOrder":0,"sense":"past; gone by; since","senseOrder":0,"language":"German","word":"vor","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"ago","partOfSpeech":"Preposition","entryOrder":0,"sense":"past; gone by; since","senseOrder":0,"language":"German","word":"her","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"ago","partOfSpeech":"Preposition","entryOrder":0,"sense":"past; gone by; since","senseOrder":0,"language":"Spanish","word":"hace","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"ago","partOfSpeech":"Preposition","entryOrder":0,"sense":"past; gone by; since","senseOrder":0,"language":"Spanish","word":"atrás","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"ago","partOfSpeech":"Preposition","entryOrder":0,"sense":"past; gone by; since","senseOrder":0,"language":"Spanish","word":"ha","wordOrder":2,"gender":null,"tags":[]}
 {"englishLemma":"dance","partOfSpeech":"Verb","entryOrder":0,"sense":"move rhythmically to music","senseOrder":0,"language":"Estonian","word":"tantsima","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"dance","partOfSpeech":"Verb","entryOrder":0,"sense":"move rhythmically to music","senseOrder":0,"language":"French","word":"danser","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"dance","partOfSpeech":"Verb","entryOrder":0,"sense":"move rhythmically to music","senseOrder":0,"language":"German","word":"tanzen","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"dance","partOfSpeech":"Verb","entryOrder":0,"sense":"move rhythmically to music","senseOrder":0,"language":"Spanish","word":"bailar","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"dance","partOfSpeech":"Verb","entryOrder":0,"sense":"move rhythmically to music","senseOrder":0,"language":"Spanish","word":"danzar","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"dog","partOfSpeech":"Noun","entryOrder":0,"sense":"animal","senseOrder":0,"language":"Estonian","word":"koer","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"dog","partOfSpeech":"Noun","entryOrder":0,"sense":"animal","senseOrder":0,"language":"Estonian","word":"peni","wordOrder":1,"gender":null,"tags":[]}
+{"englishLemma":"dog","partOfSpeech":"Noun","entryOrder":0,"sense":"animal","senseOrder":0,"language":"French","word":"chien","wordOrder":0,"gender":"le","tags":["masculine"]}
 {"englishLemma":"dog","partOfSpeech":"Noun","entryOrder":0,"sense":"animal","senseOrder":0,"language":"German","word":"Hund","wordOrder":0,"gender":"der","tags":["masculine"]}
 {"englishLemma":"dog","partOfSpeech":"Noun","entryOrder":0,"sense":"animal","senseOrder":0,"language":"German","word":"Hündin","wordOrder":1,"gender":"die","tags":["feminine"]}
 {"englishLemma":"dog","partOfSpeech":"Noun","entryOrder":0,"sense":"animal","senseOrder":0,"language":"Spanish","word":"perro","wordOrder":0,"gender":"el","tags":["masculine"]}
 {"englishLemma":"dog","partOfSpeech":"Noun","entryOrder":0,"sense":"animal","senseOrder":0,"language":"Spanish","word":"can","wordOrder":1,"gender":"el","tags":["formal","masculine"]}
 {"englishLemma":"dog","partOfSpeech":"Noun","entryOrder":0,"sense":"animal","senseOrder":0,"language":"Spanish","word":"tuso","wordOrder":2,"gender":"el","tags":["masculine"]}
 {"englishLemma":"dog","partOfSpeech":"Noun","entryOrder":0,"sense":"animal","senseOrder":0,"language":"Spanish","word":"pichicho","wordOrder":3,"gender":"el","tags":["South-America","masculine"]}
+{"englishLemma":"dog","partOfSpeech":"Noun","entryOrder":0,"sense":"male canine","senseOrder":1,"language":"French","word":"chien","wordOrder":0,"gender":"le","tags":["masculine"]}
+{"englishLemma":"dog","partOfSpeech":"Noun","entryOrder":0,"sense":"male canine","senseOrder":1,"language":"French","word":"chien mâle","wordOrder":1,"gender":"le","tags":["masculine"]}
 {"englishLemma":"dog","partOfSpeech":"Noun","entryOrder":0,"sense":"male canine","senseOrder":1,"language":"German","word":"Rüde","wordOrder":0,"gender":"der","tags":["masculine"]}
 {"englishLemma":"dog","partOfSpeech":"Noun","entryOrder":0,"sense":"male canine","senseOrder":1,"language":"Spanish","word":"perro","wordOrder":0,"gender":"el","tags":["masculine"]}
+{"englishLemma":"dog","partOfSpeech":"Noun","entryOrder":0,"sense":"dull, unattractive girl or woman","senseOrder":2,"language":"French","word":"thon","wordOrder":0,"gender":"le","tags":["masculine"]}
 {"englishLemma":"dog","partOfSpeech":"Noun","entryOrder":0,"sense":"dull, unattractive girl or woman","senseOrder":2,"language":"German","word":"Schabracke","wordOrder":0,"gender":"die","tags":["feminine"]}
 {"englishLemma":"dog","partOfSpeech":"Noun","entryOrder":0,"sense":"dull, unattractive girl or woman","senseOrder":2,"language":"Spanish","word":"vaca","wordOrder":0,"gender":"la","tags":["feminine"]}
+{"englishLemma":"dog","partOfSpeech":"Noun","entryOrder":0,"sense":"morally reprehensible person — see also scoundrel","senseOrder":3,"language":"French","word":"chien","wordOrder":0,"gender":"le","tags":["masculine"]}
 {"englishLemma":"dog","partOfSpeech":"Noun","entryOrder":0,"sense":"morally reprehensible person — see also scoundrel","senseOrder":3,"language":"German","word":"Hund","wordOrder":0,"gender":"der","tags":["masculine"]}
 {"englishLemma":"dog","partOfSpeech":"Noun","entryOrder":0,"sense":"morally reprehensible person — see also scoundrel","senseOrder":3,"language":"German","word":"Schurke","wordOrder":1,"gender":"der","tags":["masculine"]}
 {"englishLemma":"dog","partOfSpeech":"Noun","entryOrder":0,"sense":"morally reprehensible person — see also scoundrel","senseOrder":3,"language":"German","word":"Schuft","wordOrder":2,"gender":"der","tags":["masculine"]}
 {"englishLemma":"dog","partOfSpeech":"Noun","entryOrder":0,"sense":"morally reprehensible person — see also scoundrel","senseOrder":3,"language":"Spanish","word":"perro","wordOrder":0,"gender":"el","tags":["masculine"]}
 {"englishLemma":"water","partOfSpeech":"Noun","entryOrder":0,"sense":"inorganic compound H₂O","senseOrder":0,"language":"Estonian","word":"vesi","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"water","partOfSpeech":"Noun","entryOrder":0,"sense":"inorganic compound H₂O","senseOrder":0,"language":"French","word":"eau","wordOrder":0,"gender":"la","tags":["feminine"]}
 {"englishLemma":"water","partOfSpeech":"Noun","entryOrder":0,"sense":"inorganic compound H₂O","senseOrder":0,"language":"German","word":"Wasser","wordOrder":0,"gender":"das","tags":["neuter"]}
 {"englishLemma":"water","partOfSpeech":"Noun","entryOrder":0,"sense":"inorganic compound H₂O","senseOrder":0,"language":"German","word":"Wossa","wordOrder":1,"gender":"das","tags":["neuter"]}
 {"englishLemma":"water","partOfSpeech":"Noun","entryOrder":0,"sense":"inorganic compound H₂O","senseOrder":0,"language":"German","word":"wassa","wordOrder":2,"gender":null,"tags":[]}
@@ -265,15 +327,20 @@
 {"englishLemma":"water","partOfSpeech":"Noun","entryOrder":0,"sense":"inorganic compound H₂O","senseOrder":0,"language":"Spanish","word":"linfa","wordOrder":1,"gender":"la","tags":["feminine"]}
 {"englishLemma":"water","partOfSpeech":"Noun","entryOrder":0,"sense":"inorganic compound H₂O","senseOrder":0,"language":"Spanish","word":"wata","wordOrder":2,"gender":"la","tags":["Costa-Rica","feminine"]}
 {"englishLemma":"water","partOfSpeech":"Noun","entryOrder":0,"sense":"inorganic compound H₂O","senseOrder":0,"language":"Spanish","word":"aguacha","wordOrder":3,"gender":"la","tags":["feminine","nonstandard"]}
+{"englishLemma":"water","partOfSpeech":"Noun","entryOrder":0,"sense":"one of the basic elements","senseOrder":1,"language":"French","word":"eau","wordOrder":0,"gender":"la","tags":["feminine"]}
 {"englishLemma":"water","partOfSpeech":"Noun","entryOrder":0,"sense":"one of the basic elements","senseOrder":1,"language":"German","word":"Wasser","wordOrder":0,"gender":"das","tags":["neuter"]}
 {"englishLemma":"water","partOfSpeech":"Noun","entryOrder":0,"sense":"one of the basic elements","senseOrder":1,"language":"Spanish","word":"agua","wordOrder":0,"gender":"la","tags":["feminine"]}
+{"englishLemma":"water","partOfSpeech":"Noun","entryOrder":0,"sense":"body of water, or specific part of it","senseOrder":2,"language":"French","word":"eaux","wordOrder":0,"gender":"la","tags":["feminine","plural"]}
 {"englishLemma":"water","partOfSpeech":"Noun","entryOrder":0,"sense":"body of water, or specific part of it","senseOrder":2,"language":"German","word":"Gewässer","wordOrder":0,"gender":"das","tags":["neuter","plural"]}
 {"englishLemma":"water","partOfSpeech":"Noun","entryOrder":0,"sense":"body of water, or specific part of it","senseOrder":2,"language":"Spanish","word":"aguas","wordOrder":0,"gender":"la","tags":["feminine","plural"]}
 {"englishLemma":"water","partOfSpeech":"Noun","entryOrder":0,"sense":"urine","senseOrder":3,"language":"German","word":"Wasser","wordOrder":0,"gender":"das","tags":["neuter"]}
 {"englishLemma":"water","partOfSpeech":"Noun","entryOrder":0,"sense":"urine","senseOrder":3,"language":"Spanish","word":"aguas menores","wordOrder":0,"gender":"la","tags":["feminine","plural"]}
+{"englishLemma":"water","partOfSpeech":"Noun","entryOrder":0,"sense":"serving of water","senseOrder":4,"language":"French","word":"bouteille d'eau","wordOrder":0,"gender":"la","tags":["feminine"]}
+{"englishLemma":"water","partOfSpeech":"Noun","entryOrder":0,"sense":"serving of water","senseOrder":4,"language":"French","word":"verre d'eau","wordOrder":1,"gender":"le","tags":["masculine"]}
 {"englishLemma":"water","partOfSpeech":"Noun","entryOrder":0,"sense":"serving of water","senseOrder":4,"language":"German","word":"Wasser","wordOrder":0,"gender":"das","tags":["neuter"]}
 {"englishLemma":"water","partOfSpeech":"Noun","entryOrder":0,"sense":"serving of water","senseOrder":4,"language":"Spanish","word":"[un] agua","wordOrder":0,"gender":"la","tags":["feminine"]}
 {"englishLemma":"water","partOfSpeech":"Noun","entryOrder":0,"sense":"medical: fluids in the body, especially when causing swelling — see also humor","senseOrder":5,"language":"Spanish","word":"fluidos corporales","wordOrder":0,"gender":"el","tags":["masculine","plural"]}
 {"englishLemma":"neither … nor","partOfSpeech":"Conjunction","entryOrder":0,"sense":"used for showing that something is not true of two or more people, things, actions, qualities, or ideas","senseOrder":0,"language":"Estonian","word":"ei … ega","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"neither … nor","partOfSpeech":"Conjunction","entryOrder":0,"sense":"used for showing that something is not true of two or more people, things, actions, qualities, or ideas","senseOrder":0,"language":"French","word":"ni … ni","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"neither … nor","partOfSpeech":"Conjunction","entryOrder":0,"sense":"used for showing that something is not true of two or more people, things, actions, qualities, or ideas","senseOrder":0,"language":"German","word":"weder … noch","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"neither … nor","partOfSpeech":"Conjunction","entryOrder":0,"sense":"used for showing that something is not true of two or more people, things, actions, qualities, or ideas","senseOrder":0,"language":"Spanish","word":"ni … ni","wordOrder":0,"gender":null,"tags":[]}

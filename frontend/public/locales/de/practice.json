@@ -186,13 +186,16 @@
       "Regularity": "Ist dieses Verb regelmäßig oder unregelmäßig?",
       "Gerund": "Was ist das Gerundium dieses Verbs?",
       "Participle": "Was ist das Partizip dieses Verbs?",
-      "Auxiliary-Verb": "Welches Hilfsverb verwendet dieses Verb?"
+      "Auxiliary-Verb": "Welches Hilfsverb verwendet dieses Verb?",
+      "Past-Participle": "Was ist das Partizip Perfekt dieses Verbs?",
+      "Verb-Group": "Zu welcher Verbgruppe gehört dieses Verb?"
     },
     "answerPlaceholderPronoun": "…",
     "placeholder": {
       "Participle": "Partizip eingeben…",
       "Gerund": "Gerundium eingeben…",
-      "Short-Form": "Kurzform eingeben…"
+      "Short-Form": "Kurzform eingeben…",
+      "Past-Participle": "Partizip Perfekt eingeben…"
     }
   },
   "feedback": {
@@ -318,7 +321,10 @@
       "Participle": "Partizip",
       "Auxiliary-Verb": "Hilfsverb",
       "Case-Type": "Kasustyp",
-      "Prefix": "Präfix"
+      "Prefix": "Präfix",
+      "Verb-Group": "Verbgruppe",
+      "Past-Participle": "Partizip Perfekt",
+      "Present-Participle": "Partizip Präsens"
     },
     "abbr": {
       "plurality": {
@@ -354,7 +360,10 @@
         "Participle": "Ptz.",
         "Auxiliary-Verb": "Hilfsv.",
         "Case-Type": "Kasust.",
-        "Prefix": "Präf."
+        "Prefix": "Präf.",
+        "Verb-Group": "Gruppe",
+        "Past-Participle": "Ptz. Perf.",
+        "Present-Participle": "Ptz. Präs."
       }
     }
   },

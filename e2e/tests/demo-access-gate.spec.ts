@@ -1,3 +1,4 @@
+import { E2E_API_URL } from '../fixtures/env';
 import { test, expect, type Page } from '@playwright/test';
 import {
     closePool,
@@ -33,10 +34,10 @@ import {
  * English and checks them on the account, as the Review columns and in the copied saved configs (D17).
  * Slice 4: every start passes through the transition screen (D18), checked in `startDemo`.
  *
- * Starts 4 demos at most: with a reused local `npm run dev` the per-IP limit stays at its default of 5.
+ * Starts 4 demos at most (the e2e backend sets the per-IP limit to 1000).
  */
 
-const API_URL = process.env.E2E_API_URL ?? 'http://localhost:5001';
+const API_URL = E2E_API_URL;
 const run = Date.now();
 const learnerEmail = `e2e-demo-${run}-learner@ladu.test`;
 /** A real user's Public tag, for the Discover check. */

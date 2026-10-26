@@ -1,0 +1,60 @@
+{
+  "welcome": {
+    "title": "Bienvenue, {{name}}",
+    "spinning": "Prêt à apprendre quelque chose de nouveau aujourd’hui ?"
+  },
+  "userInfoCards": {
+    "totalWords": "Total des mots",
+    "totalTranslations": "Total des traductions",
+    "unpracticedWords": "Mots jamais pratiqués",
+    "practicedMeter": "Traductions pratiquées",
+    "noWordsYet": "Ajoute des mots pour suivre ton entraînement",
+    "sub": {
+      "wordsThisMonth": "+{{count}} ce mois-ci",
+      "perWordAverage": "{{value}} par mot en moyenne",
+      "practicedShare": "{{value}} % des traductions pratiquées ({{done}}/{{total}})"
+    }
+  },
+  "charts": {
+    "pie": {
+      "unit": {
+        "words": "mots",
+        "translations": "traductions"
+      },
+      "title": {
+        "wordMetric": "Répartition des types de mots",
+        "translationMetric": "Répartition des langues"
+      },
+      "tooltip": {
+        "newWordByCategory": "Clique ici pour ajouter un mot de type « {{category}} »",
+        "newWordByLanguage": "Clique ici pour ajouter un nouveau mot ({{language}})"
+      },
+      "worstCategory": "Ta catégorie la plus faible :",
+      "toggleLabel": "Répartition en graphique circulaire",
+      "empty": "Pas encore de données"
+    },
+    "bar": {
+      "title": {
+        "wordMetric": "Mots par mois",
+        "translationMetric": "Mots par langue"
+      },
+      "xAxisToggleLabel": "Axe X du graphique en barres",
+      "groupingToggleLabel": "Regroupement du graphique en barres",
+      "monthRangeToggleLabel": "Période du graphique en barres",
+      "monthRange": {
+        "all": "Depuis le début",
+        "months_one": "Dernier mois",
+        "months_other": "{{count}} derniers mois"
+      },
+      "empty": {
+        "month": "Aucun mot n’a encore été ajouté sur cette période.",
+        "language": "Pas encore de traductions. Ajoute des mots pour les voir ici."
+      }
+    }
+  },
+  "home": {
+    "emptyTitle": "Pas encore de mots",
+    "emptyDescription": "Commence à construire ton vocabulaire multilingue — ajoute un mot avec des traductions dans au moins deux langues.",
+    "addFirstWords": "Ajoute tes premiers mots"
+  }
+}

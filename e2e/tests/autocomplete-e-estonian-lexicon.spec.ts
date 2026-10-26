@@ -1,3 +1,4 @@
+import { EKI_STUB_URL } from '../fixtures/env';
 import { test, expect, type APIRequestContext, type Page } from '@playwright/test';
 import { clickUseValues } from '../fixtures/autocomplete';
 import { closePool, deleteUsersByEmail } from '../fixtures/db';
@@ -14,14 +15,11 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
  *  2. A verb in the lexicon fills every person locally.
  *  3. Adjectives (Ekilex, D20): a one-word superlative fills the field; with only "kõige …" the
  *     new checkbox is checked and the superlative shows as read-only "kõige" + comparative.
- *  4. "Search verb in English" (step F3): the translation table gives the Estonian verb ("run" →
- *     "jooksma"), so Ekilex is not asked; a word the table lacks ("zorp", made up) goes to Ekilex.
  *
- * Nothing is saved: the subject is the lookup. Needs the stub, so no other backend may be
- * running on :5001 (see e2e/README.md, "Stub servers").
+ * Nothing is saved: the subject is the lookup. Needs the stub: the e2e backend points at it
+ * (see e2e/README.md, "Stub servers").
  */
 
-const EKI_STUB_URL = process.env.EKI_STUB_URL ?? 'http://localhost:4401';
 
 test.afterAll(async () => {
     await deleteUsersByEmail(createdEmails);
@@ -94,28 +92,5 @@ test.describe.serial('Autocomplete — Estonian: lexicon first, then Ekilex (Sli
         const superlative = page.getByTestId('derived-ulivorre');
         await expect(superlative).toHaveValue('kõige toredam');
         await expect(superlative).toHaveAttribute('readonly', '');
-    });
-
-    test('search verb in English takes the verb from the translation table, without Ekilex', async ({ page, request }) => {
-        const before = (await stubLog(request)).length;
-        await openEstonian(page, /Verb/);
-        await page.getByRole('checkbox', { name: 'Search verb in english' }).click();
-        await page.getByLabel('-ma infinitive').fill('run');
-
-        await clickUseValues(page);
-        await expect(page.getByLabel('-ma infinitive')).toHaveValue('jooksma');
-        await expect(page.getByLabel('-da infinitive')).toHaveValue('joosta');
-        expect(askedAbout((await stubLog(request)).slice(before), 'run')).toEqual([]);
-    });
-
-    test('search verb in English: a word the table lacks goes to Ekilex', async ({ page, request }) => {
-        const before = (await stubLog(request)).length;
-        await openEstonian(page, /Verb/);
-        await page.getByRole('checkbox', { name: 'Search verb in english' }).click();
-        await page.getByLabel('-ma infinitive').fill('zorp');
-
-        await clickUseValues(page);
-        await expect(page.getByLabel('-da infinitive')).toHaveValue('tantsida');
-        expect((await stubLog(request)).slice(before)).toContain('/api/meaning/search/zorp');
     });
 });

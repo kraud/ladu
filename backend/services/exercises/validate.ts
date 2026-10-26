@@ -4,9 +4,10 @@
  * Every failure has a stable `code` the client can switch on.
  */
 
+import { LANGUAGE_NAMES } from '../../lib/languages';
 import type { CardTypeParam, LanguageMode, Modifier, WordSelection } from './types';
 
-export const LANGUAGES = ['English', 'Spanish', 'German', 'Estonian'] as const;
+export const LANGUAGES = LANGUAGE_NAMES;
 export const PARTS_OF_SPEECH = ['Noun', 'Verb', 'Adjective', 'Adverb', 'Conjunction', 'Preposition'] as const;
 export const CARD_TYPE_PARAMS: CardTypeParam[] = ['Multiple-Choice', 'Text-Input', 'Random'];
 export const LANGUAGE_MODES: LanguageMode[] = ['Multi-Language', 'Single-Language', 'Random'];

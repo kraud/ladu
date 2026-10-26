@@ -10,14 +10,17 @@ import {
 } from './language';
 
 describe('language helpers', () => {
-    it('exposes the four supported labels in display order', () => {
-        expect(SUPPORTED_LANGUAGE_LABELS).toEqual(['English', 'Spanish', 'German', 'Estonian']);
+    it('exposes the five supported labels in display order', () => {
+        expect(SUPPORTED_LANGUAGE_LABELS).toEqual(['English', 'Spanish', 'German', 'Estonian', 'French']);
     });
 
     it('maps label <-> i18n code both ways', () => {
         expect(i18nCodeByLabel('Spanish')).toBe('es');
         expect(labelByI18nCode('es')).toBe('Spanish');
         expect(langKeyByLabel('Estonian')).toBe('EE');
+        expect(i18nCodeByLabel('French')).toBe('fr');
+        expect(labelByI18nCode('fr')).toBe('French');
+        expect(langKeyByLabel('French')).toBe('FR');
     });
 
     it('labelByI18nCode strips region variants', () => {
@@ -26,7 +29,7 @@ describe('language helpers', () => {
     });
 
     it('labelByI18nCode falls back to English for unknown / empty input', () => {
-        expect(labelByI18nCode('fr')).toBe('English');
+        expect(labelByI18nCode('xx')).toBe('English');
         expect(labelByI18nCode('')).toBe('English');
         expect(labelByI18nCode(undefined)).toBe('English');
     });
@@ -38,6 +41,7 @@ describe('htmlLangByI18nCode', () => {
         expect(htmlLangByI18nCode('es')).toBe('es');
         expect(htmlLangByI18nCode('de')).toBe('de');
         expect(htmlLangByI18nCode('ee')).toBe('et');
+        expect(htmlLangByI18nCode('fr')).toBe('fr');
     });
 
     it('strips region variants and ignores letter case', () => {
@@ -47,7 +51,7 @@ describe('htmlLangByI18nCode', () => {
     });
 
     it('falls back to `en` for unknown / empty input', () => {
-        expect(htmlLangByI18nCode('fr')).toBe('en');
+        expect(htmlLangByI18nCode('xx')).toBe('en');
         expect(htmlLangByI18nCode('')).toBe('en');
         expect(htmlLangByI18nCode(undefined)).toBe('en');
     });

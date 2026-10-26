@@ -4,7 +4,7 @@
  * the where-to / where-from series.
  */
 import { describe, expect, it } from 'vitest';
-import { Lang, PartOfSpeech } from '@/ts/enums';
+import { Lang, PartOfSpeech, PrepositionCases } from '@/ts/enums';
 import { matchesVisibility, isStoredCheckbox, type FieldConfig, type MultiSelectFieldConfig } from './types';
 import { getFormConfig } from './index';
 
@@ -18,8 +18,17 @@ function visibleNames(fields: FieldConfig[], values: Record<string, unknown>): s
 const config = (lang: Lang) => getFormConfig(PartOfSpeech.preposition, lang)!;
 
 describe('getFormConfig(Preposition, lang)', () => {
-    it.each([Lang.EN, Lang.ES])('%s: the word and the position', (lang) => {
+    it.each([Lang.EN, Lang.ES, Lang.FR])('%s: the word and the position', (lang) => {
         expect(config(lang).fields.map((f) => f.name)).toEqual(['preposition', 'position']);
+    });
+
+    it('French: only the word is required; the position is an optional radio with the three positions ("durant" can follow the noun)', () => {
+        const [word, position] = config(Lang.FR).fields;
+        expect(word).toMatchObject({ required: true, caseName: PrepositionCases.prepositionFR });
+        expect(position).toMatchObject({ kind: 'radio', required: false, caseName: PrepositionCases.positionFR });
+        expect(position.kind === 'radio' && position.options.map((o) => o.value)).toEqual([
+            'Before the noun', 'After the noun', 'Before or after the noun',
+        ]);
     });
 
     it('German: word, the contractions, then position and governed cases', () => {

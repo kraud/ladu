@@ -1,3 +1,4 @@
+import { E2E_API_URL } from '../fixtures/env';
 import { test, expect } from '@playwright/test';
 
 /**
@@ -8,7 +9,7 @@ import { test, expect } from '@playwright/test';
  * `phase-N-*.spec.ts` covering that phase's vertical slice (build plan §5 gate).
  */
 
-const API_URL = process.env.E2E_API_URL ?? 'http://localhost:5001';
+const API_URL = E2E_API_URL;
 
 test.describe('Phase 0 — infrastructure smoke', () => {
     test('frontend dev server serves the SPA shell', async ({ page }) => {

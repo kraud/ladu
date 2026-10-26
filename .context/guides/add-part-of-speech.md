@@ -6,7 +6,7 @@ Write the plan file first. Copy the shape of `adverb-gradable-radio.md`: Progres
 
 ## 1. Research (before any code)
 
-Do this for **each** of EN, ES, DE and EE. Do not assume that a rule from one language is true in the others.
+Do this for **each** language that Ladu supports (EN, ES, DE and EE on 2026-10-24; the list grows, see `.context/guides/add-language.md`). Do not assume that a rule from one language is true in the others.
 
 For each word class, answer:
 
@@ -31,9 +31,12 @@ Compare the result with the examples in `.other/` (the word list the user suppli
 | A yes/no property | `checkbox` with a `caseName` (saved as "true") | `periphrasticEN` |
 | A field that exists only in one branch | `visibleWhen` (use `invert` to show by default) | `hiddenWhenNonGradable` |
 | A field that the form fills from another | `derivedWhen` with `store: true` | "more " + adverb |
+| A field that is always locked, and follows another that can itself be locked | `derivedWhen` without `when`, with `via` (and `emptyPlaceholderKey` for the empty state) | French superlative: "le " + comparative ("le plus beau") |
 | Fields side by side | `layout` (`row`, `column`) | Estonian degree row |
 | Options listed one under the other | `optionsLayout: 'column'` on a `radio` or `multi-select` (default: a row that wraps, so a phone shows a column anyway) | German preposition position and cases |
 | A short row that must stay one row on a phone | `layout.fitRow: true` (equal columns, no scroll, no stacking) | German contractions, Estonian direction forms |
+| Two radio groups: one row on a desktop, one under the other on a phone | `layout.stackOnMobile: true` + `alignTop: true` | Verb regularity + reflexivity (ES), verb group + reflexivity (FR) |
+| A row of radio groups of different heights | `layout.alignTop: true` (cells align at the top, so the labels line up; the default is the bottom edge, which suits inputs) | Noun gender and regularity (ES, DE, FR) |
 
 Rules:
 
@@ -108,4 +111,4 @@ Write these in the plan, in a "Before or at the merge" section:
 
 - Reload the lexicon per environment (EN, ES, DE) when selectors changed. The selectors run at ingest time.
 - Reseed the demo template per environment when its data changed.
-- Run the e2e suite. Before it: no backend on :5001, no closed access gate in the local database.
+- Run the e2e suite (`npm run test:e2e`). It has its own ports and its own database: `npm run dev` can keep running.

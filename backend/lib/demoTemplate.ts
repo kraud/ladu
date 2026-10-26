@@ -16,6 +16,7 @@ const path = require("path");
 const fs = require("fs");
 const { and, asc, eq, inArray, isNull } = require("drizzle-orm");
 const { db }: typeof import("../src/db") = require("../src/db");
+const { LANGUAGE_NAMES }: typeof import("./languages") = require("./languages");
 const {
   users,
   words,
@@ -107,7 +108,7 @@ export const seedDemoTemplate = async (
         username: TEMPLATE_USERNAME,
         email: TEMPLATE_EMAIL,
         password: null,
-        languages: ["English", "Spanish", "German", "Estonian"],
+        languages: [...LANGUAGE_NAMES],
         uiLanguage: "English",
         nativeLanguage: "English",
         verified: true,

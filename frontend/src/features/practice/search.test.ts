@@ -39,7 +39,7 @@ describe('validatePracticeSearch', () => {
     it('drops invalid values instead of failing', () => {
         expect(
             validatePracticeSearch({
-                lang: 'FR,EN', pos: ['Noun', 'Pronoun'], n: 0, card: 'drag', mode: 'both',
+                lang: 'XX,EN', pos: ['Noun', 'Pronoun'], n: 0, card: 'drag', mode: 'both',
                 mc: 4, ti: 0, order: 'newest', native: 'maybe',
             }),
         ).toEqual({

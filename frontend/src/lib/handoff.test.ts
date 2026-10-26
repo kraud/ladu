@@ -10,15 +10,15 @@ describe('parseHandoff', () => {
         });
     });
 
-    it('accepts all four language codes, in any letter case', () => {
-        for (const code of ['en', 'es', 'de', 'ee']) {
+    it('accepts all five language codes, in any letter case', () => {
+        for (const code of ['en', 'es', 'de', 'ee', 'fr']) {
             expect(parseHandoff(`?lng=${code}`).handoff.lng).toBe(code);
         }
         expect(parseHandoff('?lng=DE&theme=LIGHT').handoff).toEqual({ lng: 'de', theme: 'light' });
     });
 
     it('ignores invalid values but still reports them as found, so the address is cleaned', () => {
-        for (const search of ['?lng=fr', '?theme=system', '?theme=', '?lng', '?lng=%E0%A4%A']) {
+        for (const search of ['?lng=xx', '?theme=system', '?theme=', '?lng', '?lng=%E0%A4%A']) {
             const result = parseHandoff(search);
             expect(result.handoff).toEqual({});
             expect(result.found).toBe(true);
@@ -88,7 +88,7 @@ describe('takeHandoffParams', () => {
     });
 
     it('saves nothing for an invalid theme, but still cleans the address', () => {
-        window.history.replaceState(null, '', '/login?theme=system&lng=fr');
+        window.history.replaceState(null, '', '/login?theme=system&lng=xx');
 
         expect(takeHandoffParams()).toEqual({});
 

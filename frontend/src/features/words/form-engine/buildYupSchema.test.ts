@@ -27,6 +27,33 @@ describe('buildYupSchema', () => {
         await expect(schema.validate({ regularity: '', singular: 'cat', plural: '' })).resolves.toBeTruthy();
     });
 
+    describe('an optional radio', () => {
+        const group: FieldConfig = {
+            kind: 'radio',
+            name: 'verbGroup',
+            caseName: CASE_NAME,
+            labelKey: 'verbGroup',
+            required: false,
+            invalidMessageKey: 'verbGroupInvalid',
+            options: [
+                { value: '1er groupe', label: '1er groupe' },
+                { value: '3e groupe', label: '3e groupe' },
+            ],
+        };
+
+        it('accepts an option that has a digit in it (the French verb groups), and an empty value', async () => {
+            const schema = buildYupSchema(configOf(group), t);
+            await expect(schema.validate({ verbGroup: '3e groupe' })).resolves.toBeTruthy();
+            await expect(schema.validate({ verbGroup: '' })).resolves.toBeTruthy();
+        });
+
+        it('rejects a value that is not one of the options, with the field message', async () => {
+            const schema = buildYupSchema(configOf(group), t);
+            await expect(schema.validate({ verbGroup: '4e groupe' })).rejects.toMatchObject({ message: 'verbGroupInvalid' });
+            await expect(schema.validate({ verbGroup: 'other' })).rejects.toMatchObject({ message: 'verbGroupInvalid' });
+        });
+    });
+
     it('rejects numbers in a text field (noNumbers)', async () => {
         const schema = buildYupSchema(getFormConfig(PartOfSpeech.noun, Lang.EN)!, t);
         await expect(schema.validate({ regularity: '', singular: 'cat3', plural: '' })).rejects.toMatchObject({
@@ -168,51 +195,6 @@ describe('buildYupSchema', () => {
         it('accepts a value satisfying both the base rules and the pattern', async () => {
             const schema = buildYupSchema(configOf(field), t);
             await expect(schema.validate({ infinitive: 'hablar' })).resolves.toBeTruthy();
-        });
-    });
-
-    describe('text field pattern.relaxedWhen', () => {
-        const field: FieldConfig = {
-            kind: 'text',
-            name: 'infinitiveMa',
-            caseName: CASE_NAME,
-            labelKey: 'infinitiveMa',
-            required: true,
-            requiredMessageKey: 'infinitiveMaRequired',
-            lowercase: true,
-            pattern: {
-                regex: /^(?!.*\d).*(ma)$/,
-                messageKey: 'infinitiveMaNotMatching',
-                relaxedWhen: { field: 'searchInEnglish', equals: true },
-            },
-        };
-
-        it('enforces the pattern while the relaxing sibling does not match', async () => {
-            const schema = buildYupSchema(configOf(field), t);
-            await expect(
-                schema.validate({ infinitiveMa: 'dance', searchInEnglish: false }),
-            ).rejects.toMatchObject({ message: 'infinitiveMaNotMatching' });
-        });
-
-        it('drops the pattern once the relaxing sibling matches', async () => {
-            const schema = buildYupSchema(configOf(field), t);
-            await expect(
-                schema.validate({ infinitiveMa: 'dance', searchInEnglish: true }),
-            ).resolves.toBeTruthy();
-        });
-
-        it('still requires the field while relaxed', async () => {
-            const schema = buildYupSchema(configOf(field), t);
-            await expect(
-                schema.validate({ infinitiveMa: '', searchInEnglish: true }),
-            ).rejects.toMatchObject({ message: 'infinitiveMaRequired' });
-        });
-
-        it('still accepts a matching value while relaxed', async () => {
-            const schema = buildYupSchema(configOf(field), t);
-            await expect(
-                schema.validate({ infinitiveMa: 'tantsima', searchInEnglish: true }),
-            ).resolves.toBeTruthy();
         });
     });
 

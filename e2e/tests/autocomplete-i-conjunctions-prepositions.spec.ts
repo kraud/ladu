@@ -197,7 +197,10 @@ test.describe.serial('Autocomplete — conjunctions and prepositions (conjunctio
         for (const viewport of [{ width: 1280, height: 900 }, { width: 390, height: 844 }]) {
             await page.setViewportSize(viewport);
             const [to, from] = await boxes(page, directions);
-            expect(from.y, `from on the row of to at ${viewport.width}px`).toBe(to.y);
+            // The row is checked by the tops of the two labels. The inputs can differ in height from each other when
+            // one label wraps to two lines (a wide font on a phone: the CI browser), and that is not a different row.
+            const [toLabel, fromLabel] = await Promise.all(directions.map((label) => page.getByText(label, { exact: true }).boundingBox()));
+            expect(Math.round(fromLabel!.y), `from on the row of to at ${viewport.width}px`).toBe(Math.round(toLabel!.y));
             expect(Math.abs(from.width - to.width), `equal widths at ${viewport.width}px`).toBeLessThanOrEqual(2);
         }
         await page.setViewportSize({ width: 1280, height: 900 });

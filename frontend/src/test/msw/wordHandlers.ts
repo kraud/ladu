@@ -19,6 +19,7 @@
  */
 import { http, HttpResponse } from 'msw';
 import { Lang } from '@/ts/enums';
+import { LANG_SUFFIX } from '@/lib/language';
 import type { PartOfSpeech } from '@/ts/enums';
 import type {
     CreateWordBody,
@@ -85,6 +86,8 @@ function headlineFields(
                         ...only('genderDE', find('genderDE')),
                         ...only('dataDE', find('singularNominativDE')),
                     };
+                case 'French':
+                    return { ...only('genderFR', find('genderFR')), ...only('dataFR', find('singularFR')) };
                 default:
                     return {};
             }
@@ -98,6 +101,8 @@ function headlineFields(
                     return only('dataDE', find('adverbDE'));
                 case 'Estonian':
                     return only('dataEE', find('adverbEE'));
+                case 'French':
+                    return only('dataFR', find('adverbFR'));
                 default:
                     return {};
             }
@@ -111,6 +116,8 @@ function headlineFields(
                     return only('dataDE', find('positiveDE'));
                 case 'Estonian':
                     return only('dataEE', find('algvorreEE'));
+                case 'French':
+                    return only('dataFR', find('maleSingularFR'));
                 default:
                     return {};
             }
@@ -124,6 +131,8 @@ function headlineFields(
                     return only('dataEE', find('infinitiveMaEE'));
                 case 'German':
                     return only('dataDE', find('infinitiveDE'));
+                case 'French':
+                    return only('dataFR', find('infinitiveFR'));
                 default:
                     return {};
             }
@@ -132,12 +141,7 @@ function headlineFields(
     }
 }
 
-const REGISTERED_FIELD_BY_LANG: Record<Lang, string> = {
-    [Lang.EN]: 'registeredCasesEN',
-    [Lang.ES]: 'registeredCasesES',
-    [Lang.DE]: 'registeredCasesDE',
-    [Lang.EE]: 'registeredCasesEE',
-};
+const registeredField = (language: Lang): string => `registeredCases${LANG_SUFFIX[language]}`;
 
 /** Mirrors `simplifyWord` (`wordController.ts`) over a fake `WordBE`. */
 function simplifyWord(word: WordBE): WordSimpleBE {
@@ -156,7 +160,7 @@ function simplifyWord(word: WordBE): WordSimpleBE {
         simplified = {
             ...simplified,
             ...headlineFields(word.partOfSpeech, translation.language, translation.cases),
-            [REGISTERED_FIELD_BY_LANG[translation.language]]: translation.cases.length,
+            [registeredField(translation.language)]: translation.cases.length,
         };
     }
 

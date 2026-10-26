@@ -1,3 +1,4 @@
+import { E2E_API_URL } from '../fixtures/env';
 import { test, expect, type APIRequestContext } from '@playwright/test';
 import { closePool, deleteUsersByEmail, getUserAccountShape, getVerifyToken } from '../fixtures/db';
 import { routeGoogleStartTo } from '../fixtures/oauthRouting';
@@ -15,11 +16,11 @@ import { routeGoogleStartTo } from '../fixtures/oauthRouting';
  * quirks" note — password confirmation is the real safety net either way,
  * but this is the cheap defense-in-depth on top of it).
  *
- * Runs against `keelapp_v2_dev`. Each run uses unique `e2e-*@ladu.test`
+ * Runs against `keelapp_e2e`. Each run uses unique `e2e-*@ladu.test`
  * emails and deletes them in `afterAll`.
  */
 
-const API_URL = process.env.E2E_API_URL ?? 'http://localhost:5001';
+const API_URL = E2E_API_URL;
 const run = Date.now();
 let seq = 0;
 const uniqueEmail = (workerIndex: number) => `e2e-oauth4-${run}-w${workerIndex}-${++seq}@ladu.test`;

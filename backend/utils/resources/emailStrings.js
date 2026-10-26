@@ -1,7 +1,7 @@
 // Localized strings for the two transactional emails (account confirmation +
 // password reset). Keyed by the exact `Lang` enum label the frontend sends
 // as `uiLanguage`/`languages` entries ("English" | "Spanish" | "German" |
-// "Estonian" — the SUPPORTED_LANGUAGES list in userController.ts). There is
+// "Estonian" | "French" — the language table in lib/languages.ts). There is
 // no i18n library on the backend and this is its only localized surface, so
 // a plain dictionary is enough — do not read the frontend's
 // `public/locales/*` bundles here, the Docker image only copies `backend/`.
@@ -195,6 +195,52 @@ const STRINGS = {
     footerNoteLoginAllowed: "Said selle kirja, sest Ladu meeskond lubas sinu kontol sisse logida. Sellele aadressile saadetud vastuseid ei jälgita.",
     footerTagline: "Mitmekeelse sõnavara looja",
     footerNote: "Said selle e-kirja oma Ladu konto tegevuse tõttu. Sellele aadressile vastamist ei jälgita.",
+  },
+  French: {
+    preheaderVerify: "Confirme ton adresse e-mail pour activer ton compte Ladu",
+    eyebrowVerify: "Ladu · Compte",
+    subjectVerify: "Confirme ton e-mail",
+    titleVerify: "Confirme ton e-mail",
+    greeting: (name) => `Bonjour ${name},`,
+    bodyVerify:
+      "Merci d’avoir créé un compte Ladu. Confirme cette adresse e-mail pour activer ton compte et commencer à construire ton vocabulaire multilingue.",
+    ctaVerify: "Confirmer l’adresse e-mail",
+    fallbackLead: "Ou colle ce lien dans ton navigateur\u00a0:",
+    ignoreVerify: "Tu n’as pas créé de compte Ladu\u00a0? Tu peux ignorer cet e-mail sans risque — rien ne sera activé.",
+
+    preheaderReset: "Lien de réinitialisation pour ton compte Ladu",
+    eyebrowReset: "Ladu · Réinitialisation du mot de passe",
+    subjectReset: "Lien de réinitialisation du mot de passe",
+    titleReset: "Réinitialise ton mot de passe",
+    bodyReset: (email) =>
+      `Nous avons reçu une demande de réinitialisation du mot de passe du compte Ladu ${email}. Clique ci-dessous pour choisir un nouveau mot de passe.`,
+    ctaReset: "Choisir un nouveau mot de passe",
+    expiryReset: "Ce lien expire dans 30 minutes et ne peut être utilisé qu’une seule fois.",
+    ignoreReset: "Tu n’as pas demandé de réinitialisation\u00a0? Tu peux ignorer cet e-mail sans risque — ton mot de passe restera inchangé.",
+
+    preheaderInvite: "Invitation à t’inscrire sur Ladu",
+    eyebrowInvite: "Ladu · Invitation",
+    subjectInvite: "Invitation à t’inscrire sur Ladu",
+    titleInvite: "Rejoins Ladu",
+    greetingInvite: "Bonjour,",
+    bodyInvite: (email) =>
+      `Tu peux créer un compte Ladu. Ladu est un gestionnaire de vocabulaire pour les personnes qui parlent plusieurs langues. Inscris-toi avec cette adresse e-mail\u00a0: ${email}.`,
+    ctaInvite: "S’inscrire sur Ladu",
+    ignoreInvite: "Tu n’attendais pas cet e-mail\u00a0? Tu peux l’ignorer sans risque — il ne se passera rien.",
+
+    footerNoteInvite: "Tu as reçu cet e-mail parce que l’équipe de Ladu a invité cette adresse à s’inscrire. Les réponses à cette adresse ne sont pas lues.",
+
+    preheaderLoginAllowed: "Tu peux maintenant te connecter à Ladu",
+    eyebrowLoginAllowed: "Ladu · Accès",
+    subjectLoginAllowed: "Tu peux maintenant te connecter à Ladu",
+    titleLoginAllowed: "Tu peux maintenant te connecter",
+    bodyLoginAllowed:
+      "La connexion à Ladu était limitée. L’équipe de Ladu a maintenant autorisé ton compte à se connecter. Utilise ton e-mail et ton mot de passe habituels.",
+    ctaLoginAllowed: "Se connecter à Ladu",
+    ignoreLoginAllowed: "Tu n’as pas demandé d’accès\u00a0? Tu peux ignorer cet e-mail sans risque — rien ne changera.",
+    footerNoteLoginAllowed: "Tu as reçu cet e-mail parce que l’équipe de Ladu a autorisé ton compte à se connecter. Les réponses à cette adresse ne sont pas lues.",
+    footerTagline: "Le gestionnaire de vocabulaire multilingue",
+    footerNote: "Tu as reçu cet e-mail à cause d’une activité sur ton compte Ladu. Les réponses à cette adresse ne sont pas lues.",
   },
 };
 

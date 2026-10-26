@@ -1,3 +1,4 @@
+import { EKI_STUB_URL } from '../fixtures/env';
 import { test, expect, type APIRequestContext, type Page } from '@playwright/test';
 import { closePool, deleteUsersByEmail } from '../fixtures/db';
 import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtures/practice';
@@ -23,7 +24,6 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
  * Set E2E_SHOT_DIR to save screenshots of the section, the sense list and the preview.
  */
 
-const EKI_STUB_URL = process.env.EKI_STUB_URL ?? 'http://localhost:4401';
 const SHOT_DIR = process.env.E2E_SHOT_DIR;
 
 test.afterAll(async () => {

@@ -738,6 +738,11 @@ waits for Slice G. Server step: §14, "Translations".
   when it is there (before, always from Ekilex). `lexiconFirst` no longer needs its
   `searchInEnglish` skip. E2E: "run" fills with no Ekilex call; "zorp" (made up, stub only)
   goes to Ekilex.
+  **Removed 2026-10-26** (at the user's request, during the French work): the checkbox, the
+  `searchInEnglish` query parameter, `withSearchInEnglish`, `firstEstonianVerb`, `estonianVerbFor`,
+  the form-engine rule `pattern.relaxedWhen` and `extraFieldName`, and their tests. A similar
+  feature will return later for **all languages**, with one UI. `estonianEquivalents` (the translate
+  routes) stays. The code is in git history (the commit before the removal).
 
 - Ingest `translations[]` from the English entries into `lexeme_translation` (section 13).
 - Route: `GET /api/dictionary/translate/:fromLang/:query` returns the senses and, for each

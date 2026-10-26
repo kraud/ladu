@@ -4,13 +4,13 @@
     "kicker": "Demo",
     "kickerNote": "no account needed",
     "title": "The whole platform, ready to try.",
-    "lead": "Step into a sample Ladu account. Words in four languages, tags that already group them, and a practice set waiting to run — <strong>no sign-up, no setup</strong>.",
+    "lead": "Step into a sample Ladu account. Words in five languages, tags that already group them, and a practice set waiting to run — <strong>no sign-up, no setup</strong>.",
     "insideTitle": "Inside the demo",
     "insideMeta": "No setup required",
     "features": {
       "words": {
-        "title": "Every word, four ways.",
-        "text": "Read the same word across English, Deutsch, Español and Eesti."
+        "title": "Every word, five ways.",
+        "text": "Read the same word across English, Deutsch, Español, Eesti and Français."
       },
       "tags": {
         "title": "Tags do the sorting.",

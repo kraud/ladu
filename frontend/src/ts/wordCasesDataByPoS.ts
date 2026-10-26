@@ -3,12 +3,13 @@ import {
     Lang,
     NounCases,
     Plurality, TenseVerbDE, TenseVerbEE,
-    TenseVerbEN, TenseVerbES,
+    TenseVerbEN, TenseVerbES, TenseVerbFR,
     VerbCases,
     VerbMoodDE,
     VerbMoodEE,
     VerbMoodEN,
     VerbMoodES,
+    VerbMoodFR,
 } from "./enums";
 
 // =========== NOUN ===========
@@ -43,8 +44,8 @@ export type VerbTenseData = {
     isVerbProperty: false,
     person: 1 | 2 | 3,
     plurality: Plurality,
-    tense: TenseVerbEN | TenseVerbES | TenseVerbDE | TenseVerbEE,
-    mood?: VerbMoodDE | VerbMoodEN | VerbMoodES | VerbMoodEE,
+    tense: TenseVerbEN | TenseVerbES | TenseVerbDE | TenseVerbEE | TenseVerbFR,
+    mood?: VerbMoodDE | VerbMoodEN | VerbMoodES | VerbMoodEE | VerbMoodFR,
 }
 
 export enum VerbPropertyCategories {
@@ -58,6 +59,10 @@ export enum VerbPropertyCategories {
     auxiliaryVerb = 'Auxiliary-Verb',
     caseType = 'Case-Type',
     prefix = 'Prefix',
+    // FRENCH
+    verbGroup = 'Verb-Group',
+    pastParticiple = 'Past-Participle',
+    presentParticiple = 'Present-Participle',
     // NOT SURE ========
     progressive = 'Progressive',
     perfect = 'Perfect',
@@ -107,6 +112,26 @@ export const WordCasesData: WordCasesDataByPoS = {
         {
             caseName: NounCases.pluralES,
             language: Lang.ES,
+            isNounProperty: false,
+            plurality: Plurality.P,
+            declination: DeclensionNoun.nominative,
+        },
+        {
+            caseName: NounCases.genderFR,
+            language: Lang.FR,
+            isNounProperty: true,
+            nounPropertyCategory: NounPropertyCategories.gender,
+        },
+        {
+            caseName: NounCases.singularFR,
+            language: Lang.FR,
+            isNounProperty: false,
+            plurality: Plurality.S,
+            declination: DeclensionNoun.nominative,
+        },
+        {
+            caseName: NounCases.pluralFR,
+            language: Lang.FR,
             isNounProperty: false,
             plurality: Plurality.P,
             declination: DeclensionNoun.nominative,
@@ -1187,6 +1212,253 @@ export const WordCasesData: WordCasesDataByPoS = {
             person: 3,
             tense: TenseVerbEE.pastPerfect,
             mood: VerbMoodEE.indicativeEE,
+            isVerbProperty: false
+        },
+        // French (FR)
+        {
+            caseName: VerbCases.infinitiveFR,
+            language: Lang.FR,
+            isVerbProperty: true,
+            verbPropertyCategory: VerbPropertyCategories.infinitive
+        },
+        {
+            caseName: VerbCases.verbGroupFR,
+            language: Lang.FR,
+            isVerbProperty: true,
+            verbPropertyCategory: VerbPropertyCategories.verbGroup
+        },
+        {
+            caseName: VerbCases.auxVerbFR,
+            language: Lang.FR,
+            isVerbProperty: true,
+            verbPropertyCategory: VerbPropertyCategories.auxiliaryVerb
+        },
+        {
+            caseName: VerbCases.pastParticipleFR,
+            language: Lang.FR,
+            isVerbProperty: true,
+            verbPropertyCategory: VerbPropertyCategories.pastParticiple
+        },
+        {
+            caseName: VerbCases.presentParticipleFR,
+            language: Lang.FR,
+            isVerbProperty: true,
+            verbPropertyCategory: VerbPropertyCategories.presentParticiple
+        },
+        {
+            caseName: VerbCases.indicativePresent1sFR,
+            language: Lang.FR,
+            plurality: Plurality.S,
+            person: 1,
+            tense: TenseVerbFR.present,
+            mood: VerbMoodFR.indicativeFR,
+            isVerbProperty: false
+        },
+        {
+            caseName: VerbCases.indicativePresent2sFR,
+            language: Lang.FR,
+            plurality: Plurality.S,
+            person: 2,
+            tense: TenseVerbFR.present,
+            mood: VerbMoodFR.indicativeFR,
+            isVerbProperty: false
+        },
+        {
+            caseName: VerbCases.indicativePresent3sFR,
+            language: Lang.FR,
+            plurality: Plurality.S,
+            person: 3,
+            tense: TenseVerbFR.present,
+            mood: VerbMoodFR.indicativeFR,
+            isVerbProperty: false
+        },
+        {
+            caseName: VerbCases.indicativePresent1plFR,
+            language: Lang.FR,
+            plurality: Plurality.P,
+            person: 1,
+            tense: TenseVerbFR.present,
+            mood: VerbMoodFR.indicativeFR,
+            isVerbProperty: false
+        },
+        {
+            caseName: VerbCases.indicativePresent2plFR,
+            language: Lang.FR,
+            plurality: Plurality.P,
+            person: 2,
+            tense: TenseVerbFR.present,
+            mood: VerbMoodFR.indicativeFR,
+            isVerbProperty: false
+        },
+        {
+            caseName: VerbCases.indicativePresent3plFR,
+            language: Lang.FR,
+            plurality: Plurality.P,
+            person: 3,
+            tense: TenseVerbFR.present,
+            mood: VerbMoodFR.indicativeFR,
+            isVerbProperty: false
+        },
+        {
+            caseName: VerbCases.indicativeImperfect1sFR,
+            language: Lang.FR,
+            plurality: Plurality.S,
+            person: 1,
+            tense: TenseVerbFR.imperfect,
+            mood: VerbMoodFR.indicativeFR,
+            isVerbProperty: false
+        },
+        {
+            caseName: VerbCases.indicativeImperfect2sFR,
+            language: Lang.FR,
+            plurality: Plurality.S,
+            person: 2,
+            tense: TenseVerbFR.imperfect,
+            mood: VerbMoodFR.indicativeFR,
+            isVerbProperty: false
+        },
+        {
+            caseName: VerbCases.indicativeImperfect3sFR,
+            language: Lang.FR,
+            plurality: Plurality.S,
+            person: 3,
+            tense: TenseVerbFR.imperfect,
+            mood: VerbMoodFR.indicativeFR,
+            isVerbProperty: false
+        },
+        {
+            caseName: VerbCases.indicativeImperfect1plFR,
+            language: Lang.FR,
+            plurality: Plurality.P,
+            person: 1,
+            tense: TenseVerbFR.imperfect,
+            mood: VerbMoodFR.indicativeFR,
+            isVerbProperty: false
+        },
+        {
+            caseName: VerbCases.indicativeImperfect2plFR,
+            language: Lang.FR,
+            plurality: Plurality.P,
+            person: 2,
+            tense: TenseVerbFR.imperfect,
+            mood: VerbMoodFR.indicativeFR,
+            isVerbProperty: false
+        },
+        {
+            caseName: VerbCases.indicativeImperfect3plFR,
+            language: Lang.FR,
+            plurality: Plurality.P,
+            person: 3,
+            tense: TenseVerbFR.imperfect,
+            mood: VerbMoodFR.indicativeFR,
+            isVerbProperty: false
+        },
+        {
+            caseName: VerbCases.indicativePerfect1sFR,
+            language: Lang.FR,
+            plurality: Plurality.S,
+            person: 1,
+            tense: TenseVerbFR.perfect,
+            mood: VerbMoodFR.indicativeFR,
+            isVerbProperty: false
+        },
+        {
+            caseName: VerbCases.indicativePerfect2sFR,
+            language: Lang.FR,
+            plurality: Plurality.S,
+            person: 2,
+            tense: TenseVerbFR.perfect,
+            mood: VerbMoodFR.indicativeFR,
+            isVerbProperty: false
+        },
+        {
+            caseName: VerbCases.indicativePerfect3sFR,
+            language: Lang.FR,
+            plurality: Plurality.S,
+            person: 3,
+            tense: TenseVerbFR.perfect,
+            mood: VerbMoodFR.indicativeFR,
+            isVerbProperty: false
+        },
+        {
+            caseName: VerbCases.indicativePerfect1plFR,
+            language: Lang.FR,
+            plurality: Plurality.P,
+            person: 1,
+            tense: TenseVerbFR.perfect,
+            mood: VerbMoodFR.indicativeFR,
+            isVerbProperty: false
+        },
+        {
+            caseName: VerbCases.indicativePerfect2plFR,
+            language: Lang.FR,
+            plurality: Plurality.P,
+            person: 2,
+            tense: TenseVerbFR.perfect,
+            mood: VerbMoodFR.indicativeFR,
+            isVerbProperty: false
+        },
+        {
+            caseName: VerbCases.indicativePerfect3plFR,
+            language: Lang.FR,
+            plurality: Plurality.P,
+            person: 3,
+            tense: TenseVerbFR.perfect,
+            mood: VerbMoodFR.indicativeFR,
+            isVerbProperty: false
+        },
+        {
+            caseName: VerbCases.indicativeSimpleFuture1sFR,
+            language: Lang.FR,
+            plurality: Plurality.S,
+            person: 1,
+            tense: TenseVerbFR.simpleFuture,
+            mood: VerbMoodFR.indicativeFR,
+            isVerbProperty: false
+        },
+        {
+            caseName: VerbCases.indicativeSimpleFuture2sFR,
+            language: Lang.FR,
+            plurality: Plurality.S,
+            person: 2,
+            tense: TenseVerbFR.simpleFuture,
+            mood: VerbMoodFR.indicativeFR,
+            isVerbProperty: false
+        },
+        {
+            caseName: VerbCases.indicativeSimpleFuture3sFR,
+            language: Lang.FR,
+            plurality: Plurality.S,
+            person: 3,
+            tense: TenseVerbFR.simpleFuture,
+            mood: VerbMoodFR.indicativeFR,
+            isVerbProperty: false
+        },
+        {
+            caseName: VerbCases.indicativeSimpleFuture1plFR,
+            language: Lang.FR,
+            plurality: Plurality.P,
+            person: 1,
+            tense: TenseVerbFR.simpleFuture,
+            mood: VerbMoodFR.indicativeFR,
+            isVerbProperty: false
+        },
+        {
+            caseName: VerbCases.indicativeSimpleFuture2plFR,
+            language: Lang.FR,
+            plurality: Plurality.P,
+            person: 2,
+            tense: TenseVerbFR.simpleFuture,
+            mood: VerbMoodFR.indicativeFR,
+            isVerbProperty: false
+        },
+        {
+            caseName: VerbCases.indicativeSimpleFuture3plFR,
+            language: Lang.FR,
+            plurality: Plurality.P,
+            person: 3,
+            tense: TenseVerbFR.simpleFuture,
+            mood: VerbMoodFR.indicativeFR,
             isVerbProperty: false
         }
     ],

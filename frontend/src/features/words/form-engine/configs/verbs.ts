@@ -22,6 +22,7 @@
  */
 import {
     AuxVerbDE,
+    AuxVerbFR,
     Lang,
     PartOfSpeech,
     Plurality,
@@ -30,14 +31,16 @@ import {
     TenseVerbEE,
     TenseVerbEN,
     TenseVerbES,
+    TenseVerbFR,
     VerbCaseTypeDE,
     VerbCases,
+    VerbGroupFR,
     VerbMoodES,
     VerbRegularity,
 } from '@/ts/enums';
 import { WordCasesData, type VerbCasesData, type VerbTenseData } from '@/ts/wordCasesDataByPoS';
+import { LANG_SUFFIX } from '@/lib/language';
 import type {
-    CheckboxFieldConfig,
     FieldAdornment,
     FieldConfig,
     FieldGroup,
@@ -48,13 +51,6 @@ import type {
     TextFieldConfig,
     TranslationFormConfig,
 } from './types';
-
-const LANG_SUFFIX: Record<Lang, 'EN' | 'ES' | 'DE' | 'EE'> = {
-    [Lang.EN]: 'EN',
-    [Lang.ES]: 'ES',
-    [Lang.DE]: 'DE',
-    [Lang.EE]: 'EE',
-};
 
 const REGULARITY_OPTIONS: RadioOption[] = Object.values(VerbRegularity).map((value) => ({ value, label: value }));
 
@@ -67,7 +63,7 @@ function labelKey(caseName: string): string {
     return `wordRelated:wordForm.verb.fields.${caseName}`;
 }
 
-/** `wordRelated:wordForm.verb.errors.form{EN,ES,DE,EE}.<key>` — the per-language verb error block already in `wordRelated.json`. */
+/** `wordRelated:wordForm.verb.errors.form{EN,ES,DE,EE,FR}.<key>` — the per-language verb error block already in `wordRelated.json`. */
 function verbErrorKey(suffix: string, key: string): string {
     return `wordRelated:wordForm.verb.errors.form${suffix}.${key}`;
 }
@@ -77,7 +73,7 @@ function isTenseRow(row: VerbCasesData): row is VerbCasesData & VerbTenseData {
     return !row.isVerbProperty;
 }
 
-function regularityField(lang: Lang): FieldConfig {
+function regularityField(lang: Lang, layout?: FieldLayout): FieldConfig {
     const suffix = LANG_SUFFIX[lang];
     const caseName = VerbCases[`regularity${suffix}` as keyof typeof VerbCases];
     return {
@@ -88,6 +84,7 @@ function regularityField(lang: Lang): FieldConfig {
         required: false,
         invalidMessageKey: verbErrorKey(suffix, 'regularityRequired'),
         options: REGULARITY_OPTIONS,
+        layout,
     };
 }
 
@@ -105,8 +102,17 @@ const REFLEXIVE_CASE_OPTIONS: RadioOption[] = [
     { value: 'Both', label: 'Both / variable' },
 ];
 
-function reflexivityField(lang: Lang.DE | Lang.ES): FieldConfig {
-    const caseName = lang === Lang.DE ? VerbCases.reflexivityDE : VerbCases.reflexivityES;
+const REFLEXIVITY_CASE_NAMES = { [Lang.DE]: VerbCases.reflexivityDE, [Lang.ES]: VerbCases.reflexivityES, [Lang.FR]: VerbCases.reflexivityFR };
+
+function reflexivityField(lang: Lang.DE | Lang.ES | Lang.FR): FieldConfig {
+    const caseName = REFLEXIVITY_CASE_NAMES[lang];
+    // German: one row with the pronoun-case radio. French: one row with the verb group. Spanish: one row with the regularity radio.
+    const layout: FieldLayout =
+        lang === Lang.DE
+            ? { row: 'meta3', column: 'reflexivity', block: 'verbMeta3' }
+            : lang === Lang.FR
+              ? radioPairLayout('meta3', 'reflexivity')
+              : radioPairLayout('radios', 'reflexivity');
     return {
         kind: 'radio',
         name: 'reflexivity',
@@ -114,8 +120,7 @@ function reflexivityField(lang: Lang.DE | Lang.ES): FieldConfig {
         labelKey: labelKey(caseName),
         required: false,
         options: REFLEXIVITY_OPTIONS,
-        // German: one row with the pronoun-case radio. Spanish: a plain field under the regularity radio.
-        layout: lang === Lang.DE ? { row: 'meta3', column: 'reflexivity', block: 'verbMeta3' } : undefined,
+        layout,
     };
 }
 
@@ -133,13 +138,28 @@ function reflexiveCaseFieldDE(): FieldConfig {
     };
 }
 
+/**
+ * Two radio groups on one row on a desktop, one under the other on a phone (`stackOnMobile`): Spanish
+ * regularity + reflexivity, French verb group + reflexivity. Aligned at the top, so the labels line up.
+ */
+function radioPairLayout(row: string, column: string): FieldLayout {
+    return { row, column, block: `verb-${row}`, stackOnMobile: true, alignTop: true };
+}
+
 // Reflexive pronouns by person slot. Spanish 2pl is ustedes (D10), so "se". German 3P is "sich" too.
 const ES_REFLEXIVE: Record<PronounSlot, string> = { '1S': 'me', '2S': 'te', '3S': 'se', '1P': 'nos', '2P': 'se', '3P': 'se' };
 const DE_REFLEXIVE_ACCUSATIVE: Record<PronounSlot, string> = { '1S': 'mich', '2S': 'dich', '3S': 'sich', '1P': 'uns', '2P': 'euch', '3P': 'sich' };
 const DE_REFLEXIVE_DATIVE: Record<PronounSlot, string> = { '1S': 'mir', '2S': 'dir', '3S': 'sich', '1P': 'uns', '2P': 'euch', '3P': 'sich' };
+// French writes the full pronoun: the elision before a vowel (m', t', s') is not shown (plan language-french.md, slice 5).
+const FR_REFLEXIVE: Record<PronounSlot, string> = { '1S': 'me', '2S': 'te', '3S': 'se', '1P': 'nous', '2P': 'vous', '3P': 'se' };
 
-function reflexiveFor(lang: Lang.DE | Lang.ES, row: VerbTenseData): FieldReflexive {
+function reflexiveFor(lang: Lang.DE | Lang.ES | Lang.FR, row: VerbTenseData): FieldReflexive {
     const slot = slotOf(row);
+    if (lang === Lang.FR) {
+        // "je me lave", but "je me suis lavé": in the passé composé the pronoun stands before the auxiliary.
+        const position = row.tense === TenseVerbFR.perfect ? 'beforeAuxiliary' : 'before';
+        return { accusative: FR_REFLEXIVE[slot], position, on: { field: 'reflexivity', equals: REFLEXIVITY_ALWAYS } };
+    }
     if (lang === Lang.ES) return { accusative: ES_REFLEXIVE[slot], position: 'before', on: { field: 'reflexivity', equals: REFLEXIVITY_ALWAYS } };
     // "ich wasche mich" (present, past) but "ich habe mich gewaschen", "ich werde mich waschen".
     const before = row.tense === TenseVerbDE.perfect || row.tense === TenseVerbDE.simpleFuture;
@@ -194,6 +214,8 @@ const PRONOUN_LABELS: Record<Lang, Partial<Record<PronounSlot, string>>> = {
     },
     [Lang.DE]: { '1S': 'Ich', '2S': 'Du', '3S': 'Er/Sie/es', '1P': 'Wir', '2P': 'Ihr', '3P': 'Sie' },
     [Lang.EE]: { '1S': 'Mina', '2S': 'Sina', '3S': 'Tema', '1P': 'Meie', '2P': 'Teie', '3P': 'Nad' },
+    // "Je/J'" because the passé composé shows "ai" after it (j'ai); tu and vous, like the informal voice of the other languages.
+    [Lang.FR]: { '1S': "Je/J'", '2S': 'Tu', '3S': 'Il/Elle/On', '1P': 'Nous', '2P': 'Vous', '3P': 'Ils/Elles' },
 };
 
 /** Exported for practice cards (`lib/cases.ts`), which show the same pronoun next to a verb form. */
@@ -232,6 +254,14 @@ const DE_TENSE_HEADINGS: Partial<Record<TenseVerbDE, string>> = {
     [TenseVerbDE.perfect]: 'Perfekt',
     [TenseVerbDE.simpleFuture]: 'Futur I',
     [TenseVerbDE.simplePast]: 'Präteritum',
+};
+
+const FR_TOP_GROUP: FieldGroup = { heading: 'Indicatif', level: 1 };
+const FR_TENSE_HEADINGS: Record<TenseVerbFR, string> = {
+    [TenseVerbFR.present]: 'Présent',
+    [TenseVerbFR.imperfect]: 'Imparfait',
+    [TenseVerbFR.perfect]: 'Passé composé',
+    [TenseVerbFR.simpleFuture]: 'Futur simple',
 };
 
 const EE_TOP_GROUP: FieldGroup = { heading: 'Kindel', level: 1 };
@@ -280,6 +310,17 @@ function deAdornment(row: VerbTenseData): FieldAdornment | undefined {
     return undefined;
 }
 
+// ---- French conjugated-auxiliary adornment (passé composé inputs) ----
+const AVOIR_PRESENT: Record<PronounSlot, string> = { '1S': 'ai', '2S': 'as', '3S': 'a', '1P': 'avons', '2P': 'avez', '3P': 'ont' };
+const ETRE_PRESENT: Record<PronounSlot, string> = { '1S': 'suis', '2S': 'es', '3S': 'est', '1P': 'sommes', '2P': 'êtes', '3P': 'sont' };
+
+/** The user types the participle in each box (so être agreement — allés, allée — fits); the auxiliary stands before it. */
+function frAdornment(row: VerbTenseData): FieldAdornment | undefined {
+    if (row.tense !== TenseVerbFR.perfect) return undefined;
+    const slot = slotOf(row);
+    return { watchField: 'auxiliaryVerb', values: { [AuxVerbFR.A]: AVOIR_PRESENT[slot], [AuxVerbFR.E]: ETRE_PRESENT[slot] } };
+}
+
 // ---- German verb-case multi-select: three literal options, encoded to an acronym (matching the old app's own untranslated option labels) ----
 const VERB_CASE_OPTIONS: RadioOption[] = [
     { value: VerbCaseTypeDE.accusativeDE, label: 'Accusative' },
@@ -316,6 +357,9 @@ const AUX_VERB_OPTIONS: RadioOption[] = [
     { value: AuxVerbDE.H, label: AuxVerbDE.H },
     { value: AuxVerbDE.S, label: AuxVerbDE.S },
 ]; // haben/sein only — werden exists on AuxVerbDE but is not offered here, matching the old form.
+
+const AUX_VERB_FR_OPTIONS: RadioOption[] = Object.values(AuxVerbFR).map((value) => ({ value, label: value }));
+const VERB_GROUP_FR_OPTIONS: RadioOption[] = Object.values(VerbGroupFR).map((value) => ({ value, label: value }));
 
 const PREFIX_OPTIONS: RadioOption[] = Object.values(PrefixesVerbDE).map((value) => ({ value, label: value }));
 
@@ -370,7 +414,7 @@ function buildEsConfig(): TranslationFormConfig {
             undefined,
             { row: 'nonFinite', column: 'participle', stackOnMobile: true }
         ),
-        regularityField(Lang.ES),
+        regularityField(Lang.ES, radioPairLayout('radios', 'regularity')),
         reflexivityField(Lang.ES),
     ];
 
@@ -463,14 +507,6 @@ function buildEeConfig(): TranslationFormConfig {
     const suffix = LANG_SUFFIX[Lang.EE];
     const tenseRows = WordCasesData.Verb.filter((row) => row.language === Lang.EE).filter(isTenseRow);
 
-    const searchInEnglish: CheckboxFieldConfig = {
-        kind: 'checkbox',
-        name: 'searchInEnglish',
-        labelKey: verbErrorKey(suffix, 'searchInEnglishLabel'),
-        required: false,
-        persisted: false,
-    };
-
     const infinitiveMa: TextFieldConfig = {
         kind: 'text',
         name: 'infinitiveMa',
@@ -482,13 +518,11 @@ function buildEeConfig(): TranslationFormConfig {
         pattern: {
             regex: /^(?!.*\d).*(ma)$/,
             messageKey: verbErrorKey(suffix, 'infinitiveMaNotMatching'),
-            relaxedWhen: { field: 'searchInEnglish', equals: true },
         },
         layout: { row: 'infinitives', column: 'ma' },
     };
 
     const fields: FieldConfig[] = [
-        searchInEnglish,
         infinitiveMa,
         requiredTextField(
             VerbCases.infinitiveDaEE,
@@ -515,9 +549,87 @@ function buildEeConfig(): TranslationFormConfig {
     return { pos: PartOfSpeech.verb, lang: Lang.EE, fields };
 }
 
-export const VERB_CONFIGS: Record<Lang, TranslationFormConfig> = {
+/** The layout of a French meta row: two equal cells, also on a phone, aligned at the top (the options of one radio group may wrap). */
+function frMetaLayout(row: string, column: string): FieldLayout {
+    return { row, column, block: `verb-${row}`, fitRow: true, alignTop: true };
+}
+
+function buildFrConfig(): TranslationFormConfig {
+    const suffix = LANG_SUFFIX[Lang.FR];
+    const tenseRows = WordCasesData.Verb.filter((row) => row.language === Lang.FR).filter(isTenseRow);
+
+    // Three rows ahead of the tense grid: infinitive and auxiliary; the two participles; verb group and
+    // reflexivity. Each row has its own `block`, so the rows do not merge into one grid.
+    const fields: FieldConfig[] = [
+        requiredTextField(
+            VerbCases.infinitiveFR,
+            'infinitive',
+            verbErrorKey(suffix, 'infinitiveRequired'),
+            // "se laver" and "s'habiller" are valid too. "voir" and "savoir" end in -ir, "prendre" in -re.
+            { regex: /^(?!.*\d).*(er|ir|re)$/, messageKey: verbErrorKey(suffix, 'infinitiveNotMatching') },
+            frMetaLayout('meta1', 'infinitive')
+        ),
+        {
+            kind: 'toggle',
+            name: 'auxiliaryVerb',
+            caseName: VerbCases.auxVerbFR,
+            labelKey: labelKey(VerbCases.auxVerbFR),
+            required: false,
+            options: AUX_VERB_FR_OPTIONS,
+            layout: frMetaLayout('meta1', 'auxiliaryVerb'),
+        },
+        {
+            kind: 'text',
+            name: 'pastParticiple',
+            caseName: VerbCases.pastParticipleFR,
+            labelKey: labelKey(VerbCases.pastParticipleFR),
+            required: false,
+            lowercase: true,
+            layout: frMetaLayout('meta2', 'pastParticiple'),
+        },
+        {
+            kind: 'text',
+            name: 'presentParticiple',
+            caseName: VerbCases.presentParticipleFR,
+            labelKey: labelKey(VerbCases.presentParticipleFR),
+            required: false,
+            lowercase: true,
+            layout: frMetaLayout('meta2', 'presentParticiple'),
+        },
+        {
+            kind: 'radio',
+            name: 'verbGroup',
+            caseName: VerbCases.verbGroupFR,
+            labelKey: labelKey(VerbCases.verbGroupFR),
+            required: false,
+            invalidMessageKey: verbErrorKey(suffix, 'verbGroupInvalid'),
+            options: VERB_GROUP_FR_OPTIONS,
+            layout: radioPairLayout('meta3', 'verbGroup'),
+        },
+        reflexivityField(Lang.FR),
+    ];
+
+    for (const row of tenseRows) {
+        fields.push({
+            kind: 'text',
+            name: stripLangSuffix(row.caseName, suffix),
+            caseName: row.caseName,
+            label: pronounLabel(Lang.FR, row),
+            required: false,
+            lowercase: true,
+            group: [FR_TOP_GROUP],
+            layout: tenseLayout(row, FR_TENSE_HEADINGS[row.tense as TenseVerbFR]),
+            adornment: frAdornment(row),
+            reflexive: reflexiveFor(Lang.FR, row),
+        });
+    }
+    return { pos: PartOfSpeech.verb, lang: Lang.FR, fields };
+}
+
+export const VERB_CONFIGS: Partial<Record<Lang, TranslationFormConfig>> = {
     [Lang.EN]: buildEnConfig(),
     [Lang.ES]: buildEsConfig(),
     [Lang.DE]: buildDeConfig(),
     [Lang.EE]: buildEeConfig(),
+    [Lang.FR]: buildFrConfig(),
 };

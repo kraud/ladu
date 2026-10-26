@@ -5,8 +5,10 @@
  */
 import { describe, expect, it } from 'vitest';
 import { AdjectiveCases, Lang, PartOfSpeech } from '@/ts/enums';
-import { isStoredCheckbox, matchesVisibility, type FieldConfig } from './types';
+import { derivedStoredWord, isDerived, isStoredCheckbox, matchesVisibility, type FieldConfig } from './types';
 import { getFormConfig } from './index';
+import { casesToFieldValues, fieldsToCases } from '../TranslationCard';
+import { LANG_SUFFIX } from '@/lib/language';
 
 /** Field names that would actually render given these sibling values — the same filter `FieldRenderer` applies via `visibleWhen`. */
 function visibleNames(fields: FieldConfig[], values: Record<string, unknown>): string[] {
@@ -153,13 +155,120 @@ describe('getFormConfig(Adjective, lang) — old field-list parity', () => {
         });
     });
 
+    describe('French (language-french.md, slice 4)', () => {
+        const fields = () => getFormConfig(PartOfSpeech.adjective, Lang.FR)!.fields;
+        const named = (name: string) => fields().find((f) => f.name === name);
+
+        it('maleSingular*, malePlural, femaleSingular*, femalePlural, "plus" box, comparative, superlative, vowel box, vowel form*, position', () => {
+            expect(fields().map((f) => f.name)).toEqual([
+                'maleSingular', 'malePlural', 'femaleSingular', 'femalePlural', 'periphrastic', 'comparative', 'superlative', 'hasVowelForm', 'vowelForm', 'position',
+            ]);
+            // Only the singulars are required, like the Spanish M/F branch; the vowel form is required only while it shows.
+            expect(fields().filter((f) => f.required).map((f) => f.name)).toEqual(['maleSingular', 'femaleSingular', 'vowelForm']);
+        });
+
+        it('the superlative is always locked: "le " + the comparative, saved, with a placeholder while it is empty', () => {
+            const superlative = named('superlative')!;
+            expect(superlative.kind === 'text' && superlative.derivedWhen?.when).toBeUndefined();
+            expect(superlative.kind === 'text' && superlative.derivedWhen?.emptyPlaceholderKey).toBe('wordRelated:wordForm.adjective.derivedFromComparative');
+            expect(superlative.caseName).toBe(AdjectiveCases.superlativeFR);
+            // Always derived, whatever the other fields hold.
+            expect(isDerived(superlative, {})).toBe(true);
+            expect(isDerived(superlative, { periphrastic: true })).toBe(true);
+            // With the "plus" box on, the comparative is itself locked: the superlative follows the chain.
+            expect(derivedStoredWord(superlative, { periphrastic: true, maleSingular: 'beau', comparative: '' })).toBe('le plus beau');
+            // With the box off, it builds on the typed comparative (irregular: bon → meilleur).
+            expect(derivedStoredWord(superlative, { periphrastic: false, comparative: 'meilleur' })).toBe('le meilleur');
+            // Nothing to save while there is no comparative.
+            expect(derivedStoredWord(superlative, { periphrastic: false, comparative: '' })).toBeUndefined();
+            expect(derivedStoredWord(superlative, { periphrastic: true, maleSingular: '' })).toBeUndefined();
+        });
+
+        it('the superlative is never validated or typed: the saved cases hold the derived comparative and superlative', () => {
+            const values = { maleSingular: 'beau', femaleSingular: 'belle', periphrastic: true, comparative: '', superlative: '', hasVowelForm: false, vowelForm: '', position: '' };
+            expect(fieldsToCases(fields(), values)).toEqual([
+                { caseName: AdjectiveCases.maleSingularFR, word: 'beau' },
+                { caseName: AdjectiveCases.femaleSingularFR, word: 'belle' },
+                { caseName: AdjectiveCases.periphrasticFR, word: 'true' },
+                { caseName: AdjectiveCases.comparativeFR, word: 'plus beau' },
+                { caseName: AdjectiveCases.superlativeFR, word: 'le plus beau' },
+            ]);
+            const irregular = { ...values, maleSingular: 'bon', femaleSingular: 'bonne', periphrastic: false, comparative: 'meilleur' };
+            expect(fieldsToCases(fields(), irregular)).toEqual([
+                { caseName: AdjectiveCases.maleSingularFR, word: 'bon' },
+                { caseName: AdjectiveCases.femaleSingularFR, word: 'bonne' },
+                { caseName: AdjectiveCases.comparativeFR, word: 'meilleur' },
+                { caseName: AdjectiveCases.superlativeFR, word: 'le meilleur' },
+            ]);
+        });
+
+        it('a stored word starts with an empty superlative box: it is shown from the comparative', () => {
+            const values = casesToFieldValues(fields(), [
+                { caseName: AdjectiveCases.maleSingularFR, word: 'bon' },
+                { caseName: AdjectiveCases.comparativeFR, word: 'meilleur' },
+                { caseName: AdjectiveCases.superlativeFR, word: 'le meilleur' },
+            ]);
+            expect(values.superlative).toBe('');
+            expect(values.comparative).toBe('meilleur');
+        });
+
+        it('layout pairs singular/plural on one row, one row per gender', () => {
+            expect(named('maleSingular')?.layout).toEqual({ row: 'male', column: 'Singular' });
+            expect(named('malePlural')?.layout).toEqual({ row: 'male', column: 'Plural' });
+            expect(named('femaleSingular')?.layout).toEqual({ row: 'female', column: 'Singular' });
+            expect(named('femalePlural')?.layout).toEqual({ row: 'female', column: 'Plural' });
+        });
+
+        it('the "plus" box sits above the comparative and the superlative, which share one row (also on a phone)', () => {
+            const names = fields().map((f) => f.name);
+            expect(names.indexOf('periphrastic')).toBeLessThan(names.indexOf('comparative'));
+            expect(names.indexOf('comparative') + 1).toBe(names.indexOf('superlative'));
+            expect(named('periphrastic')?.layout).toBeUndefined();
+            for (const name of ['comparative', 'superlative']) {
+                expect(named(name)?.layout).toMatchObject({ row: 'degree', block: 'frDegree', fitRow: true });
+            }
+            expect(named('comparative')?.layout?.column).not.toBe(named('superlative')?.layout?.column);
+        });
+
+        it('comparative: with the "plus" box on it shows and saves "plus " + the masculine singular', () => {
+            const comparative = named('comparative');
+            expect(comparative?.kind === 'text' && comparative.derivedWhen).toEqual({
+                when: { field: 'periphrastic', equals: true },
+                prefix: 'plus ',
+                fromField: 'maleSingular',
+                store: true,
+            });
+            const flag = named('periphrastic');
+            expect(flag).toMatchObject({ kind: 'checkbox', caseName: AdjectiveCases.periphrasticFR });
+            expect(flag && isStoredCheckbox(flag)).toBe(true);
+            const comparativeField = comparative!;
+            expect(isDerived(comparativeField, { periphrastic: true })).toBe(true);
+            expect(isDerived(comparativeField, { periphrastic: false })).toBe(false);
+            expect(derivedStoredWord(comparativeField, { periphrastic: true, maleSingular: 'grand' })).toBe('plus grand');
+            expect(derivedStoredWord(comparativeField, { periphrastic: false, maleSingular: 'bon' })).toBeUndefined();
+        });
+
+        it('the vowel form shows only while its box is on', () => {
+            expect(visibleNames(fields(), { hasVowelForm: false })).not.toContain('vowelForm');
+            expect(visibleNames(fields(), { hasVowelForm: true })).toContain('vowelForm');
+            expect(named('hasVowelForm')).toMatchObject({ kind: 'checkbox', caseName: AdjectiveCases.hasVowelFormFR });
+        });
+
+        it('the position is an optional radio with the three positions', () => {
+            const position = named('position');
+            expect(position).toMatchObject({ kind: 'radio', required: false, caseName: AdjectiveCases.positionFR });
+            expect(position?.kind === 'radio' && position.options.map((o) => o.value)).toEqual([
+                'Before the noun', 'After the noun', 'Before or after the noun',
+            ]);
+        });
+    });
+
     it('every field.caseName is field.name + the language suffix, except persisted:false fields', () => {
-        const suffixes: Record<Lang, string> = { [Lang.EN]: 'EN', [Lang.ES]: 'ES', [Lang.DE]: 'DE', [Lang.EE]: 'EE' };
-        for (const lang of [Lang.EN, Lang.ES, Lang.DE, Lang.EE]) {
+        for (const lang of [Lang.EN, Lang.ES, Lang.DE, Lang.EE, Lang.FR]) {
             const config = getFormConfig(PartOfSpeech.adjective, lang)!;
             for (const field of config.fields) {
                 if (field.persisted === false) continue;
-                expect(field.caseName).toBe(`${field.name}${suffixes[lang]}`);
+                expect(field.caseName).toBe(`${field.name}${LANG_SUFFIX[lang]}`);
             }
         }
     });

@@ -1,3 +1,4 @@
+import { E2E_API_URL } from '../fixtures/env';
 import { test, expect, type APIRequestContext } from '@playwright/test';
 import { closeTypeAheadList } from '../fixtures/autocomplete';
 import { closePool, deleteUsersByEmail, getVerifyToken } from '../fixtures/db';
@@ -13,12 +14,12 @@ import { closePool, deleteUsersByEmail, getVerifyToken } from '../fixtures/db';
  * `/word/:id` is refused — surfaced as a toast + navigate-away (the real code
  * path a user hits), not a raw API assertion.
  *
- * Runs against `keelapp_v2_dev`. Each run uses unique `e2e-*@ladu.test`
+ * Runs against `keelapp_e2e`. Each run uses unique `e2e-*@ladu.test`
  * emails and deletes them in `afterAll` — `words`/`translations`/`cases`
  * cascade off the `users` row (`backend/src/db/schema.ts`).
  */
 
-const API = process.env.E2E_API_URL ?? 'http://localhost:5001';
+const API = E2E_API_URL;
 
 const run = Date.now();
 let seq = 0;

@@ -1,0 +1,487 @@
+{
+  "page": {
+    "title": "Entraînement"
+  },
+  "setup": {
+    "title": "Entraînement",
+    "newConfiguration": "Nouvelle configuration",
+    "newConfigurationBack": "Retour à l’entraînement",
+    "selectedWords": "Mots sélectionnés",
+    "selectedWordsButton": "Mots sélectionnés ({{count}})",
+    "selectedWordsAll": "Tous",
+    "selectedWordsChip": "Sélectionnés",
+    "tagsEmpty": "Aucun mot sélectionné. Tous tes mots sont utilisés.",
+    "tagsLabel": "Choisir des mots par étiquette",
+    "tagRemove": "Retirer l’étiquette {{name}}",
+    "tagWordsLoading": "Chargement des mots…",
+    "tagsBlocked": {
+      "loading": "Chargement des mots des étiquettes…",
+      "empty": "Les étiquettes choisies n’ont pas de mots.",
+      "error": "Impossible de charger les mots des étiquettes."
+    },
+    "start": "Lancer la session",
+    "starting": "Création des exercices…",
+    "labels": {
+      "languages": "Langues",
+      "partsOfSpeech": "Types de mots",
+      "amount": "Nombre d’exercices",
+      "answerStyle": "Style de réponse",
+      "languagesPerExercise": "Langues par exercice",
+      "mcDifficulty": "Difficulté des choix",
+      "tiStrictness": "Rigueur de la saisie",
+      "wordOrder": "Ordre des mots",
+      "nativeLanguage": "Langue maternelle"
+    },
+    "advanced": {
+      "title": "Avancé"
+    },
+    "options": {
+      "type": {
+        "Text-Input": "Saisir la réponse",
+        "Multiple-Choice": "Choisir la réponse",
+        "Random": "Mixte"
+      },
+      "mode": {
+        "Multi-Language": "Langues différentes",
+        "Single-Language": "Même langue",
+        "Random": "Mixte"
+      },
+      "order": {
+        "Exercise-Performance": "Les plus faibles d’abord",
+        "Random": "Aléatoire"
+      },
+      "native": {
+        "include": "Inclure",
+        "exclude": "Exclure"
+      },
+      "nativeDesc": {
+        "include": "Des exercices dans une seule langue ({{language}}) peuvent apparaître.",
+        "exclude": "Aucun exercice dans une seule langue ({{language}})."
+      }
+    },
+    "levels": {
+      "mc": {
+        "0": "Les mauvaises options viennent de n’importe quelle langue.",
+        "1": "Les mauvaises options viennent de la même langue.",
+        "2": "Les mauvaises options viennent de la même langue et du même type de mot.",
+        "3": "Les mauvaises options sont d’autres formes du même mot."
+      },
+      "ti": {
+        "1": "Ignore les accents et les majuscules.",
+        "2": "Ignore seulement les majuscules.",
+        "3": "La réponse doit correspondre exactement."
+      },
+      "label": "Niveau {{level}}"
+    },
+    "hints": {
+      "modeDifferent": "Tu vois un mot dans une langue. Tu réponds dans une autre langue.",
+      "modeSame": "Un exercice de grammaire dans une seule langue, par exemple le genre d’un mot.",
+      "wordOrder": "« Les plus faibles d’abord » montre les formes que tu connais le moins.",
+      "mcNeedsChoices": "Utilisé seulement quand le style de réponse affiche des choix.",
+      "mcNeedsDifferent": "Utilisé seulement pour les exercices en langues différentes.",
+      "tiNeedsTyping": "Utilisé seulement quand tu saisis la réponse.",
+      "noExercisesYet": "Les adjectifs, adverbes, conjonctions et prépositions n’ont pas encore d’exercices.",
+      "singleLanguageAccount": "Ton compte n’a qu’une langue. « Langues différentes » n’est pas possible.",
+      "languagesAll": "Toutes tes langues",
+      "languagesCount": "{{count}} sur {{total}} langues",
+      "amountRange": "1–100",
+      "modeMixed": "« Mixte » alterne traductions entre langues et exercices de grammaire.",
+      "posPreselected": "Avec des mots sélectionnés, seuls leurs types de mots peuvent être choisis. Les adjectifs, adverbes, conjonctions et prépositions n’ont pas encore d’exercices.",
+      "notInPreselection": "Pas dans les mots sélectionnés",
+      "preselectedNoExercises": "Aucun des mots sélectionnés n’a encore de type de mot avec des exercices. Retire la présélection pour t’entraîner avec tes autres mots.",
+      "nativeLanguageNamed": "{{language}} · influence les exercices dans une seule langue"
+    },
+    "preselected": {
+      "title_one": "S’entraîner avec {{count}} mot sélectionné",
+      "title_other": "S’entraîner avec {{count}} mots sélectionnés",
+      "clear": "Retirer la présélection",
+      "hideUnused": "Masquer les mots qui ne seront pas utilisés",
+      "showAll": "Afficher tous les mots",
+      "used": "Mots utilisés avec ces réglages : {{used}} sur {{total}}.",
+      "noneUsed": "Aucun mot sélectionné ne correspond à ces réglages.",
+      "note": "Nous modifierons cette liste de mots dans une prochaine mise à jour.",
+      "confirm": {
+        "title": "Retirer la présélection ?",
+        "body": "L’entraînement utilisera tous tes mots, pas seulement ceux qui sont sélectionnés.",
+        "confirm": "Retirer",
+        "cancel": "Garder"
+      }
+    },
+    "validation": {
+      "languagesRequired": "Sélectionne au moins une langue.",
+      "languagesMinTwo": "Sélectionne au moins deux langues, ou choisis « Même langue ».",
+      "partsOfSpeechRequired": "Sélectionne au moins un type de mot.",
+      "amountRequired": "Saisis un nombre.",
+      "amountInteger": "Utilise un nombre entier.",
+      "amountPositive": "Utilise un nombre supérieur ou égal à 1.",
+      "amountTooLarge": "Utilise un nombre inférieur ou égal à 100."
+    },
+    "noWords": {
+      "title": "Pas encore de mots à pratiquer",
+      "body": "Ajoute un mot dans au moins deux langues et les exercices apparaîtront ici.",
+      "cta": "Ajouter un mot"
+    },
+    "noMatch": {
+      "title": "Aucun exercice trouvé",
+      "body": "Voici les raisons possibles :",
+      "reasonFewWords": "Il n’y a pas assez de mots avec ces types de mots ou ces langues.",
+      "reasonMissingForms": "Les mots n’ont pas les formes dont ces exercices ont besoin.",
+      "hint": "Modifie les réglages et réessaie.",
+      "reasonMode": "Ce mode ne laisse rien à demander, par exemple « Même langue » avec une seule langue sélectionnée.",
+      "adjust": "Modifier les réglages"
+    },
+    "error": {
+      "title": "Impossible de créer les exercices",
+      "retry": "Réessayer"
+    },
+    "shortfall": "Exercices créés : {{created}} sur {{requested}}.",
+    "fixToStart": "Corrige les champs en surbrillance pour commencer.",
+    "resume": {
+      "title": "Tu as une session inachevée",
+      "resume": "Reprendre",
+      "dismiss": "Ignorer",
+      "answeredLabel": "exercices",
+      "correctHint_one": "{{count}} bonne réponse jusqu’ici",
+      "correctHint_other": "{{count}} bonnes réponses jusqu’ici"
+    },
+    "startShort": "Lancer",
+    "startingShort": "Lancement…",
+    "sortLabel": "Tri",
+    "listGroupLabel": "Listes"
+  },
+  "session": {
+    "progress": "Exercice {{current}} sur {{total}}",
+    "progressShort": "{{current}} sur {{total}}",
+    "correct_one": "<b>{{count}}</b> bonne réponse",
+    "correct_other": "<b>{{count}}</b> bonnes réponses",
+    "leave": "Quitter la session",
+    "leaveDialog": {
+      "title": "Quitter cette session ?",
+      "body": "Tes réponses jusqu’ici restent enregistrées. Enregistre la session pour la continuer plus tard, ou supprime-la.",
+      "limitNote": "Tu peux garder jusqu’à {{max}} sessions enregistrées pendant {{days}} jours. Une nouvelle session remplace la plus ancienne.",
+      "saveAndLeave": "Enregistrer la session et quitter",
+      "deleteAndLeave": "Quitter et supprimer la session",
+      "cancel": "Continuer l’entraînement",
+      "saving": "Enregistrement…",
+      "savedToast": "Session enregistrée. Tu peux la reprendre depuis l’écran de configuration."
+    },
+    "previous": "Précédent",
+    "next": "Suivant",
+    "seeResults": "Voir les résultats",
+    "answerAll": "Réponds à tous les exercices pour voir les résultats.",
+    "check": "Vérifier",
+    "dontKnow": "Je ne sais pas"
+  },
+  "card": {
+    "hint": {
+      "show": "Indice",
+      "hide": "Masquer l’indice",
+      "unavailable": "Aucun indice disponible",
+      "approximate": "L’indice montre la forme de base, pas la forme exacte demandée."
+    },
+    "answerLabel": "Ta réponse",
+    "answerPlaceholder": "Ta réponse…",
+    "chooseAnswer": "Choisis la réponse",
+    "task": {
+      "Gender": "Quel est le genre de ce mot ?",
+      "Short-Form": "Quelle est la forme courte de ce mot ?",
+      "Regularity": "Ce verbe est-il régulier ou irrégulier ?",
+      "Gerund": "Quel est le gérondif de ce verbe ?",
+      "Participle": "Quel est le participe de ce verbe ?",
+      "Auxiliary-Verb": "Quel verbe auxiliaire ce verbe utilise-t-il ?",
+      "Past-Participle": "Quel est le participe passé de ce verbe ?",
+      "Verb-Group": "À quel groupe ce verbe appartient-il ?"
+    },
+    "answerPlaceholderPronoun": "…",
+    "placeholder": {
+      "Participle": "Saisis le participe…",
+      "Gerund": "Saisis le gérondif…",
+      "Short-Form": "Saisis la forme courte…",
+      "Past-Participle": "Saisis le participe passé…"
+    }
+  },
+  "feedback": {
+    "correct": "Correct",
+    "partial": "Presque correct",
+    "wrong": "Faux",
+    "partialHint": "Seuls les accents ou les majuscules sont différents. Cela compte comme correct.",
+    "expected": "Bonne réponse : {{answer}}"
+  },
+  "save": {
+    "saving": "Enregistrement…",
+    "saved": "Enregistré",
+    "notSaved": "Non enregistré",
+    "retry": "Réessayer"
+  },
+  "indicator": {
+    "new": "Nouveau",
+    "attempts": "Dernières tentatives",
+    "attemptRight": "Réussie",
+    "attemptWrong": "Ratée",
+    "attemptEmpty": "Pas encore de tentative",
+    "knowledge": "{{percent}} %",
+    "lastPracticed": "Dernier entraînement : {{date}}",
+    "title": "Connaissance — cette forme précise"
+  },
+  "status": {
+    "Mastered": "Maîtrisé",
+    "Revise": "À réviser",
+    "reviseProgress": "{{count}} sur 5 bonnes réponses",
+    "reviseShort": "{{count}} sur 5",
+    "remove": "Retirer le statut"
+  },
+  "actions": {
+    "master": "Maîtrisé",
+    "revise": "À réviser",
+    "masterTip": "Je connais ça. Montre-le moins. Cela s’applique à toutes les formes de ce mot ({{language}}).",
+    "reviseTip": "Je trouve ça difficile. Montre-le plus. Cela s’applique à toutes les formes de ce mot ({{language}}).",
+    "toast": {
+      "mastered": "Marqué comme maîtrisé — cette traduction apparaîtra moins souvent.",
+      "revise": "Ajouté à réviser — il apparaît plus souvent jusqu’à 5 bonnes réponses.",
+      "removed": "Statut retiré."
+    }
+  },
+  "dialogs": {
+    "master": {
+      "title": "Marquer la traduction ({{language}}) comme maîtrisée ?",
+      "body": "Toutes les formes de ce mot ({{language}}) — pas seulement cette forme — seront montrées moins souvent. Tu peux le retirer à tout moment.",
+      "confirm": "Maîtrisé"
+    },
+    "revise": {
+      "title": "Ajouter la traduction ({{language}}) à réviser ?",
+      "body": "Toutes les formes de ce mot ({{language}}) — pas seulement cette forme — seront montrées plus souvent. Le statut disparaît automatiquement après 5 bonnes réponses.",
+      "confirm": "À réviser"
+    },
+    "cancel": "Annuler",
+    "failed": "Le statut n’a pas changé. Réessaie.",
+    "removeMastered": {
+      "title": "Retirer « Maîtrisé » ?",
+      "body": "Toutes les formes de ce mot ({{language}}) réapparaîtront à leur rythme normal.",
+      "confirm": "Retirer le statut"
+    },
+    "removeRevise": {
+      "title": "Arrêter la révision ?",
+      "body": "Toutes les formes de ce mot ({{language}}) reviennent à leur rythme normal.",
+      "confirm": "Arrêter la révision"
+    }
+  },
+  "results": {
+    "title": "Résultats de la session",
+    "unsaved_one": "{{count}} réponse n’est pas enregistrée.",
+    "unsaved_other": "{{count}} réponses ne sont pas enregistrées.",
+    "retryAll": "Tout réessayer",
+    "typed": "Saisie",
+    "chosen": "Choisie",
+    "expectedAnswer": "Réponse attendue",
+    "open": "Ouvrir l’exercice",
+    "backToResults": "Retour aux résultats",
+    "settings": "Réglages utilisés",
+    "again": "S’entraîner à nouveau",
+    "scoreCount": "{{correct}} sur {{total}}",
+    "correctAnswers": "bonnes réponses",
+    "almostHint": "dont {{count}} presque correcte(s) — seulement des accents ou des majuscules",
+    "statusPartial": "Presque",
+    "backToSetup": "Retour à la configuration",
+    "amountShort": "{{created}} (sur {{requested}} demandés)",
+    "languagesLabel_one": "langue",
+    "languagesLabel_other": "langues",
+    "typesLabel_one": "type de mots",
+    "typesLabel_other": "types de mots",
+    "finish": "Terminer"
+  },
+  "cases": {
+    "plurality": {
+      "Singular": "Singulier",
+      "Plural": "Pluriel"
+    },
+    "declension": {
+      "Nominative": "Nominatif",
+      "Accusative": "Accusatif",
+      "Genitive": "Génitif",
+      "Dative": "Datif",
+      "Partitive": "Partitif"
+    },
+    "tense": {
+      "present": "Présent",
+      "past": "Passé",
+      "future": "Futur"
+    },
+    "person": {
+      "1S": "1re personne du singulier",
+      "2S": "2e personne du singulier",
+      "3S": "3e personne du singulier",
+      "1P": "1re personne du pluriel",
+      "2P": "2e personne du pluriel",
+      "3P": "3e personne du pluriel"
+    },
+    "property": {
+      "Gender": "Genre",
+      "Short-Form": "Forme courte",
+      "Regularity": "Régularité",
+      "Infinitive": "Infinitif",
+      "Gerund": "Gérondif",
+      "Participle": "Participe",
+      "Auxiliary-Verb": "Verbe auxiliaire",
+      "Case-Type": "Type de cas",
+      "Prefix": "Préfixe",
+      "Verb-Group": "Groupe du verbe",
+      "Past-Participle": "Participe passé",
+      "Present-Participle": "Participe présent"
+    },
+    "abbr": {
+      "plurality": {
+        "Singular": "sing.",
+        "Plural": "plur."
+      },
+      "declension": {
+        "Nominative": "nom.",
+        "Accusative": "acc.",
+        "Genitive": "gén.",
+        "Dative": "dat.",
+        "Partitive": "part."
+      },
+      "tense": {
+        "present": "prés.",
+        "past": "passé",
+        "future": "fut."
+      },
+      "person": {
+        "1S": "1re p. sing.",
+        "2S": "2e p. sing.",
+        "3S": "3e p. sing.",
+        "1P": "1re p. plur.",
+        "2P": "2e p. plur.",
+        "3P": "3e p. plur."
+      },
+      "property": {
+        "Gender": "genre",
+        "Short-Form": "f. courte",
+        "Regularity": "rég.",
+        "Infinitive": "inf.",
+        "Gerund": "gér.",
+        "Participle": "part.",
+        "Auxiliary-Verb": "aux.",
+        "Case-Type": "t. de cas",
+        "Prefix": "préf.",
+        "Verb-Group": "groupe",
+        "Past-Participle": "part. passé",
+        "Present-Participle": "part. prés."
+      }
+    }
+  },
+  "configs": {
+    "save": "Enregistrer la configuration",
+    "title": "Configurations enregistrées",
+    "loading": "Chargement…",
+    "empty": "Tu n’as aucune configuration enregistrée. Crée-en une pour relancer le même entraînement en un geste.",
+    "listError": "Impossible de charger les configurations enregistrées.",
+    "use": "Utiliser la configuration {{name}}",
+    "edit": "Modifier la configuration {{name}}",
+    "delete": "Supprimer la configuration {{name}}",
+    "missingWords": "Certains mots de cette configuration ne sont plus disponibles.",
+    "summary": {
+      "amount_one": "{{count}} exercice",
+      "amount_other": "{{count}} exercices",
+      "allWords": "Tous les mots",
+      "selectedWords_one": "{{count}} mot sélectionné",
+      "selectedWords_other": "{{count}} mots sélectionnés",
+      "randomOrder": "Ordre aléatoire",
+      "weakerFirst": "Les plus faibles d’abord",
+      "someMissing": "Certains mots sont manquants"
+    },
+    "dialog": {
+      "createTitle": "Enregistrer la configuration",
+      "editTitle": "Modifier la configuration",
+      "name": "Nom",
+      "namePlaceholder": "Par exemple : Verbes du matin",
+      "nameRequired": "Saisis un nom.",
+      "nameTaken": "Tu as déjà une configuration avec ce nom.",
+      "description": "Description (facultative)",
+      "descriptionPlaceholder": "À quoi sert cette configuration ?",
+      "withWords_one": "Cette configuration inclut {{count}} mot sélectionné.",
+      "withWords_other": "Cette configuration inclut {{count}} mots sélectionnés.",
+      "withTags_one": "Cette configuration inclut les mots de {{count}} étiquette. Ils sont relus quand tu la charges.",
+      "withTags_other": "Cette configuration inclut les mots de {{count}} étiquettes. Ils sont relus quand tu la charges.",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "reviseTitle": "Enregistrer les modifications",
+      "reviseHint": "« Mettre à jour » remplace les réglages enregistrés de cette configuration. « Enregistrer comme copie » la garde telle quelle et ajoute une nouvelle configuration avec un autre nom.",
+      "saveAsCopy": "Enregistrer comme copie",
+      "update": "Mettre à jour"
+    },
+    "deleteDialog": {
+      "title": "Supprimer « {{name}} » ?",
+      "body": "Cette action est irréversible.",
+      "confirm": "Supprimer"
+    },
+    "toast": {
+      "saved": "Configuration enregistrée.",
+      "updated": "Configuration mise à jour.",
+      "deleted": "Configuration supprimée.",
+      "loaded": "Configuration « {{name}} » chargée."
+    },
+    "startDialog": {
+      "question": "Lancer une session avec cette configuration maintenant, ou modifier d’abord les réglages ?",
+      "start": "Lancer la session",
+      "change": "Modifier d’abord les réglages",
+      "noMatch": "Aucun exercice ne correspond à cette configuration pour le moment. Modifie d’abord les réglages.",
+      "noWords": "Les étiquettes de cette configuration n’ont pas de mots pour le moment. Modifie d’abord les réglages."
+    },
+    "saveShort": "Enregistrer",
+    "count_one": "{{count}} configuration",
+    "count_other": "{{count}} configurations",
+    "sort": {
+      "recent": "Récentes",
+      "name": "Nom A–Z"
+    },
+    "descriptionAria": "Afficher la description de {{name}}",
+    "emptyCta": "Créer une configuration"
+  },
+  "sessions": {
+    "title": "Sessions en cours",
+    "loading": "Chargement…",
+    "empty": "Tu n’as aucune session enregistrée. Lance-en une nouvelle, puis choisis « Enregistrer la session et quitter » pour la garder.",
+    "listError": "Impossible de charger les sessions enregistrées.",
+    "resumeAria": "Reprendre la session ({{answered}} sur {{total}} répondus)",
+    "deleteAria": "Supprimer la session ({{answered}} sur {{total}} répondus)",
+    "progress": "{{answered}} sur {{total}} répondus",
+    "correct_one": "{{count}} bonne réponse",
+    "correct_other": "{{count}} bonnes réponses",
+    "expires": "Expire le {{date}}",
+    "gone": "Cette session n’est plus disponible. Elle a peut-être expiré.",
+    "replaceDialog": {
+      "title": "Remplacer ta session inachevée ?",
+      "body": "Tu as une session inachevée dans cet onglet. Si tu reprends la session enregistrée, la session inachevée sera perdue.",
+      "confirm": "Reprendre la session enregistrée",
+      "cancel": "Garder"
+    },
+    "deleteDialog": {
+      "title": "Supprimer cette session enregistrée ?",
+      "body": "Cette action est irréversible.",
+      "confirm": "Supprimer"
+    },
+    "toast": {
+      "deleted": "Session supprimée."
+    },
+    "count_one": "{{count}} session (max. {{max}})",
+    "count_other": "{{count}} sessions (max. {{max}})",
+    "sort": {
+      "recent": "Plus récentes",
+      "oldest": "Plus anciennes"
+    },
+    "emptyCta": "Lancer une nouvelle session"
+  },
+  "apiErrors": {
+    "invalidLanguages": "Sélectionne au moins une langue. « Langues différentes » en demande deux.",
+    "invalidPartsOfSpeech": "Sélectionne au moins un type de mot.",
+    "invalidAmount": "Utilise un nombre entier de 1 à 100.",
+    "invalidSettings": "Un des réglages n’est pas valide.",
+    "invalidWordIds": "Les mots sélectionnés ne sont pas valides.",
+    "notFound": "Ce mot ou cette forme est introuvable.",
+    "invalidName": "Le nom doit comporter de 1 à 60 caractères.",
+    "invalidDescription": "La description peut comporter 200 caractères au maximum.",
+    "nameTaken": "Tu as déjà une configuration avec ce nom.",
+    "invalidSession": "La session n’est pas valide et ne peut pas être enregistrée.",
+    "sessionTooLarge": "La session est trop volumineuse pour être enregistrée."
+  }
+}

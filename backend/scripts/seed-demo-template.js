@@ -19,7 +19,7 @@ require('tsx/cjs');
 const path = require('path');
 // In production, env vars come from the container; there is no .env to load.
 if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config({ path: path.resolve(__dirname, '../../.env'), override: true });
+    require('dotenv').config({ path: path.resolve(__dirname, '../../.env'), override: !process.env.LADU_KEEP_PROCESS_ENV });
 }
 
 const { pool } = require('../src/db');

@@ -3,8 +3,7 @@
  * backend actually supports (`AUTOCOMPLETE_REGISTRY` in
  * `features/autocomplete/transforms.ts`) — renders `null` for every other
  * combination (e.g. English nouns, every adverb). Watches the registry's
- * query field, and — Estonian verbs only — the `searchInEnglish` checkbox
- * next to it, fires the lookup once the debounced value settles. Writing the
+ * query field and fires the lookup once the debounced value settles. Writing the
  * result's case values into the form is a separate, manual click on the
  * "Use autocomplete values" button: never automatic, and — deliberately —
  * it overwrites every field the lookup has an answer for, including one that
@@ -87,8 +86,6 @@ export const LOOKUP_DEBOUNCE_MS = 500;
  */
 const APPLY_BUTTON_CLASS =
     'gap-1.5 border-(--accent) bg-(--accent-soft) font-semibold text-(--accent-strong) hover:bg-(--accent-soft2) hover:text-(--accent-strong) dark:border-(--accent) dark:bg-(--accent-soft) dark:hover:bg-(--accent-soft2)';
-/** Neither field name is ever a real RHF field; `useWatch` on an unregistered name is a harmless no-op (same precedent as `FieldRenderer`'s own dummy-watch fallback). */
-const NO_FIELD = '__autocomplete_none__';
 
 /**
  * A looked-up case word -> the RHF value to write for `field`. Only
@@ -216,7 +213,6 @@ export function AutocompleteRow({ lang, pos, fields, pickedEntry }: Autocomplete
     const { control, setValue } = useFormContext();
     const endpoint = getAutocompleteEndpoint(lang, pos);
 
-    const extraValue = useWatch({ control, name: endpoint?.extraFieldName ?? NO_FIELD }) as boolean | undefined;
     // Every field, so `valuesMatchLookup` reruns on any edit in the
     // card — cheap: `TranslationCard` already re-renders on every keystroke
     // via this exact same unfiltered `useWatch`, so this adds no new render.
@@ -233,7 +229,6 @@ export function AutocompleteRow({ lang, pos, fields, pickedEntry }: Autocomplete
         language: lang,
         pos,
         query: hasQuery ? query : '',
-        extra: endpoint?.extraFieldName ? Boolean(extraValue) : undefined,
         entryId,
     });
 

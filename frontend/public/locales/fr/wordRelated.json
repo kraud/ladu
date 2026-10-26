@@ -1,0 +1,547 @@
+{
+  "addWordPage": {
+    "title": "Nouveau mot ({{currentPoS}})",
+    "titleDefault": "Nouveau mot",
+    "back": "Retour aux mots",
+    "backToType": "Retour au type de mot",
+    "toastCreateSuccess": "Mot créé avec succès"
+  },
+  "startFromWord": {
+    "title": "Partir d’un mot",
+    "description": "Saisis un mot dans n’importe quelle langue. Ladu trouve ses sens et remplit les autres langues pour toi.",
+    "languageLabel": "Langue du mot",
+    "partOfSpeechLabel": "Classe grammaticale",
+    "anyPartOfSpeech": "Tout type",
+    "wordLabel": "Mot",
+    "placeholderAny": "Saisis un mot {{inLanguage}}",
+    "placeholderPos": "Saisis un mot ({{partOfSpeech}}) {{inLanguage}}",
+    "inLanguage": {
+      "english": "en anglais",
+      "spanish": "en espagnol",
+      "german": "en allemand",
+      "estonian": "en estonien",
+      "french": "en français"
+    },
+    "orLine": "ou créer manuellement",
+    "listLabel": "Sens",
+    "back": "Retour",
+    "previewTitle": "Choisis les mots à utiliser",
+    "loading": "Chargement des sens…",
+    "loadFailed": "Impossible de charger le sens. Réessaie.",
+    "noWord": "Aucun mot trouvé",
+    "fromEkilex": "d’Ekilex",
+    "ekilexUnavailable": "Les mots estoniens ne sont pas disponibles pour le moment.",
+    "noTranslation": "Pas de traduction",
+    "otherOptions_one": "{{count}} autre option",
+    "otherOptions_other": "{{count}} autres options",
+    "noOtherOptions": "Aucune autre option",
+    "optionsAvailable_one": "{{count}} option disponible",
+    "optionsAvailable_other": "{{count}} options disponibles",
+    "createDraft": "Créer un brouillon",
+    "creating": "Création…",
+    "draftFailed": "Impossible de créer le brouillon. Réessaie.",
+    "noneSelected": "Choisis un mot pour au moins une langue.",
+    "draftLookupFailed": "Impossible de rechercher les formes de ce mot. Remplis la carte à la main, ou réessaie la saisie automatique."
+  },
+  "apiErrors": {
+    "wordNotFound": "Ce mot est introuvable.",
+    "notAuthorized": "Tu n’as pas accès à ce mot.",
+    "missingPartOfSpeech": "Choisis une classe grammaticale.",
+    "notEnoughTranslations": "Ajoute au moins deux traductions avant d’enregistrer.",
+    "invalidCursor": "Ce lien de page a expiré — recharge la liste.",
+    "noWordIdsProvided": "Sélectionne au moins un mot à supprimer.",
+    "someWordsMissing": "Certains mots sélectionnés sont introuvables.",
+    "notAuthorizedToDeleteSome": "Tu ne peux supprimer que les mots qui t’appartiennent.",
+    "alreadyOwned": "Ce mot t’appartient déjà.",
+    "alreadyCloned": "Tu as déjà une copie de ce mot."
+  },
+  "displayWord": {
+    "back": "Retour",
+    "titlePos": "Vue détaillée : {{currentPoS}}",
+    "titleSimple": "Vue détaillée",
+    "subtitle": "Toutes les traductions actuellement enregistrées pour ce mot",
+    "toastUpdateSuccess": "Mot mis à jour avec succès",
+    "clone": "Cloner",
+    "openClone": "Ouvrir ta copie",
+    "openCloneShort": "Ouvrir la copie",
+    "cloneConfirmTitle": "Cloner ce mot ?",
+    "cloneConfirmDescription": "Une copie de ce mot est ajoutée à tes mots. La copie est privée et n’a pas d’étiquettes. Tu peux la modifier et la supprimer. L’original ne change pas. Ta progression d’entraînement pour ce mot est copiée aussi. Dans ta liste de mots, la copie s’affiche à la place de l’original. Si tu supprimes la copie, l’original s’affiche de nouveau.",
+    "toastCloned": "Mot copié dans tes mots",
+    "toastError": "Une erreur s’est produite : {{error}}"
+  },
+  "partOfSpeechSelector": {
+    "subtitle": "Tu hésites ? Survole les boutons et lis les descriptions.",
+    "description": {
+      "other": "Tu le reconnaîtras en le voyant !",
+      "noun": {
+        "info": "Les noms sont des mots essentiels qui désignent des personnes, des lieux, des choses ou des idées. Ils nous aident à identifier et à décrire le monde qui nous entoure.",
+        "examples": [
+          "La *pizza* est un plat italien très populaire.",
+          "Un *chien* est un animal de compagnie fidèle.",
+          "Une *ville* est une grande zone urbaine avec des bâtiments, des routes et une population animée."
+        ]
+      },
+      "pronoun": {
+        "info": "Les pronoms sont des mots qui remplacent des noms précis pour éviter les répétitions. Ils nous aident à désigner des personnes, des lieux, des choses ou des idées sans répéter sans cesse le même nom.",
+        "examples": [
+          "*Elle* lit un livre.",
+          "*Nous* allons au parc."
+        ]
+      },
+      "verb": {
+        "info": "Les verbes sont des mots d’action qui décrivent ce que quelqu’un ou quelque chose fait. Ils expriment des actions, des états ou des événements. Les verbes donnent de la vie et du mouvement à nos phrases.",
+        "examples": [
+          "Je *mange* de la pizza le week-end parce que c’est mon plat préféré.",
+          "Le chat *saute* sur la table pour explorer les alentours."
+        ]
+      },
+      "adjective": {
+        "info": "Les adjectifs sont des mots qui décrivent ou précisent les noms et nous donnent plus d’informations sur eux. Ils nous aident à exprimer les caractéristiques, les qualités ou les attributs des choses dont nous parlons.",
+        "examples": [
+          "Le temps est *ensoleillé* aujourd’hui, avec un ciel dégagé et beaucoup de soleil.",
+          "Elle a une personnalité *chaleureuse* et salue toujours tout le monde avec un sourire."
+        ]
+      },
+      "adverb": {
+        "info": "Les adverbes sont des mots qui donnent plus d’informations sur les verbes, les adjectifs et les autres adverbes d’une phrase. Il existe cinq grands types d’adverbes : de manière, de degré, de fréquence, de temps et de lieu.",
+        "examples": [
+          "Es-tu venu *ici* pour acheter un parapluie ? (Adverbe de lieu)",
+          "Je ne suis pas allé à l’école *hier* parce que j’étais malade. (Adverbe de temps)",
+          "Savio lit *souvent* le journal. (Adverbe de fréquence)",
+          "Peux-tu venir *vite* ? (Adverbe de manière)",
+          "Tony était *très* fatigué pendant la réunion. (Adverbe de degré)"
+        ]
+      },
+      "preposition": {
+        "info": "Les prépositions montrent comment un nom est relié à un autre mot : lieu, temps, cause ou direction. En allemand, une préposition détermine le cas du nom qui la suit. L’estonien utilise surtout des postpositions, qui se placent après le nom.",
+        "examples": [
+          "Le livre est *sur* la table.",
+          "Nous nous sommes vus *après* le cours.",
+          "Elle est restée à la maison *à cause de* la pluie."
+        ]
+      },
+      "conjunction": {
+        "info": "Les conjonctions relient des mots, des groupes de mots ou des propositions. Les conjonctions de coordination relient des éléments de même niveau (et, mais, ou). Les conjonctions de subordination introduisent une proposition dépendante (parce que, bien que, si). Certaines conjonctions fonctionnent par paires (ni … ni).",
+        "examples": [
+          "J’aime le thé *et* le café.",
+          "*Comme* elle était malade, elle est restée à la maison.",
+          "Il ne parle *ni* anglais *ni* italien."
+        ]
+      },
+      "interjection": {
+        "info": "Tu le reconnaîtras en le voyant.",
+        "examples": [
+          ""
+        ]
+      },
+      "properNoun": {
+        "info": "Tu le reconnaîtras en le voyant.",
+        "examples": [
+          ""
+        ]
+      },
+      "numerals": {
+        "info": "Tu le reconnaîtras en le voyant.",
+        "examples": [
+          ""
+        ]
+      }
+    },
+    "missingImplementationPoS": "Cette classe grammaticale n’est pas encore disponible, désolé !"
+  },
+  "translationFormGeneric": {
+    "switchLanguage": "Changer de langue :",
+    "collapse": "Réduire la traduction",
+    "expand": "Développer la traduction",
+    "caseCount": "{{value}} sur {{total}} formes",
+    "emptyCard": "Rien de saisi pour l’instant"
+  },
+  "wordFormSelector": {
+    "languageNotAvailable": "Cette langue n’est pas encore disponible",
+    "partOfSpeechNotAvailable": "Cette classe grammaticale n’est pas encore disponible"
+  },
+  "formComponentLabel": {
+    "clue": "Indice",
+    "tags": "Étiquettes",
+    "linkedWords": "Mots liés"
+  },
+  "linkedWords": {
+    "description": "Relie les mots qui sont des synonymes ou qui sont liés d’une autre façon.",
+    "comingSoon": "Bientôt disponible."
+  },
+  "wordForm": {
+    "hints": {
+      "minTranslations": "Ajoute au moins 2 traductions avant de pouvoir enregistrer.",
+      "requiredFieldsDisclaimer": "Les champs marqués d’un * sont obligatoires.",
+      "incomplete": "Remplis tous les champs obligatoires (marqués *) dans toutes les traductions.",
+      "noChanges": "Fais une modification pour activer l’enregistrement."
+    },
+    "errors": {
+      "noNumbers": "Ne doit pas contenir de chiffres"
+    },
+    "buttons": {
+      "changeWordType": "Changer le type de mot",
+      "saveWord": "Enregistrer le mot",
+      "saveShort": "Enregistrer"
+    },
+    "sidebar": {
+      "collapse": "Réduire la barre latérale",
+      "expand": "Agrandir la barre latérale",
+      "menuTitle": "Informations complémentaires",
+      "openMenu": "Ouvrir le menu",
+      "closeMenu": "Fermer le menu",
+      "tagsEditToChange": "Modifie le mot pour ajouter ou retirer des étiquettes.",
+      "tagsManagedByOwner": "Lecture seule — ce mot vient d’une étiquette suivie. Ses étiquettes sont gérées par le propriétaire de l’étiquette.",
+      "tagsStagedToast_one": "{{count}} étiquette ajoutée — elle sera enregistrée avec le mot",
+      "tagsStagedToast_other": "{{count}} étiquettes ajoutées — elles seront enregistrées avec le mot"
+    },
+    "confirmChangeType": {
+      "title": "Changer le type de mot ?",
+      "description": "Les traductions que tu as saisies seront supprimées."
+    },
+    "confirmGoBack": {
+      "title": "Retour",
+      "confirm": "Retour"
+    },
+    "confirmRemoveTranslation": {
+      "title": "Retirer cette traduction ?",
+      "description": "La traduction ({{language}}) et tout ce qui y est saisi seront retirés."
+    },
+    "noun": {
+      "errors": {
+        "formEN": {
+          "singularFormRequired": "« Singulier » est requis",
+          "regularityRequired": "Ce n’est pas une option"
+        },
+        "formES": {
+          "singularFormRequired": "La forme « Singulier » est requise",
+          "genderRequired": "La sélection « Genre » est requise",
+          "regularityRequired": "Ce n’est pas une option"
+        },
+        "formDE": {
+          "singularFormRequired": "« Singulier nominativ » est requis",
+          "genderRequired": "La sélection « Genre » est requise",
+          "regularityRequired": "Ce n’est pas une option"
+        },
+        "formEE": {
+          "singularFormRequired": "« Singulier nimetav » est requis",
+          "regularityRequired": "Ce n’est pas une option"
+        },
+        "formFR": {
+          "singularFormRequired": "La forme « Singulier » est requise",
+          "genderRequired": "La sélection « Genre » est requise",
+          "regularityRequired": "Ce n’est pas une option"
+        }
+      },
+      "fields": {
+        "regularityEN": "Régularité",
+        "singularEN": "Singulier",
+        "pluralEN": "Pluriel",
+        "regularityES": "Régularité",
+        "genderES": "Genre",
+        "singularES": "Singulier",
+        "pluralES": "Pluriel",
+        "regularityDE": "Régularité",
+        "genderDE": "Genre",
+        "singularNominativDE": "Nominatif singulier",
+        "pluralNominativDE": "Nominatif pluriel",
+        "singularAkkusativDE": "Accusatif singulier",
+        "pluralAkkusativDE": "Accusatif pluriel",
+        "singularGenitivDE": "Génitif singulier",
+        "pluralGenitivDE": "Génitif pluriel",
+        "singularDativDE": "Datif singulier",
+        "pluralDativDE": "Datif pluriel",
+        "regularityEE": "Régularité",
+        "singularNimetavEE": "Nominatif singulier",
+        "pluralNimetavEE": "Nominatif pluriel",
+        "singularOmastavEE": "Génitif singulier",
+        "pluralOmastavEE": "Génitif pluriel",
+        "singularOsastavEE": "Partitif singulier",
+        "pluralOsastavEE": "Partitif pluriel",
+        "shortFormEE": "Illatif court",
+        "regularityFR": "Régularité",
+        "genderFR": "Genre",
+        "singularFR": "Singulier",
+        "pluralFR": "Pluriel"
+      }
+    },
+    "adjective": {
+      "errors": {
+        "formEN": {
+          "positiveDegreeRequired": "Le degré positif est requis"
+        },
+        "formES": {
+          "singularMasculineDegreeRequired": "Le degré du masculin singulier est requis",
+          "singularFemaleDegreeRequired": "Le degré du féminin singulier est requis",
+          "singularNeutralDegreeRequired": "Le degré du neutre singulier est requis",
+          "pluralNeutralDegreeRequired": "Le degré du neutre pluriel est requis",
+          "genderRequired": "La sélection « Genre » est requise"
+        },
+        "formDE": {
+          "positiveDegreeRequired": "Le degré positif est requis"
+        },
+        "formEE": {
+          "algvorreFormRequired": "Le degré positif est requis",
+          "keskvorreFormRequired": "Le degré comparatif est requis",
+          "ulivorreFormRequired": "Le degré superlatif est requis"
+        },
+        "formFR": {
+          "singularMasculineDegreeRequired": "Le degré du masculin singulier est requis",
+          "singularFemaleDegreeRequired": "Le degré du féminin singulier est requis",
+          "vowelFormRequired": "La forme devant une voyelle est requise",
+          "positionInvalid": "Ce n’est pas une option"
+        }
+      },
+      "fields": {
+        "positiveEN": "Positif",
+        "comparativeEN": "Comparatif",
+        "superlativeEN": "Superlatif",
+        "positiveDE": "Positif",
+        "komparativDE": "Comparatif",
+        "superlativDE": "Superlatif",
+        "gender": "Genre",
+        "neutralSingularES": "Neutre singulier",
+        "neutralPluralES": "Neutre pluriel",
+        "maleSingularES": "Masculin singulier",
+        "malePluralES": "Masculin pluriel",
+        "femaleSingularES": "Féminin singulier",
+        "femalePluralES": "Féminin pluriel",
+        "algvorreEE": "Degré positif",
+        "keskvorreEE": "Degré comparatif",
+        "ulivorreEE": "Degré superlatif",
+        "periphrasticSuperlativeEE": "Pas de superlatif en un mot (kõige + comparatif)",
+        "pluralNimetavEE": "Nominatif pluriel",
+        "singularOmastavEE": "Génitif singulier",
+        "pluralOmastavEE": "Génitif pluriel",
+        "singularOsastavEE": "Partitif singulier",
+        "pluralOsastavEE": "Partitif pluriel",
+        "maleSingularFR": "Masculin singulier",
+        "malePluralFR": "Masculin pluriel",
+        "femaleSingularFR": "Féminin singulier",
+        "femalePluralFR": "Féminin pluriel",
+        "comparativeFR": "Comparatif (masculin singulier)",
+        "superlativeFR": "Superlatif (masculin singulier)",
+        "periphrasticFR": "Utilise « plus » (plus + adjectif)",
+        "hasVowelFormFR": "A une forme devant une voyelle (p. ex. beau → bel)",
+        "vowelFormFR": "Forme devant une voyelle",
+        "positionFR": "Position"
+      },
+      "derivedFromComparative": "Dépend du comparatif"
+    },
+    "adverb": {
+      "errors": {
+        "formEN": {
+          "adverbRequired": "L’adverbe est requis",
+          "gradableRequired": "La sélection « Gradable » est requise"
+        },
+        "formES": {
+          "adverbRequired": "L’adverbe est requis",
+          "gradableRequired": "La sélection « Gradable » est requise"
+        },
+        "formDE": {
+          "adverbRequired": "L’adverbe est requis",
+          "gradableRequired": "La sélection « Gradable » est requise"
+        },
+        "formEE": {
+          "adverbRequired": "L’adverbe est requis",
+          "gradableRequired": "La sélection « Gradable » est requise"
+        },
+        "formFR": {
+          "adverbRequired": "L’adverbe est requis",
+          "gradableRequired": "La sélection « Gradable » est requise"
+        }
+      },
+      "fields": {
+        "adverbEN": "Adverbe",
+        "comparativeEN": "Comparatif",
+        "superlativeEN": "Superlatif",
+        "gradableEN": "Gradable",
+        "periphrasticEN": "Utilise « more » / « most »",
+        "adverbES": "Adverbe",
+        "comparativeES": "Comparatif",
+        "superlativeES": "Superlatif",
+        "gradableES": "Gradable",
+        "periphrasticComparativeES": "Utilise « más »",
+        "gradableDE": "Gradable",
+        "adverbDE": "Adverbe",
+        "comparativeDE": "Comparatif",
+        "superlativeDE": "Superlatif",
+        "adverbEE": "Adverbe",
+        "comparativeEE": "Comparatif",
+        "superlativeEE": "Superlatif",
+        "gradableEE": "Gradable",
+        "periphrasticSuperlativeEE": "Pas de superlatif en un mot (kõige + comparatif)",
+        "adverbFR": "Adverbe",
+        "comparativeFR": "Comparatif",
+        "superlativeFR": "Superlatif",
+        "gradableFR": "Gradable",
+        "periphrasticFR": "Utilise « plus » (plus + adverbe)"
+      }
+    },
+    "conjunction": {
+      "errors": {
+        "formEN": {
+          "conjunctionRequired": "La conjonction est requise",
+          "typeInvalid": "Ce n’est pas une option",
+          "secondPartRequired": "La deuxième partie est requise"
+        },
+        "formES": {
+          "conjunctionRequired": "La conjonction est requise",
+          "typeInvalid": "Ce n’est pas une option",
+          "secondPartRequired": "La deuxième partie est requise"
+        },
+        "formDE": {
+          "conjunctionRequired": "La conjonction est requise",
+          "typeInvalid": "Ce n’est pas une option",
+          "secondPartRequired": "La deuxième partie est requise"
+        },
+        "formEE": {
+          "conjunctionRequired": "La conjonction est requise",
+          "typeInvalid": "Ce n’est pas une option",
+          "secondPartRequired": "La deuxième partie est requise"
+        },
+        "formFR": {
+          "conjunctionRequired": "La conjonction est requise",
+          "typeInvalid": "Ce n’est pas une option",
+          "secondPartRequired": "La deuxième partie est requise"
+        }
+      },
+      "fields": {
+        "conjunctionEN": "Conjonction",
+        "conjunctionTypeEN": "Type",
+        "correlativeEN": "En paire (p. ex. ni … ni)",
+        "secondPartEN": "Deuxième partie",
+        "conjunctionES": "Conjonction",
+        "conjunctionTypeES": "Type",
+        "correlativeES": "En paire (p. ex. ni … ni)",
+        "secondPartES": "Deuxième partie",
+        "moodES": "Mode du verbe",
+        "conjunctionDE": "Conjonction",
+        "conjunctionTypeDE": "Type",
+        "correlativeDE": "En paire (p. ex. ni … ni)",
+        "secondPartDE": "Deuxième partie",
+        "conjunctionEE": "Conjonction",
+        "conjunctionTypeEE": "Type",
+        "correlativeEE": "En paire (p. ex. ni … ni)",
+        "secondPartEE": "Deuxième partie",
+        "conjunctionFR": "Conjonction",
+        "conjunctionTypeFR": "Type",
+        "correlativeFR": "En paire (p. ex. ni … ni)",
+        "secondPartFR": "Deuxième partie",
+        "moodFR": "Mode du verbe"
+      }
+    },
+    "preposition": {
+      "errors": {
+        "formEN": {
+          "prepositionRequired": "La préposition est requise",
+          "positionInvalid": "Ce n’est pas une option"
+        },
+        "formES": {
+          "prepositionRequired": "La préposition est requise",
+          "positionInvalid": "Ce n’est pas une option"
+        },
+        "formDE": {
+          "prepositionRequired": "La préposition est requise",
+          "positionInvalid": "Ce n’est pas une option"
+        },
+        "formEE": {
+          "prepositionRequired": "La préposition est requise",
+          "positionInvalid": "Ce n’est pas une option"
+        },
+        "formFR": {
+          "prepositionRequired": "La préposition est requise",
+          "positionInvalid": "Ce n’est pas une option"
+        }
+      },
+      "fields": {
+        "prepositionEN": "Préposition",
+        "positionEN": "Position",
+        "prepositionES": "Préposition",
+        "positionES": "Position",
+        "prepositionDE": "Préposition",
+        "positionDE": "Position",
+        "governedCaseDE": "Cas du nom",
+        "contractsDE": "Se contracte avec l’article",
+        "withDemDE": "Avec « dem » (p. ex. zum)",
+        "withDerDE": "Avec « der » (p. ex. zur)",
+        "withDasDE": "Avec « das » (p. ex. ins)",
+        "prepositionEE": "Préposition",
+        "positionEE": "Position",
+        "governedCasePreEE": "Cas du nom (mot placé avant)",
+        "governedCasePostEE": "Cas du nom (mot placé après)",
+        "spatialSeriesEE": "A une série directionnelle (vers où / d’où)",
+        "directionToEE": "Vers où (p. ex. sisse)",
+        "directionFromEE": "D’où (p. ex. seest)",
+        "prepositionFR": "Préposition",
+        "positionFR": "Position"
+      }
+    },
+    "verb": {
+      "errors": {
+        "formEN": {
+          "simplePresentRequired": "Ce champ du présent simple est requis",
+          "regularityRequired": "Ce n’est pas une option"
+        },
+        "formES": {
+          "infinitiveNonFiniteRequired": "La forme non finie à l’infinitif est requise",
+          "gerundNonFiniteRequired": "La forme non finie au gérondif est requise",
+          "participleNonFiniteRequired": "La forme non finie au participe est requise",
+          "infinitiveNotMatching": "Saisis la forme de l’infinitif (se termine par « -ar », « -er », « -ir » ou « -ír », plus « -se » pour un verbe pronominal).",
+          "regularityRequired": "Ce n’est pas une option"
+        },
+        "formDE": {
+          "infinitiveNonFiniteRequired": "La forme non finie à l’infinitif est requise",
+          "infinitiveNotMatching": "Saisis la forme de l’infinitif (se termine par « -en », « -ern » ou « -eln »).",
+          "regularityRequired": "Ce n’est pas une option"
+        },
+        "formEE": {
+          "infinitiveMaRequired": "L’infinitif en -ma est requis",
+          "infinitiveMaNotMatching": "Saisis la forme de l’infinitif (se termine par « -ma »).",
+          "infinitiveDaRequired": "L’infinitif en -da est requis"
+        },
+        "formFR": {
+          "infinitiveRequired": "L’infinitif est requis",
+          "infinitiveNotMatching": "Saisis la forme de l’infinitif (se termine par « -er », « -ir » ou « -re » ; un verbe pronominal peut commencer par « se »).",
+          "verbGroupInvalid": "Ce n’est pas une option"
+        }
+      },
+      "fields": {
+        "regularityEN": "Régularité",
+        "regularityES": "Régularité",
+        "regularityDE": "Régularité",
+        "reflexivityES": "Réflexivité",
+        "reflexivityDE": "Réflexivité",
+        "reflexiveCaseDE": "Cas du pronom réfléchi",
+        "regularityEE": "Régularité",
+        "infinitiveNonFiniteSimpleES": "Infinitif (forme non finie simple)",
+        "gerundNonFiniteSimpleES": "Gérondif (forme non finie simple)",
+        "participleNonFiniteSimpleES": "Participe (forme non finie simple)",
+        "infinitiveDE": "Infinitif",
+        "auxVerbDE": "Verbe auxiliaire",
+        "prefixDE": "Préfixe",
+        "caseTypeDE": "Cas du verbe",
+        "infinitiveMaEE": "Infinitif en -ma",
+        "infinitiveDaEE": "Infinitif en -da",
+        "infinitiveFR": "Infinitif",
+        "verbGroupFR": "Groupe du verbe",
+        "auxVerbFR": "Verbe auxiliaire",
+        "reflexivityFR": "Réflexivité",
+        "pastParticipleFR": "Participe passé",
+        "presentParticipleFR": "Participe présent"
+      }
+    },
+    "autocompleteTranslationButton": {
+      "label": "Remplir automatiquement ({{wordType}})",
+      "emptyQuery": "Saisis d’abord « {{requiredField}} ».",
+      "noMatch": "Désolé, nous ne connaissons pas ce mot !",
+      "foundMatch": "Des informations sur ce mot sont enregistrées dans notre système.",
+      "partialMatch": "Nous n’en sommes pas tout à fait sûrs, mais voici notre meilleure estimation.",
+      "loading": "Recherche en cours…",
+      "autocompleteButton": "Utiliser les valeurs suggérées",
+      "valuesApplied": "Valeurs suggérées appliquées",
+      "supportLabel": "Prise en charge de la saisie automatique",
+      "inputPlaceholder": "Saisis pour remplir automatiquement"
+    }
+  }
+}

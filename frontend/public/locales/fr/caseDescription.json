@@ -1,0 +1,6 @@
+{
+  "verbPersonCardinal": {
+    "number_ordinal_one": "{{count}}re personne",
+    "number_ordinal_other": "{{count}}e personne"
+  }
+}

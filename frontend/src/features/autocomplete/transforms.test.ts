@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { Lang, NounCases, PartOfSpeech, VerbCases } from '@/ts/enums';
 import { getFormConfig } from '@/features/words/form-engine/configs';
-import { activeQueryField, AUTOCOMPLETE_REGISTRY, getAutocompleteEndpoint, toAutocompleteResult } from './transforms';
+import { activeQueryField, getAutocompleteEndpoint, toAutocompleteResult } from './transforms';
 
 // The Estonian response transforms moved to the backend in Slice A
 // (backend/tests/unit/dictionaryEki.test.js); every pair now answers the same { status, cases }.
@@ -40,21 +40,20 @@ describe('getAutocompleteEndpoint — coverage table', () => {
                 'Estonian/Adverb',
                 'Estonian/Conjunction',
                 'Estonian/Preposition',
+                'French/Verb',
+                'French/Noun',
+                'French/Adjective',
+                'French/Adverb',
+                'French/Conjunction',
+                'French/Preposition',
             ].sort()
         );
-    });
-
-    it('EE verb is the only entry with an extraFieldName (searchInEnglish)', () => {
-        expect(AUTOCOMPLETE_REGISTRY[Lang.EE]?.[PartOfSpeech.verb]?.extraFieldName).toBe('searchInEnglish');
-        expect(AUTOCOMPLETE_REGISTRY[Lang.EE]?.[PartOfSpeech.noun]?.extraFieldName).toBeUndefined();
-        expect(AUTOCOMPLETE_REGISTRY[Lang.EE]?.[PartOfSpeech.adjective]?.extraFieldName).toBeUndefined();
-        expect(AUTOCOMPLETE_REGISTRY[Lang.EE]?.[PartOfSpeech.adverb]?.extraFieldName).toBeUndefined();
     });
 });
 
 describe('the query field of each adjective, adverb, conjunction and preposition card (Slice H3, conjunctions plan)', () => {
     it('every registered query field is a text field of that card', () => {
-        for (const lang of [Lang.EN, Lang.ES, Lang.DE, Lang.EE]) {
+        for (const lang of [Lang.EN, Lang.ES, Lang.DE, Lang.EE, Lang.FR]) {
             for (const pos of [PartOfSpeech.adjective, PartOfSpeech.adverb, PartOfSpeech.conjunction, PartOfSpeech.preposition]) {
                 const endpoint = getAutocompleteEndpoint(lang, pos)!;
                 const fields = getFormConfig(pos, lang)!.fields;
@@ -124,6 +123,15 @@ describe('registry query field names — pinned per (language, PoS)', () => {
     it('ES noun query field is "singular", DE noun is "singularNominativ"', () => {
         expect(getAutocompleteEndpoint(Lang.ES, PartOfSpeech.noun)?.queryFieldName).toBe('singular');
         expect(getAutocompleteEndpoint(Lang.DE, PartOfSpeech.noun)?.queryFieldName).toBe('singularNominativ');
+    });
+
+    it('FR noun queries off singular, FR adjective off maleSingular (slice 9a)', () => {
+        expect(getAutocompleteEndpoint(Lang.FR, PartOfSpeech.noun)?.queryFieldName).toBe('singular');
+        expect(getAutocompleteEndpoint(Lang.FR, PartOfSpeech.adjective)?.queryFieldName).toBe('maleSingular');
+    });
+
+    it('FR verb queries off infinitive (slice 9b)', () => {
+        expect(getAutocompleteEndpoint(Lang.FR, PartOfSpeech.verb)?.queryFieldName).toBe('infinitive');
     });
 
     it('EE verb queries off infinitiveMa, EE noun off singularNimetav, EE adjective off algvorre', () => {

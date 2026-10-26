@@ -35,7 +35,7 @@ describe('scripts/onboarding/pool.tsv', () => {
         expect(concept.words.English?.word).toBeTruthy();
         // English + at least one other language: a Word needs two (D9).
         expect(Object.keys(concept.words).length).toBeGreaterThanOrEqual(2);
-        for (const [language, code] of [['Spanish', 'es'], ['German', 'de']]) {
+        for (const [language, code] of [['Spanish', 'es'], ['German', 'de'], ['French', 'fr']]) {
             const gender = concept.words[language]?.gender;
             if (gender) expect(POOL_GENDERS[code]).toContain(gender);
         }
@@ -44,7 +44,7 @@ describe('scripts/onboarding/pool.tsv', () => {
 
 describe('parsePool', () => {
     const header = POOL_COLUMNS.join('\t');
-    const line = ['keep', 'noun:apple', 'food_drink', 'food_drink,core', 'beginner', 'Noun', '2628', 'apple', 'manzana', 'la', 'Apfel', 'der', 'õun', 'fruit', '0.1', ''].join('\t');
+    const line = ['keep', 'noun:apple', 'food_drink', 'food_drink,core', 'beginner', 'Noun', '2628', 'apple', 'manzana', 'la', 'Apfel', 'der', 'õun', 'pomme', 'la', 'fruit', '0.1', ''].join('\t');
 
     it('reads the words, genders and flags of a line', () => {
         const [concept] = parsePool(`${header}\n${line}\n`);
@@ -57,6 +57,7 @@ describe('parsePool', () => {
             Spanish: { word: 'manzana', gender: 'la' },
             German: { word: 'Apfel', gender: 'der' },
             Estonian: { word: 'õun', gender: null },
+            French: { word: 'pomme', gender: 'la' },
         });
     });
 
@@ -78,6 +79,7 @@ describe('parsePool', () => {
         expect(() => parsePool(`${header}\n${line.replace('keep', 'maybe')}\n`)).toThrow(/unknown status/);
         expect(() => parsePool(`${header}\n${line.replace('\tNoun\t', '\tPronoun\t')}\n`)).toThrow(/part of speech/);
         expect(() => parsePool(`${header}\n${line.replace('\tla\t', '\tlos\t')}\n`)).toThrow(/Spanish gender/);
+        expect(() => parsePool(`${header}\n${line.replace('\tpomme\tla\t', '\tpomme\tdie\t')}\n`)).toThrow(/French gender/);
     });
 
     it('rejects a wrong header or a line with missing columns', () => {
@@ -107,7 +109,7 @@ describe('scripts/onboarding/pool-forms.json', () => {
 });
 
 describe('pool-forms.json adverbs', () => {
-    const SUFFIX = { English: 'EN', Spanish: 'ES', German: 'DE', Estonian: 'EE' };
+    const SUFFIX = { English: 'EN', Spanish: 'ES', German: 'DE', Estonian: 'EE', French: 'FR' };
     const adverbs = Object.entries(readForms().concepts).filter(([id]) => id.startsWith('adverb:'));
 
     it.each(adverbs)('%s: every language has the radio value (gradable-radio plan, Q2)', (_id, concept) => {
@@ -125,11 +127,14 @@ describe('adverbPoolCases', () => {
         expect(adverbPoolCases('Spanish', { adverbES: 'ayer' })).toEqual({ adverbES: 'ayer', gradableES: 'Non-gradable' });
         expect(adverbPoolCases('German', { adverbDE: 'heute' })).toEqual({ adverbDE: 'heute', gradableDE: 'Non-gradable' });
         expect(adverbPoolCases('Estonian', { adverbEE: 'täna' })).toEqual({ adverbEE: 'täna', gradableEE: 'Non-gradable' });
+        expect(adverbPoolCases('French', { adverbFR: 'hier' })).toEqual({ adverbFR: 'hier', gradableFR: 'Non-gradable' });
     });
 
     it('a comparative or a superlative makes it Gradable', () => {
         expect(adverbPoolCases('English', { adverbEN: 'soon', comparativeEN: 'sooner', superlativeEN: 'soonest' }).gradableEN).toBe('Gradable');
         expect(adverbPoolCases('German', { adverbDE: 'bald', superlativeDE: 'baldigsten' }).gradableDE).toBe('Gradable');
+        // French: only an irregular adverb has a degree in the lexicon (bien → mieux), so a regular one reads Non-gradable.
+        expect(adverbPoolCases('French', { adverbFR: 'bien', comparativeFR: 'mieux' }).gradableFR).toBe('Gradable');
     });
 
     it('builds the phrase of the "more / most" box again, so the saved word holds the box and the text (Q9)', () => {
@@ -153,6 +158,11 @@ describe('hasKeyCases', () => {
         expect(hasKeyCases('Noun', 'Spanish', { genderES: 'la', singularES: 'casa' })).toBe(true);
         expect(hasKeyCases('Noun', 'Spanish', { singularES: 'casa' })).toBe(false);
         expect(hasKeyCases('Noun', 'German', { genderDE: 'das', singularNominativDE: 'Haus' })).toBe(true);
+        expect(hasKeyCases('Noun', 'French', { genderFR: 'le', singularFR: 'cheval' })).toBe(true);
+        expect(hasKeyCases('Noun', 'French', { singularFR: 'cheval' })).toBe(false);
+        expect(hasKeyCases('Verb', 'French', { infinitiveFR: 'aimer' })).toBe(true);
+        expect(hasKeyCases('Adjective', 'French', { maleSingularFR: 'beau' })).toBe(true);
+        expect(hasKeyCases('Adverb', 'French', { adverbFR: 'hier' })).toBe(true);
     });
 
     it('accepts either case of a Spanish adjective', () => {
@@ -178,7 +188,7 @@ describe('hasKeyCases', () => {
 
     it('rejects an unknown part of speech or language, and empty values', () => {
         expect(hasKeyCases('Pronoun', 'English', { singularEN: 'it' })).toBe(false);
-        expect(hasKeyCases('Noun', 'French', { singularEN: 'x' })).toBe(false);
+        expect(hasKeyCases('Noun', 'Klingon', { singularEN: 'x' })).toBe(false);
         expect(hasKeyCases('Verb', 'Estonian', { infinitiveMaEE: '' })).toBe(false);
     });
 });

@@ -1,3 +1,4 @@
+import { E2E_API_URL, E2E_BASE_URL, OIDC_STUB_URL } from '../fixtures/env';
 import { test, expect } from '@playwright/test';
 import { createHash, randomBytes } from 'node:crypto';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
@@ -13,8 +14,7 @@ import { createRemoteJWKSet, jwtVerify } from 'jose';
  * this suite.
  */
 
-const OIDC_STUB_URL = process.env.OIDC_STUB_URL ?? 'http://localhost:4400';
-const API_URL = process.env.E2E_API_URL ?? 'http://localhost:5001';
+const API_URL = E2E_API_URL;
 
 function base64url(input: Buffer): string {
     return input.toString('base64url');
@@ -56,7 +56,7 @@ test.describe('OAuth Phase 0 — stub issuer harness', () => {
         // exact contract, so a bug here should surface now, not mid-Phase-2.
         const verifier = base64url(randomBytes(32));
         const challenge = base64url(createHash('sha256').update(verifier).digest());
-        const redirectUri = 'http://localhost:5173/auth/callback';
+        const redirectUri = `${E2E_BASE_URL}/auth/callback`;
         const clientId = 'phase-0-self-test';
         const nonce = base64url(randomBytes(8));
         const email = 'oauth-phase0@ladu.test';
@@ -106,7 +106,7 @@ test.describe('OAuth Phase 0 — stub issuer harness', () => {
 
     test('token exchange rejects a mismatched PKCE verifier', async ({ request }) => {
         const challenge = base64url(createHash('sha256').update('correct-verifier').digest());
-        const redirectUri = 'http://localhost:5173/auth/callback';
+        const redirectUri = `${E2E_BASE_URL}/auth/callback`;
         const clientId = 'phase-0-self-test';
 
         const authorizeUrl = new URL(`${OIDC_STUB_URL}/authorize`);

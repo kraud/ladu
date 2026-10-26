@@ -4,19 +4,17 @@
  * `invalidMessageKey`) plus one shared `noNumbers` key — this file has no
  * knowledge of which part of speech or language it is validating.
  *
- * Two config features change *which* schema a field gets, not just its rules:
+ * Config features change *which* schema a field gets, not just its rules:
  *  - `pattern` (text fields only) layers one more `.matches()` on top of the
  *    base rules (Spanish infinitive `ar|er|ir`, German `en|ern|eln`, Estonian
- *    `-ma`) — optionally dropped while `pattern.relaxedWhen`'s sibling field
- *    matches (Estonian's `-ma` ending relaxes once `searchInEnglish` is
- *    checked; the field stays required either way).
+ *    `-ma`, French `er|ir|re`).
  *  - `visibleWhen` swaps in an unconstrained, optional fallback schema
  *    whenever the field is hidden per `matchesVisibility` (see `configs/types.ts`)
  *    — a hidden field always validates as present-but-optional, regardless of
  *    its own `required` flag (Spanish adjective's gender branch, German
  *    adverb's non-gradable branch — `forms-adjectives-adverbs.md`).
  *  - `derivedWhen` (text fields) does the same while the field shows derived
- *    read-only text (Estonian "kõige …" superlative, decision D20).
+ *    read-only text (Estonian "kõige …" superlative, decision D20; always, when it has no `when`).
  */
 import * as yup from 'yup';
 import { matchesVisibility, type FieldConfig, type FieldKind, type TranslationFormConfig } from './configs/types';
@@ -42,14 +40,7 @@ function textFieldSchema(field: Extract<FieldConfig, { kind: 'text' }>, t: Trans
               .nullable()
               .matches(/^[^0-9]+$|^$/, noNumbers);
     if (!field.pattern) return base;
-    const withPattern = base.matches(field.pattern.regex, t(field.pattern.messageKey));
-    const relaxedWhen = field.pattern.relaxedWhen;
-    if (!relaxedWhen) return withPattern;
-    return base.when(relaxedWhen.field, {
-        is: (value: unknown) => matchesVisibility(relaxedWhen, value),
-        then: () => base,
-        otherwise: () => withPattern,
-    });
+    return base.matches(field.pattern.regex, t(field.pattern.messageKey));
 }
 
 function radioFieldSchema(field: Extract<FieldConfig, { kind: 'radio' }>, t: TranslateFn): yup.AnySchema {
@@ -58,12 +49,10 @@ function radioFieldSchema(field: Extract<FieldConfig, { kind: 'radio' }>, t: Tra
         const message = t(field.requiredMessageKey ?? field.invalidMessageKey ?? NO_NUMBERS_KEY);
         return yup.string().required(message).oneOf(values, message);
     }
-    const noNumbers = t(NO_NUMBERS_KEY);
+    // Only the listed options (or empty) pass, so a digit rule on top would add nothing. It would also refuse an
+    // option that has a digit in it: the French verb groups "1er groupe", "2e groupe" and "3e groupe".
     const optionsPattern = new RegExp(`^(${values.map(escapeForRegExp).join('|')})?$`);
-    return yup
-        .string()
-        .matches(/^[^0-9]+$|^$/, noNumbers)
-        .matches(optionsPattern, t(field.invalidMessageKey ?? NO_NUMBERS_KEY));
+    return yup.string().matches(optionsPattern, t(field.invalidMessageKey ?? NO_NUMBERS_KEY));
 }
 
 /** Shared by `select` and `toggle` — both are a plain "one of these option values, or empty" field. */
@@ -117,13 +106,16 @@ export function buildYupSchema(config: TranslationFormConfig, t: TranslateFn): y
               })
             : schema;
         const derivation = field.kind === 'text' ? field.derivedWhen : undefined;
-        shape[field.name] = derivation
-            ? visible.when(derivation.when.field, {
-                  is: (value: unknown) => matchesVisibility(derivation.when, value),
-                  then: () => hiddenFallbackSchema(field.kind),
-                  otherwise: () => visible,
-              })
-            : visible;
+        const derivedWhen = derivation?.when;
+        shape[field.name] = !derivation
+            ? visible
+            : derivedWhen
+              ? visible.when(derivedWhen.field, {
+                    is: (value: unknown) => matchesVisibility(derivedWhen, value),
+                    then: () => hiddenFallbackSchema(field.kind),
+                    otherwise: () => visible,
+                })
+              : hiddenFallbackSchema(field.kind); // always derived: never typed, never validated
     }
     return yup.object(shape);
 }

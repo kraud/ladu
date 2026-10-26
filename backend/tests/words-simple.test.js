@@ -195,6 +195,188 @@ describe('GET /api/words/simple - row shape', () => {
         expect(await search('Before')).toHaveLength(0); // the position is a property
     });
 
+    it('extracts the headline word, gender and case count of a French Noun, and search skips its property rows', async () => {
+        const res = await create(token, {
+            partOfSpeech: 'Noun',
+            translations: [
+                t('English', 'horse', 'singularEN'),
+                {
+                    language: 'French',
+                    cases: [
+                        { word: 'le', caseName: 'genderFR' },
+                        { word: 'irregular', caseName: 'regularityFR' },
+                        { word: 'cheval', caseName: 'singularFR' },
+                        { word: 'chevaux', caseName: 'pluralFR' },
+                    ],
+                },
+            ],
+        });
+        expect(res.status).toBe(200);
+
+        const get = (query) => request(app).get(`/api/words/simple?${query}`).set('Authorization', `Bearer ${token}`);
+        const row = (await get('')).body.items.find((w) => w.id === res.body.id);
+        expect(row.dataFR).toBe('cheval');
+        expect(row.genderFR).toBe('le');
+        expect(row.registeredCasesFR).toBe(4);
+        expect(row.dataEN).toBe('horse');
+
+        expect((await get('q=chevaux')).body.items).toHaveLength(1); // the plural is a written form
+        expect((await get('q=irregular')).body.items).toHaveLength(0); // the regularity is a property
+        expect((await get('gender=le')).body.items).toHaveLength(1); // the gender filter reads genderFR
+        expect((await get('gender=la')).body.items).toHaveLength(0);
+    });
+
+    it('extracts the headline word of a French Adjective, and search skips its property rows', async () => {
+        const res = await create(token, {
+            partOfSpeech: 'Adjective',
+            translations: [
+                t('English', 'beautiful', 'positiveEN'),
+                {
+                    language: 'French',
+                    cases: [
+                        { word: 'beau', caseName: 'maleSingularFR' },
+                        { word: 'belle', caseName: 'femaleSingularFR' },
+                        { word: 'plus beau', caseName: 'comparativeFR' },
+                        { word: 'le plus beau', caseName: 'superlativeFR' },
+                        { word: 'true', caseName: 'periphrasticFR' },
+                        { word: 'true', caseName: 'hasVowelFormFR' },
+                        { word: 'bel', caseName: 'vowelFormFR' },
+                        { word: 'Before the noun', caseName: 'positionFR' },
+                    ],
+                },
+            ],
+        });
+        expect(res.status).toBe(200);
+
+        const get = (query) => request(app).get(`/api/words/simple?${query}`).set('Authorization', `Bearer ${token}`);
+        const row = (await get('')).body.items.find((w) => w.id === res.body.id);
+        expect(row.dataFR).toBe('beau');
+        expect(row.registeredCasesFR).toBe(8);
+        expect((await get('q=le plus')).body.items).toHaveLength(1); // the superlative is a written form
+
+        expect((await get('q=bel')).body.items).toHaveLength(1); // the vowel form is a written form
+        expect((await get('q=Before')).body.items).toHaveLength(0); // the position is a property
+        expect((await get('q=true')).body.items).toHaveLength(0); // the two boxes are properties
+    });
+
+    it('extracts the headline word of a French Verb, and search reads the participles and the tenses but not the properties', async () => {
+        const res = await create(token, {
+            partOfSpeech: 'Verb',
+            translations: [
+                t('English', 'to go', 'simplePresent1sEN'),
+                {
+                    language: 'French',
+                    cases: [
+                        { word: 'aller', caseName: 'infinitiveFR' },
+                        { word: '3e groupe', caseName: 'verbGroupFR' },
+                        { word: 'être', caseName: 'auxVerbFR' },
+                        { word: 'Not reflexive', caseName: 'reflexivityFR' },
+                        { word: 'allé', caseName: 'pastParticipleFR' },
+                        { word: 'allant', caseName: 'presentParticipleFR' },
+                        { word: 'vais', caseName: 'indicativePresent1sFR' },
+                        { word: 'allais', caseName: 'indicativeImperfect1sFR' },
+                        { word: 'allés', caseName: 'indicativePerfect1plFR' },
+                        { word: 'irai', caseName: 'indicativeSimpleFuture1sFR' },
+                    ],
+                },
+            ],
+        });
+        expect(res.status).toBe(200);
+
+        const get = (query) => request(app).get(`/api/words/simple?${query}`).set('Authorization', `Bearer ${token}`);
+        const row = (await get('')).body.items.find((w) => w.id === res.body.id);
+        expect(row.dataFR).toBe('aller');
+        expect(row.registeredCasesFR).toBe(10);
+        expect(row.dataEN).toBe('to go');
+
+        expect((await get('q=allant')).body.items).toHaveLength(1); // the present participle is a written form
+        expect((await get('q=irai')).body.items).toHaveLength(1); // so is a tense form
+        expect((await get('q=groupe')).body.items).toHaveLength(0); // the verb group is a property
+        expect((await get('q=Not reflexive')).body.items).toHaveLength(0); // so is reflexivity
+        expect((await get('q=être')).body.items).toHaveLength(0); // and the auxiliary
+    });
+
+    it('extracts the headline word of a French Adverb, and search skips its property rows', async () => {
+        const res = await create(token, {
+            partOfSpeech: 'Adverb',
+            translations: [
+                t('English', 'well', 'adverbEN'),
+                {
+                    language: 'French',
+                    cases: [
+                        { word: 'Gradable', caseName: 'gradableFR' },
+                        { word: 'bien', caseName: 'adverbFR' },
+                        { word: 'mieux', caseName: 'comparativeFR' },
+                        { word: 'le mieux', caseName: 'superlativeFR' },
+                    ],
+                },
+            ],
+        });
+        expect(res.status).toBe(200);
+
+        const get = (query) => request(app).get(`/api/words/simple?${query}`).set('Authorization', `Bearer ${token}`);
+        const row = (await get('')).body.items.find((w) => w.id === res.body.id);
+        expect(row.dataFR).toBe('bien');
+        expect(row.registeredCasesFR).toBe(4);
+
+        expect((await get('q=mieux')).body.items).toHaveLength(1); // the comparative and the superlative are written forms
+        expect((await get('q=Gradable')).body.items).toHaveLength(0); // the radio is a property
+    });
+
+    it('extracts the headline word of a French Conjunction, and search skips its property rows', async () => {
+        const res = await create(token, {
+            partOfSpeech: 'Conjunction',
+            translations: [
+                t('English', 'either', 'conjunctionEN'),
+                {
+                    language: 'French',
+                    cases: [
+                        { word: 'soit', caseName: 'conjunctionFR' },
+                        { word: 'Coordinating', caseName: 'conjunctionTypeFR' },
+                        { word: 'true', caseName: 'correlativeFR' },
+                        { word: 'soit', caseName: 'secondPartFR' },
+                        { word: 'Conditional', caseName: 'moodFR' },
+                    ],
+                },
+            ],
+        });
+        expect(res.status).toBe(200);
+
+        const get = (query) => request(app).get(`/api/words/simple?${query}`).set('Authorization', `Bearer ${token}`);
+        const row = (await get('')).body.items.find((w) => w.id === res.body.id);
+        expect(row.dataFR).toBe('soit');
+        expect(row.registeredCasesFR).toBe(5);
+
+        expect((await get('q=soit')).body.items).toHaveLength(1); // the headword and the second part are written forms
+        expect((await get('q=Coordinating')).body.items).toHaveLength(0); // the type is a property
+        expect((await get('q=Conditional')).body.items).toHaveLength(0); // the mood is a property
+    });
+
+    it('extracts the headline word of a French Preposition, and search skips its position', async () => {
+        const res = await create(token, {
+            partOfSpeech: 'Preposition',
+            translations: [
+                t('English', 'during', 'prepositionEN'),
+                {
+                    language: 'French',
+                    cases: [
+                        { word: 'durant', caseName: 'prepositionFR' },
+                        { word: 'Before or after the noun', caseName: 'positionFR' },
+                    ],
+                },
+            ],
+        });
+        expect(res.status).toBe(200);
+
+        const get = (query) => request(app).get(`/api/words/simple?${query}`).set('Authorization', `Bearer ${token}`);
+        const row = (await get('')).body.items.find((w) => w.id === res.body.id);
+        expect(row.dataFR).toBe('durant');
+        expect(row.registeredCasesFR).toBe(2);
+
+        expect((await get('q=durant')).body.items).toHaveLength(1);
+        expect((await get('q=after the noun')).body.items).toHaveLength(0); // the position is a property
+    });
+
     it('extracts the primary case per language for an Adverb', async () => {
         const res = await create(token, {
             partOfSpeech: 'Adverb',
@@ -215,7 +397,7 @@ describe('GET /api/words/simple - row shape', () => {
         const res = await create(token, {
             partOfSpeech: 'Noun',
             translations: [
-                { language: 'French', cases: [{ word: 'chat', caseName: 'singularFR' }] },
+                { language: 'Klingon', cases: [{ word: 'chat', caseName: 'singularKL' }] },
                 { language: 'English', cases: [{ word: 'cat', caseName: 'singularEN' }] },
             ],
         });
@@ -224,7 +406,7 @@ describe('GET /api/words/simple - row shape', () => {
         expect(list.statusCode).toBe(200);
         const row = list.body.items.find((w) => w.id === res.body.id);
         expect(row.dataEN).toBe('cat');
-        expect(row.dataFR).toBeUndefined();
+        expect(row.dataKL).toBeUndefined();
     });
 
     it('does not 500 on an unrecognised part of speech', async () => {
@@ -738,8 +920,24 @@ describe('GET /api/words/simple - sort by language', () => {
         expect(estonian).toEqual(['banaan', 'dattel', 'kala', 'kirss', 'õun']);
     });
 
+    it('sorts by French, on the singular of a noun', async () => {
+        for (const fr of ['zèbre', 'arbre', 'maison']) {
+            await create(token, {
+                partOfSpeech: 'Noun',
+                translations: [
+                    t('English', `${fr}-en`, 'singularEN'),
+                    { language: 'French', cases: [{ word: 'le', caseName: 'genderFR' }, { word: fr, caseName: 'singularFR' }] },
+                ],
+            });
+        }
+        const res = await get('sort=FR&dir=asc');
+        expect(res.statusCode).toBe(200);
+        const french = res.body.items.map((w) => w.dataFR).filter((d) => d !== undefined && d !== null);
+        expect(french).toEqual(['arbre', 'maison', 'zèbre']);
+    });
+
     it('rejects an unknown language, an unknown direction and a cursor of the other kind', async () => {
-        expect((await get('sort=FR')).statusCode).toBe(400);
+        expect((await get('sort=XX')).statusCode).toBe(400);
         expect((await get('sort=EN&dir=sideways')).statusCode).toBe(400);
         const firstPage = await get('limit=2');
         expect((await get(`sort=EN&cursor=${encodeURIComponent(firstPage.body.nextCursor)}`)).statusCode).toBe(400);

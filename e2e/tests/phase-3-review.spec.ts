@@ -1,3 +1,4 @@
+import { E2E_API_URL } from '../fixtures/env';
 import { test, expect, type APIRequestContext } from '@playwright/test';
 import { clickUseValues, closeTypeAheadList } from '../fixtures/autocomplete';
 import { closePool, deleteUsersByEmail, getVerifyToken } from '../fixtures/db';
@@ -18,12 +19,12 @@ import { closePool, deleteUsersByEmail, getVerifyToken } from '../fixtures/db';
  * filter change and a change of page, not a positional index.
  * (Numbered pages: `.context/plans/words-pagination.md` Slice 3.)
  *
- * Runs against `keelapp_v2_dev`. Uses a unique `e2e-*@ladu.test` email and
+ * Runs against `keelapp_e2e`. Uses a unique `e2e-*@ladu.test` email and
  * deletes it in `afterAll` — `words`/`translations`/`cases` cascade off the
  * `users` row (`backend/src/db/schema.ts`).
  */
 
-const API = process.env.E2E_API_URL ?? 'http://localhost:5001';
+const API = E2E_API_URL;
 
 const run = Date.now();
 let seq = 0;

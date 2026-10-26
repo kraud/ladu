@@ -1,3 +1,4 @@
+import { E2E_ADMIN_URL, E2E_API_URL } from '../fixtures/env';
 import { test, expect, type APIRequestContext, type Locator, type Page } from '@playwright/test';
 import {
     closePool,
@@ -38,8 +39,8 @@ import { signIn, type Account } from '../fixtures/practice';
  * off the user).
  */
 
-const ADMIN_URL = process.env.E2E_ADMIN_URL ?? 'http://localhost:5174';
-const API = process.env.E2E_API_URL ?? 'http://localhost:5001';
+const ADMIN_URL = E2E_ADMIN_URL;
+const API = E2E_API_URL;
 
 const run = Date.now();
 const STAFF_PASSWORD = 'e2e-staff-password';

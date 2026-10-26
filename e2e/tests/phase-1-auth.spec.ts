@@ -1,3 +1,4 @@
+import { E2E_API_URL } from '../fixtures/env';
 import { test, expect } from '@playwright/test';
 import { closePool, deleteUsersByEmail, getUserTerms, getVerifyToken } from '../fixtures/db';
 
@@ -10,11 +11,11 @@ import { closePool, deleteUsersByEmail, getUserTerms, getVerifyToken } from '../
  * (unverified is blocked), the protected-route guard, and the public
  * UI-language selector persisting across reload and into the session.
  *
- * Runs against `keelapp_v2_dev`. Each run uses unique `e2e-*@ladu.test`
+ * Runs against `keelapp_e2e`. Each run uses unique `e2e-*@ladu.test`
  * emails and deletes them in `afterAll`.
  */
 
-const API = process.env.E2E_API_URL ?? 'http://localhost:5001';
+const API = E2E_API_URL;
 
 const run = Date.now();
 let seq = 0;
@@ -103,7 +104,7 @@ test.describe.serial('Phase 1 — auth + app shell', () => {
         await expect(page).toHaveURL('/user');
         await expect(page.getByRole('heading', { name: 'Account' })).toBeVisible();
         // Registered with English + Español.
-        await expect(page.getByText('2 of 4 selected')).toBeVisible();
+        await expect(page.getByText('2 of 5 selected')).toBeVisible();
 
         await page.getByRole('button', { name: 'Edit Profile' }).click();
         const save = page.getByRole('button', { name: 'Save' });
@@ -114,11 +115,11 @@ test.describe.serial('Phase 1 — auth + app shell', () => {
 
         await expect(page.getByText('User data updated successfully!')).toBeVisible();
         await expect(page.getByRole('button', { name: 'Edit Profile' })).toBeVisible();
-        await expect(page.getByText('3 of 4 selected')).toBeVisible();
+        await expect(page.getByText('3 of 5 selected')).toBeVisible();
 
         // Persisted: a reload rehydrates the edited profile from the folded session.
         await page.reload();
-        await expect(page.getByText('3 of 4 selected')).toBeVisible();
+        await expect(page.getByText('3 of 5 selected')).toBeVisible();
         await expect(page.getByText('Kai Rebane Uus').first()).toBeVisible();
     });
 

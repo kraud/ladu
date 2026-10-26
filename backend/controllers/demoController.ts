@@ -26,7 +26,8 @@ const { withStatus }: typeof import("../lib/adminRequest") = require("../lib/adm
 const { serializeLoginUser, isSupportedLanguage, normalizeLanguageSelection, parseThemeInput }: typeof import("./userController") =
   require("./userController");
 
-const ALL_LANGUAGES = ["English", "Spanish", "German", "Estonian"];
+// The languages a demo account gets when the visitor picks none: every language the demo template has words in.
+const ALL_LANGUAGES = ["English", "Spanish", "German", "Estonian", "French"];
 /** Any fixed number: it only has to be the same for every demo start. */
 const DEMO_START_LOCK = 734001;
 
@@ -58,7 +59,7 @@ const createDemo = async (req: any) => {
   // The app's UI language is a label, like login sends.
   const uiLanguage = isSupportedLanguage(req.body?.uiLanguage) ? req.body.uiLanguage : "English";
   // The languages the visitor picked on /demo (D16), with the registration rules (≥ 2, in the
-  // order picked). With none sent, all four, the UI language first: no language is "primary".
+  // order picked). With none sent, all five, the UI language first: no language is "primary".
   let languages: string[];
   if (req.body?.languages === undefined) {
     languages = [uiLanguage, ...ALL_LANGUAGES.filter((l) => l !== uiLanguage)];

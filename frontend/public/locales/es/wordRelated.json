@@ -19,7 +19,8 @@
       "english": "en inglés",
       "spanish": "en español",
       "german": "en alemán",
-      "estonian": "en estonio"
+      "estonian": "en estonio",
+      "french": "en francés"
     },
     "orLine": "o crear manualmente",
     "listLabel": "Significados",
@@ -218,8 +219,11 @@
         },
         "formEE": {
           "singularFormRequired": "'Singular nimetav' es obligatorio",
-          "searchInEnglishLabel": "Buscar el sustantivo en inglés",
-          "searchInEnglishWarning": "Cuidado, esto no funciona con todos los sustantivos. De ser necesario, pruebe buscar en estonio.",
+          "regularityRequired": "Esa no es una opción"
+        },
+        "formFR": {
+          "singularFormRequired": "La forma 'singular' es obligatoria",
+          "genderRequired": "La selección de 'género' es obligatoria",
           "regularityRequired": "Esa no es una opción"
         }
       },
@@ -248,7 +252,11 @@
         "pluralOmastavEE": "Plural genitivo",
         "singularOsastavEE": "Singular partitivo",
         "pluralOsastavEE": "Plural partitivo",
-        "shortFormEE": "Ilativo corto"
+        "shortFormEE": "Ilativo corto",
+        "regularityFR": "Regularidad",
+        "genderFR": "Género",
+        "singularFR": "Singular",
+        "pluralFR": "Plural"
       }
     },
     "adjective": {
@@ -270,6 +278,12 @@
           "algvorreFormRequired": "El grado positivo es obligatorio",
           "keskvorreFormRequired": "El grado comparativo es obligatorio",
           "ulivorreFormRequired": "El grado superlativo es obligatorio"
+        },
+        "formFR": {
+          "singularMasculineDegreeRequired": "El grado singular masculino es obligatorio",
+          "singularFemaleDegreeRequired": "El grado singular femenino es obligatorio",
+          "vowelFormRequired": "La forma ante vocal es obligatoria",
+          "positionInvalid": "Esa no es una opción"
         }
       },
       "fields": {
@@ -294,8 +308,19 @@
         "singularOmastavEE": "Singular genitivo",
         "pluralOmastavEE": "Plural genitivo",
         "singularOsastavEE": "Singular partitivo",
-        "pluralOsastavEE": "Plural partitivo"
-      }
+        "pluralOsastavEE": "Plural partitivo",
+        "maleSingularFR": "Masculino singular",
+        "malePluralFR": "Masculino plural",
+        "femaleSingularFR": "Femenino singular",
+        "femalePluralFR": "Femenino plural",
+        "comparativeFR": "Comparativo (masculino singular)",
+        "superlativeFR": "Superlativo (masculino singular)",
+        "periphrasticFR": "Usa \"plus\" (plus + adjetivo)",
+        "hasVowelFormFR": "Tiene una forma ante vocal (p. ej. beau → bel)",
+        "vowelFormFR": "Forma ante vocal",
+        "positionFR": "Posición"
+      },
+      "derivedFromComparative": "Depende del comparativo"
     },
     "adverb": {
       "errors": {
@@ -312,6 +337,10 @@
           "gradableRequired": "La selección de 'gradual' es obligatoria"
         },
         "formEE": {
+          "adverbRequired": "El adverbio es obligatorio",
+          "gradableRequired": "La selección de 'gradual' es obligatoria"
+        },
+        "formFR": {
           "adverbRequired": "El adverbio es obligatorio",
           "gradableRequired": "La selección de 'gradual' es obligatoria"
         }
@@ -335,7 +364,12 @@
         "comparativeEE": "Comparativo",
         "superlativeEE": "Superlativo",
         "gradableEE": "Graduable",
-        "periphrasticSuperlativeEE": "Sin superlativo de una sola palabra (kõige + comparativo)"
+        "periphrasticSuperlativeEE": "Sin superlativo de una sola palabra (kõige + comparativo)",
+        "adverbFR": "Adverbio",
+        "comparativeFR": "Comparativo",
+        "superlativeFR": "Superlativo",
+        "gradableFR": "Graduable",
+        "periphrasticFR": "Usa \"plus\" (plus + adverbio)"
       }
     },
     "conjunction": {
@@ -359,6 +393,11 @@
           "conjunctionRequired": "La conjunción es obligatoria",
           "typeInvalid": "Esa no es una opción",
           "secondPartRequired": "La segunda parte es obligatoria"
+        },
+        "formFR": {
+          "conjunctionRequired": "La conjunción es obligatoria",
+          "typeInvalid": "Esa no es una opción",
+          "secondPartRequired": "La segunda parte es obligatoria"
         }
       },
       "fields": {
@@ -378,7 +417,12 @@
         "conjunctionEE": "Conjunción",
         "conjunctionTypeEE": "Tipo",
         "correlativeEE": "En pareja (p. ej. ni … ni)",
-        "secondPartEE": "Segunda parte"
+        "secondPartEE": "Segunda parte",
+        "conjunctionFR": "Conjunción",
+        "conjunctionTypeFR": "Tipo",
+        "correlativeFR": "En pareja (p. ej. ni … ni)",
+        "secondPartFR": "Segunda parte",
+        "moodFR": "Modo del verbo"
       }
     },
     "preposition": {
@@ -396,6 +440,10 @@
           "positionInvalid": "Esa no es una opción"
         },
         "formEE": {
+          "prepositionRequired": "La preposición es obligatoria",
+          "positionInvalid": "Esa no es una opción"
+        },
+        "formFR": {
           "prepositionRequired": "La preposición es obligatoria",
           "positionInvalid": "Esa no es una opción"
         }
@@ -418,7 +466,9 @@
         "governedCasePostEE": "Caso del sustantivo (palabra detrás)",
         "spatialSeriesEE": "Tiene serie de destino / origen",
         "directionToEE": "Hacia dónde (p. ej. sisse)",
-        "directionFromEE": "Desde dónde (p. ej. seest)"
+        "directionFromEE": "Desde dónde (p. ej. seest)",
+        "prepositionFR": "Preposición",
+        "positionFR": "Posición"
       }
     },
     "verb": {
@@ -442,9 +492,12 @@
         "formEE": {
           "infinitiveMaRequired": "El infinitivo en -ma es obligatorio",
           "infinitiveMaNotMatching": "Por favor, introduzca la forma infinitiva (termina en '-ma').",
-          "infinitiveDaRequired": "El infinitivo en -da es obligatorio",
-          "searchInEnglishLabel": "Buscar verbo en inglés",
-          "searchInEnglishWarning": "¡Cuidado, esto no funcionará para todos los verbos! Si es necesario, prueba en estonio."
+          "infinitiveDaRequired": "El infinitivo en -da es obligatorio"
+        },
+        "formFR": {
+          "infinitiveRequired": "El infinitivo es obligatorio",
+          "infinitiveNotMatching": "Por favor, introduzca la forma infinitiva (termina en '-er', '-ir' o '-re'; un verbo reflexivo puede empezar por 'se ').",
+          "verbGroupInvalid": "Esa no es una opción"
         }
       },
       "fields": {
@@ -463,7 +516,13 @@
         "prefixDE": "Prefijo",
         "caseTypeDE": "Caso verbal",
         "infinitiveMaEE": "Infinitivo en -ma",
-        "infinitiveDaEE": "Infinitivo en -da"
+        "infinitiveDaEE": "Infinitivo en -da",
+        "infinitiveFR": "Infinitivo",
+        "verbGroupFR": "Grupo verbal",
+        "auxVerbFR": "Verbo auxiliar",
+        "reflexivityFR": "Reflexividad",
+        "pastParticipleFR": "Participio pasado",
+        "presentParticipleFR": "Participio presente"
       }
     },
     "autocompleteTranslationButton": {

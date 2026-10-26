@@ -19,7 +19,8 @@
       "english": "auf Englisch",
       "spanish": "auf Spanisch",
       "german": "auf Deutsch",
-      "estonian": "auf Estnisch"
+      "estonian": "auf Estnisch",
+      "french": "auf Französisch"
     },
     "orLine": "oder manuell erstellen",
     "listLabel": "Bedeutungen",
@@ -218,8 +219,11 @@
         },
         "formEE": {
           "singularFormRequired": "'Singular Nimetav' ist erforderlich",
-          "searchInEnglishLabel": "Suche nach Substantiven auf Englisch",
-          "searchInEnglishWarning": "Vorsicht, das funktioniert nicht für alle Substantive! Versuchen Sie es bei Bedarf auf Estnisch.",
+          "regularityRequired": "Das ist keine Option"
+        },
+        "formFR": {
+          "singularFormRequired": "'Singular'-Form ist erforderlich",
+          "genderRequired": "Die Auswahl des 'Geschlechts' ist erforderlich",
           "regularityRequired": "Das ist keine Option"
         }
       },
@@ -248,7 +252,11 @@
         "pluralOmastavEE": "Plural Genitiv",
         "singularOsastavEE": "Singular Partitiv",
         "pluralOsastavEE": "Plural Partitiv",
-        "shortFormEE": "Kurzer Illativ"
+        "shortFormEE": "Kurzer Illativ",
+        "regularityFR": "Regelmäßigkeit",
+        "genderFR": "Geschlecht",
+        "singularFR": "Singular",
+        "pluralFR": "Plural"
       }
     },
     "adjective": {
@@ -270,6 +278,12 @@
           "algvorreFormRequired": "Positivform ist erforderlich",
           "keskvorreFormRequired": "Komparativform ist erforderlich",
           "ulivorreFormRequired": "Superlativform ist erforderlich"
+        },
+        "formFR": {
+          "singularMasculineDegreeRequired": "Maskuline Singularform ist erforderlich",
+          "singularFemaleDegreeRequired": "Feminine Singularform ist erforderlich",
+          "vowelFormRequired": "Die Form vor Vokal ist erforderlich",
+          "positionInvalid": "Das ist keine Option"
         }
       },
       "fields": {
@@ -294,8 +308,19 @@
         "singularOmastavEE": "Singular Genitiv",
         "pluralOmastavEE": "Plural Genitiv",
         "singularOsastavEE": "Singular Partitiv",
-        "pluralOsastavEE": "Plural Partitiv"
-      }
+        "pluralOsastavEE": "Plural Partitiv",
+        "maleSingularFR": "Maskulinum Singular",
+        "malePluralFR": "Maskulinum Plural",
+        "femaleSingularFR": "Femininum Singular",
+        "femalePluralFR": "Femininum Plural",
+        "comparativeFR": "Komparativ (Maskulinum Singular)",
+        "superlativeFR": "Superlativ (Maskulinum Singular)",
+        "periphrasticFR": "Mit „plus“ (plus + Adjektiv)",
+        "hasVowelFormFR": "Hat eine Form vor Vokal (z. B. beau → bel)",
+        "vowelFormFR": "Form vor Vokal",
+        "positionFR": "Stellung"
+      },
+      "derivedFromComparative": "Hängt vom Komparativ ab"
     },
     "adverb": {
       "errors": {
@@ -312,6 +337,10 @@
           "gradableRequired": "Die Auswahl von 'stufenfähig' ist erforderlich"
         },
         "formEE": {
+          "adverbRequired": "Das Adverb ist erforderlich",
+          "gradableRequired": "Die Auswahl von 'stufenfähig' ist erforderlich"
+        },
+        "formFR": {
           "adverbRequired": "Das Adverb ist erforderlich",
           "gradableRequired": "Die Auswahl von 'stufenfähig' ist erforderlich"
         }
@@ -335,7 +364,12 @@
         "comparativeEE": "Komparativ",
         "superlativeEE": "Superlativ",
         "gradableEE": "Steigerbar",
-        "periphrasticSuperlativeEE": "Kein einteiliger Superlativ (kõige + Komparativ)"
+        "periphrasticSuperlativeEE": "Kein einteiliger Superlativ (kõige + Komparativ)",
+        "adverbFR": "Adverb",
+        "comparativeFR": "Komparativ",
+        "superlativeFR": "Superlativ",
+        "gradableFR": "Steigerbar",
+        "periphrasticFR": "Mit „plus“ (plus + Adverb)"
       }
     },
     "conjunction": {
@@ -359,6 +393,11 @@
           "conjunctionRequired": "Konjunktion ist erforderlich",
           "typeInvalid": "Das ist keine Option",
           "secondPartRequired": "Der zweite Teil ist erforderlich"
+        },
+        "formFR": {
+          "conjunctionRequired": "Konjunktion ist erforderlich",
+          "typeInvalid": "Das ist keine Option",
+          "secondPartRequired": "Der zweite Teil ist erforderlich"
         }
       },
       "fields": {
@@ -378,7 +417,12 @@
         "conjunctionEE": "Konjunktion",
         "conjunctionTypeEE": "Typ",
         "correlativeEE": "Zweiteilig (z. B. weder … noch)",
-        "secondPartEE": "Zweiter Teil"
+        "secondPartEE": "Zweiter Teil",
+        "conjunctionFR": "Konjunktion",
+        "conjunctionTypeFR": "Typ",
+        "correlativeFR": "Zweiteilig (z. B. weder … noch)",
+        "secondPartFR": "Zweiter Teil",
+        "moodFR": "Verbmodus"
       }
     },
     "preposition": {
@@ -396,6 +440,10 @@
           "positionInvalid": "Das ist keine Option"
         },
         "formEE": {
+          "prepositionRequired": "Präposition ist erforderlich",
+          "positionInvalid": "Das ist keine Option"
+        },
+        "formFR": {
           "prepositionRequired": "Präposition ist erforderlich",
           "positionInvalid": "Das ist keine Option"
         }
@@ -418,7 +466,9 @@
         "governedCasePostEE": "Fall des Nomens (Wort danach)",
         "spatialSeriesEE": "Hat eine Wohin- / Woher-Reihe",
         "directionToEE": "Wohin (z. B. sisse)",
-        "directionFromEE": "Woher (z. B. seest)"
+        "directionFromEE": "Woher (z. B. seest)",
+        "prepositionFR": "Präposition",
+        "positionFR": "Stellung"
       }
     },
     "verb": {
@@ -442,9 +492,12 @@
         "formEE": {
           "infinitiveMaRequired": "-ma Infinitiv ist erforderlich",
           "infinitiveMaNotMatching": "Bitte geben Sie die Infinitivform ein (endet auf '-ma').",
-          "infinitiveDaRequired": "-da Infinitiv ist erforderlich",
-          "searchInEnglishLabel": "Verb auf Englisch suchen",
-          "searchInEnglishWarning": "Vorsicht, das funktioniert nicht bei allen Verben! Falls nötig, versuchen Sie es auf Estnisch."
+          "infinitiveDaRequired": "-da Infinitiv ist erforderlich"
+        },
+        "formFR": {
+          "infinitiveRequired": "Der Infinitiv ist erforderlich",
+          "infinitiveNotMatching": "Bitte geben Sie die Infinitivform ein (endet auf '-er', '-ir' oder '-re'; ein reflexives Verb kann mit 'se ' beginnen).",
+          "verbGroupInvalid": "Das ist keine Option"
         }
       },
       "fields": {
@@ -463,7 +516,13 @@
         "prefixDE": "Präfix",
         "caseTypeDE": "Kasus",
         "infinitiveMaEE": "-ma-Infinitiv",
-        "infinitiveDaEE": "-da-Infinitiv"
+        "infinitiveDaEE": "-da-Infinitiv",
+        "infinitiveFR": "Infinitiv",
+        "verbGroupFR": "Verbgruppe",
+        "auxVerbFR": "Hilfsverb",
+        "reflexivityFR": "Reflexivität",
+        "pastParticipleFR": "Partizip Perfekt",
+        "presentParticipleFR": "Partizip Präsens"
       }
     },
     "autocompleteTranslationButton": {

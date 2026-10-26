@@ -39,6 +39,12 @@ export enum NounCases {
     pluralOsastavEE = "pluralOsastavEE",
 
     shortFormEE = "shortFormEE",
+
+    // FRENCH
+    regularityFR = "regularityFR",
+    genderFR = "genderFR",
+    singularFR = "singularFR",
+    pluralFR = "pluralFR",
 }
 
 export enum AdverbCases {
@@ -71,6 +77,14 @@ export enum AdverbCases {
     gradableEE = "gradableEE",
     /** Stored checkbox, same case name as the adjective's (D20, D27). */
     periphrasticSuperlativeEE = "periphrasticSuperlativeEE",
+
+    // FRENCH
+    adverbFR = "adverbFR",
+    comparativeFR = "comparativeFR",
+    superlativeFR = "superlativeFR",
+    gradableFR = "gradableFR",
+    /** Stored checkbox, same case name as the adjective's: the comparative is "plus " + adverb. */
+    periphrasticFR = "periphrasticFR",
 }
 
 export enum ConjunctionCases {
@@ -101,6 +115,14 @@ export enum ConjunctionCases {
     conjunctionTypeEE = "conjunctionTypeEE",
     correlativeEE = "correlativeEE",
     secondPartEE = "secondPartEE",
+
+    // FRENCH
+    conjunctionFR = "conjunctionFR",
+    conjunctionTypeFR = "conjunctionTypeFR",
+    correlativeFR = "correlativeFR",
+    secondPartFR = "secondPartFR",
+    /** Property: the verb mood the subordinate clause takes (subjunctive, indicative, conditional). */
+    moodFR = "moodFR",
 }
 
 export enum PrepositionCases {
@@ -135,6 +157,10 @@ export enum PrepositionCases {
     spatialSeriesEE = "spatialSeriesEE",
     directionToEE = "directionToEE",
     directionFromEE = "directionFromEE",
+
+    // FRENCH (no case on the noun; "durant" can follow it)
+    prepositionFR = "prepositionFR",
+    positionFR = "positionFR",
 }
 
 export enum AdjectiveCases {
@@ -173,6 +199,22 @@ export enum AdjectiveCases {
 
     singularOsastavEE = "singularOsastavEE",
     pluralOsastavEE = "pluralOsastavEE",
+
+    // FRENCH
+    maleSingularFR = "maleSingularFR",
+    malePluralFR = "malePluralFR",
+    femaleSingularFR = "femaleSingularFR",
+    femalePluralFR = "femalePluralFR",
+    comparativeFR = "comparativeFR",
+    /** Locked: "le " + the comparative, saved with the word. */
+    superlativeFR = "superlativeFR",
+    /** Stored checkbox: the comparative is "plus " + the masculine singular. */
+    periphrasticFR = "periphrasticFR",
+    /** Stored checkbox: the adjective has a special masculine form before a vowel (beau → bel). */
+    hasVowelFormFR = "hasVowelFormFR",
+    vowelFormFR = "vowelFormFR",
+    /** Property: where the adjective stands (before / after the noun, or either). */
+    positionFR = "positionFR",
 }
 
 export enum VerbCases {
@@ -387,6 +429,43 @@ export enum VerbCases {
     indicativeSimplePast1plDE = 'indicativeSimplePast1plDE',
     indicativeSimplePast2plDE = 'indicativeSimplePast2plDE',
     indicativeSimplePast3plDE = 'indicativeSimplePast3plDE',
+
+    // FRENCH. Properties: the infinitive, the verb group (replaces regularity), the auxiliary, reflexivity
+    // and the two participles. Then the Indicatif: present, imparfait, passé composé, futur simple.
+    infinitiveFR = 'infinitiveFR',
+    verbGroupFR = 'verbGroupFR',
+    auxVerbFR = 'auxVerbFR',
+    reflexivityFR = 'reflexivityFR',
+    pastParticipleFR = 'pastParticipleFR',
+    presentParticipleFR = 'presentParticipleFR',
+    // Present
+    indicativePresent1sFR = 'indicativePresent1sFR',
+    indicativePresent2sFR = 'indicativePresent2sFR',
+    indicativePresent3sFR = 'indicativePresent3sFR',
+    indicativePresent1plFR = 'indicativePresent1plFR',
+    indicativePresent2plFR = 'indicativePresent2plFR',
+    indicativePresent3plFR = 'indicativePresent3plFR',
+    // Imperfect
+    indicativeImperfect1sFR = 'indicativeImperfect1sFR',
+    indicativeImperfect2sFR = 'indicativeImperfect2sFR',
+    indicativeImperfect3sFR = 'indicativeImperfect3sFR',
+    indicativeImperfect1plFR = 'indicativeImperfect1plFR',
+    indicativeImperfect2plFR = 'indicativeImperfect2plFR',
+    indicativeImperfect3plFR = 'indicativeImperfect3plFR',
+    // Perfect
+    indicativePerfect1sFR = 'indicativePerfect1sFR',
+    indicativePerfect2sFR = 'indicativePerfect2sFR',
+    indicativePerfect3sFR = 'indicativePerfect3sFR',
+    indicativePerfect1plFR = 'indicativePerfect1plFR',
+    indicativePerfect2plFR = 'indicativePerfect2plFR',
+    indicativePerfect3plFR = 'indicativePerfect3plFR',
+    // SimpleFuture
+    indicativeSimpleFuture1sFR = 'indicativeSimpleFuture1sFR',
+    indicativeSimpleFuture2sFR = 'indicativeSimpleFuture2sFR',
+    indicativeSimpleFuture3sFR = 'indicativeSimpleFuture3sFR',
+    indicativeSimpleFuture1plFR = 'indicativeSimpleFuture1plFR',
+    indicativeSimpleFuture2plFR = 'indicativeSimpleFuture2plFR',
+    indicativeSimpleFuture3plFR = 'indicativeSimpleFuture3plFR',
 }
 export enum VerbCaseTypeDE {
     accusativeDE = 'accusativeDE',
@@ -515,6 +594,11 @@ export enum VerbMoodEE {
     jussiveEE = 'jussive',
 }
 
+// French moods. Only the indicative has forms so far (subjunctive, conditional and imperative: a later round).
+export enum VerbMoodFR {
+    indicativeFR = 'indicative',
+}
+
 export enum VerbTensesIndicativeDE {
     presentDE = 'presentDE', // Präsens
     simplePastDE = 'simplePastDE', // Präteritum
@@ -529,12 +613,19 @@ export enum Lang {
     EN = "English",
     DE = "German",
     EE = "Estonian",
+    FR = "French",
 }
 
 export enum GenderDE {
     M = "der", // MALE
     F = "die", // FEMALE
     N = "das" // NEUTRAL
+}
+
+export enum GenderFR {
+    M = "le", // MALE
+    F = "la", // FEMALE
+    N = "le/la" // BOTH (nouns used with either article: le/la collègue)
 }
 
 export enum GenderES {
@@ -547,6 +638,18 @@ export enum AuxVerbDE {
     H = "haben",
     S = "sein",
     W = "werden"
+}
+
+export enum AuxVerbFR {
+    A = "avoir",
+    E = "être"
+}
+
+/** The three groups of French verbs: -er (regular), -ir with -issant (regular), and all the others. */
+export enum VerbGroupFR {
+    first = "1er groupe",
+    second = "2e groupe",
+    third = "3e groupe"
 }
 
 export enum Plurality {
@@ -607,6 +710,13 @@ export enum TenseVerbDE {
     perfect = "Perfect",
     simpleFuture = "Simple-Future",
     simplePast = "Simple-Past", // Präteritum
+}
+
+export enum TenseVerbFR {
+    present = "Present",
+    imperfect = "Imperfect", // imparfait
+    perfect = "Perfect", // passé composé
+    simpleFuture = "Simple-Future", // futur simple
 }
 
 export enum TenseVerbEE {

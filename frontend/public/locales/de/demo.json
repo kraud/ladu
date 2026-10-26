@@ -4,13 +4,13 @@
     "kicker": "Demo",
     "kickerNote": "kein Konto nötig",
     "title": "Die ganze Plattform, bereit zum Ausprobieren.",
-    "lead": "Tritt in ein Beispielkonto von Ladu ein. Wörter in vier Sprachen, Tags, die sie schon gruppieren, und ein Übungsset, das auf dich wartet – <strong>ohne Anmeldung, ohne Einrichtung</strong>.",
+    "lead": "Tritt in ein Beispielkonto von Ladu ein. Wörter in fünf Sprachen, Tags, die sie schon gruppieren, und ein Übungsset, das auf dich wartet – <strong>ohne Anmeldung, ohne Einrichtung</strong>.",
     "insideTitle": "In der Demo",
     "insideMeta": "Keine Einrichtung nötig",
     "features": {
       "words": {
-        "title": "Jedes Wort in vier Sprachen.",
-        "text": "Lies dasselbe Wort auf English, Deutsch, Español und Eesti."
+        "title": "Jedes Wort in fünf Sprachen.",
+        "text": "Lies dasselbe Wort auf English, Deutsch, Español, Eesti und Français."
       },
       "tags": {
         "title": "Tags sortieren für dich.",

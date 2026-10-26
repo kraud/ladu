@@ -1,0 +1,8355 @@
+{
+ "_source": "Excerpts of English Wiktionary via the kaikki.org raw Wiktextract dump (Last-Modified Sat, 03 Oct 2026 08:24:38 GMT), CC BY-SA 4.0. Senses reduced to tags. Rebuild: scripts/lexicon/fixture.ts.",
+ "entries": [
+  {
+   "word": "maison",
+   "pos": "noun",
+   "forms": [
+    {
+     "form": "maisons",
+     "tags": [
+      "plural"
+     ]
+    },
+    {
+     "form": "maisonne",
+     "tags": [
+      "alternative"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "feminine"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "cheval",
+   "pos": "noun",
+   "forms": [
+    {
+     "form": "chevaux",
+     "tags": [
+      "plural"
+     ]
+    },
+    {
+     "form": "jument",
+     "tags": [
+      "feminine"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "masculine"
+     ]
+    },
+    {
+     "tags": [
+      "abbreviation",
+      "alt-of",
+      "ellipsis",
+      "masculine"
+     ]
+    },
+    {
+     "tags": [
+      "abbreviation",
+      "alt-of",
+      "ellipsis",
+      "masculine"
+     ]
+    },
+    {
+     "tags": [
+      "masculine",
+      "slang"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "œil",
+   "pos": "noun",
+   "forms": [
+    {
+     "form": "yeux",
+     "tags": [
+      "plural"
+     ]
+    },
+    {
+     "form": "œils",
+     "tags": [
+      "plural"
+     ]
+    },
+    {
+     "form": "oeil",
+     "tags": [
+      "alternative",
+      "nonstandard"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "masculine"
+     ]
+    },
+    {
+     "tags": [
+      "masculine"
+     ]
+    },
+    {
+     "tags": [
+      "masculine"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "enfant",
+   "pos": "noun",
+   "forms": [
+    {
+     "form": "enfants",
+     "tags": [
+      "plural"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "by-personal-gender",
+      "feminine",
+      "masculine"
+     ]
+    },
+    {
+     "tags": [
+      "by-personal-gender",
+      "feminine",
+      "masculine"
+     ]
+    },
+    {
+     "tags": [
+      "by-personal-gender",
+      "feminine",
+      "masculine"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "souris",
+   "pos": "noun",
+   "senses": [
+    {
+     "tags": [
+      "feminine",
+      "invariable"
+     ]
+    },
+    {
+     "tags": [
+      "feminine",
+      "invariable"
+     ]
+    },
+    {
+     "tags": [
+      "feminine",
+      "invariable"
+     ]
+    },
+    {
+     "tags": [
+      "colloquial",
+      "feminine",
+      "invariable"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "gens",
+   "pos": "noun",
+   "senses": [
+    {
+     "tags": [
+      "masculine",
+      "plural",
+      "plural-only"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "grand",
+   "pos": "adj",
+   "forms": [
+    {
+     "form": "grande",
+     "tags": [
+      "feminine"
+     ]
+    },
+    {
+     "form": "grands",
+     "tags": [
+      "masculine",
+      "plural"
+     ]
+    },
+    {
+     "form": "grandes",
+     "tags": [
+      "feminine",
+      "plural"
+     ]
+    }
+   ],
+   "senses": [
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  {
+   "word": "beau",
+   "pos": "adj",
+   "forms": [
+    {
+     "form": "bel",
+     "tags": [
+      "before-vowel",
+      "masculine",
+      "singular"
+     ]
+    },
+    {
+     "form": "belle",
+     "tags": [
+      "feminine"
+     ]
+    },
+    {
+     "form": "beaux",
+     "tags": [
+      "masculine",
+      "plural"
+     ]
+    },
+    {
+     "form": "belles",
+     "tags": [
+      "feminine",
+      "plural"
+     ]
+    }
+   ],
+   "senses": [
+    {},
+    {},
+    {}
+   ]
+  },
+  {
+   "word": "vieux",
+   "pos": "adj",
+   "forms": [
+    {
+     "form": "vieil",
+     "tags": [
+      "before-vowel",
+      "masculine",
+      "singular"
+     ]
+    },
+    {
+     "form": "vieille",
+     "tags": [
+      "feminine"
+     ]
+    },
+    {
+     "form": "vieux",
+     "tags": [
+      "masculine",
+      "plural"
+     ]
+    },
+    {
+     "form": "vieilles",
+     "tags": [
+      "feminine",
+      "plural"
+     ]
+    },
+    {
+     "form": "vieulx",
+     "tags": [
+      "alternative",
+      "obsolete"
+     ]
+    }
+   ],
+   "senses": [
+    {}
+   ]
+  },
+  {
+   "word": "facile",
+   "pos": "adj",
+   "forms": [
+    {
+     "form": "faciles",
+     "tags": [
+      "plural"
+     ]
+    }
+   ],
+   "senses": [
+    {},
+    {
+     "tags": [
+      "derogatory"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "marron",
+   "pos": "adj",
+   "senses": [
+    {
+     "tags": [
+      "France",
+      "invariable"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "bon",
+   "pos": "adj",
+   "forms": [
+    {
+     "form": "bonne",
+     "tags": [
+      "feminine"
+     ]
+    },
+    {
+     "form": "bons",
+     "tags": [
+      "masculine",
+      "plural"
+     ]
+    },
+    {
+     "form": "bonnes",
+     "tags": [
+      "feminine",
+      "plural"
+     ]
+    },
+    {
+     "form": "meilleur",
+     "tags": [
+      "comparative"
+     ]
+    },
+    {
+     "form": "le meilleur",
+     "tags": [
+      "superlative"
+     ]
+    }
+   ],
+   "senses": [
+    {},
+    {},
+    {
+     "tags": [
+      "derogatory",
+      "slang"
+     ]
+    },
+    {
+     "tags": [
+      "dated"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "bien",
+   "pos": "adv",
+   "forms": [
+    {
+     "form": "mieux",
+     "tags": [
+      "comparative"
+     ]
+    },
+    {
+     "form": "le mieux",
+     "tags": [
+      "superlative"
+     ]
+    }
+   ],
+   "senses": [
+    {},
+    {},
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  {
+   "word": "vite",
+   "pos": "adv",
+   "senses": [
+    {}
+   ]
+  },
+  {
+   "word": "et",
+   "pos": "conj",
+   "senses": [
+    {
+     "categories": [
+      "French 1-syllable words",
+      "French conjunctions",
+      "French coordinating conjunctions",
+      "French entries with incorrect language header",
+      "French lemmas",
+      "French terms derived from Latin",
+      "French terms derived from Middle French",
+      "French terms derived from Old French",
+      "French terms inherited from Latin",
+      "French terms inherited from Middle French",
+      "French terms inherited from Old French",
+      "French terms with IPA pronunciation",
+      "French terms with homophones",
+      "Pages with 46 entries",
+      "Pages with entries",
+      "Rhymes:French/e",
+      "Rhymes:French/e/1 syllable"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "parce que",
+   "pos": "conj",
+   "senses": [
+    {
+     "categories": [
+      "French conjunctions",
+      "French entries with incorrect language header",
+      "French lemmas",
+      "French multiword terms",
+      "French subordinating conjunctions",
+      "French terms derived from Old French",
+      "French terms inherited from Old French",
+      "French terms with IPA pronunciation",
+      "Pages with 1 entry",
+      "Pages with entries"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "ni",
+   "pos": "conj",
+   "senses": [
+    {
+     "categories": [
+      "French 1-syllable words",
+      "French conjunctions",
+      "French coordinating conjunctions",
+      "French entries with incorrect language header",
+      "French lemmas",
+      "French terms derived from Latin",
+      "French terms derived from Middle French",
+      "French terms derived from Old French",
+      "French terms inherited from Latin",
+      "French terms inherited from Middle French",
+      "French terms inherited from Old French",
+      "French terms with IPA pronunciation",
+      "French terms with quotations",
+      "Pages with 103 entries",
+      "Pages with entries",
+      "Quotation templates to be cleaned"
+     ]
+    }
+   ],
+   "categories": [
+    "Pages with 103 entries",
+    "Pages with entries"
+   ]
+  },
+  {
+   "word": "dans",
+   "pos": "prep",
+   "senses": [
+    {
+     "tags": [
+      "figuratively"
+     ],
+     "categories": [
+      "French terms with quotations",
+      "French terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "French terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "French terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "French terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "French terms with usage examples"
+     ]
+    },
+    {
+     "tags": [
+      "metonymically"
+     ],
+     "categories": [
+      "French metonyms",
+      "French terms with usage examples"
+     ]
+    },
+    {
+     "tags": [
+      "colloquial"
+     ],
+     "categories": [
+      "French colloquialisms",
+      "French terms with usage examples"
+     ]
+    }
+   ],
+   "categories": [
+    "French 1-syllable words",
+    "French entries with incorrect language header",
+    "French lemmas",
+    "French non-lemma forms",
+    "French noun forms",
+    "French prepositions",
+    "French terms derived from Latin",
+    "French terms derived from Old French",
+    "French terms derived from Vulgar Latin",
+    "French terms inherited from Latin",
+    "French terms inherited from Old French",
+    "French terms inherited from Vulgar Latin",
+    "French terms with IPA pronunciation",
+    "French terms with homophones",
+    "Pages with 17 entries",
+    "Pages with entries",
+    "Rhymes:French/ɑ̃",
+    "Rhymes:French/ɑ̃/1 syllable"
+   ]
+  },
+  {
+   "word": "durant",
+   "pos": "prep",
+   "senses": [
+    {}
+   ],
+   "categories": [
+    "French 2-syllable words",
+    "French entries with incorrect language header",
+    "French lemmas",
+    "French non-lemma forms",
+    "French postpositions",
+    "French prepositions",
+    "French present participles",
+    "French terms with IPA pronunciation",
+    "Pages with 6 entries",
+    "Pages with entries"
+   ]
+  },
+  {
+   "word": "aimer",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "fr-conj-auto",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "aimer",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "avoir + past participle",
+     "tags": [
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "aimant",
+     "tags": [
+      "gerund",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "aimant",
+     "tags": [
+      "gerund",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "ayant + past participle",
+     "tags": [
+      "gerund",
+      "multiword-construction",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "aimé",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "aimé",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "aime",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "ɛm",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "aimes",
+     "tags": [
+      "indicative",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "aime",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "aimons",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "aimons",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "aimez",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "aimez",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "aiment",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "aimais",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "aimais",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "aimais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "aimais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "aimait",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "aimait",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "aimions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "aimions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "aimiez",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "aimiez",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "aimaient",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "aimaient",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "aimai",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "aimai",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "aimas",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "aimas",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "aima",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "aima",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "aimâmes",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "aimâmes",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "aimâtes",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "aimâtes",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "aimèrent",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "aimèrent",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "aimerai",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "aimeras",
+     "tags": [
+      "future",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "aimera",
+     "tags": [
+      "future",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "aimerons",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "aimerez",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "aimeront",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "aimerais",
+     "tags": [
+      "conditional",
+      "first-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "aimerais",
+     "tags": [
+      "conditional",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "aimerait",
+     "tags": [
+      "conditional",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "aimerions",
+     "tags": [
+      "conditional",
+      "first-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "aimerions",
+     "tags": [
+      "conditional",
+      "first-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "aimeriez",
+     "tags": [
+      "conditional",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "aimeriez",
+     "tags": [
+      "conditional",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "aimeraient",
+     "tags": [
+      "conditional",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present indicative of avoir + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "present"
+     ]
+    },
+    {
+     "form": "imperfect indicative of avoir + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect"
+     ]
+    },
+    {
+     "form": "past historic of avoir + past participle",
+     "tags": [
+      "anterior",
+      "indicative",
+      "multiword-construction",
+      "past"
+     ]
+    },
+    {
+     "form": "future of avoir + past participle",
+     "tags": [
+      "future",
+      "indicative",
+      "multiword-construction",
+      "perfect"
+     ]
+    },
+    {
+     "form": "conditional of avoir + past participle",
+     "tags": [
+      "conditional",
+      "multiword-construction",
+      "perfect"
+     ]
+    },
+    {
+     "form": "aime",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "ɛm",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "aimes",
+     "tags": [
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "aime",
+     "tags": [
+      "present",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "aimions",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "aimions",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "aimiez",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "aimiez",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "aiment",
+     "tags": [
+      "plural",
+      "present",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "aimasse",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "aimasse",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "aimasses",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "aimasses",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "aimât",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "aimât",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "aimassions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "aimassions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "aimassiez",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "aimassiez",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "aimassent",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "aimassent",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present subjunctive of avoir + past participle",
+     "tags": [
+      "multiword-construction",
+      "past",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "imperfect subjunctive of avoir + past participle",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "aime",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "aimons",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "aimons",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "aimez",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "aimez",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "simple imperative of avoir + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "simple imperative of avoir + past participle",
+     "tags": [
+      "first-person",
+      "imperative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "simple imperative of avoir + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    }
+   ],
+   "senses": [
+    {},
+    {}
+   ]
+  },
+  {
+   "word": "finir",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "fr-conj-auto",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "finir",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "avoir + past participle",
+     "tags": [
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "finissant",
+     "tags": [
+      "gerund",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "ayant + past participle",
+     "tags": [
+      "gerund",
+      "multiword-construction",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "fini",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "finis",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "finis",
+     "tags": [
+      "indicative",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "finit",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "finissons",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "finissez",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "finissent",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "finissais",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "finissais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "finissait",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "finissions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "finissiez",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "finissaient",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "finis",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "finis",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "finit",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "finîmes",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "finîtes",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "finirent",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "finirai",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "finiras",
+     "tags": [
+      "future",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "finira",
+     "tags": [
+      "future",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "finirons",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "finirez",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "finiront",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "finirais",
+     "tags": [
+      "conditional",
+      "first-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "finirais",
+     "tags": [
+      "conditional",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "finirait",
+     "tags": [
+      "conditional",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "finirions",
+     "tags": [
+      "conditional",
+      "first-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "finiriez",
+     "tags": [
+      "conditional",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "finiraient",
+     "tags": [
+      "conditional",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present indicative of avoir + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "present"
+     ]
+    },
+    {
+     "form": "imperfect indicative of avoir + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect"
+     ]
+    },
+    {
+     "form": "past historic of avoir + past participle",
+     "tags": [
+      "anterior",
+      "indicative",
+      "multiword-construction",
+      "past"
+     ]
+    },
+    {
+     "form": "future of avoir + past participle",
+     "tags": [
+      "future",
+      "indicative",
+      "multiword-construction",
+      "perfect"
+     ]
+    },
+    {
+     "form": "conditional of avoir + past participle",
+     "tags": [
+      "conditional",
+      "multiword-construction",
+      "perfect"
+     ]
+    },
+    {
+     "form": "finisse",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "finisses",
+     "tags": [
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "finisse",
+     "tags": [
+      "present",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "finissions",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "finissiez",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "finissent",
+     "tags": [
+      "plural",
+      "present",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "finisse",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "finisses",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "finît",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "finissions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "finissiez",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "finissent",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present subjunctive of avoir + past participle",
+     "tags": [
+      "multiword-construction",
+      "past",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "imperfect subjunctive of avoir + past participle",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "finis",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "finissons",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "finissez",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "simple imperative of avoir + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "simple imperative of avoir + past participle",
+     "tags": [
+      "first-person",
+      "imperative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "simple imperative of avoir + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    }
+   ],
+   "senses": [
+    {},
+    {}
+   ]
+  },
+  {
+   "word": "aller",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "fr-conj-auto",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "aller",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "être + past participle",
+     "tags": [
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "allant",
+     "tags": [
+      "gerund",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "étant + past participle",
+     "tags": [
+      "gerund",
+      "multiword-construction",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "allé",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "vais",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "vas",
+     "tags": [
+      "indicative",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "va",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "allons",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "allez",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "vont",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "allais",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "allais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "allait",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "allions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "alliez",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "allaient",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "allai",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "allas",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "alla",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "allâmes",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "allâtes",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "allèrent",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "irai",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "iras",
+     "tags": [
+      "future",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "ira",
+     "tags": [
+      "future",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "irons",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "irez",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "iront",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "irais",
+     "tags": [
+      "conditional",
+      "first-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "irais",
+     "tags": [
+      "conditional",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "irait",
+     "tags": [
+      "conditional",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "irions",
+     "tags": [
+      "conditional",
+      "first-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "iriez",
+     "tags": [
+      "conditional",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "iraient",
+     "tags": [
+      "conditional",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present indicative of être + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "present"
+     ]
+    },
+    {
+     "form": "imperfect indicative of être + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect"
+     ]
+    },
+    {
+     "form": "past historic of être + past participle",
+     "tags": [
+      "anterior",
+      "indicative",
+      "multiword-construction",
+      "past"
+     ]
+    },
+    {
+     "form": "future of être + past participle",
+     "tags": [
+      "future",
+      "indicative",
+      "multiword-construction",
+      "perfect"
+     ]
+    },
+    {
+     "form": "conditional of être + past participle",
+     "tags": [
+      "conditional",
+      "multiword-construction",
+      "perfect"
+     ]
+    },
+    {
+     "form": "aille",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "ailles",
+     "tags": [
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "aille",
+     "tags": [
+      "present",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "allions",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "alliez",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "aillent",
+     "tags": [
+      "plural",
+      "present",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "allasse",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "allasses",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "allât",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "allassions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "allassiez",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "allassent",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present subjunctive of être + past participle",
+     "tags": [
+      "multiword-construction",
+      "past",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "imperfect subjunctive of être + past participle",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "va",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "allons",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "allez",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "simple imperative of être + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "simple imperative of être + past participle",
+     "tags": [
+      "first-person",
+      "imperative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "simple imperative of être + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "vader",
+     "tags": [
+      "alternative"
+     ]
+    }
+   ],
+   "senses": [
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  {
+   "word": "être",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "fr-conj-auto",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "être",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "avoir + past participle",
+     "tags": [
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "étant",
+     "tags": [
+      "gerund",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "ayant + past participle",
+     "tags": [
+      "gerund",
+      "multiword-construction",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "été",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "suis",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "es",
+     "tags": [
+      "indicative",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "est",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sommes",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "êtes",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sont",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "étais",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "étais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "était",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "étions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "étiez",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "étaient",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "fus",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "fus",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "fut",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "fûmes",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "fûtes",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "furent",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "serai",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "seras",
+     "tags": [
+      "future",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "sera",
+     "tags": [
+      "future",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "serons",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "serez",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "seront",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "serais",
+     "tags": [
+      "conditional",
+      "first-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "serais",
+     "tags": [
+      "conditional",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "serait",
+     "tags": [
+      "conditional",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "serions",
+     "tags": [
+      "conditional",
+      "first-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "seriez",
+     "tags": [
+      "conditional",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "seraient",
+     "tags": [
+      "conditional",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present indicative of avoir + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "present"
+     ]
+    },
+    {
+     "form": "imperfect indicative of avoir + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect"
+     ]
+    },
+    {
+     "form": "past historic of avoir + past participle",
+     "tags": [
+      "anterior",
+      "indicative",
+      "multiword-construction",
+      "past"
+     ]
+    },
+    {
+     "form": "future of avoir + past participle",
+     "tags": [
+      "future",
+      "indicative",
+      "multiword-construction",
+      "perfect"
+     ]
+    },
+    {
+     "form": "conditional of avoir + past participle",
+     "tags": [
+      "conditional",
+      "multiword-construction",
+      "perfect"
+     ]
+    },
+    {
+     "form": "sois",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "sois",
+     "tags": [
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "soit",
+     "tags": [
+      "present",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "soyons",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "soyez",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "soient",
+     "tags": [
+      "plural",
+      "present",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "fusse",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "fusses",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "fût",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "fussions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "fussiez",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "fussent",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present subjunctive of avoir + past participle",
+     "tags": [
+      "multiword-construction",
+      "past",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "imperfect subjunctive of avoir + past participle",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "sois",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "soyons",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "soyez",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "simple imperative of avoir + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "simple imperative of avoir + past participle",
+     "tags": [
+      "first-person",
+      "imperative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "simple imperative of avoir + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "fr-conj-auto",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "s'être",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "s'être + past participle",
+     "tags": [
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "s'étant",
+     "tags": [
+      "gerund",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "ayant",
+     "tags": [
+      "gerund",
+      "multiword-construction",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "étant + past participle",
+     "tags": [
+      "gerund",
+      "multiword-construction",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "été",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "me suis",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "t'es",
+     "tags": [
+      "indicative",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "s'est",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous sommes",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "vous êtes",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se sont",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "m'étais",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "t'étais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "s'était",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous étions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "vous étiez",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "s'étaient",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me fus",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "te fus",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se fut",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous fûmes",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "vous fûtes",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se furent",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me serai",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "te seras",
+     "tags": [
+      "future",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se sera",
+     "tags": [
+      "future",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous serons",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "vous serez",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se seront",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me serais",
+     "tags": [
+      "conditional",
+      "first-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "te serais",
+     "tags": [
+      "conditional",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se serait",
+     "tags": [
+      "conditional",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous serions",
+     "tags": [
+      "conditional",
+      "first-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "vous seriez",
+     "tags": [
+      "conditional",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se seraient",
+     "tags": [
+      "conditional",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present indicative of s'être + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "present"
+     ]
+    },
+    {
+     "form": "imperfect indicative of s'être + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect"
+     ]
+    },
+    {
+     "form": "past historic of s'être + past participle",
+     "tags": [
+      "anterior",
+      "indicative",
+      "multiword-construction",
+      "past"
+     ]
+    },
+    {
+     "form": "future of s'être + past participle",
+     "tags": [
+      "future",
+      "indicative",
+      "multiword-construction",
+      "perfect"
+     ]
+    },
+    {
+     "form": "conditional of s'être + past participle",
+     "tags": [
+      "conditional",
+      "multiword-construction",
+      "perfect"
+     ]
+    },
+    {
+     "form": "me sois",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te sois",
+     "tags": [
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se soit",
+     "tags": [
+      "present",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous soyons",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "vous soyez",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se soient",
+     "tags": [
+      "plural",
+      "present",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me fusse",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te fusses",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se fût",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous fussions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "vous fussiez",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se fussent",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present subjunctive of s'être + past participle",
+     "tags": [
+      "multiword-construction",
+      "past",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "imperfect subjunctive of s'être + past participle",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "sois-toi",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "soyons-nous",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "soyez-vous",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "simple imperative of s'être + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "simple imperative of s'être + past participle",
+     "tags": [
+      "first-person",
+      "imperative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "simple imperative of s'être + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "fr-conj-auto",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "s'en être",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "s'en être + past participle",
+     "tags": [
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "s'en étant",
+     "tags": [
+      "gerund",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "s'en étant + past participle",
+     "tags": [
+      "gerund",
+      "multiword-construction",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "été",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "m'en suis",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "t'en es",
+     "tags": [
+      "indicative",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "s'en est",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous en sommes",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "vous en êtes",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "s'en sont",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "m'en étais",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "t'en étais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "s'en était",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous en étions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "vous en étiez",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "s'en étaient",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "m'en fus",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "t'en fus",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "s'en fut",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous en fûmes",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "vous en fûtes",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "s'en furent",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "m'en serai",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "t'en seras",
+     "tags": [
+      "future",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "s'en sera",
+     "tags": [
+      "future",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous en serons",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "vous en serez",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "s'en seront",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "m'en serais",
+     "tags": [
+      "conditional",
+      "first-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "t'en serais",
+     "tags": [
+      "conditional",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "s'en serait",
+     "tags": [
+      "conditional",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous en serions",
+     "tags": [
+      "conditional",
+      "first-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "vous en seriez",
+     "tags": [
+      "conditional",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "s'en seraient",
+     "tags": [
+      "conditional",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present indicative of s'en être + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "present"
+     ]
+    },
+    {
+     "form": "imperfect indicative of s'en être + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect"
+     ]
+    },
+    {
+     "form": "past historic of s'en être + past participle",
+     "tags": [
+      "anterior",
+      "indicative",
+      "multiword-construction",
+      "past"
+     ]
+    },
+    {
+     "form": "future of s'en être + past participle",
+     "tags": [
+      "future",
+      "indicative",
+      "multiword-construction",
+      "perfect"
+     ]
+    },
+    {
+     "form": "conditional of s'en être + past participle",
+     "tags": [
+      "conditional",
+      "multiword-construction",
+      "perfect"
+     ]
+    },
+    {
+     "form": "m'en sois",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "t'en sois",
+     "tags": [
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "s'en soit",
+     "tags": [
+      "present",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous en soyons",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "vous en soyez",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "s'en soient",
+     "tags": [
+      "plural",
+      "present",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "m'en fusse",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "t'en fusses",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "s'en fût",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous en fussions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "vous en fussiez",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "s'en fussent",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present subjunctive of s'en être + past participle",
+     "tags": [
+      "multiword-construction",
+      "past",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "imperfect subjunctive of s'en être + past participle",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "sois-t'en",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "soyons-nous-en",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "soyez-vous-en",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "simple imperative of s'en être + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "simple imperative of s'en être + past participle",
+     "tags": [
+      "first-person",
+      "imperative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "simple imperative of s'en être + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "d-être",
+     "tags": [
+      "alternative"
+     ]
+    },
+    {
+     "form": "d'être",
+     "tags": [
+      "alternative"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "copulative"
+     ]
+    },
+    {
+     "tags": [
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "impersonal"
+     ]
+    },
+    {
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "tags": [
+      "auxiliary",
+      "reflexive",
+      "verb"
+     ]
+    },
+    {
+     "tags": [
+      "auxiliary"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "partir",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "fr-conj-auto",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "partir",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "avoir",
+     "tags": [
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "être + past participle",
+     "tags": [
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "partant",
+     "tags": [
+      "gerund",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "ayant",
+     "tags": [
+      "gerund",
+      "multiword-construction",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "étant + past participle",
+     "tags": [
+      "gerund",
+      "multiword-construction",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "parti",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "pars",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "pars",
+     "tags": [
+      "indicative",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "part",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "partons",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "partez",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "partent",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "partais",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "partais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "partait",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "partions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "partiez",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "partaient",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "partis",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "partis",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "partit",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "partîmes",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "partîtes",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "partirent",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "partirai",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "partiras",
+     "tags": [
+      "future",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "partira",
+     "tags": [
+      "future",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "partirons",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "partirez",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "partiront",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "partirais",
+     "tags": [
+      "conditional",
+      "first-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "partirais",
+     "tags": [
+      "conditional",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "partirait",
+     "tags": [
+      "conditional",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "partirions",
+     "tags": [
+      "conditional",
+      "first-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "partiriez",
+     "tags": [
+      "conditional",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "partiraient",
+     "tags": [
+      "conditional",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present indicative of avoir",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "present"
+     ]
+    },
+    {
+     "form": "être + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "present"
+     ]
+    },
+    {
+     "form": "imperfect indicative of avoir",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect"
+     ]
+    },
+    {
+     "form": "être + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect"
+     ]
+    },
+    {
+     "form": "past historic of avoir",
+     "tags": [
+      "anterior",
+      "indicative",
+      "multiword-construction",
+      "past"
+     ]
+    },
+    {
+     "form": "être + past participle",
+     "tags": [
+      "anterior",
+      "indicative",
+      "multiword-construction",
+      "past"
+     ]
+    },
+    {
+     "form": "future of avoir",
+     "tags": [
+      "future",
+      "indicative",
+      "multiword-construction",
+      "perfect"
+     ]
+    },
+    {
+     "form": "être + past participle",
+     "tags": [
+      "future",
+      "indicative",
+      "multiword-construction",
+      "perfect"
+     ]
+    },
+    {
+     "form": "conditional of avoir",
+     "tags": [
+      "conditional",
+      "multiword-construction",
+      "perfect"
+     ]
+    },
+    {
+     "form": "être + past participle",
+     "tags": [
+      "conditional",
+      "multiword-construction",
+      "perfect"
+     ]
+    },
+    {
+     "form": "parte",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "partes",
+     "tags": [
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "parte",
+     "tags": [
+      "present",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "partions",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "partiez",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "partent",
+     "tags": [
+      "plural",
+      "present",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "partisse",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "partisses",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "partît",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "partissions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "partissiez",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "partissent",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present subjunctive of avoir",
+     "tags": [
+      "multiword-construction",
+      "past",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "être + past participle",
+     "tags": [
+      "multiword-construction",
+      "past",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "imperfect subjunctive of avoir",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "être + past participle",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "pars",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "partons",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "partez",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "simple imperative of avoir",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "être + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "simple imperative of avoir",
+     "tags": [
+      "first-person",
+      "imperative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "être + past participle",
+     "tags": [
+      "first-person",
+      "imperative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "simple imperative of avoir",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "être + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "obsolete",
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "euphemistic",
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "figuratively",
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "Quebec",
+      "informal",
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "intransitive"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "laver",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "fr-conj-auto",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "laver",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "avoir + past participle",
+     "tags": [
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "lavant",
+     "tags": [
+      "gerund",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "ayant + past participle",
+     "tags": [
+      "gerund",
+      "multiword-construction",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "lavé",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "lave",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "laves",
+     "tags": [
+      "indicative",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lave",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavons",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "lavez",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lavent",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavais",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavait",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "laviez",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lavaient",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavai",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavas",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lava",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavâmes",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavâtes",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lavèrent",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "laverai",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "laveras",
+     "tags": [
+      "future",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavera",
+     "tags": [
+      "future",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "laverons",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "laverez",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "laveront",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "laverais",
+     "tags": [
+      "conditional",
+      "first-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "laverais",
+     "tags": [
+      "conditional",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "laverait",
+     "tags": [
+      "conditional",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "laverions",
+     "tags": [
+      "conditional",
+      "first-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "laveriez",
+     "tags": [
+      "conditional",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "laveraient",
+     "tags": [
+      "conditional",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present indicative of avoir + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "present"
+     ]
+    },
+    {
+     "form": "imperfect indicative of avoir + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect"
+     ]
+    },
+    {
+     "form": "past historic of avoir + past participle",
+     "tags": [
+      "anterior",
+      "indicative",
+      "multiword-construction",
+      "past"
+     ]
+    },
+    {
+     "form": "future of avoir + past participle",
+     "tags": [
+      "future",
+      "indicative",
+      "multiword-construction",
+      "perfect"
+     ]
+    },
+    {
+     "form": "conditional of avoir + past participle",
+     "tags": [
+      "conditional",
+      "multiword-construction",
+      "perfect"
+     ]
+    },
+    {
+     "form": "lave",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "laves",
+     "tags": [
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "lave",
+     "tags": [
+      "present",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavions",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "laviez",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "lavent",
+     "tags": [
+      "plural",
+      "present",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavasse",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "lavasses",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "lavât",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavassions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "lavassiez",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "lavassent",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present subjunctive of avoir + past participle",
+     "tags": [
+      "multiword-construction",
+      "past",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "imperfect subjunctive of avoir + past participle",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "lave",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavons",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavez",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "simple imperative of avoir + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "simple imperative of avoir + past participle",
+     "tags": [
+      "first-person",
+      "imperative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "simple imperative of avoir + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "fr-conj-auto",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "se laver",
+     "tags": [
+      "infinitive",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "s'être + past participle",
+     "tags": [
+      "infinitive",
+      "multiword-construction",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "se lavant",
+     "tags": [
+      "gerund",
+      "participle",
+      "present",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "ayant",
+     "tags": [
+      "gerund",
+      "multiword-construction",
+      "participle",
+      "present",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "étant + past participle",
+     "tags": [
+      "gerund",
+      "multiword-construction",
+      "participle",
+      "present",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "lavé",
+     "tags": [
+      "participle",
+      "past",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "me lave",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "reflexive",
+      "singular"
+     ]
+    },
+    {
+     "form": "te laves",
+     "tags": [
+      "indicative",
+      "present",
+      "reflexive",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se lave",
+     "tags": [
+      "indicative",
+      "present",
+      "reflexive",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous lavons",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "vous lavez",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "reflexive",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se lavent",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "reflexive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me lavais",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "reflexive",
+      "singular"
+     ]
+    },
+    {
+     "form": "te lavais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "reflexive",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se lavait",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "reflexive",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous lavions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "vous laviez",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "reflexive",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se lavaient",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "reflexive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me lavai",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "reflexive",
+      "singular"
+     ]
+    },
+    {
+     "form": "te lavas",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "reflexive",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se lava",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "reflexive",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous lavâmes",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "vous lavâtes",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "reflexive",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se lavèrent",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "reflexive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me laverai",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "reflexive",
+      "singular"
+     ]
+    },
+    {
+     "form": "te laveras",
+     "tags": [
+      "future",
+      "indicative",
+      "reflexive",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se lavera",
+     "tags": [
+      "future",
+      "indicative",
+      "reflexive",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous laverons",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "vous laverez",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "reflexive",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se laveront",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "reflexive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me laverais",
+     "tags": [
+      "conditional",
+      "first-person",
+      "reflexive",
+      "singular"
+     ]
+    },
+    {
+     "form": "te laverais",
+     "tags": [
+      "conditional",
+      "reflexive",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se laverait",
+     "tags": [
+      "conditional",
+      "reflexive",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous laverions",
+     "tags": [
+      "conditional",
+      "first-person",
+      "plural",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "vous laveriez",
+     "tags": [
+      "conditional",
+      "plural",
+      "reflexive",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se laveraient",
+     "tags": [
+      "conditional",
+      "plural",
+      "reflexive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present indicative of s'être + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "present",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "imperfect indicative of s'être + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "past historic of s'être + past participle",
+     "tags": [
+      "anterior",
+      "indicative",
+      "multiword-construction",
+      "past",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "future of s'être + past participle",
+     "tags": [
+      "future",
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "conditional of s'être + past participle",
+     "tags": [
+      "conditional",
+      "multiword-construction",
+      "perfect",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "me lave",
+     "tags": [
+      "first-person",
+      "present",
+      "reflexive",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te laves",
+     "tags": [
+      "present",
+      "reflexive",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se lave",
+     "tags": [
+      "present",
+      "reflexive",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous lavions",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "reflexive",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "vous laviez",
+     "tags": [
+      "plural",
+      "present",
+      "reflexive",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se lavent",
+     "tags": [
+      "plural",
+      "present",
+      "reflexive",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me lavasse",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "reflexive",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te lavasses",
+     "tags": [
+      "imperfect",
+      "reflexive",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se lavât",
+     "tags": [
+      "imperfect",
+      "reflexive",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous lavassions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "reflexive",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "vous lavassiez",
+     "tags": [
+      "imperfect",
+      "plural",
+      "reflexive",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se lavassent",
+     "tags": [
+      "imperfect",
+      "plural",
+      "reflexive",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present subjunctive of s'être + past participle",
+     "tags": [
+      "multiword-construction",
+      "past",
+      "reflexive",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "imperfect subjunctive of s'être + past participle",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "reflexive",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "lave-toi",
+     "tags": [
+      "imperative",
+      "reflexive",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavons-nous",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "lavez-vous",
+     "tags": [
+      "imperative",
+      "plural",
+      "reflexive",
+      "second-person"
+     ]
+    },
+    {
+     "form": "simple imperative of s'être + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "reflexive",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "simple imperative of s'être + past participle",
+     "tags": [
+      "first-person",
+      "imperative",
+      "multiword-construction",
+      "plural",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "simple imperative of s'être + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "plural",
+      "reflexive",
+      "second-person"
+     ]
+    }
+   ],
+   "senses": [
+    {},
+    {
+     "tags": [
+      "reflexive"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "appeler",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "fr-conj-auto",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "appeler",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "avoir + past participle",
+     "tags": [
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "appelant",
+     "tags": [
+      "gerund",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "ayant + past participle",
+     "tags": [
+      "gerund",
+      "multiword-construction",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "appelé",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "appelle",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "appelles",
+     "tags": [
+      "indicative",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "appelle",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "appelons",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "appelez",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "appellent",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "appelais",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "appelais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "appelait",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "appelions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "appeliez",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "appelaient",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "appelai",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "appelas",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "appela",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "appelâmes",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "appelâtes",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "appelèrent",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "appellerai",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "appelleras",
+     "tags": [
+      "future",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "appellera",
+     "tags": [
+      "future",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "appellerons",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "appellerez",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "appelleront",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "appellerais",
+     "tags": [
+      "conditional",
+      "first-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "appellerais",
+     "tags": [
+      "conditional",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "appellerait",
+     "tags": [
+      "conditional",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "appellerions",
+     "tags": [
+      "conditional",
+      "first-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "appellerions",
+     "tags": [
+      "conditional",
+      "first-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "appelleriez",
+     "tags": [
+      "conditional",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "appelleriez",
+     "tags": [
+      "conditional",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "appelleraient",
+     "tags": [
+      "conditional",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present indicative of avoir + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "present"
+     ]
+    },
+    {
+     "form": "imperfect indicative of avoir + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect"
+     ]
+    },
+    {
+     "form": "past historic of avoir + past participle",
+     "tags": [
+      "anterior",
+      "indicative",
+      "multiword-construction",
+      "past"
+     ]
+    },
+    {
+     "form": "future of avoir + past participle",
+     "tags": [
+      "future",
+      "indicative",
+      "multiword-construction",
+      "perfect"
+     ]
+    },
+    {
+     "form": "conditional of avoir + past participle",
+     "tags": [
+      "conditional",
+      "multiword-construction",
+      "perfect"
+     ]
+    },
+    {
+     "form": "appelle",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "appelles",
+     "tags": [
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "appelle",
+     "tags": [
+      "present",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "appelions",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "appeliez",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "appellent",
+     "tags": [
+      "plural",
+      "present",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "appelasse",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "appelasses",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "appelât",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "appelassions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "appelassiez",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "appelassent",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present subjunctive of avoir + past participle",
+     "tags": [
+      "multiword-construction",
+      "past",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "imperfect subjunctive of avoir + past participle",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "appelle",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "appelons",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "appelez",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "simple imperative of avoir + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "simple imperative of avoir + past participle",
+     "tags": [
+      "first-person",
+      "imperative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "simple imperative of avoir + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "fr-conj-auto",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "s'appeler",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "s'être + past participle",
+     "tags": [
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "s'appelant",
+     "tags": [
+      "gerund",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "ayant",
+     "tags": [
+      "gerund",
+      "multiword-construction",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "étant + past participle",
+     "tags": [
+      "gerund",
+      "multiword-construction",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "appelé",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "m'appelle",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "t'appelles",
+     "tags": [
+      "indicative",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "s'appelle",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous appelons",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "vous appelez",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "s'appellent",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "m'appelais",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "t'appelais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "s'appelait",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous appelions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "vous appeliez",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "s'appelaient",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "m'appelai",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "t'appelas",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "s'appela",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous appelâmes",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "vous appelâtes",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "s'appelèrent",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "m'appellerai",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "t'appelleras",
+     "tags": [
+      "future",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "s'appellera",
+     "tags": [
+      "future",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous appellerons",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "vous appellerez",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "s'appelleront",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "m'appellerais",
+     "tags": [
+      "conditional",
+      "first-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "t'appellerais",
+     "tags": [
+      "conditional",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "s'appellerait",
+     "tags": [
+      "conditional",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous appellerions",
+     "tags": [
+      "conditional",
+      "first-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "nous appellerions",
+     "tags": [
+      "conditional",
+      "first-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "vous appelleriez",
+     "tags": [
+      "conditional",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "vous appelleriez",
+     "tags": [
+      "conditional",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "s'appelleraient",
+     "tags": [
+      "conditional",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present indicative of s'être + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "present"
+     ]
+    },
+    {
+     "form": "imperfect indicative of s'être + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect"
+     ]
+    },
+    {
+     "form": "past historic of s'être + past participle",
+     "tags": [
+      "anterior",
+      "indicative",
+      "multiword-construction",
+      "past"
+     ]
+    },
+    {
+     "form": "future of s'être + past participle",
+     "tags": [
+      "future",
+      "indicative",
+      "multiword-construction",
+      "perfect"
+     ]
+    },
+    {
+     "form": "conditional of s'être + past participle",
+     "tags": [
+      "conditional",
+      "multiword-construction",
+      "perfect"
+     ]
+    },
+    {
+     "form": "m'appelle",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "t'appelles",
+     "tags": [
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "s'appelle",
+     "tags": [
+      "present",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous appelions",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "vous appeliez",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "s'appellent",
+     "tags": [
+      "plural",
+      "present",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "m'appelasse",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "t'appelasses",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "s'appelât",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous appelassions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "vous appelassiez",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "s'appelassent",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present subjunctive of s'être + past participle",
+     "tags": [
+      "multiword-construction",
+      "past",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "imperfect subjunctive of s'être + past participle",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "appelle-toi",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "appelons-nous",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "appelez-vous",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "simple imperative of s'être + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "simple imperative of s'être + past participle",
+     "tags": [
+      "first-person",
+      "imperative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "simple imperative of s'être + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "reflexive"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "se souvenir",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "fr-conj-auto",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "se souvenir",
+     "tags": [
+      "infinitive",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "s'être + past participle",
+     "tags": [
+      "infinitive",
+      "multiword-construction",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "se souvenant",
+     "tags": [
+      "gerund",
+      "participle",
+      "present",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "ayant",
+     "tags": [
+      "gerund",
+      "multiword-construction",
+      "participle",
+      "present",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "étant + past participle",
+     "tags": [
+      "gerund",
+      "multiword-construction",
+      "participle",
+      "present",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "souvenu",
+     "tags": [
+      "participle",
+      "past",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "me souviens",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "reflexive",
+      "singular"
+     ]
+    },
+    {
+     "form": "te souviens",
+     "tags": [
+      "indicative",
+      "present",
+      "reflexive",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se souvient",
+     "tags": [
+      "indicative",
+      "present",
+      "reflexive",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous souvenons",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "vous souvenez",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "reflexive",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se souviennent",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "reflexive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me souvenais",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "reflexive",
+      "singular"
+     ]
+    },
+    {
+     "form": "te souvenais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "reflexive",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se souvenait",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "reflexive",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous souvenions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "vous souveniez",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "reflexive",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se souvenaient",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "reflexive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me souvins",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "reflexive",
+      "singular"
+     ]
+    },
+    {
+     "form": "te souvins",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "reflexive",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se souvint",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "reflexive",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous souvînmes",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "vous souvîntes",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "reflexive",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se souvinrent",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "reflexive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me souviendrai",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "reflexive",
+      "singular"
+     ]
+    },
+    {
+     "form": "te souviendras",
+     "tags": [
+      "future",
+      "indicative",
+      "reflexive",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se souviendra",
+     "tags": [
+      "future",
+      "indicative",
+      "reflexive",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous souviendrons",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "vous souviendrez",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "reflexive",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se souviendront",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "reflexive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me souviendrais",
+     "tags": [
+      "conditional",
+      "first-person",
+      "reflexive",
+      "singular"
+     ]
+    },
+    {
+     "form": "te souviendrais",
+     "tags": [
+      "conditional",
+      "reflexive",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se souviendrait",
+     "tags": [
+      "conditional",
+      "reflexive",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous souviendrions",
+     "tags": [
+      "conditional",
+      "first-person",
+      "plural",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "vous souviendriez",
+     "tags": [
+      "conditional",
+      "plural",
+      "reflexive",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se souviendraient",
+     "tags": [
+      "conditional",
+      "plural",
+      "reflexive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present indicative of s'être + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "present",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "imperfect indicative of s'être + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "past historic of s'être + past participle",
+     "tags": [
+      "anterior",
+      "indicative",
+      "multiword-construction",
+      "past",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "future of s'être + past participle",
+     "tags": [
+      "future",
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "conditional of s'être + past participle",
+     "tags": [
+      "conditional",
+      "multiword-construction",
+      "perfect",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "me souvienne",
+     "tags": [
+      "first-person",
+      "present",
+      "reflexive",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te souviennes",
+     "tags": [
+      "present",
+      "reflexive",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se souvienne",
+     "tags": [
+      "present",
+      "reflexive",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous souvenions",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "reflexive",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "vous souveniez",
+     "tags": [
+      "plural",
+      "present",
+      "reflexive",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se souviennent",
+     "tags": [
+      "plural",
+      "present",
+      "reflexive",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me souvinsse",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "reflexive",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te souvinsses",
+     "tags": [
+      "imperfect",
+      "reflexive",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se souvînt",
+     "tags": [
+      "imperfect",
+      "reflexive",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nous souvinssions",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "reflexive",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "vous souvinssiez",
+     "tags": [
+      "imperfect",
+      "plural",
+      "reflexive",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se souvinssent",
+     "tags": [
+      "imperfect",
+      "plural",
+      "reflexive",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present subjunctive of s'être + past participle",
+     "tags": [
+      "multiword-construction",
+      "past",
+      "reflexive",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "imperfect subjunctive of s'être + past participle",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "reflexive",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "souviens-toi",
+     "tags": [
+      "imperative",
+      "reflexive",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "souvenons-nous",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "souvenez-vous",
+     "tags": [
+      "imperative",
+      "plural",
+      "reflexive",
+      "second-person"
+     ]
+    },
+    {
+     "form": "simple imperative of s'être + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "reflexive",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "simple imperative of s'être + past participle",
+     "tags": [
+      "first-person",
+      "imperative",
+      "multiword-construction",
+      "plural",
+      "reflexive"
+     ]
+    },
+    {
+     "form": "simple imperative of s'être + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "plural",
+      "reflexive",
+      "second-person"
+     ]
+    }
+   ],
+   "senses": [
+    {}
+   ]
+  },
+  {
+   "word": "pleuvoir",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "fr-conj-auto",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "pleuvoir",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "avoir + past participle",
+     "tags": [
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "pleuvant",
+     "tags": [
+      "gerund",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "ayant + past participle",
+     "tags": [
+      "gerund",
+      "multiword-construction",
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "plu",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "indicative",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "pleut",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "pleuvent",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "pleuvait",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "pleuvaient",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "plut",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "first-person",
+      "historic",
+      "indicative",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "plurent",
+     "tags": [
+      "historic",
+      "indicative",
+      "past",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "future",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "pleuvra",
+     "tags": [
+      "future",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "pleuvront",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "conditional",
+      "first-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "conditional",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "pleuvrait",
+     "tags": [
+      "conditional",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "conditional",
+      "first-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "conditional",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "pleuvraient",
+     "tags": [
+      "conditional",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present indicative of avoir + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "present"
+     ]
+    },
+    {
+     "form": "imperfect indicative of avoir + past participle",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect"
+     ]
+    },
+    {
+     "form": "past historic of avoir + past participle",
+     "tags": [
+      "anterior",
+      "indicative",
+      "multiword-construction",
+      "past"
+     ]
+    },
+    {
+     "form": "future of avoir + past participle",
+     "tags": [
+      "future",
+      "indicative",
+      "multiword-construction",
+      "perfect"
+     ]
+    },
+    {
+     "form": "conditional of avoir + past participle",
+     "tags": [
+      "conditional",
+      "multiword-construction",
+      "perfect"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "pleuve",
+     "tags": [
+      "present",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "pleuvent",
+     "tags": [
+      "plural",
+      "present",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "plût",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "plussent",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "present subjunctive of avoir + past participle",
+     "tags": [
+      "multiword-construction",
+      "past",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "imperfect subjunctive of avoir + past participle",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "simple imperative of avoir + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "simple imperative of avoir + past participle",
+     "tags": [
+      "first-person",
+      "imperative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "simple imperative of avoir + past participle",
+     "tags": [
+      "imperative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "impersonal"
+     ]
+    }
+   ]
+  }
+ ]
+}

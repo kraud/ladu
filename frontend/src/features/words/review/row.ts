@@ -4,15 +4,8 @@
  * reading of the row's dynamic fields instead of each re-deriving the
  * `data${key}` / `registeredCases${key}` string.
  */
-import { Lang } from '@/ts/enums';
+import { LANG_BY_KEY } from '@/lib/language';
 import type { LangKey, WordSimpleBE } from '@/features/words/types';
-
-const LANG_BY_KEY: Record<LangKey, Lang> = {
-    EN: Lang.EN,
-    ES: Lang.ES,
-    DE: Lang.DE,
-    EE: Lang.EE,
-};
 
 /**
  * The headline word for a language, or `undefined`. NOT the same absence as
@@ -29,10 +22,11 @@ export function registeredCases(row: WordSimpleBE, key: LangKey): number {
     return row[`registeredCases${key}`] ?? 0;
 }
 
-/** Raw stored gender case word. Only German/Spanish nouns carry one. */
+/** Raw stored gender case word. Only German, Spanish and French nouns carry one. */
 export function genderValue(row: WordSimpleBE, key: LangKey): string | undefined {
     if (key === 'ES') return row.genderES;
     if (key === 'DE') return row.genderDE;
+    if (key === 'FR') return row.genderFR;
     return undefined;
 }
 

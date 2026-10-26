@@ -23,6 +23,10 @@ describe('describeCase', () => {
         expect(describeCase('Verb', 'indicativePresent1sES')).toMatchObject({ kind: 'verb', person: 1, plurality: 'Singular' });
         expect(describeCase('Verb', 'participleNonFiniteSimpleES')).toEqual({ kind: 'property', category: 'Participle' });
         expect(describeCase('Verb', 'auxVerbDE')).toEqual({ kind: 'property', category: 'Auxiliary-Verb' });
+        expect(describeCase('Verb', 'indicativeImperfect2plFR')).toMatchObject({ kind: 'verb', person: 2, plurality: 'Plural' });
+        expect(describeCase('Verb', 'verbGroupFR')).toEqual({ kind: 'property', category: 'Verb-Group' });
+        expect(describeCase('Verb', 'pastParticipleFR')).toEqual({ kind: 'property', category: 'Past-Participle' });
+        expect(describeCase('Verb', 'auxVerbFR')).toEqual({ kind: 'property', category: 'Auxiliary-Verb' });
     });
 
     it('does not know a name in the wrong part of speech or a made-up one', () => {
@@ -46,6 +50,10 @@ describe('caseLabel (UI language: English)', () => {
         expect(caseLabel(t, 'Verb', 'indicativePerfectSimplePast3plES')).toBe('Past · 3rd person plural');
         expect(caseLabel(t, 'Verb', 'indicativeSimpleFuture1sDE')).toBe('Future · 1st person singular');
         expect(caseLabel(t, 'Verb', 'kindelSimplePast3sEE')).toBe('Past · 3rd person singular');
+        expect(caseLabel(t, 'Verb', 'indicativePresent3sFR')).toBe('Present · 3rd person singular');
+        // French "past" in practice is the imparfait (review log M3); the passé composé is only named by its own words.
+        expect(caseLabel(t, 'Verb', 'indicativeImperfect1plFR')).toBe('Past · 1st person plural');
+        expect(caseLabel(t, 'Verb', 'indicativeSimpleFuture3plFR')).toBe('Future · 3rd person plural');
     });
 
     it('labels properties by their category (the target of a same-language drill)', () => {
@@ -53,6 +61,8 @@ describe('caseLabel (UI language: English)', () => {
         expect(caseLabel(t, 'Verb', 'regularityES')).toBe('Regularity');
         expect(caseLabel(t, 'Verb', 'gerundNonFiniteSimpleES')).toBe('Gerund');
         expect(caseLabel(t, 'Verb', 'infinitiveNonFiniteSimpleES')).toBe('Infinitive');
+        expect(caseLabel(t, 'Verb', 'verbGroupFR')).toBe('Verb group');
+        expect(caseLabel(t, 'Verb', 'pastParticipleFR')).toBe('Past participle');
     });
 
     it('returns an unknown name unchanged, so a card never shows an empty label', () => {
@@ -91,11 +101,14 @@ describe('pronounFor', () => {
         expect(pronounFor('Verb', 'indicativePresent1sES')).toBe('Yo');
         expect(pronounFor('Verb', 'indicativePresent1sDE')).toBe('Ich');
         expect(pronounFor('Verb', 'kindelPresent1sEE')).toBe('Mina');
+        expect(pronounFor('Verb', 'indicativePresent1sFR')).toBe("Je/J'");
+        expect(pronounFor('Verb', 'indicativePerfect3plFR')).toBe('Ils/Elles');
     });
 
     it('is undefined for infinitives, properties, nouns and unknown names', () => {
         expect(pronounFor('Verb', 'infinitiveNonFiniteSimpleES')).toBeUndefined();
         expect(pronounFor('Verb', 'regularityEN')).toBeUndefined();
+        expect(pronounFor('Verb', 'infinitiveFR')).toBeUndefined();
         expect(pronounFor('Noun', 'singularEN')).toBeUndefined();
         expect(pronounFor('Verb', 'nope')).toBeUndefined();
     });

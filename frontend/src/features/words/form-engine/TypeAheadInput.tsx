@@ -25,7 +25,6 @@
  * before; only the list request waits for a short pause (`SUGGEST_DEBOUNCE_MS`).
  */
 import { forwardRef, useState, type ComponentProps } from 'react';
-import { useWatch, useFormContext } from 'react-hook-form';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Input } from '@/components/ui/input';
 import { MIN_PREFIX_LENGTH, useDictionarySuggestions } from '@/features/autocomplete/hooks';
@@ -34,15 +33,11 @@ import { useDebouncedCallback } from '@/lib/useDebouncedCallback';
 import type { Lang, PartOfSpeech } from '@/ts/enums';
 
 const SUGGEST_DEBOUNCE_MS = 150;
-/** Never a real RHF field; watching it is a harmless no-op (same trick as `AutocompleteRow`). */
-const NO_FIELD = '__type_ahead_none__';
 
 /** What `FieldRenderer` needs to turn the autocomplete query field into this component. */
 export interface TypeAheadConfig {
     lang: Lang;
     pos: PartOfSpeech;
-    /** A checkbox that turns the list off while checked (Estonian "Search verb in English", D21). */
-    offWhenField?: string;
     onPick: (suggestion: Suggestion) => void;
     /** The user typed (not a pick): any earlier pick no longer applies. */
     onType: () => void;
@@ -59,14 +54,12 @@ export const TypeAheadInput = forwardRef<HTMLInputElement, TypeAheadInputProps>(
     { config, value, onValueChange, ...inputProps },
     ref
 ) {
-    const { control } = useFormContext();
-    const listOff = useWatch({ control, name: config.offWhenField ?? NO_FIELD }) === true;
     const [open, setOpen] = useState(false);
 
     const prefix = useDebouncedCallback(value, SUGGEST_DEBOUNCE_MS);
-    const enabled = !listOff && prefix.trim().length >= MIN_PREFIX_LENGTH;
+    const enabled = prefix.trim().length >= MIN_PREFIX_LENGTH;
     const { data } = useDictionarySuggestions({ language: config.lang, pos: config.pos, prefix, enabled });
-    // `keepPreviousData` would keep an old list after the text got too short, or the list was turned off.
+    // `keepPreviousData` would keep an old list after the text got too short.
     const items = enabled && value.trim().length >= MIN_PREFIX_LENGTH ? (data ?? []) : [];
 
     return (

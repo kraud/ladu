@@ -22,17 +22,15 @@ export interface UseAutocompleteTranslationArgs {
     pos: PartOfSpeech;
     /** Already-debounced query value. */
     query: string;
-    /** Estonian `searchInEnglish` checkbox value, where the registry entry has one. */
-    extra?: boolean;
     /** A type-ahead pick: look up that exact entry. */
     entryId?: string;
 }
 
-export function lookupQueryOptions({ language, pos, query, extra, entryId }: UseAutocompleteTranslationArgs) {
+export function lookupQueryOptions({ language, pos, query, entryId }: UseAutocompleteTranslationArgs) {
     const trimmed = query.trim();
     return queryOptions({
-        queryKey: autocompleteKeys.lookup(language, pos, trimmed, extra, entryId),
-        queryFn: () => lookupDictionary(language, pos, trimmed, extra, entryId).then(toAutocompleteResult),
+        queryKey: autocompleteKeys.lookup(language, pos, trimmed, entryId),
+        queryFn: () => lookupDictionary(language, pos, trimmed, entryId).then(toAutocompleteResult),
         // Dictionary data does not change within a minute. It also keeps the answer a draft puts in
         // the cache (Slice G, which chose the entry by gender) from being replaced by a plain lookup.
         staleTime: 60_000,
@@ -53,7 +51,7 @@ export interface UseDictionarySuggestionsArgs {
     pos: PartOfSpeech;
     /** Already-debounced prefix. */
     prefix: string;
-    /** False turns the list off (Estonian "Search verb in English"). */
+    /** False turns the list off. */
     enabled: boolean;
 }
 

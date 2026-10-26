@@ -73,7 +73,7 @@ describe('POST /api/demo — the new demo account', () => {
             uiLanguage: 'German',
             nativeLanguage: 'German',
             theme: 'dark',
-            languages: ['German', 'English', 'Spanish', 'Estonian'],
+            languages: ['German', 'English', 'Spanish', 'Estonian', 'French'],
             demoWordLimit: SEED_COUNTS.words + 30,
             demoTagLimit: SEED_COUNTS.tags + 5,
             // A demo never sees the onboarding (onboarding.md D21).
@@ -98,7 +98,7 @@ describe('POST /api/demo — the new demo account', () => {
         expect(row.termsVersion).toBe(TERMS_VERSION);
         expect(row.termsAcceptedAt).toBeInstanceOf(Date);
         expect(row.uiLanguage).toBe('English');
-        expect(row.languages).toEqual(['English', 'Spanish', 'German', 'Estonian']);
+        expect(row.languages).toEqual(['English', 'Spanish', 'German', 'Estonian', 'French']);
         expect(row.theme).toBeNull();
     });
 

@@ -1,3 +1,4 @@
+import { E2E_API_URL } from '../fixtures/env';
 import { test, expect, type APIRequestContext, type Browser, type Page } from '@playwright/test';
 import { closePool, deleteUsersByEmail, getVerifyToken } from '../fixtures/db';
 
@@ -34,13 +35,13 @@ import { closePool, deleteUsersByEmail, getVerifyToken } from '../fixtures/db';
  * the four words this spec needs are seeded directly via the API so the run
  * stays focused on the tag flows Phase 4 actually adds.
  *
- * Runs against `keelapp_v2_dev`. Uses unique `e2e-*@ladu.test` emails and
+ * Runs against `keelapp_e2e`. Uses unique `e2e-*@ladu.test` emails and
  * deletes both accounts in `afterAll` — `words`/`tags`/`tag_words`/
  * `user_following_tags` all cascade off the `users` row
  * (`backend/src/db/schema.ts`).
  */
 
-const API = process.env.E2E_API_URL ?? 'http://localhost:5001';
+const API = E2E_API_URL;
 
 const run = Date.now();
 let seq = 0;

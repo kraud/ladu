@@ -28,7 +28,7 @@ function adapterOr400(res: any, language: string, partOfSpeech: string) {
 
 // @desc    Look up the case forms of one word
 // @route   GET /api/dictionary/:language/:partOfSpeech/:query
-//          ?searchInEnglish=true (Estonian verb) · ?entry=<id> (a type-ahead pick: that exact entry)
+//          ?entry=<id> (a type-ahead pick: that exact entry)
 // @access  Private
 // @returns 200 { status: 'found' | 'partial' | 'not-found', cases: [{ caseName, word }] }
 //          400 no dictionary for that language and part of speech, or a bad query; 502 upstream failure
@@ -47,7 +47,7 @@ const lookup = asyncHandler(async (req: any, res: any) => {
     }
 
     try {
-        const result = await adapter(word, { searchInEnglish: req.query.searchInEnglish === 'true', entryId: entry });
+        const result = await adapter(word, { entryId: entry });
         res.status(200).json(result);
     } catch (error) {
         if (error instanceof HttpError) res.status(error.status);
@@ -80,7 +80,7 @@ const suggest = asyncHandler(async (req: any, res: any) => {
 });
 
 // @desc    Translate one word (autocomplete-data-source-strategy.md Slice F, step F2): the senses it
-//          belongs to and, per sense, the words in all four languages (services/dictionary/translate.ts).
+//          belongs to and, per sense, the words in every language (services/dictionary/translate.ts).
 // @route   GET /api/dictionary/translate/:fromLanguage/:partOfSpeech/:query
 //          fromLanguage: English | Spanish | German | Estonian; partOfSpeech: Noun | Verb | Adjective | Adverb | Conjunction | Preposition
 // @access  Private
@@ -159,17 +159,18 @@ const senseOfKey = asyncHandler(async (req: any, res: any) => {
     res.status(200).json(result);
 });
 
-const MAX_PICKS = 4;
+/** One pick per language: a word can have a translation in each language Ladu supports. */
+const MAX_PICKS = translation.TRANSLATE_LANGUAGES.length;
 
 // @desc    The draft of a Word (autocomplete-data-source-strategy.md Slice G, step G3): the forms of the
 //          word chosen for each language, in one call. Reads only (a POST because of the body); the
 //          Word is saved later by POST /api/words.
 // @route   POST /api/dictionary/draft
-//          body { partOfSpeech, picks: [{ language, word, gender? }] }  (1 to 4 picks, one per language)
+//          body { partOfSpeech, picks: [{ language, word, gender? }] }  (1 to one pick per language)
 // @access  Private
 // @returns 200 { translations: [{ language, word, gender?, status: 'found' | 'partial' | 'not-found' | 'error', cases: [{ caseName, word }] }] }
 //          (one entry per pick, same order; `error`: that lookup failed, the others are unaffected)
-//          400 an unknown part of speech or language, a repeated language, an empty or too long word, or not 1 to 4 picks
+//          400 an unknown part of speech or language, a repeated language, an empty or too long word, or no picks, or more picks than languages
 const draft = asyncHandler(async (req: any, res: any) => {
     const { partOfSpeech, picks } = req.body ?? {};
     const valid =
@@ -184,7 +185,7 @@ const draft = asyncHandler(async (req: any, res: any) => {
         );
     if (!valid) {
         res.status(400);
-        throw new Error('A part of speech and 1 to 4 picks (one per language, each with a word of 1 to 100 characters) are required');
+        throw new Error(`A part of speech and 1 to ${MAX_PICKS} picks (one per language, each with a word of 1 to 100 characters) are required`);
     }
     const clean = picks.map((pick: any) => ({ language: pick.language, word: pick.word.trim(), gender: pick.gender || undefined }));
     res.status(200).json({ translations: await draftService.draft(partOfSpeech, clean) });

@@ -46,7 +46,7 @@ describe('links into the app', () => {
 
     it('has the new labels in every language, and no "Open" label', () => {
         const app = read('app.js');
-        for (const code of ['en', 'es', 'de', 'ee']) {
+        for (const code of ['en', 'es', 'de', 'ee', 'fr']) {
             const strings = stringsOf(app, code);
             for (const key of ['createAccount', 'alreadyRegistered', 'signIn']) {
                 assert.match(strings, new RegExp(`\\b${key}: '[^']+'`), `${code} lacks ${key}`);

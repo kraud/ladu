@@ -123,12 +123,13 @@ describe('pieSeries', () => {
         ]);
     });
 
-    it('zero-fills all 4 UI languages in canonical order for translations mode', () => {
+    it('zero-fills all 5 UI languages in canonical order for translations mode', () => {
         expect(pieSeries(POPULATED, 'translations')).toEqual([
             { key: 'English', count: 10 },
             { key: 'Spanish', count: 7 },
             { key: 'German', count: 0 },
             { key: 'Estonian', count: 0 },
+            { key: 'French', count: 0 },
         ]);
     });
 
@@ -237,7 +238,7 @@ describe('availableBarMonthRanges', () => {
 describe('barSeriesByLanguage', () => {
     it('returns one group per UI language, in display order, zero-filled', () => {
         const groups = barSeriesByLanguage(POPULATED);
-        expect(groups.map((g) => g.xLabel)).toEqual(['English', 'Spanish', 'German', 'Estonian']);
+        expect(groups.map((g) => g.xLabel)).toEqual(['English', 'Spanish', 'German', 'Estonian', 'French']);
 
         const german = groups.find((g) => g.xLabel === 'German')!;
         expect(german.series.every((s) => s.count === 0)).toBe(true);
@@ -255,7 +256,7 @@ describe('barSeriesByLanguage', () => {
 
     it('returns all-zero groups (not an empty array) for a fresh account', () => {
         const groups = barSeriesByLanguage(EMPTY);
-        expect(groups).toHaveLength(4);
+        expect(groups).toHaveLength(5);
         expect(groups.every((g) => g.series.every((s) => s.count === 0))).toBe(true);
     });
 });

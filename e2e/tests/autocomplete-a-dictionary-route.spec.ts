@@ -1,3 +1,4 @@
+import { EKI_STUB_URL } from '../fixtures/env';
 import { test, expect, type Page } from '@playwright/test';
 import { clickUseValues } from '../fixtures/autocomplete';
 import { closePool, deleteUsersByEmail } from '../fixtures/db';
@@ -19,12 +20,10 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
  *     and the stub received "väike" URL-encoded as UTF-8.
  *  5. An Estonian word the dictionary does not know: "we don't know this word".
  *
- * The Estonian cases need the e2e backend to use the stub: the repo-root .env must NOT set
- * EKILEX_API_URL (it would win over playwright.config.ts), and no dev backend may be
- * running already (`reuseExistingServer` would keep its environment).
+ * The Estonian cases need the e2e backend to use the stub. playwright.config.ts passes the stub
+ * address, and the values of the repo-root .env do not override it (LADU_KEEP_PROCESS_ENV).
  */
 
-const EKI_STUB_URL = process.env.EKI_STUB_URL ?? 'http://localhost:4401';
 
 test.afterAll(async () => {
     await deleteUsersByEmail(createdEmails);
@@ -100,7 +99,7 @@ test.describe.serial('Autocomplete — one dictionary route (Slice A)', () => {
         await expect(page.getByLabel('Plural nominative')).toHaveValue('väikesed');
 
         const received = ((await (await request.get(`${EKI_STUB_URL}/__requests`)).json()) as { rawPath: string }[]).slice(before);
-        expect(received, 'the backend did not call the stub — is EKILEX_API_URL set in the repo-root .env, or is a backend already running on :5001?').toContainEqual(
+        expect(received, 'the backend did not call the stub — is a backend with another environment running on the e2e API port?').toContainEqual(
             expect.objectContaining({ rawPath: '/api/word/ids/v%C3%A4ike/eki/est' }),
         );
     });

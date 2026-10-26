@@ -20,7 +20,7 @@ export function toAutocompleteResult(response: DictionaryResponse): Autocomplete
 }
 
 export interface AutocompleteEndpoint {
-    /** RHF field name (not `caseName` — the Estonian `searchInEnglish` checkbox has no `caseName` at all) whose value is the query. */
+    /** RHF field name (not `caseName`) whose value is the query. */
     queryFieldName: string;
     /**
      * Other fields that can hold the query, when a card shows different fields per branch (the Spanish
@@ -28,8 +28,6 @@ export interface AutocompleteEndpoint {
      * field is the first of `queryFieldName` + these that is visible (`activeQueryField`).
      */
     alternativeQueryFieldNames?: string[];
-    /** RHF field name of a sibling boolean field that toggles English-language search (Estonian verb only). */
-    extraFieldName?: string;
 }
 
 export const AUTOCOMPLETE_REGISTRY: Partial<Record<Lang, Partial<Record<PartOfSpeech, AutocompleteEndpoint>>>> = {
@@ -63,10 +61,17 @@ export const AUTOCOMPLETE_REGISTRY: Partial<Record<Lang, Partial<Record<PartOfSp
         [PartOfSpeech.verb]: { queryFieldName: 'infinitive' },
         [PartOfSpeech.noun]: { queryFieldName: 'singularNominativ' },
     },
+    [Lang.FR]: {
+        // French slices 9a and 9b (language-french.md): the lexicon only, like the English nouns.
+        [PartOfSpeech.verb]: { queryFieldName: 'infinitive' },
+        [PartOfSpeech.adjective]: { queryFieldName: 'maleSingular' },
+        [PartOfSpeech.adverb]: { queryFieldName: 'adverb' },
+        [PartOfSpeech.conjunction]: { queryFieldName: 'conjunction' },
+        [PartOfSpeech.preposition]: { queryFieldName: 'preposition' },
+        [PartOfSpeech.noun]: { queryFieldName: 'singular' },
+    },
     [Lang.EE]: {
-        [PartOfSpeech.verb]: { queryFieldName: 'infinitiveMa', extraFieldName: 'searchInEnglish' },
-        // No `searchInEnglish` checkbox exists on the noun/adjective configs (only the verb config has
-        // one, added in Slice 2 for its pattern-relaxation feature) — these two always search natively.
+        [PartOfSpeech.verb]: { queryFieldName: 'infinitiveMa' },
         [PartOfSpeech.noun]: { queryFieldName: 'singularNimetav' },
         [PartOfSpeech.adjective]: { queryFieldName: 'algvorre' },
         // Slice H4: Ekilex only, like the adjective; no type-ahead list (no local lexicon for it).

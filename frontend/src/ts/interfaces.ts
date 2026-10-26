@@ -181,8 +181,7 @@ export interface LanguageAndLabel {
 }
 
 export interface EstonianAPIRequest {
-    query: string,
-    searchInEnglish?: boolean
+    query: string
 }
 
 export type EquivalentTranslationValues = {

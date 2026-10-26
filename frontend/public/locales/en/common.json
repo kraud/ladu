@@ -10,7 +10,8 @@
       "Nothing to see here…",
       "Hier gibt es nichts zu sehen…",
       "No hay nada que ver aquí…",
-      "Siin pole midagi vaadata…"
+      "Siin pole midagi vaadata…",
+      "Il n’y a rien à voir ici…"
     ],
     "goToDashboard": "Go to dashboard",
     "goToLogin": "Go to login"
@@ -113,6 +114,7 @@
   "languages": {
     "english": "English",
     "estonian": "Estonian",
+    "french": "French",
     "german": "German",
     "spanish": "Spanish"
   },

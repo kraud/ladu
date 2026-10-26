@@ -52,6 +52,8 @@
   --lang-de: #42403c;
   --lang-es: #b8352f;
   --lang-ee: #2265a8;
+  /* French: the tricolour has no hue left that is distinct from the other four, so this violet is chosen for contrast in charts */
+  --lang-fr: #6a3fa0;
 }
 
 /* Dark theme (Phase 3.9). `lib/theme.ts` sets `data-theme` on <html>; only the
@@ -81,6 +83,7 @@
   --lang-de: #b4b0a6;
   --lang-es: #ef7d76;
   --lang-ee: #6fb0ec;
+  --lang-fr: #b79af0;
 }
 
 /* ------------------------------------------------------------

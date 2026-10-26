@@ -15,7 +15,6 @@ const enVerbFields = getFormConfig(PartOfSpeech.verb, Lang.EN)!.fields;
 const esAdjectiveFields = getFormConfig(PartOfSpeech.adjective, Lang.ES)!.fields;
 const deAdverbFields = getFormConfig(PartOfSpeech.adverb, Lang.DE)!.fields;
 const deVerbFields = getFormConfig(PartOfSpeech.verb, Lang.DE)!.fields;
-const eeVerbFields = getFormConfig(PartOfSpeech.verb, Lang.EE)!.fields;
 const eePrepositionFields = getFormConfig(PartOfSpeech.preposition, Lang.EE)!.fields;
 const dePrepositionFields = getFormConfig(PartOfSpeech.preposition, Lang.DE)!.fields;
 const deConjunctionFields = getFormConfig(PartOfSpeech.conjunction, Lang.DE)!.fields;
@@ -262,24 +261,6 @@ describe('AutocompleteRow', () => {
         expect(screen.getByLabelText('simplePresent3s-probe')).toHaveValue('runs');
     });
 
-    it('reads the Estonian searchInEnglish checkbox as the extra query param', async () => {
-        const fake = makeAutocompleteHandlers({
-            estonianVerb: { status: 'found', cases: [{ caseName: 'infinitiveMaEE', word: 'jooksma' }] },
-        });
-        server.use(...fake.handlers);
-
-        renderWithProviders(
-            <Harness
-                lang={Lang.EE}
-                pos={PartOfSpeech.verb}
-                fields={eeVerbFields}
-                defaultValues={{ infinitiveMa: 'jooksma', searchInEnglish: true }}
-            />
-        );
-
-        await waitFor(() => expect(fake.requests).toHaveLength(1), { timeout: 2000 });
-        expect(fake.requests[0]).toEqual({ path: 'Estonian/Verb', query: 'jooksma', searchInEnglish: true, entry: null });
-    });
     describe('adjectives and adverbs (Slice H3)', () => {
         /** Shows the form values the lookup writes, so a test can read hidden-branch fields too. */
         function Probe({ lang, pos, fields, defaultValues, names }: { lang: Lang; pos: PartOfSpeech; fields: typeof enVerbFields; defaultValues: Record<string, unknown>; names: string[] }) {

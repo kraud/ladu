@@ -41,7 +41,7 @@ describe('AccountPage', () => {
         const langs = screen.getByRole('list');
         expect(within(langs).getByText('English')).toBeInTheDocument();
         expect(within(langs).getByText('Deutsch')).toBeInTheDocument();
-        expect(screen.getByText('2 of 4 selected')).toBeInTheDocument();
+        expect(screen.getByText('2 of 5 selected')).toBeInTheDocument();
     });
 
     it('shows the no-languages banner and a shortcut straight into edit mode', async () => {

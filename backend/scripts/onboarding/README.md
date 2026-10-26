@@ -19,8 +19,8 @@ always written to the git-ignored `word-lists/pool-candidates.tsv` for compariso
 | `band` | `beginner`, `intermediate` or `advanced` (set by hand, not from the rank) |
 | `pos` | `Noun`, `Verb`, `Adjective` or `Adverb` |
 | `rank` | frequency rank of the English word (1 = most common) |
-| `en`, `es`, `de`, `et` | the word in each language; empty = no word (the language is skipped for that concept) |
-| `es_gender`, `de_gender` | noun gender: `el`, `la`, `el/la` / `der`, `die`, `das`; empty for other parts of speech |
+| `en`, `es`, `de`, `et`, `fr` | the word in each language; empty = no word (the language is skipped for that concept) |
+| `es_gender`, `de_gender`, `fr_gender` | noun gender: `el`, `la`, `el/la` / `der`, `die`, `das` / `le`, `la`, `le/la`; empty for other parts of speech |
 | `sense` | the Wiktionary sense label the translations come from |
 | `sense_key` | `<entry order>.<sense order>` of that sense in the translation hub, or `manual` (words typed by hand, no hub sense). Keeps a rebuild deterministic |
 | `flags` | why a line is `check`: `sense:<entry>.<sense>` (not the first sense), `pos_order:<n>` (not the first part of speech on the page: maybe a homograph), `given_name`, `<lang>:regional`, `<lang>:not_in_lexicon` |
@@ -43,6 +43,12 @@ Open the file in a spreadsheet (tab-separated, UTF-8) or an editor. For each lin
 2. Do the words match the same meaning in every language (look at `sense`)? Correct a word or
    empty it. A line needs English and at least one other language.
 3. For a `check` line, read `flags`, then set `keep` or `drop`.
+
+French was added in 2026-10 (French slice 11) with `npx tsx scripts/lexicon/onboarding-pool.ts --add-french`
+(a one-time migration: it adds the `fr` and `fr_gender` columns, matching the reviewed sense by its `sense` label,
+and fills 558 of the 583 concepts) and `npx tsx scripts/lexicon/onboarding-forms.ts --language French` (adds only the
+French forms to `pool-forms.json`; it needs no Ekilex key). The French words are **not reviewed yet**: a teacher reads
+them (`.context/plans/language-french-review.md`, "Starter words"). The same two steps add any later language.
 
 Then, from `backend/`, run `npx tsx scripts/lexicon/onboarding-forms.ts` (it rebuilds
 `pool-forms.json`, the precomputed forms; it needs the dev database with the lexicon and the Ekilex

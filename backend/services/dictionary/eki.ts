@@ -5,9 +5,6 @@
  *
  * Lookup (2 calls): `api/word/ids/{word}/eki/est` → word ids → `api/paradigm/details/{id}` →
  * forms, each with a `morphCode` (SgN, PlP, IndPrSg1, …: the codes the old transforms read).
- * "Search in English" (Estonian verb only): `estonianVerbFor` reads `api/meaning/search/{word}` → the
- * Estonian verb (a "-ma" word) found in the most meanings. Since step F3 it is the fallback after
- * the local translation table, and the verb's forms then come from the usual lookup (registry.ts).
  *
  * - Homonyms: the first word id whose paradigm has the wanted word class wins.
  * - Adjectives (Slice D3, 3 calls): the paradigm's word class is "noomen" like a noun's, so a
@@ -199,23 +196,6 @@ export function transformVerb(paradigm: Paradigm | undefined): LookupResult {
         // Past perfect: the same participle for all six persons (the form shows the auxiliary). Old app behaviour.
         ...PERSONS.map(([, slot]): [string, string] => [`kindelPastPerfect${slot}EE`, formOf(paradigm, 'PtsPtPs')]),
     ]));
-}
-
-/**
- * "Search in English": the Estonian "-ma" verb that appears in the MOST meanings of the English
- * word, ties to the first listed. Ekilex's first meaning is not always the common one: for "run"
- * it lists "astuma" (to step) first, but "jooksma" is in two meanings, "astuma" in one.
- */
-export async function estonianVerbFor(english: string): Promise<string | undefined> {
-    const search = await get<MeaningSearch>(`api/meaning/search/${encodeURIComponent(english)}`);
-    const counts = new Map<string, number>(); // insertion order = first-listed order, for ties
-    for (const meaning of search.results ?? []) {
-        const verbs = new Set((meaning.meaningWords ?? []).filter((w) => w.lang === 'est' && w.wordValue.endsWith('ma')).map((w) => w.wordValue));
-        for (const verb of verbs) counts.set(verb, (counts.get(verb) ?? 0) + 1);
-    }
-    let best: string | undefined;
-    for (const [verb, count] of counts) if (best === undefined || count > counts.get(best)!) best = verb;
-    return best;
 }
 
 /** Ekilex's language codes for the languages a translation can start from (besides Estonian). */

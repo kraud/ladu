@@ -11,9 +11,10 @@ const { drizzle }: typeof import('drizzle-orm/node-postgres') = require('drizzle
 const isTestEnv = process.env.NODE_ENV === 'test';
 
 // Load .env from the project root (two levels up from backend/src/db/).
-// `override: true` so a stale DATABASE_URL inherited from a parent process
-// cannot redirect the backend to the wrong database.
-dotenv.config({ path: path.resolve(__dirname, '../../../.env'), override: true });
+// `override` is on so a stale DATABASE_URL inherited from a parent process cannot redirect the backend to
+// the wrong database. Only the e2e servers switch it off (LADU_KEEP_PROCESS_ENV, e2e/playwright.config.ts):
+// they pass their own DATABASE_URL on purpose.
+dotenv.config({ path: path.resolve(__dirname, '../../../.env'), override: !process.env.LADU_KEEP_PROCESS_ENV });
 
 // Determine which database URL to use based on the environment.
 // In test mode (NODE_ENV=test) we always use the dedicated test database

@@ -8,6 +8,7 @@
 import { describe, expect, it } from 'vitest';
 import { Lang, PartOfSpeech } from '@/ts/enums';
 import { getFormConfig } from './index';
+import { LANG_SUFFIX } from '@/lib/language';
 
 describe('getFormConfig(Noun, lang) — old field-list parity', () => {
     it('English: regularity, singular*, plural', () => {
@@ -63,12 +64,23 @@ describe('getFormConfig(Noun, lang) — old field-list parity', () => {
         expect(config.fields.filter((f) => f.name !== 'singularNimetav').every((f) => !f.required)).toBe(true);
     });
 
+    it('French: gender (le / la / le/la), regularity, singular*, plural', () => {
+        const config = getFormConfig(PartOfSpeech.noun, Lang.FR)!;
+        expect(config.fields.map((f) => f.name)).toEqual(['gender', 'regularity', 'singular', 'plural']);
+        expect(config.fields.find((f) => f.name === 'gender')?.required).toBe(true);
+        expect(config.fields.find((f) => f.name === 'singular')?.required).toBe(true);
+        expect(config.fields.find((f) => f.name === 'plural')?.required).toBe(false);
+        const gender = config.fields.find((f) => f.name === 'gender');
+        expect(gender?.kind === 'radio' && gender.options.map((o) => o.value)).toEqual(['le', 'la', 'le/la']);
+        // French nouns are written in lower case (only German capitalises).
+        expect(config.fields.find((f) => f.name === 'singular')).toMatchObject({ lowercase: true });
+    });
+
     it('every field.caseName is field.name + the language suffix', () => {
-        const suffixes: Record<Lang, string> = { [Lang.EN]: 'EN', [Lang.ES]: 'ES', [Lang.DE]: 'DE', [Lang.EE]: 'EE' };
-        for (const lang of [Lang.EN, Lang.ES, Lang.DE, Lang.EE]) {
+        for (const lang of [Lang.EN, Lang.ES, Lang.DE, Lang.EE, Lang.FR]) {
             const config = getFormConfig(PartOfSpeech.noun, lang)!;
             for (const field of config.fields) {
-                expect(field.caseName).toBe(`${field.name}${suffixes[lang]}`);
+                expect(field.caseName).toBe(`${field.name}${LANG_SUFFIX[lang]}`);
             }
         }
     });
@@ -90,9 +102,14 @@ describe('getFormConfig(Noun, lang) — old field-list parity', () => {
             });
         });
 
-        it('gender and regularity are not paired', () => {
-            const config = getFormConfig(PartOfSpeech.noun, Lang.DE)!;
-            expect(config.fields.find((f) => f.name === 'gender')?.layout).toBeUndefined();
+        it.each([Lang.ES, Lang.DE, Lang.FR])('%s: gender and regularity share one row, also on a phone (fitRow), in a block of their own', (lang) => {
+            const config = getFormConfig(PartOfSpeech.noun, lang)!;
+            expect(config.fields.find((f) => f.name === 'gender')?.layout).toEqual({ row: 'meta', column: 'gender', block: 'nounMeta', fitRow: true, alignTop: true });
+            expect(config.fields.find((f) => f.name === 'regularity')?.layout).toEqual({ row: 'meta', column: 'regularity', block: 'nounMeta', fitRow: true, alignTop: true });
+        });
+
+        it.each([Lang.EN, Lang.EE])('%s has no gender: its regularity stays on its own row', (lang) => {
+            const config = getFormConfig(PartOfSpeech.noun, lang)!;
             expect(config.fields.find((f) => f.name === 'regularity')?.layout).toBeUndefined();
         });
 

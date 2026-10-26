@@ -40,7 +40,7 @@ i18n
             'translation',
             'wordRelated',
         ],
-        supportedLngs: ['en', 'es', 'de', 'ee'],
+        supportedLngs: ['en', 'es', 'de', 'ee', 'fr'],
         nonExplicitSupportedLngs: true,
         backend: {
             load: 'languageOnly',

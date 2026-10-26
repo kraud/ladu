@@ -42,12 +42,12 @@ import { Lang, PartOfSpeech } from '@/ts/enums';
 import type { WordItem } from '@/ts/interfaces';
 import type { LangKey, TranslationInput } from '../types';
 import { resolveLoadingToastError, resolveLoadingToastSuccess, startLoadingToast } from '@/lib/toast';
+import { MAX_TRANSLATIONS } from '@/lib/language';
 
-// Mirrors `useWordFormState.ts`'s own cap — a fifth translation is reachable
-// here only when one of the word's four already-stored languages is one the
+// Mirrors `useWordFormState.ts`'s own cap (one translation per supported language) — more is
+// reachable here only when one of the word's already-stored languages is one the
 // account no longer lists (so it can't be seen/edited elsewhere), which is
 // an edge case worth guarding rather than a routine limit to surface loudly.
-const MAX_TRANSLATIONS = 4;
 const MIN_TRANSLATIONS_TO_ALLOW_DELETE = 3;
 
 // A verb's tense-column grid needs more than the dialog's default width; the
@@ -224,7 +224,7 @@ export function CellDialog({ wordId, langKey, onClose, nativeLanguage, userLangu
                 {readOnly && isAdd ? (
                     <p className="hint">{t('review:table.blockedTranslation')}</p>
                 ) : atMax ? (
-                    <p className="hint">{t('review:cellDialog.maxTranslations')}</p>
+                    <p className="hint">{t('review:cellDialog.maxTranslations', { max: MAX_TRANSLATIONS })}</p>
                 ) : (
                     <TranslationCard
                         key={cardKey}

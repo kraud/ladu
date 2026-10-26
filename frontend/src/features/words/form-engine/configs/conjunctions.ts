@@ -3,7 +3,8 @@
  * Every language has the same four fields: the word, an optional "Coordinating / Subordinating" radio
  * (Q2, changed: learners often do not know the type), a "Paired" checkbox (Q1) and the second part of a
  * pair ("weder" + "noch"), required while the box is on. Spanish adds a verb-mood select for
- * subordinating conjunctions ("para que" + subjunctive).
+ * subordinating conjunctions ("para que" + subjunctive). French adds one too, with a fourth value: the
+ * conditional ("au cas où", "quand bien même").
  *
  * Layout (Q5): one grid of two columns. The word and the second part share the first row, the type and
  * the "Paired" box the second row, the Spanish mood a third row. Field order follows the rows.
@@ -31,6 +32,14 @@ const TYPE_OPTIONS: RadioOption[] = [
 const MOOD_OPTIONS: RadioOption[] = [
     { value: 'Indicative', label: 'Indicative' },
     { value: 'Subjunctive', label: 'Subjunctive' },
+    { value: 'Depends on meaning', label: 'Depends on meaning' },
+];
+
+/** French: the conditional follows "au cas où", "quand bien même" and "alors même que" (Le Robert, guide "Conjonctions de subordination"). */
+const MOOD_OPTIONS_FR: RadioOption[] = [
+    { value: 'Indicative', label: 'Indicative' },
+    { value: 'Subjunctive', label: 'Subjunctive' },
+    { value: 'Conditional', label: 'Conditional' },
     { value: 'Depends on meaning', label: 'Depends on meaning' },
 ];
 
@@ -100,17 +109,19 @@ function buildConfig(lang: Lang, suffix: string, cases: Record<'word' | 'type' |
     };
 }
 
-/** Spanish only: "porque" takes the indicative, "para que" the subjunctive, "aunque" both. */
-const moodSelectES: FieldConfig = {
-    kind: 'select',
-    name: 'mood',
-    caseName: ConjunctionCases.moodES,
-    labelKey: labelKey(ConjunctionCases.moodES),
-    required: false,
-    options: MOOD_OPTIONS,
-    visibleWhen: whenSubordinating,
-    layout: cell('mood', 'first'),
-};
+/** Spanish and French: "porque" takes the indicative, "para que" the subjunctive, "aunque" both. */
+function moodSelect(caseName: ConjunctionCases, options: RadioOption[]): FieldConfig {
+    return {
+        kind: 'select',
+        name: 'mood',
+        caseName,
+        labelKey: labelKey(caseName),
+        required: false,
+        options,
+        visibleWhen: whenSubordinating,
+        layout: cell('mood', 'first'),
+    };
+}
 
 export const CONJUNCTION_CONFIGS: Partial<Record<Lang, TranslationFormConfig>> = {
     [Lang.EN]: buildConfig(Lang.EN, 'EN', {
@@ -128,7 +139,7 @@ export const CONJUNCTION_CONFIGS: Partial<Record<Lang, TranslationFormConfig>> =
             paired: ConjunctionCases.correlativeES,
             second: ConjunctionCases.secondPartES,
         },
-        [moodSelectES]
+        [moodSelect(ConjunctionCases.moodES, MOOD_OPTIONS)]
     ),
     [Lang.DE]: buildConfig(Lang.DE, 'DE', {
         word: ConjunctionCases.conjunctionDE,
@@ -142,4 +153,15 @@ export const CONJUNCTION_CONFIGS: Partial<Record<Lang, TranslationFormConfig>> =
         paired: ConjunctionCases.correlativeEE,
         second: ConjunctionCases.secondPartEE,
     }),
+    [Lang.FR]: buildConfig(
+        Lang.FR,
+        'FR',
+        {
+            word: ConjunctionCases.conjunctionFR,
+            type: ConjunctionCases.conjunctionTypeFR,
+            paired: ConjunctionCases.correlativeFR,
+            second: ConjunctionCases.secondPartFR,
+        },
+        [moodSelect(ConjunctionCases.moodFR, MOOD_OPTIONS_FR)]
+    ),
 };

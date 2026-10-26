@@ -27,7 +27,7 @@ describe('"Try the demo" link', () => {
     it('has a translated label in every language', () => {
         assert.match(html, /data-i18n="tryDemo"/);
         const app = read('app.js');
-        for (const code of ['en', 'es', 'de', 'ee']) {
+        for (const code of ['en', 'es', 'de', 'ee', 'fr']) {
             assert.match(stringsOf(app, code), /\btryDemo: '[^']+'/, `${code} lacks tryDemo`);
         }
     });

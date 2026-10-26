@@ -19,7 +19,8 @@
       "english": "inglise keeles",
       "spanish": "hispaania keeles",
       "german": "saksa keeles",
-      "estonian": "eesti keeles"
+      "estonian": "eesti keeles",
+      "french": "prantsuse keeles"
     },
     "orLine": "või loo käsitsi",
     "listLabel": "Tähendused",
@@ -218,8 +219,11 @@
         },
         "formEE": {
           "singularFormRequired": "'Ainsuse nimetav' on kohustuslik",
-          "searchInEnglishLabel": "Otsi nimisõna inglise keeles",
-          "searchInEnglishWarning": "Ettevaatust, see ei tööta kõigi nimisõnade puhul! Vajadusel proovi eesti keeles.",
+          "regularityRequired": "See pole valik"
+        },
+        "formFR": {
+          "singularFormRequired": "'Ainsuse' vorm on kohustuslik",
+          "genderRequired": "'Soo' valik on kohustuslik",
           "regularityRequired": "See pole valik"
         }
       },
@@ -248,7 +252,11 @@
         "pluralOmastavEE": "Mitmus omastav",
         "singularOsastavEE": "Ainsus osastav",
         "pluralOsastavEE": "Mitmus osastav",
-        "shortFormEE": "Lühike sisseütlev"
+        "shortFormEE": "Lühike sisseütlev",
+        "regularityFR": "Reeglipärasus",
+        "genderFR": "Sugu",
+        "singularFR": "Ainsus",
+        "pluralFR": "Mitmus"
       }
     },
     "adjective": {
@@ -270,6 +278,12 @@
           "algvorreFormRequired": "Algvõrre on kohustuslik",
           "keskvorreFormRequired": "Keskvõrre on kohustuslik",
           "ulivorreFormRequired": "Ülivõrre on kohustuslik"
+        },
+        "formFR": {
+          "singularMasculineDegreeRequired": "Meessoo ainsusvorm on kohustuslik",
+          "singularFemaleDegreeRequired": "Naissoo ainsusvorm on kohustuslik",
+          "vowelFormRequired": "Vokaali ees olev kuju on kohustuslik",
+          "positionInvalid": "See pole valik"
         }
       },
       "fields": {
@@ -294,8 +308,19 @@
         "singularOmastavEE": "Ainsus omastav",
         "pluralOmastavEE": "Mitmus omastav",
         "singularOsastavEE": "Ainsus osastav",
-        "pluralOsastavEE": "Mitmus osastav"
-      }
+        "pluralOsastavEE": "Mitmus osastav",
+        "maleSingularFR": "Meessoo ainsus",
+        "malePluralFR": "Meessoo mitmus",
+        "femaleSingularFR": "Naissoo ainsus",
+        "femalePluralFR": "Naissoo mitmus",
+        "comparativeFR": "Keskvõrre (meessoo ainsus)",
+        "superlativeFR": "Ülivõrre (meessoo ainsus)",
+        "periphrasticFR": "Kasutab sõna „plus“ (plus + omadussõna)",
+        "hasVowelFormFR": "Omab vokaali ees erikuju (nt beau → bel)",
+        "vowelFormFR": "Vokaali ees olev kuju",
+        "positionFR": "Asukoht"
+      },
+      "derivedFromComparative": "Sõltub keskvõrdest"
     },
     "adverb": {
       "errors": {
@@ -312,6 +337,10 @@
           "gradableRequired": "'Määrsõna järkude' valik on kohustuslik"
         },
         "formEE": {
+          "adverbRequired": "Määrsõna on kohustuslik",
+          "gradableRequired": "'Määrsõna järkude' valik on kohustuslik"
+        },
+        "formFR": {
           "adverbRequired": "Määrsõna on kohustuslik",
           "gradableRequired": "'Määrsõna järkude' valik on kohustuslik"
         }
@@ -335,7 +364,12 @@
         "comparativeEE": "Keskvõrre",
         "superlativeEE": "Ülivõrre",
         "gradableEE": "Astestatav",
-        "periphrasticSuperlativeEE": "Ühesõnalist ülivõrret pole (kõige + keskvõrre)"
+        "periphrasticSuperlativeEE": "Ühesõnalist ülivõrret pole (kõige + keskvõrre)",
+        "adverbFR": "Määrsõna",
+        "comparativeFR": "Keskvõrre",
+        "superlativeFR": "Ülivõrre",
+        "gradableFR": "Astestatav",
+        "periphrasticFR": "Kasutab sõna „plus“ (plus + määrsõna)"
       }
     },
     "conjunction": {
@@ -359,6 +393,11 @@
           "conjunctionRequired": "Sidesõna on kohustuslik",
           "typeInvalid": "See pole valik",
           "secondPartRequired": "Teine osa on kohustuslik"
+        },
+        "formFR": {
+          "conjunctionRequired": "Sidesõna on kohustuslik",
+          "typeInvalid": "See pole valik",
+          "secondPartRequired": "Teine osa on kohustuslik"
         }
       },
       "fields": {
@@ -378,7 +417,12 @@
         "conjunctionEE": "Sidesõna",
         "conjunctionTypeEE": "Tüüp",
         "correlativeEE": "Kaheosaline (nt nii … kui ka)",
-        "secondPartEE": "Teine osa"
+        "secondPartEE": "Teine osa",
+        "conjunctionFR": "Sidesõna",
+        "conjunctionTypeFR": "Tüüp",
+        "correlativeFR": "Kaheosaline (nt nii … kui ka)",
+        "secondPartFR": "Teine osa",
+        "moodFR": "Verbi kõneviis"
       }
     },
     "preposition": {
@@ -396,6 +440,10 @@
           "positionInvalid": "See pole valik"
         },
         "formEE": {
+          "prepositionRequired": "Kaassõna on kohustuslik",
+          "positionInvalid": "See pole valik"
+        },
+        "formFR": {
           "prepositionRequired": "Kaassõna on kohustuslik",
           "positionInvalid": "See pole valik"
         }
@@ -418,7 +466,9 @@
         "governedCasePostEE": "Nimisõna kääne (sõna on järel)",
         "spatialSeriesEE": "On sisse- / seest-rida",
         "directionToEE": "Kuhu (nt sisse)",
-        "directionFromEE": "Kust (nt seest)"
+        "directionFromEE": "Kust (nt seest)",
+        "prepositionFR": "Kaassõna",
+        "positionFR": "Asukoht"
       }
     },
     "verb": {
@@ -442,9 +492,12 @@
         "formEE": {
           "infinitiveMaRequired": "-ma infinitiiv on kohustuslik",
           "infinitiveMaNotMatching": "Palun sisestage infinitiivi vorm (lõpeb '-ma').",
-          "infinitiveDaRequired": "-da infinitiiv on kohustuslik",
-          "searchInEnglishLabel": "Otsi verbi inglise keeles",
-          "searchInEnglishWarning": "Olge ettevaatlik, see ei toimi kõigi verbidega! Vajadusel proovige eesti keeles."
+          "infinitiveDaRequired": "-da infinitiiv on kohustuslik"
+        },
+        "formFR": {
+          "infinitiveRequired": "Infinitiiv on kohustuslik",
+          "infinitiveNotMatching": "Palun sisestage infinitiivi vorm (lõpeb '-er', '-ir' või '-re'; enesekohane tegusõna võib alata sõnaga 'se ').",
+          "verbGroupInvalid": "See pole valik"
         }
       },
       "fields": {
@@ -463,7 +516,13 @@
         "prefixDE": "Eesliide",
         "caseTypeDE": "Tegusõna kääne",
         "infinitiveMaEE": "-ma infinitiiv",
-        "infinitiveDaEE": "-da infinitiiv"
+        "infinitiveDaEE": "-da infinitiiv",
+        "infinitiveFR": "Infinitiiv",
+        "verbGroupFR": "Tegusõnarühm",
+        "auxVerbFR": "Abitegusõna",
+        "reflexivityFR": "Refleksiivsus",
+        "pastParticipleFR": "Mineviku partitsiip",
+        "presentParticipleFR": "Oleviku partitsiip"
       }
     },
     "autocompleteTranslationButton": {

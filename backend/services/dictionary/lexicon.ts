@@ -33,7 +33,7 @@ function fullEntries<T extends Row>(rows: T[]): T[] {
 
 const mainSense = <T extends Row>(rows: T[]): T => rows.reduce((a, b) => (b.entryOrder < a.entryOrder ? b : a));
 
-const GENDER_CASE: Record<string, string> = { German: 'genderDE', Spanish: 'genderES' };
+const GENDER_CASE: Record<string, string> = { German: 'genderDE', Spanish: 'genderES', French: 'genderFR' };
 
 /**
  * The D15 choice, narrowed by a noun gender (Slice G): of the non-stub rows, those whose article
@@ -117,8 +117,6 @@ export async function lexiconSuggestions(language: string, partOfSpeech: string,
  * - `fallback: 'guess'` (default): a rule-based library. Its answer is a guess, not a dictionary
  *   entry, so its `found` becomes `partial` — the form shows the "not fully sure" notice (D2).
  * - `fallback: 'dictionary'`: an online dictionary (Ekilex). Its `found` stays `found`.
- * A search by English word (`searchInEnglish`) never reaches here: registry.ts first turns the
- * English word into an Estonian verb (step F3).
  */
 export function lexiconFirst(
     lexicon: DictionaryAdapter,

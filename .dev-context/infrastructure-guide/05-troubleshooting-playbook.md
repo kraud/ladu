@@ -220,7 +220,7 @@ SELECT language, source_version, count(*) FROM lexemes GROUP BY 1, 2;
 SELECT language, count(*) FROM lexeme_translations GROUP BY 1;
 ```
 (An empty `lexeme_translations` does not break autocomplete: the translate route then finds no
-senses, and the Estonian "Search verb in English" asks Ekilex for every word.)
+senses.)
 
 **Fix:** reload from the copy kept on the VPS — see "After a database restore" in
 [`02-environments-and-databases.md`](02-environments-and-databases.md#the-autocomplete-lexicon-tables-lexemes-and-lexeme_translations).

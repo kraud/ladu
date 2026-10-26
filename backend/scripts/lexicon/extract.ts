@@ -3,7 +3,7 @@
  * JSONL file per language (kaikki-<lang>.jsonl) with only the fields the later steps use.
  *
  * The raw dump holds every language that English Wiktionary describes. A line is kept
- * only when its TOP-LEVEL `lang_code` is en/es/de/et (English entries also carry
+ * only when its TOP-LEVEL `lang_code` is one of LANG_CODES (common.ts; English entries also carry
  * `lang_code` inside `translations[]`, so a text match alone is not enough).
  *
  * Kept fields: word, pos, tags, forms (form + tags), senses (tags, form_of words, first
@@ -21,7 +21,10 @@ const { once }: typeof import('events') = require('events');
 const { LANG_CODES, KAIKKI_RAW_FILE, kaikkiFile, readLines }: typeof import('./common') = require('./common');
 type LangCode = import('./common').LangCode;
 
-const LANG_PREFILTER = /"lang_code":\s*"(en|es|de|et)"/;
+const LANG_PREFILTER = new RegExp(`"lang_code":\\s*"(${LANG_CODES.join('|')})"`);
+
+/** English is the hub: its entries keep the translations into every other language of the list. */
+const TRANSLATION_TARGETS: string[] = LANG_CODES.filter((lang) => lang !== 'en');
 
 /** The kaikki parts of speech whose `categories` the selectors read. Kept only for these: the field is large. */
 const KEEP_CATEGORIES_FOR = new Set(['conj', 'prep', 'postp']);
@@ -43,7 +46,7 @@ function trim(entry: any): object {
     };
     if (entry.lang_code === 'en' && entry.translations) {
         trimmed.translations = entry.translations
-            .filter((t: any) => ['es', 'de', 'et'].includes(t.lang_code ?? t.code))
+            .filter((t: any) => TRANSLATION_TARGETS.includes(t.lang_code ?? t.code))
             .map((t: any) => ({ lang: t.lang_code ?? t.code, word: t.word, tags: t.tags, sense: t.sense }));
     }
     return trimmed;

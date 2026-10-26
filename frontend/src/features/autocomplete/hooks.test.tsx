@@ -62,17 +62,17 @@ describe('useAutocompleteTranslation', () => {
         expect(result.current.data?.cases.get('simplePresent1sEN' as never)).toBe('run');
     });
 
-    it('calls the one dictionary route with the app values and passes searchInEnglish on', async () => {
+    it('calls the one dictionary route with the app values', async () => {
         const { fake, wrapper } = setup({
             estonianVerb: { status: 'found', cases: [{ caseName: 'infinitiveMaEE', word: 'jooksma' }] },
         });
         const { result } = renderHook(
-            () => useAutocompleteTranslation({ language: Lang.EE, pos: PartOfSpeech.verb, query: 'run', extra: true }),
+            () => useAutocompleteTranslation({ language: Lang.EE, pos: PartOfSpeech.verb, query: 'run' }),
             { wrapper }
         );
 
         await waitFor(() => expect(result.current.isSuccess).toBe(true));
-        expect(fake.requests).toEqual([{ path: 'Estonian/Verb', query: 'run', searchInEnglish: true, entry: null }]);
+        expect(fake.requests).toEqual([{ path: 'Estonian/Verb', query: 'run', entry: null }]);
         expect(result.current.data?.status).toBe('found');
         expect(result.current.data?.cases.get('infinitiveMaEE' as never)).toBe('jooksma');
     });

@@ -22,10 +22,11 @@
         { code: 'es', key: 'ES', native: 'Español', flag: '/flags/ES.svg' },
         { code: 'de', key: 'DE', native: 'Deutsch', flag: '/flags/DE.svg' },
         { code: 'ee', key: 'EE', native: 'Eesti', flag: '/flags/EE.svg' },
+        { code: 'fr', key: 'FR', native: 'Français', flag: '/flags/FR.svg' },
     ];
 
     /* Estonian is `ee` for the app (carried over from v1) but `et` in HTML. */
-    var HTML_LANG = { en: 'en', es: 'es', de: 'de', ee: 'et' };
+    var HTML_LANG = { en: 'en', es: 'es', de: 'de', ee: 'et', fr: 'fr' };
 
     var STRINGS = {
         en: {
@@ -52,7 +53,7 @@
             alreadyRegistered: 'Already registered?',
             signIn: 'Sign in',
             tryDemo: 'Try the demo',
-            card: 'Example word: dance, in four languages',
+            card: 'Example word: dance, in five languages',
             /* the part of speech on the badge above the rows of the word card (as in the app's common.json) */
             pos: { verb: 'Verb', noun: 'Noun', adj: 'Adjective', adv: 'Adverb' },
             privacy: 'Privacy',
@@ -94,7 +95,7 @@
             alreadyRegistered: '¿Ya estás registrado?',
             signIn: 'Iniciar sesión',
             tryDemo: 'Probar la demo',
-            card: 'Palabra de ejemplo: «dance», en cuatro idiomas',
+            card: 'Palabra de ejemplo: «dance», en cinco idiomas',
             /* the part of speech on the badge above the rows of the word card (as in the app's common.json) */
             pos: { verb: 'Verbo', noun: 'Sustantivo', adj: 'Adjetivo', adv: 'Adverbio' },
             privacy: 'Privacidad',
@@ -136,7 +137,7 @@
             alreadyRegistered: 'Schon registriert?',
             signIn: 'Anmelden',
             tryDemo: 'Demo ausprobieren',
-            card: 'Beispielwort: „dance“ in vier Sprachen',
+            card: 'Beispielwort: „dance“ in fünf Sprachen',
             /* the part of speech on the badge above the rows of the word card (as in the app's common.json) */
             pos: { verb: 'Verb', noun: 'Substantiv', adj: 'Adjektiv', adv: 'Adverb' },
             privacy: 'Datenschutz',
@@ -178,7 +179,7 @@
             alreadyRegistered: 'Juba registreeritud?',
             signIn: 'Logi sisse',
             tryDemo: 'Proovi demot',
-            card: 'Näitesõna: „dance“ neljas keeles',
+            card: 'Näitesõna: „dance“ viies keeles',
             /* the part of speech on the badge above the rows of the word card (as in the app's common.json) */
             pos: { verb: 'Tegusõna', noun: 'Nimisõna', adj: 'Omadussõna', adv: 'Määrsõna' },
             privacy: 'Privaatsus',
@@ -195,6 +196,48 @@
             noticeText:
                 'Ladu salvestab sinu seadmesse ainult hädavajaliku: sinu sisselogimise ning teema- ja keelevaliku. Jälgimist ega reklaami ei ole.',
             noticeOk: 'Selge',
+        },
+        fr: {
+            title: 'Ladu — garde toutes tes langues vivantes',
+            description:
+                'Ladu est un gestionnaire de vocabulaire pour les personnes qui parlent plus d’une langue. Enregistre chaque mot une seule fois, avec ses traductions dans toutes les langues que tu connais.',
+            ogDescription: 'Un gestionnaire de vocabulaire pour les personnes qui parlent plus d’une langue.',
+            home: 'Accueil de Ladu',
+            login: 'Se connecter',
+            heading: 'Garde toutes tes langues vivantes.',
+            leadA: 'Ladu est un gestionnaire de vocabulaire pour les personnes qui parlent plus d’une langue.',
+            leadB: 'Enregistre chaque mot une seule fois, avec ses traductions dans toutes les langues que tu connais.',
+            leadC: 'Puis entraîne-toi avec toutes à la fois.',
+            exerciseCard: 'Exemple d’exercice',
+            leadD: 'Regroupe les mots avec des étiquettes. Garde-les privés ou partage-les.',
+            tagCard: 'Exemples d’étiquettes',
+            tagPrivate: 'Privée',
+            tagPublic: 'Publique',
+            tagYours: 'À toi',
+            tagFollowing: 'Suivie',
+            tagWords: 'mots',
+            tagFollowers: 'abonnés',
+            createAccount: 'Créer un compte',
+            alreadyRegistered: 'Tu as déjà un compte\u00a0?',
+            signIn: 'Se connecter',
+            tryDemo: 'Essayer la démo',
+            card: 'Mot d’exemple\u00a0: «\u00a0dance\u00a0», en cinq langues',
+            /* the part of speech on the badge above the rows of the word card (as in the app's common.json) */
+            pos: { verb: 'Verbe', noun: 'Nom', adj: 'Adjectif', adv: 'Adverbe' },
+            privacy: 'Confidentialité',
+            terms: 'Conditions d’utilisation',
+            credits: 'Crédits',
+            impressum: 'Mentions légales',
+            blog: 'Blog',
+            blogBack: 'Retour au blog',
+            footerNav: 'Liens',
+            languageLabel: 'Langue de l’interface',
+            toDark: 'Passer au thème sombre',
+            toLight: 'Passer au thème clair',
+            noticeLabel: 'Information sur le stockage',
+            noticeText:
+                'Ladu ne garde que l’essentiel sur ton appareil\u00a0: ta connexion, ainsi que ton choix de thème et de langue. Aucun suivi, aucune publicité.',
+            noticeOk: 'Compris',
         },
     };
 
@@ -490,20 +533,20 @@
 
     /* ---------- the example word rolls ---------- */
 
-    /* The bubble shows one word in four languages. Every ROLL_MS the words change to the next one,
+    /* The bubble shows one word in five languages. Every ROLL_MS the words change to the next one,
        each old word moving up and out and the new one coming
        in from below, like the greeting on the app's Dashboard changes language. (ROLL_ROWS_TOGETHER picks
        between all rows at once and one row after the other.) The words are fixed
        examples: they are not translated into the interface language. Visitors who asked for less
        motion get the first word and no rolling; a hidden tab skips the turn. */
     var WORDS = [
-        { pos: 'verb', en: 'dance', es: 'bailar', de: 'tanzen', ee: 'tantsima' },
-        { pos: 'noun', en: 'house', es: 'casa', de: 'Haus', ee: 'maja', gender: { es: 'la', de: 'das' } },
-        { pos: 'adj', en: 'pretty', es: 'bonito', de: 'hübsch', ee: 'ilus' },
-        { pos: 'adv', en: 'very', es: 'muy', de: 'sehr', ee: 'väga' },
+        { pos: 'verb', en: 'dance', es: 'bailar', de: 'tanzen', ee: 'tantsima', fr: 'danser' },
+        { pos: 'noun', en: 'house', es: 'casa', de: 'Haus', ee: 'maja', fr: 'maison', gender: { es: 'la', de: 'das', fr: 'la' } },
+        { pos: 'adj', en: 'pretty', es: 'bonito', de: 'hübsch', ee: 'ilus', fr: 'joli' },
+        { pos: 'adv', en: 'very', es: 'muy', de: 'sehr', ee: 'väga', fr: 'très' },
     ];
     var ROLL_MS = 5000;
-    /* true: all four rows change at the same moment. false: one row after the other, a short delay apart. */
+    /* true: all five rows change at the same moment. false: one row after the other, a short delay apart. */
     var ROLL_ROWS_TOGETHER = true;
     var ROW_DELAY_MS = ROLL_ROWS_TOGETHER ? 0 : 140;
     var OUT_MS = 230;

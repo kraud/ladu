@@ -3,8 +3,8 @@ import { Lang, PartOfSpeech } from '@/ts/enums';
 import { coverageForLanguage } from './coverage';
 
 describe('coverageForLanguage', () => {
-    it('lists the parts of speech with a form for every language (Estonian adverb since Slice H4, conjunctions since the conjunctions plan)', () => {
-        for (const lang of [Lang.EN, Lang.ES, Lang.DE, Lang.EE]) {
+    it('lists the parts of speech with a form for every language (Estonian adverb since Slice H4, conjunctions since the conjunctions plan, French since slice 6)', () => {
+        for (const lang of [Lang.EN, Lang.ES, Lang.DE, Lang.EE, Lang.FR]) {
             expect(coverageForLanguage(lang)).toEqual([
                 PartOfSpeech.noun,
                 PartOfSpeech.verb,

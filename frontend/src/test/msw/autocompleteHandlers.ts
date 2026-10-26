@@ -55,7 +55,7 @@ export interface AutocompleteFakeOptions {
 
 export function makeAutocompleteHandlers(responses: AutocompleteResponseMap = {}, options: AutocompleteFakeOptions = {}) {
     /** `path` is "<language>/<partOfSpeech>", e.g. "German/Noun". */
-    const requests: { path: string; query: string; searchInEnglish: boolean; entry: string | null }[] = [];
+    const requests: { path: string; query: string; entry: string | null }[] = [];
     const suggestionRequests: { path: string; prefix: string }[] = [];
 
     const handlers = [
@@ -74,9 +74,8 @@ export function makeAutocompleteHandlers(responses: AutocompleteResponseMap = {}
         http.get('*/dictionary/:language/:partOfSpeech/:query', ({ params, request }) => {
             const path = `${String(params.language)}/${String(params.partOfSpeech)}`;
             const search = new URL(request.url).searchParams;
-            const searchInEnglish = search.get('searchInEnglish') === 'true';
             const entry = search.get('entry');
-            requests.push({ path, query: String(params.query), searchInEnglish, entry });
+            requests.push({ path, query: String(params.query), entry });
 
             const key = KEYS[path as keyof typeof KEYS];
             if (!key) return HttpResponse.json({ message: `No dictionary for ${path}` }, { status: 400 });

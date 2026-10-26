@@ -7,6 +7,9 @@
  * - German: the article contractions (zu + dem = zum), shown under the word while the "Contracts with
  *   the article" box is on; then the position and the cases the noun takes (multi-select, stored like
  *   the verb cases), both listed in a column.
+ * - French: the word and the position radio only. Nearly every French preposition stands before the noun;
+ *   "durant" can follow it ("trois heures durant"). The contractions au, aux, du, des are a general rule
+ *   for "à" and "de", not a field (as for Spanish "al" and "del").
  * - Estonian: a "where to / where / where from" series (sisse : sees : seest) can be added under the word;
  *   most adpositions follow the noun, so the case of the noun is asked per position.
  *
@@ -150,6 +153,14 @@ function buildEsConfig(): TranslationFormConfig {
     };
 }
 
+function buildFrConfig(): TranslationFormConfig {
+    return {
+        pos: PartOfSpeech.preposition,
+        lang: Lang.FR,
+        fields: [wordField('FR', PrepositionCases.prepositionFR), positionRadio('FR', PrepositionCases.positionFR)],
+    };
+}
+
 function buildDeConfig(): TranslationFormConfig {
     return {
         pos: PartOfSpeech.preposition,
@@ -201,4 +212,5 @@ export const PREPOSITION_CONFIGS: Partial<Record<Lang, TranslationFormConfig>> =
     [Lang.ES]: buildEsConfig(),
     [Lang.DE]: buildDeConfig(),
     [Lang.EE]: buildEeConfig(),
+    [Lang.FR]: buildFrConfig(),
 };

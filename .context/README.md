@@ -19,13 +19,13 @@ npm run build                # frontend production build
 npm run db:studio            # Drizzle Studio
 
 npm run e2e:install          # one-time: download Chromium for Playwright
-npm run test:e2e             # full-stack Playwright e2e suite (boots backend + frontend)
+npm run test:e2e             # full-stack Playwright e2e suite (own ports :5101/:5273/:5274 and own database keelapp_e2e: npm run dev can keep running)
                              # specs named *-gate.spec.ts change the access gates (global state): they run last, each in its own project, one after the other
 npm run test:e2e:headed      # same, in a visible browser window
 ```
 
-**e2e prerequisites:** `docker:up` + `db:migrate` + `backend/.env` (same as the
-backend Jest suite) plus `e2e:install` once. Details: [`e2e/README.md`](../e2e/README.md).
+**e2e prerequisites:** `docker:up` + the repo-root `.env` plus `e2e:install` once. The run creates and
+migrates its own database `keelapp_e2e`. Details: [`e2e/README.md`](../e2e/README.md).
 
 ---
 
@@ -71,10 +71,12 @@ backend Jest suite) plus `e2e:install` once. Details: [`e2e/README.md`](../e2e/R
 | `.context/plans/words-pagination.md` | Numbered pagination (agreed 2026-10-12) for `/words` and `/tag/$tagId`: page sizes 50 / 100 / 200 / All, offset mode on `GET /api/words/simple`, page, size and sort in the URL, selection across pages with "Select all N matching". Stage 0 and slices 1–4; the Progress list at the top has the status. | **Working record** |
 | `.context/plans/sidebar-layout.md` | Shared side-panel layout (docked on desktop, slide-in on phone) for Review, Add word / Word page and Practice. Decisions and slice record. All three slices (layout + word pages, Review, Practice) done 2026-10-04. | **Working record** |
 | `.context/plans/onboarding.md` | First-login onboarding (planned 2026-10-16): topics + per-language level → pre-filled, tagged Words from a committed, reviewed onboarding pool. Decisions D1–D28, slices 0–4 with review logs, and the review of the second opinion `onboarding-blueprint-proposal.md`. Slices 0–3 and 4a–4d (admin switch, session field + redirect, the steps and Create, the dashboard card) done; next 4e (Playwright spec + full green e2e run) — see "Resume here" in the status. | **Working record** |
-| `.context/.frontend/snapshot/*.md` (15 files; `forms-conjunctions-prepositions.md` is v2-only) | Frozen 2026-09-05: behaviour inventory of every old page/component + full data model, case registry, per-form yup schemas, Review-table + exercise-flow specs, autocomplete transforms | **Primary working spec** — read the relevant file before building a feature |
+| `.context/.frontend/snapshot/*.md` (16 files; `forms-conjunctions-prepositions.md` and `forms-french.md` are v2-only) | Frozen 2026-09-05: behaviour inventory of every old page/component + full data model, case registry, per-form yup schemas, Review-table + exercise-flow specs, autocomplete transforms | **Primary working spec** — read the relevant file before building a feature |
 | `.context/.frontend/snapshot/ui/00-global.md … 06-social.md` (7 files) | **UI-blueprint**: what each screen must *do* — shell, navigation, screen-by-screen layout + interaction spec + the §8 intentional deltas. Built from the old frontend. Feed `00`→`06` in order. | **Authoritative for feature behaviour/UX** — this is the vision we implement |
 | `.context/guides/add-part-of-speech.md` | **Checklist for adding a part of speech** (or a new field group) to Ladu: research template, field rules, naming rules, every file to touch, what needs no change, rollout reminders. Read it before any new-PoS plan. | **Authoritative for the process** |
+| `.context/guides/add-language.md` | **Checklist for adding a language** to Ladu: decisions to take, research template per part of speech, naming rules, every file to touch by tier (backend, frontend, forms, lexicon, onboarding, landing page), what needs no change, rollout. Built slice by slice while French is added; items marked `(unverified)` are not confirmed yet. Read it before any new-language plan. | **Authoritative for the process** |
 | `.context/plans/conjunctions-prepositions.md` | Conjunction and preposition forms in EN, ES, DE, EE (agreed 2026-10-24): research, fields per language, decisions Q1–Q4, slices 0–4. The Progress list at the top has the status. | **Working record** |
+| `.context/plans/language-french.md` | French as the fifth language (agreed 2026-10-25): learnable and interface language, forms for all 6 parts of speech, Wiktionary autocomplete, onboarding pool and demo. Decisions L1–L5, slices 0–12, review log. It also builds the reusable guide `.context/guides/add-language.md`. The Progress list at the top has the status. Review sheets for the native speaker: `language-french-strings.md` (interface) and `language-french-review.md` (word forms and practice). | **Working record** |
 | `MOCKUPS/` | HTML/CSS mockups (`index.html`, `auth/`, `word-editor.html`, `review.html`, `assets/`). The **design language** — how things look (layout, spacing, colour, typography, components). | **Authoritative for visual design** — the lens the UI-blueprint is rendered through |
 | `.context/.frontend/frontend-structure.md` | `frontend/src/` layout + component breakdown + blueprint→module map; decisions D1–D5 resolved | **Authoritative for FE file structure** |
 
@@ -91,7 +93,7 @@ Vite 5 · React 18 · **TypeScript 5 strict** (`noImplicitAny`, `noUnusedLocals/
 Node/Express (`.js` routes) → **TypeScript controllers loaded via `tsx`** · **Drizzle ORM on PostgreSQL** (`backend/src/db/schema.ts` is the source of truth) · JWT auth (`protect` middleware) · bcryptjs · Nodemailer · Jest + ts-jest + supertest (integration tests import `require('./request')`, never `supertest` directly: it keeps one server per test file — a server per request cycles macOS's ephemeral ports and causes random `socket hang up` failures in full runs) · drizzle-kit for migrations. Local DB via Docker Compose (Postgres 15: `keelapp_dev`, `keelapp_test`).
 
 ### e2e (`e2e/`) — full-stack tests
-Third npm workspace (alongside `backend/`, `frontend/`). **Playwright** (`@playwright/test`) drives Chromium against the *real* backend (:5001) + frontend dev server (:5173) — `webServer` in `e2e/playwright.config.ts` boots both. One spec per phase (`e2e/tests/phase-N-*.spec.ts`); green run is a required per-phase gate (build plan §5/§6). Kept out of the `frontend` workspace so Playwright's Node config + browser binaries never touch the Vite build or FE dep tree. Interactive browser driving during a session comes from the `@playwright/mcp` server registered in `.mcp.json`. CI job deferred — local gate for now.
+Third npm workspace (alongside `backend/`, `frontend/`). **Playwright** (`@playwright/test`) drives Chromium against the *real* backend + frontend dev server on their own ports (:5101, :5273) and their own database (`keelapp_e2e`) — `webServer` in `e2e/playwright.config.ts` boots them (`e2e/fixtures/env.ts` holds the values). One spec per phase (`e2e/tests/phase-N-*.spec.ts`); green run is a required per-phase gate (build plan §5/§6). Kept out of the `frontend` workspace so Playwright's Node config + browser binaries never touch the Vite build or FE dep tree. Interactive browser driving during a session comes from the `@playwright/mcp` server registered in `.mcp.json`. CI job deferred — local gate for now.
 
 ---
 

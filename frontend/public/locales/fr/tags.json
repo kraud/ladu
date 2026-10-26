@@ -1,0 +1,260 @@
+{
+  "apiErrors": {
+    "tagNotFound": "Cette étiquette est introuvable.",
+    "notAuthorized": "Tu n’as pas accès à cette étiquette.",
+    "notAuthorizedToDelete": "Tu ne peux supprimer que les étiquettes qui t’appartiennent.",
+    "notAuthorizedToFollow": "Tu n’as pas le droit de suivre cette étiquette.",
+    "notAuthorizedToClone": "Seules les étiquettes publiques peuvent être clonées de cette façon.",
+    "notAuthorizedTags": "Tu ne peux utiliser que les étiquettes qui t’appartiennent.",
+    "notAuthorizedWords": "Tu ne peux utiliser que les mots qui t’appartiennent.",
+    "notAuthorizedToAddWords": "Tu ne peux ajouter que les mots qui t’appartiennent.",
+    "alreadyOwnTag": "Cette étiquette t’appartient déjà.",
+    "labelRequired": "Saisis un nom pour l’étiquette.",
+    "labelAlreadyInUse": "Tu as déjà une étiquette avec ce nom.",
+    "invalidVisibility": "Choisis une visibilité valide.",
+    "invalidCursor": "Ce lien de page a expiré — recharge la liste."
+  },
+  "relation": {
+    "owned": "À toi",
+    "followed": "Suivie",
+    "unavailable": "Indisponible",
+    "discover": "Découvrir"
+  },
+  "authorBadge": {
+    "official": "Officiel",
+    "officialTitle": "Compte officiel de Ladu"
+  },
+  "visibility": {
+    "public": "Public",
+    "private": "Privé"
+  },
+  "combobox": {
+    "filterPlaceholder": "Filtrer par étiquette…",
+    "addPlaceholder": "Rechercher des étiquettes à ajouter…",
+    "removePlaceholder": "Rechercher des étiquettes à retirer…",
+    "noMatches": "Aucune étiquette ne correspond",
+    "noTags": "Tu n’as pas encore d’étiquettes",
+    "unavailableTooltip": "Indisponible — le propriétaire l’a passée en privé",
+    "followedReadOnlyTooltip": "Étiquette suivie — lecture seule, appartient à {{author}}",
+    "createTag": "Créer la nouvelle étiquette « {{label}} »",
+    "removeSelected": "Retirer {{label}}"
+  },
+  "card": {
+    "openAriaLabel": "Ouvrir {{label}}",
+    "noDescription": "Aucune description",
+    "more": "plus",
+    "less": "moins",
+    "by": "par",
+    "wordCount_one": "mot",
+    "wordCount_other": "mots",
+    "clonedFromPrefix": "Clonée depuis",
+    "cloned": "Clonée",
+    "clonedFromTitle": "Clonée depuis {{label}}",
+    "byAuthor": "par {{username}}",
+    "unavailableNote": "Masquée — le propriétaire a passé cette étiquette en privé. Ton suivi est conservé, mais ses mots ne sont plus dans tes mots tant qu’il ne la partage pas à nouveau.",
+    "unfollow": "Ne plus suivre",
+    "clone": "Cloner",
+    "follow": "Suivre",
+    "addWords": "Ajouter des mots",
+    "languages": "Langues des mots : {{list}}"
+  },
+  "form": {
+    "createTitle": "Nouvelle étiquette",
+    "editTitle": "Modifier l’étiquette",
+    "labelField": "Nom",
+    "labelPlaceholder": "p. ex. Chapitre 1",
+    "labelRequiredError": "Le nom est requis.",
+    "descriptionField": "Description",
+    "descriptionPlaceholder": "Ce que ces mots ont en commun…",
+    "visibilityField": "Visibilité",
+    "visibilityPublic": "Public",
+    "visibilityPublicHint": "Tout le monde peut la trouver dans Découvrir et la suivre — les personnes qui la suivent voient tes mots en lecture seule et les reçoivent automatiquement.",
+    "visibilityPrivate": "Privé",
+    "visibilityPrivateHint": "Toi seul peux la voir. Les personnes qui la suivent déjà la gardent, mais ses mots quittent leur liste de mots tant que tu ne la repasses pas en public.",
+    "createSubmit": "Créer l’étiquette",
+    "editSubmit": "Enregistrer"
+  },
+  "clone": {
+    "title": "Cloner cette étiquette",
+    "byAuthor": "par {{username}}",
+    "wordAndFollowerCount": "{{words}} mots · {{followers}} abonnés",
+    "visibilityLabel": "Visibilité de ta copie",
+    "visibilityHint": "La copie de l’étiquette de quelqu’un d’autre commence en privé.",
+    "independentNote": "La copie est entièrement indépendante — ses mots (avec toutes leurs traductions) deviennent les tiens. Les modifications ultérieures de l’original ne l’affecteront pas.",
+    "endsFollowNote": "Comme tu auras une copie, ton suivi de l’original prend fin.",
+    "confirm": "Créer la copie",
+    "keepTag": "Garder l’étiquette",
+    "keepTagHintOn": "La copie est une étiquette avec tous ses mots.",
+    "keepTagHintOff": "Seuls les mots sont copiés, sans étiquette. Toi seul peux les voir.",
+    "confirmWords": "Copier les mots"
+  },
+  "wordPicker": {
+    "label": "Ajouter des mots maintenant",
+    "selectedCount": "{{count}} sélectionnés",
+    "searchPlaceholder": "Rechercher dans tes mots…",
+    "searchLabel": "Rechercher dans tes mots à ajouter maintenant",
+    "noMatches": "Aucun mot ne correspond",
+    "noWords": "Tu n’as pas encore de mots",
+    "removeSelected": "Retirer {{word}}",
+    "clearSearch": "Effacer la recherche",
+    "goToReview": "Aller aux mots pour en voir plus",
+    "loadMoreCount": "Charger plus ({{count}})",
+    "allLoaded": "Tous les mots sont chargés"
+  },
+  "page": {
+    "title": "Étiquettes",
+    "newTag": "Nouvelle étiquette",
+    "searchPlaceholder": "Rechercher par nom ou description…",
+    "searchLabel": "Rechercher des étiquettes",
+    "scopeGroupLabel": "Portée des étiquettes",
+    "scope": {
+      "all": "Toutes",
+      "owned": "À toi"
+    },
+    "sortLabel": "Tri",
+    "sort": {
+      "recent": "Récentes",
+      "label": "Nom A–Z"
+    },
+    "verifiedFilter": "Vérifiées",
+    "emptyBadge": {
+      "title": "Aucune étiquette vérifiée ne correspond",
+      "description": "Essaie un autre onglet, ou affiche les étiquettes de tous les auteurs.",
+      "action": "Afficher toutes les étiquettes"
+    },
+    "resultCount": "{{shown}} sur {{total}} étiquettes",
+    "noResults": "Aucune étiquette",
+    "loaded": "Affichage de {{loaded}} sur {{total}} étiquettes",
+    "loadMore": "Charger plus",
+    "emptySearch": {
+      "title": "Aucune étiquette ne correspond à « {{query}} »",
+      "description": "Essaie une autre orthographe — la recherche porte sur les noms et les descriptions.",
+      "action": "Effacer la recherche"
+    },
+    "emptyFollowed": {
+      "title": "Tu ne suis encore aucune étiquette",
+      "description": "Les étiquettes que tu suis gardent leurs mots synchronisés dans ta liste de mots, en lecture seule.",
+      "action": "Trouver des étiquettes dans Découvrir"
+    },
+    "emptyDiscover": {
+      "title": "Rien de nouveau à découvrir",
+      "description": "Les étiquettes publiques d’autres utilisateurs apparaîtront ici.",
+      "action": "Mes étiquettes"
+    },
+    "emptyOwned": {
+      "title": "Pas encore d’étiquettes",
+      "description": "Les étiquettes organisent les mots autour d’un thème — comme « Chapitre 1 » ou un sujet que tu revois souvent.",
+      "action": "Créer ta première étiquette"
+    },
+    "deleteConfirmTitle": "Supprimer l’étiquette ?",
+    "deleteConfirmDescription_one": "« {{label}} » contient 1 mot. Les mots eux-mêmes ne sont pas supprimés — ils perdent seulement cette étiquette.",
+    "deleteConfirmDescription_other": "« {{label}} » contient {{count}} mots. Les mots eux-mêmes ne sont pas supprimés — ils perdent seulement cette étiquette.",
+    "unfollowConfirmTitle": "Ne plus suivre l’étiquette ?",
+    "unfollowConfirmDescription": "Tu ne suivras plus « {{label}} » de {{author}}. Ses mots disparaîtront de ta liste de mots et de ton entraînement.",
+    "toastCreated": "Étiquette « {{label}} » créée",
+    "toastUpdated": "« {{label}} » mise à jour",
+    "toastDeleted": "Étiquette « {{label}} » supprimée — ses mots restent sur ton étagère",
+    "toastFollowed": "Tu suis maintenant « {{label}} »",
+    "toastUnfollowed": "Tu ne suis plus « {{label}} »",
+    "toastCloned": "Copie de « {{label}} » créée — elle est maintenant à toi",
+    "toastWordsCopied_one": "{{count}} mot copié dans ton compte",
+    "toastWordsCopied_other": "{{count}} mots copiés dans ton compte"
+  },
+  "words": {
+    "searchPlaceholder": "Rechercher dans les mots de cette étiquette…",
+    "searchLabel": "Rechercher des mots dans l’étiquette",
+    "resultTotal_one": "{{count}} résultat",
+    "resultTotal_other": "{{count}} résultats",
+    "removeFromTag": "Retirer de l’étiquette",
+    "removeWords": "Retirer les mots",
+    "removedToast": "« {{word}} » retiré de « {{label}} » — il reste sur ton étagère",
+    "emptySearch": {
+      "title": "Rien ne correspond à « {{query}} »",
+      "description": "Essaie une autre orthographe — la recherche ne porte que sur les mots de cette étiquette.",
+      "action": "Effacer la recherche"
+    },
+    "emptyOwned": {
+      "title": "Ajoute tes premiers mots à cette étiquette"
+    },
+    "emptyOther": {
+      "title": "Pas encore de mots ici"
+    }
+  },
+  "addWords": {
+    "title": "Ajouter des mots à « {{label}} »",
+    "save": "Ajouter la sélection",
+    "addedToast_one": "{{count}} mot ajouté à « {{label}} »",
+    "addedToast_other": "{{count}} mots ajoutés à « {{label}} »"
+  },
+  "notFound": {
+    "title": "Tu ne peux pas voir cette étiquette",
+    "description": "Elle est peut-être passée en privé, a été supprimée, ou le lien est incorrect.",
+    "action": "Retour aux étiquettes"
+  },
+  "view": {
+    "by": "Par",
+    "backAriaLabel": "Retour aux étiquettes",
+    "backLabel": "Retour aux étiquettes",
+    "ownedHint": "Ton étiquette",
+    "ownedHintWithFollowers_one": "Ton étiquette — {{count}} abonné",
+    "ownedHintWithFollowers_other": "Ton étiquette — {{count}} abonnés",
+    "followerCount_one": "{{count}} abonné",
+    "followerCount_other": "{{count}} abonnés",
+    "followerLabel_one": "abonné",
+    "followerLabel_other": "abonnés",
+    "unavailableTitle": "Les mots sont masqués pour le moment",
+    "unavailableDescription": "Le propriétaire a passé cette étiquette en privé. Tu la suis toujours — ses mots reviennent dans ta liste de mots quand elle redevient publique.",
+    "removeHint": "Retirer un mot de l’étiquette ne le supprime pas — il reste sur ton étagère.",
+    "openCopy": "L’ouvrir",
+    "openWords": "Voir les mots"
+  },
+  "picker": {
+    "addTitle_one": "Ajouter des étiquettes à {{count}} mot",
+    "addTitle_other": "Ajouter des étiquettes à {{count}} mots",
+    "removeTitle_one": "Retirer des étiquettes de {{count}} mot",
+    "removeTitle_other": "Retirer des étiquettes de {{count}} mots",
+    "apply": "Appliquer"
+  },
+  "toastMessages": {
+    "tagDeleted": "L’étiquette {{tagLabel}} a été supprimée !",
+    "tagUpdated": "L’étiquette a été mise à jour avec succès !",
+    "tagCreated": "L’étiquette a été créée avec succès !",
+    "tagShared": "La demande de partage de l’étiquette a bien été envoyée !",
+    "wordsDeleted": "Les mots ont été supprimés avec succès !"
+  },
+  "tagDataForm": {
+    "errors": {
+      "noNumbers": "Ne doit pas contenir de chiffres",
+      "publicRequired": "Le statut public doit être précisé",
+      "publicNotMatch": "Ce n’est pas une option",
+      "labelRequired": "Un nom d’étiquette est requis",
+      "labelAlreadyExists": "Ce nom est déjà utilisé",
+      "errorProcessing": "Une erreur s’est produite lors du traitement de ce nom",
+      "labelNotMatchingSpaces": "Le nom n’accepte pas les espaces. Essaie CamelCase ou snake_case à la place.",
+      "labelTooShort": "Le nom doit comporter plus de 2 caractères",
+      "labelTooLong": "Le nom est trop long (30 caractères maximum)",
+      "descriptionTooShort": "La description doit comporter plus de 5 caractères",
+      "descriptionTooLong": "La description est trop longue (250 caractères maximum)"
+    },
+    "fieldLabels": {
+      "label": "Nom",
+      "public": "Public",
+      "description": "Description"
+    }
+  },
+  "displayTag": {
+    "toastError": "Une erreur s’est produite : {{error}}",
+    "toastTagDeletedSuccess": "L’étiquette {{tagLabel}} a été supprimée !",
+    "toastTagCloneSuccess": "L’étiquette et ses mots ont bien été ajoutés à ton compte !"
+  },
+  "searchTags": "Rechercher des étiquettes…",
+  "noWordsAssigned": "- aucun mot attribué pour l’instant -",
+  "createdByYou": "Créée par toi",
+  "createdByUser": "Créée par {{username}}",
+  "amountWord_one": "{{count}} mot",
+  "amountWord_other": "{{count}} mots",
+  "noTagsCreated": "Tu n’as encore ajouté d’étiquettes à aucun mot.",
+  "goToAddTags": "Clique ici pour consulter tes mots enregistrés et ajouter des étiquettes !",
+  "followedTags": "Étiquettes suivies",
+  "noTagsFollowed": "Tu ne suis encore aucune étiquette."
+}
