@@ -30,8 +30,8 @@ const verbGroupedCategoriesMultiLanguage = MULTI_LANGUAGE.Verb;
 const nounGroupedCategoriesSingleLanguage = SINGLE_LANGUAGE.Noun;
 const verbGroupedCategoriesSingleLanguage = SINGLE_LANGUAGE.Verb;
 
-// The four languages currently supported by the app.
-const LANGUAGES = ['English', 'Spanish', 'German', 'Estonian'];
+// The languages currently supported by the app (the table in lib/languages.ts).
+const { LANGUAGE_NAMES: LANGUAGES } = require('../../lib/languages');
 
 /**
  * Recursively walk a nested object and collect every "leaf" node.

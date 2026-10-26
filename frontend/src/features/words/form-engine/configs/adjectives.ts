@@ -155,7 +155,7 @@ function buildEeConfig(): TranslationFormConfig {
     };
 }
 
-export const ADJECTIVE_CONFIGS: Record<Lang, TranslationFormConfig> = {
+export const ADJECTIVE_CONFIGS: Partial<Record<Lang, TranslationFormConfig>> = {
     [Lang.EN]: buildEnConfig(),
     [Lang.ES]: buildEsConfig(),
     [Lang.DE]: buildDeConfig(),

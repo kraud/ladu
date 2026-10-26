@@ -15,12 +15,14 @@ const { firstEstonianVerb }: typeof import('./translate') = require('./translate
 const { NOT_FOUND, toCases }: typeof import('./types') = require('./types');
 const { pairParts }: typeof import('../../lib/lexicon/selectors/functionWords') = require('../../lib/lexicon/selectors/functionWords');
 
-export const LANGUAGES = ['English', 'Spanish', 'German', 'Estonian'] as const;
+const { LANGUAGE_NAMES }: typeof import('../../lib/languages') = require('../../lib/languages');
+
+export const LANGUAGES = LANGUAGE_NAMES;
 export const PARTS_OF_SPEECH = [
     'Noun', 'Verb', 'Adjective', 'Adverb', 'Preposition', 'Conjunction', 'Pronoun', 'Interjection', 'Proper noun', 'Numerals',
 ] as const;
 
-type Language = (typeof LANGUAGES)[number];
+type Language = import('../../lib/languages').LanguageName;
 type PartOfSpeech = (typeof PARTS_OF_SPEECH)[number];
 
 /**

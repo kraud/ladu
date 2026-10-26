@@ -6,6 +6,7 @@
  * Single-language: a "drill" asks for one case of a translation, given another case of the same translation.
  */
 
+import { LANGUAGE_SUFFIX } from '../../lib/languages';
 import type { CardType, Language, PartOfSpeech } from './types';
 
 export type SlotByLanguage = Partial<Record<Language, string>>;
@@ -54,7 +55,6 @@ const VERB_TENSES: Record<string, SlotByLanguage> = {
     past: { English: 'simplePast', Spanish: 'indicativePerfectSimplePast', German: 'indicativeSimplePast', Estonian: 'kindelSimplePast' },
     future: { English: 'simpleFuture', Spanish: 'indicativeFuture', German: 'indicativeSimpleFuture' },
 };
-const LANGUAGE_SUFFIX: Record<Language, string> = { English: 'EN', Spanish: 'ES', German: 'DE', Estonian: 'EE' };
 
 const verbs: MultiLanguageCatalogue = Object.fromEntries(
     Object.entries(VERB_TENSES).map(([tense, stems]) => [

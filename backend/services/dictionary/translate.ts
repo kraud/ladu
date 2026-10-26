@@ -27,9 +27,11 @@ const { searchKey }: typeof import('../../lib/lexicon/searchKey') = require('../
 const { estonianEquivalents }: typeof import('./eki') = require('./eki');
 const { escapeLike }: typeof import('./lexicon') = require('./lexicon');
 
-export const TRANSLATE_LANGUAGES = ['English', 'Spanish', 'German', 'Estonian'] as const;
+const { LANGUAGE_NAMES }: typeof import('../../lib/languages') = require('../../lib/languages');
+
+export const TRANSLATE_LANGUAGES = LANGUAGE_NAMES;
 export const TRANSLATE_PARTS_OF_SPEECH = ['Noun', 'Verb', 'Adjective', 'Adverb', 'Conjunction', 'Preposition'] as const;
-type Language = (typeof TRANSLATE_LANGUAGES)[number];
+type Language = import('../../lib/languages').LanguageName;
 
 /** Senses returned at most; a common word ("run", "set") has dozens. */
 const MAX_SENSES = 20;
@@ -63,7 +65,8 @@ function compareOrder(a: number[], b: number[]): number {
     return 0;
 }
 
-const emptyWords = (): Record<Language, TranslationWord[]> => ({ English: [], Spanish: [], German: [], Estonian: [] });
+const emptyWords = (): Record<Language, TranslationWord[]> =>
+    Object.fromEntries(TRANSLATE_LANGUAGES.map((language) => [language, []])) as unknown as Record<Language, TranslationWord[]>;
 
 export async function translate(fromLanguage: Language, partOfSpeech: string, query: string): Promise<TranslateResult> {
     const key = searchKey(query);

@@ -4,15 +4,8 @@
  * reading of the row's dynamic fields instead of each re-deriving the
  * `data${key}` / `registeredCases${key}` string.
  */
-import { Lang } from '@/ts/enums';
+import { LANG_BY_KEY } from '@/lib/language';
 import type { LangKey, WordSimpleBE } from '@/features/words/types';
-
-const LANG_BY_KEY: Record<LangKey, Lang> = {
-    EN: Lang.EN,
-    ES: Lang.ES,
-    DE: Lang.DE,
-    EE: Lang.EE,
-};
 
 /**
  * The headline word for a language, or `undefined`. NOT the same absence as

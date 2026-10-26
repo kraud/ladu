@@ -43,8 +43,9 @@ if (process.env.NODE_ENV !== 'production') {
 
 const FORMAT = 'ladu-lexicon/1';
 const TRANSLATION_FORMAT = 'ladu-translations/1';
-const LANGUAGES = ['English', 'Spanish', 'German', 'Estonian'];
-const TRANSLATION_TARGETS = ['Spanish', 'German', 'Estonian'];
+// The language table is TypeScript (lib/languages.ts). Like searchKey below, it is required when
+// it is needed: after tsx/cjs is registered (main block), or by ts-jest.
+const languages = () => require('../../lib/languages');
 const PARTS_OF_SPEECH = ['Noun', 'Verb', 'Adjective', 'Adverb', 'Preposition', 'Conjunction', 'Pronoun', 'Interjection', 'Proper noun', 'Numerals'];
 const BATCH = 1000;
 const COLUMNS = ['language', 'part_of_speech', 'lemma', 'search_key', 'forms', 'frequency_rank', 'entry_order', 'source', 'licence', 'source_version'];
@@ -56,7 +57,7 @@ const TRANSLATION_COLUMNS = [
 /** Checks one translation row; throws naming the line. */
 function checkTranslationRow(row, where) {
     if (!PARTS_OF_SPEECH.includes(row.partOfSpeech)) throw new Error(`${where}: unknown partOfSpeech "${row.partOfSpeech}"`);
-    if (!TRANSLATION_TARGETS.includes(row.language)) throw new Error(`${where}: unknown target language "${row.language}"`);
+    if (!languages().TRANSLATION_TARGETS.includes(row.language)) throw new Error(`${where}: unknown target language "${row.language}"`);
     for (const key of ['englishLemma', 'word']) {
         if (typeof row[key] !== 'string' || row[key].trim() === '') throw new Error(`${where}: ${key} is missing`);
     }
@@ -80,7 +81,7 @@ function readLexiconFile(file) {
     if (header.format !== FORMAT && header.format !== TRANSLATION_FORMAT) {
         throw new Error(`${file}: header format must be "${FORMAT}" or "${TRANSLATION_FORMAT}"`);
     }
-    if (!LANGUAGES.includes(header.language)) throw new Error(`${file}: unknown language "${header.language}"`);
+    if (!languages().LANGUAGE_NAMES.includes(header.language)) throw new Error(`${file}: unknown language "${header.language}"`);
     for (const key of ['source', 'licence', 'sourceVersion']) {
         if (typeof header[key] !== 'string' || header[key] === '') throw new Error(`${file}: header needs "${key}"`);
     }

@@ -6,7 +6,7 @@
  * Spec: .context/plans/phase-5-practice.md Part A.
  */
 
-export type Language = 'English' | 'Spanish' | 'German' | 'Estonian';
+export type Language = import('../../lib/languages').LanguageName;
 export type PartOfSpeech = 'Noun' | 'Verb' | 'Adjective' | 'Adverb' | 'Conjunction' | 'Preposition';
 export type CardType = 'Multiple-Choice' | 'Text-Input';
 export type CardTypeParam = CardType | 'Random';

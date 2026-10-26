@@ -26,7 +26,7 @@ const { withStatus }: typeof import("../lib/adminRequest") = require("../lib/adm
 const { serializeLoginUser, isSupportedLanguage, normalizeLanguageSelection, parseThemeInput }: typeof import("./userController") =
   require("./userController");
 
-const ALL_LANGUAGES = ["English", "Spanish", "German", "Estonian"];
+const { LANGUAGE_NAMES: ALL_LANGUAGES }: typeof import("../lib/languages") = require("../lib/languages");
 /** Any fixed number: it only has to be the same for every demo start. */
 const DEMO_START_LOCK = 734001;
 

@@ -9,14 +9,26 @@
  * mappings — one table here replaces all of it.
  */
 import type { i18n as I18nInstance } from 'i18next';
+import { Lang } from '@/ts/enums';
+
+/** The two-letter key of a language: the `Lang` enum key (`EN`), the suffix of every case name. */
+export type LangKey = keyof typeof Lang;
+
+/** `"EN"` → `Lang.EN` (`"English"`). The enum object is the map. */
+export const LANG_BY_KEY: Record<LangKey, Lang> = Lang;
+
+/** `Lang.EN` → `"EN"`: the suffix of a language's case names (`singularEN`). */
+export const LANG_SUFFIX = Object.fromEntries(
+    Object.entries(Lang).map(([key, label]) => [label, key]),
+) as Record<Lang, LangKey>;
 
 export interface UiLanguage {
-    key: 'EN' | 'ES' | 'DE' | 'EE';
+    key: LangKey;
     /** the value stored in `SessionUser.uiLanguage` / `languages[]` (`Lang` enum value) */
     label: string;
     native: string;
     /** i18next language code (note: Estonian is `ee`, not the ISO `et` — carried over from v1) */
-    i18n: 'en' | 'es' | 'de' | 'ee';
+    i18n: string;
     /** file under `public/` — English shows the GB flag */
     flag: string;
 }
@@ -46,13 +58,13 @@ export function langKeyByLabel(label: string | null | undefined): string {
 }
 
 /** `"English"` → `"en"`; unknown / missing → `"en"` (the i18next fallback). */
-export function i18nCodeByLabel(label: string | null | undefined): UiLanguage['i18n'] {
+export function i18nCodeByLabel(label: string | null | undefined): string {
     return languageByLabel(label)?.i18n ?? 'en';
 }
 
 /** `"EN"` → the `UiLanguage` row, or `undefined`. */
 export function languageByKey(key: string): UiLanguage | undefined {
-    return byKey.get(key as UiLanguage['key']);
+    return byKey.get(key as LangKey);
 }
 
 /**
@@ -61,7 +73,7 @@ export function languageByKey(key: string): UiLanguage | undefined {
  * English is keyed `gb`, matching the flag convention). Falls back to
  * `--lang-gb` for an unknown key.
  */
-const TINT_VAR_BY_KEY: Record<UiLanguage['key'], string> = {
+const TINT_VAR_BY_KEY: Record<LangKey, string> = {
     EN: '--lang-gb',
     ES: '--lang-es',
     DE: '--lang-de',
@@ -81,7 +93,7 @@ export function langTint(keyOrLabel: string): string {
  */
 export function htmlLangByI18nCode(code: string | null | undefined): string {
     const base = (code ?? '').split('-')[0]!.toLowerCase();
-    const language = byI18n.get(base as UiLanguage['i18n']);
+    const language = byI18n.get(base);
     if (!language) return 'en';
     return language.i18n === 'ee' ? 'et' : language.i18n;
 }
@@ -106,5 +118,5 @@ export function bindHtmlLang(instance: Pick<I18nInstance, 'on' | 'language'>): v
  */
 export function labelByI18nCode(code: string | null | undefined): string {
     const base = (code ?? '').split('-')[0]!.toLowerCase();
-    return byI18n.get(base as UiLanguage['i18n'])?.label ?? 'English';
+    return byI18n.get(base)?.label ?? 'English';
 }

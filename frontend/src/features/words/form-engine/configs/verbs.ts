@@ -36,6 +36,7 @@ import {
     VerbRegularity,
 } from '@/ts/enums';
 import { WordCasesData, type VerbCasesData, type VerbTenseData } from '@/ts/wordCasesDataByPoS';
+import { LANG_SUFFIX } from '@/lib/language';
 import type {
     CheckboxFieldConfig,
     FieldAdornment,
@@ -48,13 +49,6 @@ import type {
     TextFieldConfig,
     TranslationFormConfig,
 } from './types';
-
-const LANG_SUFFIX: Record<Lang, 'EN' | 'ES' | 'DE' | 'EE'> = {
-    [Lang.EN]: 'EN',
-    [Lang.ES]: 'ES',
-    [Lang.DE]: 'DE',
-    [Lang.EE]: 'EE',
-};
 
 const REGULARITY_OPTIONS: RadioOption[] = Object.values(VerbRegularity).map((value) => ({ value, label: value }));
 
@@ -515,7 +509,7 @@ function buildEeConfig(): TranslationFormConfig {
     return { pos: PartOfSpeech.verb, lang: Lang.EE, fields };
 }
 
-export const VERB_CONFIGS: Record<Lang, TranslationFormConfig> = {
+export const VERB_CONFIGS: Partial<Record<Lang, TranslationFormConfig>> = {
     [Lang.EN]: buildEnConfig(),
     [Lang.ES]: buildEsConfig(),
     [Lang.DE]: buildDeConfig(),

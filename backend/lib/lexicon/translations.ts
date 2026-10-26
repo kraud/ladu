@@ -6,8 +6,10 @@
  * A kaikki translation item: { lang: 'de', word: 'See', tags: ['masculine'], sense: 'body of water' }.
  */
 
-/** Target languages: the kaikki code → the app's value. English is the hub, never a target. */
-export const TRANSLATION_LANGUAGES: Record<string, string> = { es: 'Spanish', de: 'German', et: 'Estonian' };
+import { TARGET_BY_WIKTIONARY_CODE } from '../languages';
+
+/** Target languages: the kaikki code → the app's value (the table in lib/languages.ts). English is the hub, never a target. */
+export const TRANSLATION_LANGUAGES: Record<string, string> = TARGET_BY_WIKTIONARY_CODE;
 
 /**
  * kaikki part of speech → the app's value. Nouns, verbs, adjectives and adverbs (D22); conjunctions

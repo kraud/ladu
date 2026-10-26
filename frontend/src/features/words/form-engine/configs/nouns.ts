@@ -10,14 +10,8 @@
  */
 import { DeclensionNoun, GenderDE, GenderES, Lang, NounCases, PartOfSpeech, Plurality, VerbRegularity } from '@/ts/enums';
 import { NounPropertyCategories, WordCasesData, type NounCasesData } from '@/ts/wordCasesDataByPoS';
+import { LANG_SUFFIX } from '@/lib/language';
 import type { FieldConfig, RadioFieldConfig, TextFieldConfig, TranslationFormConfig } from './types';
-
-const LANG_SUFFIX: Record<Lang, 'EN' | 'ES' | 'DE' | 'EE'> = {
-    [Lang.EN]: 'EN',
-    [Lang.ES]: 'ES',
-    [Lang.DE]: 'DE',
-    [Lang.EE]: 'EE',
-};
 
 const GENDER_OPTIONS: Partial<Record<Lang, RadioFieldConfig['options']>> = {
     [Lang.ES]: Object.values(GenderES).map((value) => ({ value, label: value })),
@@ -109,7 +103,7 @@ function buildNounConfig(lang: Lang): TranslationFormConfig {
     return { pos: PartOfSpeech.noun, lang, fields };
 }
 
-export const NOUN_CONFIGS: Record<Lang, TranslationFormConfig> = {
+export const NOUN_CONFIGS: Partial<Record<Lang, TranslationFormConfig>> = {
     [Lang.EN]: buildNounConfig(Lang.EN),
     [Lang.ES]: buildNounConfig(Lang.ES),
     [Lang.DE]: buildNounConfig(Lang.DE),

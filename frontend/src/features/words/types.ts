@@ -9,7 +9,7 @@
  * `ts/interfaces.ts` and is consumed by the form engine from Slice 3 on. This
  * file is only the shapes that cross the network.
  */
-import type { UiLanguage } from '@/lib/language';
+import type { LangKey } from '@/lib/language';
 import type { TagVisibility } from '@/features/tags/types';
 import type { Lang, PartOfSpeech } from '@/ts/enums';
 
@@ -112,14 +112,14 @@ export interface DeleteWordResponse {
  * word and a case count per language, plus gender for the two languages that
  * carry one.
  *
- * `LangKey` reuses `UiLanguage['key']` rather than redeclaring the union — a
+ * `LangKey` (`lib/language.ts`, the `Lang` enum keys) is not redeclared here — a
  * template-literal mapped type over it (`data${K}`, `registeredCases${K}`) is
  * fully indexable with no `Record<union, T>` collision: unlike `CaseName`
- * (four enums sharing string values, which broke `Record` indexing in the
- * autocomplete slice and forced a `Map`), these four keys are collision-free
+ * (enums sharing string values, which broke `Record` indexing in the
+ * autocomplete slice and forced a `Map`), these keys are collision-free
  * literals, so plain property access typechecks.
  */
-export type LangKey = UiLanguage['key'];
+export type { LangKey };
 
 /**
  * The headline word per language. Optional even when the language IS present

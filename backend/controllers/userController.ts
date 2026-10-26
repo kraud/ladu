@@ -62,12 +62,11 @@ const isUuid = (value: unknown) =>
     value,
   );
 
-// The four languages the app supports (the `Lang` enum values). There is no
-// backend enums module, so this list is the source of truth server-side.
-const SUPPORTED_LANGUAGES = ["English", "Spanish", "German", "Estonian"];
+// The languages the app supports (the `Lang` enum values): the table in lib/languages.ts.
+const { LANGUAGE_NAMES }: typeof import("../lib/languages") = require("../lib/languages");
 
 const isSupportedLanguage = (value: unknown): value is string =>
-  typeof value === "string" && SUPPORTED_LANGUAGES.includes(value);
+  typeof value === "string" && (LANGUAGE_NAMES as string[]).includes(value);
 
 // The two themes the app offers (Phase 3.9). There is no "system" value: the
 // OS preference is only the client's start value, never stored.

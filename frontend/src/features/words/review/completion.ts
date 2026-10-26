@@ -13,7 +13,8 @@
  * resolved, and D12 for why the UI reads this as "N of M cases" rather than
  * a percentage claim.
  */
-import { Lang, type PartOfSpeech } from '@/ts/enums';
+import { type PartOfSpeech } from '@/ts/enums';
+import { LANG_BY_KEY } from '@/lib/language';
 import {
     getFormConfig,
     matchesVisibility,
@@ -22,13 +23,6 @@ import {
 } from '@/features/words/form-engine/configs';
 import { isPersistedCaseField } from '@/features/words/form-engine/fieldLayout';
 import type { LangKey } from '@/features/words/types';
-
-const LANG_BY_KEY: Record<LangKey, Lang> = {
-    EN: Lang.EN,
-    ES: Lang.ES,
-    DE: Lang.DE,
-    EE: Lang.EE,
-};
 
 function hasVisibility(field: FieldConfig): field is FieldConfig & { visibleWhen: FieldVisibility } {
     return field.visibleWhen !== undefined;

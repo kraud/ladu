@@ -14,15 +14,10 @@
 const { sql }: typeof import("drizzle-orm") = require("drizzle-orm");
 const { words }: typeof import("../src/db/schema") = require("../src/db/schema");
 
-const LANGUAGE_BY_KEY: Record<string, string> = {
-  EN: "English",
-  ES: "Spanish",
-  DE: "German",
-  EE: "Estonian",
-};
+const { LANGUAGE_BY_SUFFIX: LANGUAGE_BY_KEY }: typeof import("./languages") = require("./languages");
 
-/** The main case names of each language, over all parts of speech. A case name belongs to one part of speech only. */
-const MAIN_CASE_NAMES: Record<string, string[]> = {
+/** The main case names of each language, over all parts of speech. A case name belongs to one part of speech only. A new language must get an entry: the type forces it. */
+const MAIN_CASE_NAMES: Record<import("./languages").LanguageName, string[]> = {
   English: ["singularEN", "adverbEN", "conjunctionEN", "prepositionEN", "positiveEN", "simplePresent1sEN"],
   Spanish: ["singularES", "adverbES", "conjunctionES", "prepositionES", "maleSingularES", "neutralSingularES", "infinitiveNonFiniteSimpleES"],
   German: ["singularNominativDE", "adverbDE", "conjunctionDE", "prepositionDE", "positiveDE", "infinitiveDE"],

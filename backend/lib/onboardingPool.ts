@@ -138,7 +138,8 @@ export const PLURAL_ONLY_NOUNS_EN: readonly string[] = ['clothes', 'pants', 'new
  */
 export const pluralOnlyCases = (word: string): Record<string, string> => ({ singularEN: word, pluralEN: word });
 
-const LANGUAGE_SUFFIX: Record<string, string> = { English: 'EN', Spanish: 'ES', German: 'DE', Estonian: 'EE' };
+const { LANGUAGE_SUFFIX: SUFFIX_BY_LANGUAGE }: typeof import('./languages') = require('./languages');
+const LANGUAGE_SUFFIX: Record<string, string> = SUFFIX_BY_LANGUAGE;
 
 /**
  * The cases of a pool adverb as the saved word needs them (gradable-radio plan, slice 3). The pool is

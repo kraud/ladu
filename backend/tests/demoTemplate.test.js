@@ -15,6 +15,7 @@ const { validateConfigRequest } = require('../services/exercises');
 const { MULTI_LANGUAGE } = require('../services/exercises/catalogue');
 const { RECORD_LENGTH, applyAnswer } = require('../services/exercises/knowledge');
 // The app's own case-name lists (the word forms are checked in the browser only: Review log S2-3).
+const { LANGUAGE_SUFFIX } = require('../lib/languages');
 const { Lang, NounCases, VerbCases, AdjectiveCases, AdverbCases } = require('../../frontend/src/ts/enums');
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -34,7 +35,7 @@ afterAll(async () => {
 
 describe('the template data file (scripts/demo-template/data.json)', () => {
     const CASES_BY_POS = { Noun: NounCases, Verb: VerbCases, Adjective: AdjectiveCases, Adverb: AdverbCases };
-    const SUFFIX = { English: 'EN', Spanish: 'ES', German: 'DE', Estonian: 'EE' };
+    const SUFFIX = LANGUAGE_SUFFIX;
     const LANGUAGES = Object.values(Lang);
     const wordByKey = new Map(data.words.map((w) => [w.key, w]));
     const tagKeys = new Set(data.tags.map((t) => t.key));
