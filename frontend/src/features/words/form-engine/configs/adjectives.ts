@@ -166,10 +166,11 @@ const POSITION_OPTIONS: RadioOption[] = [
 /**
  * French adjectives (language-french.md, slice 4). The four agreement forms share two rows like the
  * Spanish M/F branch: only the singulars are required (the feminine is what a learner must know), the
- * plurals stay optional. French forms the superlative from the comparative (le / la / les + comparative),
- * so there is no separate superlative field. With "Uses «plus»" on, the comparative shows and saves
- * "plus " + the masculine singular. The box "Has a form before a vowel" shows that form (beau → bel).
- * The position is an optional property.
+ * plurals stay optional. The comparative and the superlative are one form each, in the masculine
+ * singular (the citation form; French also agrees them: plus grande, les plus grands). With "Uses «plus»"
+ * on, the comparative shows and saves "plus " + the masculine singular. The superlative is always locked: it
+ * shows and saves "le " + the comparative, and an empty box with a placeholder while there is no comparative.
+ * The box "Has a form before a vowel" shows that form (beau → bel). The position is an optional property.
  */
 function buildFrConfig(): TranslationFormConfig {
     const suffix = 'FR';
@@ -188,6 +189,14 @@ function buildFrConfig(): TranslationFormConfig {
                 prefix: 'plus ',
                 fromField: 'maleSingular',
                 store: true,
+            }),
+            // Never typed: "le " + the comparative ("le plus beau", or "le meilleur" when the comparative is typed).
+            degreeField(AdjectiveCases.superlativeFR, 'superlative', false, undefined, undefined, undefined, {
+                prefix: 'le ',
+                fromField: 'comparative',
+                via: { when: { field: 'periphrastic', equals: true }, prefix: 'plus ', fromField: 'maleSingular' },
+                store: true,
+                emptyPlaceholderKey: 'wordRelated:wordForm.adjective.derivedFromComparative',
             }),
             {
                 kind: 'checkbox',

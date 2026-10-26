@@ -315,12 +315,14 @@
         "malePluralFR": "Meessoo mitmus",
         "femaleSingularFR": "Naissoo ainsus",
         "femalePluralFR": "Naissoo mitmus",
-        "comparativeFR": "Keskvõrre",
+        "comparativeFR": "Keskvõrre (meessoo ainsus)",
+        "superlativeFR": "Ülivõrre (meessoo ainsus)",
         "periphrasticFR": "Kasutab sõna „plus“ (plus + omadussõna)",
         "hasVowelFormFR": "Omab vokaali ees erikuju (nt beau → bel)",
         "vowelFormFR": "Vokaali ees olev kuju",
         "positionFR": "Asukoht"
-      }
+      },
+      "derivedFromComparative": "Sõltub keskvõrdest"
     },
     "adverb": {
       "errors": {

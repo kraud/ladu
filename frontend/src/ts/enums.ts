@@ -186,6 +186,8 @@ export enum AdjectiveCases {
     femaleSingularFR = "femaleSingularFR",
     femalePluralFR = "femalePluralFR",
     comparativeFR = "comparativeFR",
+    /** Locked: "le " + the comparative, saved with the word. */
+    superlativeFR = "superlativeFR",
     /** Stored checkbox: the comparative is "plus " + the masculine singular. */
     periphrasticFR = "periphrasticFR",
     /** Stored checkbox: the adjective has a special masculine form before a vowel (beau → bel). */

@@ -237,6 +237,7 @@ describe('GET /api/words/simple - row shape', () => {
                         { word: 'beau', caseName: 'maleSingularFR' },
                         { word: 'belle', caseName: 'femaleSingularFR' },
                         { word: 'plus beau', caseName: 'comparativeFR' },
+                        { word: 'le plus beau', caseName: 'superlativeFR' },
                         { word: 'true', caseName: 'periphrasticFR' },
                         { word: 'true', caseName: 'hasVowelFormFR' },
                         { word: 'bel', caseName: 'vowelFormFR' },
@@ -250,7 +251,8 @@ describe('GET /api/words/simple - row shape', () => {
         const get = (query) => request(app).get(`/api/words/simple?${query}`).set('Authorization', `Bearer ${token}`);
         const row = (await get('')).body.items.find((w) => w.id === res.body.id);
         expect(row.dataFR).toBe('beau');
-        expect(row.registeredCasesFR).toBe(7);
+        expect(row.registeredCasesFR).toBe(8);
+        expect((await get('q=le plus')).body.items).toHaveLength(1); // the superlative is a written form
 
         expect((await get('q=bel')).body.items).toHaveLength(1); // the vowel form is a written form
         expect((await get('q=Before')).body.items).toHaveLength(0); // the position is a property

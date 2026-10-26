@@ -26,7 +26,7 @@ describe('isPropertyCase', () => {
         (caseName) => expect(isPropertyCase(caseName)).toBe(true)
     );
 
-    it.each(['singularFR', 'pluralFR', 'maleSingularFR', 'femalePluralFR', 'comparativeFR'])(
+    it.each(['singularFR', 'pluralFR', 'maleSingularFR', 'femalePluralFR', 'comparativeFR', 'superlativeFR'])(
         '%s is a written form',
         (caseName) => expect(isPropertyCase(caseName)).toBe(false)
     );

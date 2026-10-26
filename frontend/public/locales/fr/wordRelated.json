@@ -321,12 +321,14 @@
         "malePluralFR": "Masculin pluriel",
         "femaleSingularFR": "Féminin singulier",
         "femalePluralFR": "Féminin pluriel",
-        "comparativeFR": "Comparatif",
+        "comparativeFR": "Comparatif (masculin singulier)",
+        "superlativeFR": "Superlatif (masculin singulier)",
         "periphrasticFR": "Utilise « plus » (plus + adjectif)",
         "hasVowelFormFR": "A une forme devant une voyelle (p. ex. beau → bel)",
         "vowelFormFR": "Forme devant une voyelle",
         "positionFR": "Position"
-      }
+      },
+      "derivedFromComparative": "Dépend du comparatif"
     },
     "adverb": {
       "errors": {

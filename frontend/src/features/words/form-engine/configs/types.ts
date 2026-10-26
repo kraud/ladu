@@ -93,6 +93,12 @@ export interface FieldLayout {
      * Any field in the block may set it; it wins over `stackOnMobile` and `fullRowOnMobile`.
      */
     fitRow?: boolean;
+    /**
+     * The block's cells align at the top, so the labels line up even when one cell is taller than the
+     * other (two radio groups, one of them wrapping on a phone: the noun's gender and regularity).
+     * The default is the bottom edge, which suits a row of inputs. Any field in the block may set it.
+     */
+    alignTop?: boolean;
 }
 
 /**
@@ -214,25 +220,51 @@ interface FieldConfigBase {
  * decision D20). While derived, the field is not validated and not typed — like a hidden field.
  * By default it is not stored either; with `store` the derived text is saved with the word, next to
  * the checkbox that drives it (adverbs, decision Q9: the text is searchable and practicable).
+ *
+ * - No `when`: the field is always derived (the French superlative, which is never typed).
+ * - `via`: `fromField` can itself be derived. While `via.when` matches, the source text is
+ *   `via.prefix` + the value of `via.fromField`, not the value of `fromField` (the French comparative
+ *   is "plus " + the male singular while its box is on; the superlative is "le " + the comparative,
+ *   so it reads "le plus beau" or, with a typed comparative, "le meilleur").
+ * - `emptyPlaceholderKey`: while the source text is blank the field is empty and shows this text as a
+ *   placeholder (an i18n key); without it the field shows `prefix` + "…".
  */
 export interface FieldDerivation {
-    when: FieldVisibility;
+    when?: FieldVisibility;
     prefix: string;
     fromField: string;
+    via?: { when: FieldVisibility; prefix: string; fromField: string };
     store?: boolean;
+    emptyPlaceholderKey?: string;
+}
+
+/** Does `derivation` apply now? A derivation with no `when` always does. */
+export function isDerivationActive(derivation: FieldDerivation, values: Record<string, unknown>): boolean {
+    return derivation.when === undefined || matchesVisibility(derivation.when, values[derivation.when.field]);
+}
+
+/** The trimmed text a derivation builds on (before its own `prefix`): `fromField`, or the `via` text. Empty while blank. */
+export function derivationSourceText(derivation: FieldDerivation, values: Record<string, unknown>): string {
+    const text = (value: unknown) => String(value ?? '').trim();
+    const via = derivation.via;
+    if (via && matchesVisibility(via.when, values[via.when.field])) {
+        const base = text(values[via.fromField]);
+        return base === '' ? '' : `${via.prefix}${base}`;
+    }
+    return text(values[derivation.fromField]);
 }
 
 /** True while `field` shows derived text instead of its own input (see `FieldDerivation`). */
 export function isDerived(field: FieldConfig, values: Record<string, unknown>): boolean {
     const derivation = field.kind === 'text' ? field.derivedWhen : undefined;
-    return derivation !== undefined && matchesVisibility(derivation.when, values[derivation.when.field]);
+    return derivation !== undefined && isDerivationActive(derivation, values);
 }
 
-/** The text a `store` derivation saves: `prefix` + the source field, or `undefined` while the source is blank (nothing to save). */
+/** The text a `store` derivation saves: `prefix` + the source text, or `undefined` while the source is blank (nothing to save). */
 export function derivedStoredWord(field: FieldConfig, values: Record<string, unknown>): string | undefined {
     const derivation = field.kind === 'text' ? field.derivedWhen : undefined;
     if (!derivation?.store || !isDerived(field, values)) return undefined;
-    const source = String(values[derivation.fromField] ?? '').trim();
+    const source = derivationSourceText(derivation, values);
     return source === '' ? undefined : `${derivation.prefix}${source}`;
 }
 

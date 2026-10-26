@@ -64,10 +64,11 @@ enum AdjectiveCases {
   pluralNimetavEE = "pluralNimetavEE",          // NB! singularNimetav == algvorre
   singularOmastavEE = "singularOmastavEE", pluralOmastavEE = "pluralOmastavEE",
   singularOsastavEE = "singularOsastavEE", pluralOsastavEE = "pluralOsastavEE",
-  // FRENCH (no superlative: le / la / les + the comparative; see forms-french.md)
+  // FRENCH (see forms-french.md)
   maleSingularFR = "maleSingularFR", malePluralFR = "malePluralFR",
   femaleSingularFR = "femaleSingularFR", femalePluralFR = "femalePluralFR",
   comparativeFR = "comparativeFR",
+  superlativeFR = "superlativeFR",              // locked: "le " + the comparative, saved
   periphrasticFR = "periphrasticFR",            // stored checkbox: comparative = "plus " + male singular
   hasVowelFormFR = "hasVowelFormFR", vowelFormFR = "vowelFormFR",   // checkbox + form (beau → bel)
   positionFR = "positionFR",                    // property: before / after / either

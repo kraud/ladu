@@ -72,6 +72,21 @@ test.describe.serial('French forms (slice 4: noun and adjective)', () => {
         await expect(row).toContainText('le');
     });
 
+    test('gender and regularity share one row, on a desktop and on a phone', async ({ page }) => {
+        for (const viewport of [{ width: 1280, height: 800 }, { width: 375, height: 800 }]) {
+            await page.setViewportSize(viewport);
+            await openNewWord(page, /Noun/);
+            await page.getByRole('button', { name: 'Français' }).click();
+            const gender = page.getByText('Gender', { exact: true }).last();
+            const regularity = page.getByText('Regularity', { exact: true }).last();
+            await expect(gender).toBeVisible();
+            await expect(regularity).toBeVisible();
+            const [g, r] = [await gender.boundingBox(), await regularity.boundingBox()];
+            expect(Math.abs(g!.y - r!.y), `labels at ${viewport.width}px`).toBeLessThan(4);
+            expect(r!.x).toBeGreaterThan(g!.x + g!.width - 1); // side by side, not stacked
+        }
+    });
+
     test('the noun cannot be saved before the gender is chosen', async ({ page }) => {
         await openNewWord(page, /Noun/);
         await page.getByRole('button', { name: 'English' }).click();
@@ -101,6 +116,9 @@ test.describe.serial('French forms (slice 4: noun and adjective)', () => {
         // The "plus" box derives the comparative from the masculine singular.
         await page.getByRole('checkbox', { name: /Uses "plus"/ }).click();
         await expect(page.getByTestId('derived-comparative')).toHaveValue('plus beau');
+        // The superlative is locked and follows the comparative: "le " + "plus beau".
+        await expect(page.getByTestId('derived-superlative')).toHaveValue('le plus beau');
+        await expect(page.getByTestId('derived-superlative')).toHaveJSProperty('readOnly', true);
 
         // The vowel form is hidden until its box is on.
         await expect(page.getByLabel('Form before a vowel', { exact: true })).toHaveCount(0);
@@ -116,5 +134,19 @@ test.describe.serial('French forms (slice 4: noun and adjective)', () => {
         await expect(page.getByText('bel', { exact: true })).toBeVisible();
         // The checkbox is stored; the view shows the comparative it stands for.
         await expect(page.getByTestId('derived-comparative')).toHaveText('plus beau');
+        await expect(page.getByTestId('derived-superlative')).toHaveText('le plus beau');
+    });
+
+    test('the superlative is empty with a placeholder until there is a comparative; a typed comparative feeds it', async ({ page }) => {
+        await openNewWord(page, /Adjective/);
+        await page.getByRole('button', { name: 'Français' }).click();
+        const superlative = page.getByTestId('derived-superlative');
+        await expect(superlative).toHaveValue('');
+        await expect(superlative).toHaveAttribute('placeholder', 'Depends on the comparative');
+
+        // An irregular comparative is typed (the "plus" box stays off); the superlative follows it.
+        await page.getByLabel('Male singular', { exact: true }).fill('bon');
+        await page.getByLabel('Comparative (male singular)', { exact: true }).fill('meilleur');
+        await expect(superlative).toHaveValue('le meilleur');
     });
 });

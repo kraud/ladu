@@ -94,11 +94,18 @@ describe('TranslationCard', () => {
         });
 
         it('a lone optional field reserves nothing; a lone mandatory field does', () => {
+            renderWithProviders(<TranslationCard lang={Lang.EN} />);
+
+            // English: Regularity is optional and alone in its row; Singular is mandatory and alone in its.
+            expect(screen.getByText('Regularity').closest('[data-slot="form-item"]')).not.toHaveClass('pb-4');
+            expect(screen.getByText('Singular').closest('[data-slot="form-item"]')).toHaveClass('pb-4');
+        });
+
+        it('Gender (mandatory) and Regularity (optional) share one row: both reserve room, so the two cells line up', () => {
             renderWithProviders(<TranslationCard lang={Lang.DE} />);
 
-            // Regularity is optional, Gender is mandatory (both single-field rows).
-            expect(screen.getByText('Regularity').closest('[data-slot="form-item"]')).not.toHaveClass('pb-4');
             expect(screen.getByText('Gender').closest('[data-slot="form-item"]')).toHaveClass('pb-4');
+            expect(screen.getByText('Regularity').closest('[data-slot="form-item"]')).toHaveClass('pb-4');
         });
     });
 

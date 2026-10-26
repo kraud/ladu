@@ -566,7 +566,7 @@ export function TranslationCard({
                                                     className={cn(
                                                         // A checkbox has no label row above it: bottom-aligned, it sits level with the
                                                         // controls of its neighbours (a radio's options), not with their labels.
-                                                        reserveMessageSpace || field?.kind === 'checkbox' ? 'self-end' : 'self-start',
+                                                        !item.alignsTop && (reserveMessageSpace || field?.kind === 'checkbox') ? 'self-end' : 'self-start',
                                                         isMobile && field?.layout?.fullRowOnMobile && 'col-span-2',
                                                     )}
                                                 >

@@ -16,7 +16,7 @@
  *    its own `required` flag (Spanish adjective's gender branch, German
  *    adverb's non-gradable branch — `forms-adjectives-adverbs.md`).
  *  - `derivedWhen` (text fields) does the same while the field shows derived
- *    read-only text (Estonian "kõige …" superlative, decision D20).
+ *    read-only text (Estonian "kõige …" superlative, decision D20; always, when it has no `when`).
  */
 import * as yup from 'yup';
 import { matchesVisibility, type FieldConfig, type FieldKind, type TranslationFormConfig } from './configs/types';
@@ -117,13 +117,16 @@ export function buildYupSchema(config: TranslationFormConfig, t: TranslateFn): y
               })
             : schema;
         const derivation = field.kind === 'text' ? field.derivedWhen : undefined;
-        shape[field.name] = derivation
-            ? visible.when(derivation.when.field, {
-                  is: (value: unknown) => matchesVisibility(derivation.when, value),
-                  then: () => hiddenFallbackSchema(field.kind),
-                  otherwise: () => visible,
-              })
-            : visible;
+        const derivedWhen = derivation?.when;
+        shape[field.name] = !derivation
+            ? visible
+            : derivedWhen
+              ? visible.when(derivedWhen.field, {
+                    is: (value: unknown) => matchesVisibility(derivedWhen, value),
+                    then: () => hiddenFallbackSchema(field.kind),
+                    otherwise: () => visible,
+                })
+              : hiddenFallbackSchema(field.kind); // always derived: never typed, never validated
     }
     return yup.object(shape);
 }

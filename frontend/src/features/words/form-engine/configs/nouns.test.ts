@@ -102,9 +102,14 @@ describe('getFormConfig(Noun, lang) — old field-list parity', () => {
             });
         });
 
-        it('gender and regularity are not paired', () => {
-            const config = getFormConfig(PartOfSpeech.noun, Lang.DE)!;
-            expect(config.fields.find((f) => f.name === 'gender')?.layout).toBeUndefined();
+        it.each([Lang.ES, Lang.DE, Lang.FR])('%s: gender and regularity share one row, also on a phone (fitRow), in a block of their own', (lang) => {
+            const config = getFormConfig(PartOfSpeech.noun, lang)!;
+            expect(config.fields.find((f) => f.name === 'gender')?.layout).toEqual({ row: 'meta', column: 'gender', block: 'nounMeta', fitRow: true, alignTop: true });
+            expect(config.fields.find((f) => f.name === 'regularity')?.layout).toEqual({ row: 'meta', column: 'regularity', block: 'nounMeta', fitRow: true, alignTop: true });
+        });
+
+        it.each([Lang.EN, Lang.EE])('%s has no gender: its regularity stays on its own row', (lang) => {
+            const config = getFormConfig(PartOfSpeech.noun, lang)!;
             expect(config.fields.find((f) => f.name === 'regularity')?.layout).toBeUndefined();
         });
 

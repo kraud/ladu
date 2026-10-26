@@ -63,6 +63,8 @@ export interface GridLayoutItem {
     wrapsOnMobile?: boolean;
     /** Set when any field in the block asks to keep all its columns in one row on a phone (`FieldLayout.fitRow`). */
     fitsRow?: boolean;
+    /** Set when any field in the block asks for its cells to align at the top (`FieldLayout.alignTop`). */
+    alignsTop?: boolean;
 }
 
 export type LayoutItem = SingleLayoutItem | GridLayoutItem;
@@ -99,13 +101,14 @@ function buildGrid(fields: FieldConfig[]): Omit<GridLayoutItem, 'kind' | 'index'
     const columnHeadings = columnHeadingByColumn.size > 0 ? columns.map((column) => columnHeadingByColumn.get(column)) : undefined;
 
     const fitsRow = fields.some((field) => field.layout?.fitRow) || undefined;
+    const alignsTop = fields.some((field) => field.layout?.alignTop) || undefined;
 
     // `fitRow` wins: a row that always fits never stacks or wraps.
     const stackOnMobile = (!fitsRow && fields.some((field) => field.layout?.stackOnMobile)) || undefined;
 
     const wrapsOnMobile = (!fitsRow && fields.some((field) => field.layout?.fullRowOnMobile)) || undefined;
 
-    return { fields, rows, columns, cells, columnHeadings, stackOnMobile, wrapsOnMobile, fitsRow };
+    return { fields, rows, columns, cells, columnHeadings, stackOnMobile, wrapsOnMobile, fitsRow, alignsTop };
 }
 
 /** `fields` must already be filtered to what will actually render (see file header). */

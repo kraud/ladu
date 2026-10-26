@@ -11,7 +11,7 @@
 import { DeclensionNoun, GenderDE, GenderES, GenderFR, Lang, NounCases, PartOfSpeech, Plurality, VerbRegularity } from '@/ts/enums';
 import { NounPropertyCategories, WordCasesData, type NounCasesData } from '@/ts/wordCasesDataByPoS';
 import { LANG_SUFFIX } from '@/lib/language';
-import type { FieldConfig, RadioFieldConfig, TextFieldConfig, TranslationFormConfig } from './types';
+import type { FieldConfig, FieldLayout, RadioFieldConfig, TextFieldConfig, TranslationFormConfig } from './types';
 
 const GENDER_OPTIONS: Partial<Record<Lang, RadioFieldConfig['options']>> = {
     [Lang.ES]: Object.values(GenderES).map((value) => ({ value, label: value })),
@@ -55,6 +55,16 @@ function toTextField(row: NounCasesData, suffix: string, lowercase: boolean, cap
     };
 }
 
+/**
+ * Gender and regularity share one row, equal in width, on a phone too (`fitRow`) — for the languages
+ * that have a gender (ES, DE, FR). Its cells align at the top (`alignTop`): on a phone the options of one
+ * radio group can wrap, and the two labels must still line up. Its own `block`, so it does not merge with the
+ * declension rows below.
+ */
+function metaLayout(column: 'gender' | 'regularity'): FieldLayout {
+    return { row: 'meta', column, block: 'nounMeta', fitRow: true, alignTop: true };
+}
+
 function toGenderField(row: NounCasesData, lang: Lang): RadioFieldConfig {
     const suffix = LANG_SUFFIX[lang];
     return {
@@ -66,10 +76,11 @@ function toGenderField(row: NounCasesData, lang: Lang): RadioFieldConfig {
         requiredMessageKey: nounErrorKey(suffix, 'genderRequired'),
         invalidMessageKey: nounErrorKey(suffix, 'genderRequired'),
         options: GENDER_OPTIONS[lang] ?? [],
+        layout: metaLayout('gender'),
     };
 }
 
-function regularityField(lang: Lang): RadioFieldConfig {
+function regularityField(lang: Lang, withGender: boolean): RadioFieldConfig {
     const suffix = LANG_SUFFIX[lang];
     const caseName = NounCases[`regularity${suffix}` as keyof typeof NounCases];
     return {
@@ -80,6 +91,7 @@ function regularityField(lang: Lang): RadioFieldConfig {
         required: false,
         invalidMessageKey: nounErrorKey(suffix, 'regularityRequired'),
         options: REGULARITY_OPTIONS,
+        layout: withGender ? metaLayout('regularity') : undefined,
     };
 }
 
@@ -96,7 +108,7 @@ function buildNounConfig(lang: Lang): TranslationFormConfig {
     if (genderRow) {
         fields.push(toGenderField(genderRow, lang));
     }
-    fields.push(regularityField(lang));
+    fields.push(regularityField(lang, genderRow !== undefined));
     for (const row of otherRows) {
         fields.push(toTextField(row, suffix, lowercase, lang === Lang.DE));
     }
