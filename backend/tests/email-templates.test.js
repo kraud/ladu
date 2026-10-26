@@ -27,6 +27,14 @@ describe('emailStrings.stringsFor', () => {
         expect(stringsFor('Spanish').titleVerify).toBe('Confirma tu correo electrónico');
         expect(stringsFor('German').titleReset).toBe('Setze dein Passwort zurück');
         expect(stringsFor('Estonian').subjectVerify).toBe('Kinnita oma e-post');
+        expect(stringsFor('French').subjectVerify).toBe('Confirme ton e-mail');
+    });
+
+    it('has the same keys in every language as in English', () => {
+        const keys = (language) => Object.keys(stringsFor(language)).sort();
+        for (const language of ['Spanish', 'German', 'Estonian', 'French']) {
+            expect({ language, keys: keys(language) }).toEqual({ language, keys: keys('English') });
+        }
     });
 
     it('falls back to English for an unrecognized or missing language', () => {
@@ -115,7 +123,7 @@ describe('registrationInvite template', () => {
     });
 
     it('has the same words in the plain text, and works in every supported language', () => {
-        for (const language of ['English', 'Spanish', 'German', 'Estonian']) {
+        for (const language of ['English', 'Spanish', 'German', 'Estonian', 'French']) {
             const text = registrationInvite.getTextComponent({ ...data, email: 'kai@example.com', language });
             expect(text).toContain('kai@example.com');
             expect(text).toContain(data.url);

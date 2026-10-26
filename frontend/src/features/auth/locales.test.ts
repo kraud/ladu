@@ -3,6 +3,7 @@ import de from '../../../public/locales/de/loginRegister.json';
 import ee from '../../../public/locales/ee/loginRegister.json';
 import en from '../../../public/locales/en/loginRegister.json';
 import es from '../../../public/locales/es/loginRegister.json';
+import fr from '../../../public/locales/fr/loginRegister.json';
 
 // The Terms note is rendered with <Trans> (TermsNote.tsx), which needs the two
 // tags in every language. A translation that drops one would lose a link.
@@ -11,6 +12,7 @@ describe.each([
     ['es', es],
     ['de', de],
     ['ee', ee],
+    ['fr', fr],
 ])('loginRegister.json (%s) register.termsNote', (_code, file) => {
     const text = file.register.termsNote;
 

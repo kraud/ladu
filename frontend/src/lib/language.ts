@@ -44,6 +44,9 @@ export const UI_LANGUAGES: readonly UiLanguage[] = [
 /** The four supported language labels, in display order (`Lang` enum values). */
 export const SUPPORTED_LANGUAGE_LABELS: readonly string[] = UI_LANGUAGES.map((l) => l.label);
 
+/** The most translations one word can hold: one per language the app supports. */
+export const MAX_TRANSLATIONS = UI_LANGUAGES.length;
+
 const byLabel = new Map(UI_LANGUAGES.map((l) => [l.label, l]));
 const byKey = new Map(UI_LANGUAGES.map((l) => [l.key, l]));
 const byI18n = new Map(UI_LANGUAGES.map((l) => [l.i18n, l]));

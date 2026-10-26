@@ -1,0 +1,169 @@
+{
+  "appTitle": "Ladu",
+  "sidebar": {
+    "collapse": "Réduire la barre latérale",
+    "expand": "Agrandir la barre latérale",
+    "close": "Fermer le menu"
+  },
+  "notFound": {
+    "lines": [
+      "Nothing to see here…",
+      "Hier gibt es nichts zu sehen…",
+      "No hay nada que ver aquí…",
+      "Siin pole midagi vaadata…",
+      "Il n’y a rien à voir ici…"
+    ],
+    "goToDashboard": "Aller au tableau de bord",
+    "goToLogin": "Aller à la connexion"
+  },
+  "header": {
+    "tags": "étiquettes",
+    "practice": "entraînement",
+    "words": "mots",
+    "search": {
+      "words": "Rechercher des mots…",
+      "tags": "Rechercher des étiquettes…",
+      "placeholder": "Rechercher…",
+      "loading": "Chargement…",
+      "noMatches": "Aucun résultat"
+    },
+    "settings": {
+      "openSettings": "Ouvrir les paramètres",
+      "notifications": "Notifications",
+      "uiLanguage": "Langue de l’interface",
+      "account": "Compte",
+      "dashboard": "Tableau de bord",
+      "logout": "Se déconnecter",
+      "logoutConfirmTitle": "Se déconnecter ?",
+      "logoutConfirmDescription": "Tu devras te reconnecter pour utiliser Ladu."
+    },
+    "notImplemented": "Cette fonction n’est pas encore prête, désolé !",
+    "goToAccount": "Aller au compte",
+    "menu": "Menu",
+    "quick": {
+      "randomPractice": "Entraînement aléatoire",
+      "newWord": "Nouveau mot"
+    }
+  },
+  "theme": {
+    "switchToDark": "Passer au thème sombre",
+    "switchToLight": "Passer au thème clair"
+  },
+  "sections": {
+    "dashboard": "Tableau de bord",
+    "tags": "Étiquettes",
+    "friends": "Amis"
+  },
+  "errors": {
+    "somethingWrong": "Une erreur s’est produite, réessaie."
+  },
+  "captcha": {
+    "failed": "La vérification humaine a échoué. Réessaie.",
+    "unavailable": "La vérification humaine n’est pas disponible pour le moment. Réessaie plus tard.",
+    "loadError": "La vérification humaine n’a pas pu se charger. Désactive ton bloqueur de publicités ou réessaie plus tard."
+  },
+  "buttons": {
+    "apply": "Appliquer",
+    "delete": "Supprimer",
+    "confirmDelete": "Confirmer la suppression de {{elementType}}",
+    "confirm": "Confirmer",
+    "clickToSeeDetailsWord": "Clique ici pour voir le nouveau mot",
+    "edit": "Modifier",
+    "cancel": "Annuler",
+    "return": "Retour",
+    "close": "Fermer",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe",
+    "clear": "Effacer",
+    "remove": "Retirer",
+    "reset": "Réinitialiser",
+    "submit": "Envoyer",
+    "addAnotherTranslation": "Ajouter une traduction",
+    "addFriends": "Ajouter des amis",
+    "createTag": "Créer une étiquette",
+    "editProfile": "Modifier le profil",
+    "saveChanges": "Enregistrer",
+    "sendTag": "Envoyer l’étiquette",
+    "followTag": "Suivre l’étiquette",
+    "unfollowTag": "Ne plus suivre l’étiquette",
+    "sendToFriend": "Envoyer à un ami",
+    "addFriend": "Ajouter un ami",
+    "acceptRequest": "Accepter la demande",
+    "cancelRequest": "Annuler la demande",
+    "deleteFriendship": "Supprimer l’amitié",
+    "deleteTag": "Supprimer l’étiquette",
+    "confirmCancelRequest": "Confirmer l’annulation de la demande",
+    "confirmDeleteFriendship": "Confirmer la suppression de l’ami",
+    "cloneTagAndWords": "Cloner l’étiquette et ses mots",
+    "goToDashboard": "Clique ici pour aller au tableau de bord",
+    "goToLogin": "Clique ici pour te connecter",
+    "deleteAllWords": "Supprimer tous les mots",
+    "hideFilters": "Masquer les filtres",
+    "showFilters": "Afficher les filtres",
+    "createExercises": "Créer des exercices",
+    "detailedView": "Vue détaillée",
+    "assignTag": "Attribuer une étiquette",
+    "deleteSelected": "Supprimer la sélection",
+    "grouped": "Groupé",
+    "separated": "Séparé",
+    "distributionByWordType": "Type",
+    "distributionByLanguage": "Langue",
+    "byMonth": "Mois",
+    "byLanguage": "Langue"
+  },
+  "languages": {
+    "english": "Anglais",
+    "estonian": "Estonien",
+    "french": "Français",
+    "german": "Allemand",
+    "spanish": "Espagnol"
+  },
+  "partOfSpeech": {
+    "noun": "Nom",
+    "pronoun": "Pronom",
+    "verb": "Verbe",
+    "adjective": "Adjectif",
+    "adverb": "Adverbe",
+    "preposition": "Préposition",
+    "conjunction": "Conjonction",
+    "interjection": "Interjection",
+    "properNoun": "Nom propre",
+    "numerals": "Numéraux"
+  },
+  "linguisticFeature": {
+    "gender": "genre"
+  },
+  "status": {
+    "saving": "Enregistrement…",
+    "word": {
+      "savedSuccess": "Mot enregistré avec succès",
+      "deletedSuccess": "Mot supprimé avec succès"
+    }
+  },
+  "userData": {
+    "name": "nom",
+    "username": "nom d’utilisateur",
+    "password": "mot de passe",
+    "email": "e-mail",
+    "toastMessages": {
+      "updateSuccess": "Données de l’utilisateur mises à jour avec succès !"
+    },
+    "errors": {
+      "notEnoughLanguages": "Sélectionne au moins 2 langues."
+    }
+  },
+  "scroll": {
+    "left": "Défiler vers la gauche",
+    "right": "Défiler vers la droite"
+  },
+  "pagination": {
+    "nav": "Pagination",
+    "previous": "Page précédente",
+    "next": "Page suivante",
+    "page": "Page {{page}}",
+    "range": "Affichage de {{from}} à {{to}} sur {{total}}",
+    "noRows": "Aucune ligne",
+    "rowsPerPage": "Lignes par page",
+    "all": "Tout"
+  }
+}

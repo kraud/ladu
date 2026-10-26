@@ -107,7 +107,7 @@
     "confirmDeleteDescription": "Esto elimina permanentemente los casos de esta traducción y tu historial de práctica en ella.",
     "savedToast": "Traducción en {{language}} actualizada",
     "removedToast": "Traducción en {{language}} eliminada",
-    "maxTranslations": "Esta palabra ya tiene el máximo de 4 traducciones."
+    "maxTranslations": "Esta palabra ya tiene el máximo de {{max}} traducciones."
   },
   "empty": {
     "noWords": {

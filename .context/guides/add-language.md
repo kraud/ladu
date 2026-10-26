@@ -75,8 +75,8 @@ These lists stay explicit **on purpose** (a language joins them when its data ex
 - [ ] `lib/wordSort.ts` `MAIN_CASE_NAMES`: the case names a `?sort=` reads. Its type is `Record<LanguageName, …>`, so the compiler asks for the entry.
 - [ ] `controllers/wordController.ts` `getRequiredFieldsData`: the required case for each part of speech. `(unverified)`
 - [ ] `services/exercises/catalogue.ts`: noun slots, verb tenses, single-language drills, `PROPERTY_PREFIXES`. `(unverified)`
-- [ ] `utils/resources/emailStrings.js`: a block for the new language (without it, emails fall back to English). `(unverified)`
-- [ ] `services/onboarding/labels.ts`: topic tag names in the new language. `(unverified)`
+- [x] `utils/resources/emailStrings.js`: a block for the new language, with the same keys as English (without it, emails fall back to English). `tests/email-templates.test.js` checks the keys and the language list.
+- [x] `services/onboarding/labels.ts`: topic tag names in the new language. They must equal `topics.names` in the frontend `onboarding.json`; `tests/unit/onboardingSelect.test.js` checks this for every language.
 - [x] Tests that pin the set. A test that uses the new language's name or code as its example of an *unknown* language fails: change the example (to `Klingon`, `XX`, `xx`). Found for French: `words-simple.test.js` (`sort=FR`), `exercisesSessionValidate.test.js`, `lexiconTranslations.test.js` (`fr` as a skipped language), frontend `lib/language.test.ts`, `lib/handoff.test.ts`, `practice/search.test.ts`. Tests that count languages: `metrics/selectors.test.ts`, `WelcomeBanner.test.tsx` (the greeting cycle has one step more), `AccountPage.test.tsx` and `e2e/tests/phase-1-auth.spec.ts` ("2 of 5 selected"), `dictionary.test.js` (the translate routes return an empty list for the new language until its data is loaded).
 - [x] Lists that stay explicit until the language has data: `controllers/demoController.ts` (`ALL_LANGUAGES`: a demo account gets these languages; add the new one when the demo template has its words) and `tests/unit/caseMapping.test.js` (the languages that must have exercise slots; add the new one with its noun forms).
 
@@ -88,7 +88,15 @@ Verified in slice 1 (2026-10-26). The `Lang` enum **key** is the two-letter suff
 - [x] `frontend/src/lib/language.ts`: `UI_LANGUAGES` row (display order), `TINT_VAR_BY_KEY` (typed `Record<LangKey, string>`, so the compiler asks for it).
 - [x] `frontend/public/<SUFFIX>.svg` (flag, viewBox `0 0 513 342` like the others). `frontend/src/styles/tokens.css`: `--lang-<code>`, light and dark. Pick a hue that differs from the other languages in charts; it need not come from the flag.
 - [ ] `frontend/src/i18n.ts`: `supportedLngs`. `features/captcha/turnstile.ts`: the whitelist. Do this **together with the locale files**, not before: a code in `supportedLngs` without files makes i18next request files that do not exist. Without the code, the language falls back to English cleanly. `(unverified)`
-- [ ] `frontend/public/locales/<code>/*.json`: all 14 files. The locale parity tests compare them with English. `(unverified)`
+- [x] `frontend/public/locales/<code>/*.json`: all 14 files, same keys and key order as English. Rules found with French (2026-10-26):
+  - Plural keys follow the CLDR categories of the language (`_one`, `_other`; Estonian and French have no `_two` or `_few`). Where English has a count without a plural key, the new language may need both forms.
+  - Keep `{{placeholders}}` and the `<terms>`/`<privacy>`/`<b>` tags exactly. The parity tests check them.
+  - `common.json` `notFound.lines` is a list with one line per language, **identical in every locale**: add the new language's line to all locales, and to `FALLBACK_LINES` in `routes/not-found.tsx`.
+  - `frontend/src/lib/locales.test.ts` reads every folder in `public/locales/` and compares all 14 files with English (keys, placeholders, tags). A new folder is covered with no edit. Also add the language to the older, narrower tests: `features/auth/locales.test.ts`, `features/demo/locales.test.ts` (twice, the second one flags text left in English), `features/practice/locales.test.ts`, `features/onboarding/onboarding.test.tsx`, `features/captcha/turnstile.test.ts`.
+  - Avoid sentences that put a variable (a part of speech, a language name) after an article: gender and elision break them. Rewrite with a colon or parentheses.
+  - Write the typography of the language (French: no-break space before `: ; ? !` and inside `« »`, `’`). A draft with a marker for the special characters and a small script that builds the JSON and checks it against English saves time.
+  - Write a review sheet for a native speaker: `language-french-strings.md` is the model (decisions, glossary, where each text lives).
+- [x] A hard-coded count of languages is a bug. Found for French: `MAX_TRANSLATIONS = 4` in `CellDialog.tsx` and `useWordFormState.ts` (a word could never get a fifth translation). Now `MAX_TRANSLATIONS` in `lib/language.ts` (= the number of languages), and the message `review:cellDialog.maxTranslations` takes `{{max}}`. Search for `4`, `four` and `4 ` in strings when you add a language; the demo and landing texts say "four languages" until their data has the new language.
 - [x] The key blocks that every old locale needs: `common:languages.<name>` (the registration tiles and the language menus read it) and `wordRelated:startFromWord.inLanguage.<name>`, in each existing locale. Alphabetical in `languages`, in display order in `inLanguage`.
 - [ ] Review table: `review/row.ts`, `review/completion.ts`, `FilterBar.tsx` (gender filter), `WordCell.tsx` (gender chip class). `(unverified)`
 - [ ] `features/demo/components/DemoIntro.tsx` (hardcoded example row), `locales/*/demo.json` (the sentence that lists the languages). `(unverified)`
@@ -119,7 +127,7 @@ Verified in slice 1 (2026-10-26). The `Lang` enum **key** is the two-letter suff
 
 ### Landing page and docs
 
-- [ ] `landing/app.js` (`LANGS`, `STRINGS`, `HTML_LANG`), `landing/flags/<SUFFIX>.svg`, `landing/index.html` (language line). `(unverified)`
+- [x] `landing/app.js` (`LANGS`, `STRINGS` with the same keys as English, `HTML_LANG`), `landing/flags/<SUFFIX>.svg` (copy of the app flag), `landing/index.html` (the line `English · Español · …`), and the language lists of three tests: `landing/scripts/{app-links,demo-link,notice}.test.mjs`. The word card of the home page ("dance, in four languages") changes with the demo data. The legal pages and the blog are English only in every language.
 - [ ] `CLAUDE.md` and `.context/overview.md`: the list of supported languages. `(unverified)`
 - [ ] `.context/.frontend/snapshot/` (`data-model.md`, `forms-*.md`): a section for the language. `(unverified)`
 - [ ] One e2e spec in `e2e/tests/`. `npm run test:e2e` must be green. `(unverified)`

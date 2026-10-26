@@ -1,0 +1,146 @@
+{
+  "errors": {
+    "invalidEmail": "Un e-mail valide est requis",
+    "passwordRequired": "Le mot de passe est requis",
+    "passwordMin": "Le mot de passe doit contenir au moins 8 caractères",
+    "nameRequired": "Le nom est requis",
+    "emailRequired": "L’e-mail est requis",
+    "usernameRequired": "Le nom d’utilisateur est requis",
+    "passwordRepeatRequired": "La confirmation du mot de passe est requise",
+    "passwordRepeatMustMatch": "Les mots de passe ne correspondent pas",
+    "linkError": "Une erreur s’est produite avec ce lien."
+  },
+  "apiErrors": {
+    "invalidCredentials": "E-mail ou mot de passe incorrect.",
+    "accountSuspended": "Ce compte est suspendu.",
+    "missingFields": "Merci de remplir tous les champs.",
+    "emailInUse": "Cet e-mail est déjà enregistré.",
+    "usernameInUse": "Ce nom d’utilisateur est déjà pris.",
+    "usernameReserved": "Ce nom d’utilisateur n’est pas disponible. Merci d’en choisir un autre.",
+    "nameReserved": "Ce nom n’est pas disponible. Merci d’en choisir un autre.",
+    "googleNameReserved": "Le nom de ton compte Google n’est pas disponible ici. Modifie-le dans ton compte Google, puis réessaie.",
+    "invalidLink": "Ce lien est invalide ou a expiré.",
+    "invalidToken": "Ce lien de réinitialisation est invalide ou a expiré.",
+    "notEnoughLanguages": "Merci de sélectionner au moins deux langues.",
+    "invalidLanguage": "Cette langue n’est pas prise en charge.",
+    "signInWithGoogle": "Ce compte se connecte avec Google — utilise plutôt le bouton Google.",
+    "oauthFailed": "La connexion avec Google n’a pas fonctionné. Réessaie ou utilise ton mot de passe.",
+    "oauthInvalidTicket": "Ce lien a expiré. Essaie à nouveau « Continuer avec Google ».",
+    "oauthAlreadyLinked": "Ce compte Google est déjà lié à un compte Ladu.",
+    "oauthLastMethod": "Tu ne peux pas supprimer ta seule méthode de connexion."
+  },
+  "oauth": {
+    "continueWithGoogle": "Continuer avec Google",
+    "orContinueWith": "ou",
+    "signupTitle": "Encore une étape",
+    "signupSubtitle": "Finalisation de l’inscription avec Google — choisis un nom d’utilisateur et tes langues d’étude.",
+    "linkTitle": "Confirme ton mot de passe",
+    "linkSubtitle": "Nous avons trouvé un compte pour {{email}} — saisis ton mot de passe une fois pour connecter la connexion Google.",
+    "linkSubmit": "Connecter la connexion Google",
+    "linkingSubmitting": "Connexion…"
+  },
+  "toastMessages": {
+    "passwordUpdated": "Mot de passe mis à jour avec succès !",
+    "resetEmailRequested": "Si cet e-mail correspond à un compte, nous lui avons envoyé un lien de réinitialisation."
+  },
+  "unverifiedWarning": "Tu dois vérifier ton compte avant de te connecter.",
+  "access": {
+    "registrationClosed": "Les inscriptions sont fermées pour le moment. Reviens plus tard.",
+    "registrationLimited": "Les inscriptions se font uniquement sur invitation pour le moment.",
+    "registrationNotInvited": "Les inscriptions se font uniquement sur invitation pour le moment. Cet e-mail n’est pas sur la liste.",
+    "loginClosed": "La connexion est fermée pour le moment. Reviens plus tard.",
+    "loginLimited": "La connexion est limitée pour le moment. Seuls certains comptes peuvent se connecter.",
+    "loginNotAllowed": "La connexion est limitée pour le moment. Ce compte ne peut pas encore se connecter.",
+    "emailVerifiedNoSignIn": "Ton e-mail est vérifié. La connexion n’est pas ouverte à ce compte pour le moment. Reviens plus tard.",
+    "accountCreatedNoSignIn": "Ton compte est créé. La connexion n’est pas ouverte à ce compte pour le moment. Reviens plus tard."
+  },
+  "request": {
+    "button": "Demander l’accès",
+    "title": "Demander l’accès",
+    "blurb": "L’accès à Ladu est limité pour le moment. Laisse ton e-mail et l’équipe examinera ta demande.",
+    "intro": "L’accès à Ladu est limité pour le moment. Indique ton e-mail et l’équipe examinera ta demande.",
+    "hasAccount": "J’ai déjà un compte",
+    "hasAccountHint": "Coche cette case pour demander l’autorisation de te connecter. Laisse-la vide pour demander l’autorisation de t’inscrire.",
+    "submit": "Demander l’accès",
+    "submitting": "Envoi…",
+    "sentTitle": "Demande reçue",
+    "sentBody": "Merci. L’équipe examinera ta demande. Si elle est approuvée, nous te contacterons à l’e-mail que tu as indiqué.",
+    "notNeeded": "C’est ouvert pour le moment, tu n’as donc pas besoin de demander."
+  },
+  "brand": {
+    "tagline": "Tes mots, tes langues, un seul endroit.",
+    "supportedLanguages": "Langues prises en charge dans l’application",
+    "subLogin": "Ladu garde chaque mot — et toutes ses traductions — au même endroit, pour tout ce que tu étudies.",
+    "subRegister": "Choisis au moins deux langues d’étude — ton tableau, tes exercices et tes révisions sont construits autour d’elles.",
+    "subResetRequest": "Saisis l’e-mail de ton compte et nous t’enverrons un lien de réinitialisation.",
+    "subResetSet": "Choisis quelque chose que tu n’as jamais utilisé — ton lien de réinitialisation est valable 30 minutes.",
+    "subVerify": "Un clic sur le lien, et ton étagère est prête.",
+    "subNotFound": "Cette page n’est pas sur l’étagère — mais tout le reste y est.",
+    "home": "Accueil de Ladu"
+  },
+  "login": {
+    "title": "Connexion à Ladu",
+    "submit": "Se connecter",
+    "submitting": "Connexion…"
+  },
+  "register": {
+    "title": "Inscription",
+    "subtitle": "Merci de créer un compte",
+    "submit": "Créer le compte",
+    "submitting": "Création…",
+    "emailSentToast": "Nous avons envoyé un e-mail à {{email}} — ouvre-le pour vérifier ton compte.",
+    "languagesLabel": "Les langues que tu gères",
+    "languagesHint": "Choisis-en au moins deux. Tu pourras en ajouter d’autres et les réordonner plus tard.",
+    "step1Pill": "Étape 1 sur 2 · Compte",
+    "step1Title": "Créer un compte",
+    "step2Pill": "Étape 2 sur 2 · Langues",
+    "step2Title": "Choisis tes langues",
+    "continue": "Continuer",
+    "continueHint": "Ensuite : choisis tes langues d’étude",
+    "back": "Retour",
+    "languageCountEmpty": "Sélectionne au moins deux langues",
+    "languageCountSelected_one": "1 langue sélectionnée",
+    "languageCountSelected_other": "{{count}} langues sélectionnées",
+    "termsNote": "En créant un compte, tu confirmes avoir au moins 13 ans (avec l’autorisation d’un parent si tu as moins de 16 ans) et tu acceptes les <terms>conditions d’utilisation</terms> et la <privacy>politique de confidentialité</privacy>."
+  },
+  "resetPassword": {
+    "titleReset": "Définir un nouveau mot de passe",
+    "titleForgot": "Mot de passe oublié ?",
+    "subtitleNewPassword": "Saisis un nouveau mot de passe ci-dessous",
+    "subtitleEnterEmail": "Saisis l’adresse e-mail associée à ton compte et nous t’enverrons un lien pour réinitialiser ton mot de passe",
+    "submitRequest": "Envoyer le lien de réinitialisation",
+    "submittingRequest": "Envoi…",
+    "submitSet": "Mettre à jour le mot de passe",
+    "submittingSet": "Mise à jour…"
+  },
+  "userVerification": {
+    "validating": "Validation de ton compte…",
+    "validatingSubtitle": "Cela ne prend qu’un instant.",
+    "validatingSuccess": "Validation réussie !",
+    "enteringIn": "Entrée dans Ladu dans {{seconds}} s",
+    "enterNow": "Entrer maintenant",
+    "backToSignIn": "Retour à la connexion",
+    "goingIn": "Entrée…",
+    "messagePreValidation": "Tu seras redirigé automatiquement une fois la validation terminée.",
+    "messagePostValidation": "Pas de redirection automatique ? Clique ici pour continuer.",
+    "errorValidation": "Oups. Une erreur s’est produite."
+  },
+  "switchSectionButtons": {
+    "alreadyRegistered": "Déjà inscrit ?",
+    "notRegistered": "Tu n’as pas de compte ?",
+    "forgotPassword": "Mot de passe oublié ?",
+    "createAccount": "Créer un compte",
+    "signIn": "Se connecter",
+    "notSureYet": "Pas encore sûr ?",
+    "tryDemo": "Essayer la démo"
+  },
+  "formLabels": {
+    "name": "Nom",
+    "username": "Nom d’utilisateur",
+    "password": "Mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "newPassword": "Nouveau mot de passe",
+    "confirmNewPassword": "Confirmer le nouveau mot de passe",
+    "email": "E-mail"
+  }
+}

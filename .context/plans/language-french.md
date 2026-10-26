@@ -1,6 +1,6 @@
 # Plan: Add French to Ladu (+ a reusable "add a language" guide)
 
-Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–2 done 2026-10-26. Next: Slice 3.
+Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–3 done 2026-10-26. Next: Slice 4. Side task after slice 3 (agreed with the user): e2e on its own ports and its own database.
 
 ## How to start (read this first in a new session)
 
@@ -15,7 +15,7 @@ Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–2 done 2026-10-26. Nex
 - [x] Slice 0 (2026-10-26) — Guide skeleton `add-language.md`; row in the README index; link from `add-part-of-speech.md`
 - [x] Slice 1 (2026-10-26) — Consolidate the language lists (no behaviour change): `backend/lib/languages.ts`, `LANG_SUFFIX`/`LANG_BY_KEY` in `lib/language.ts`, noun/verb/adjective config maps `Partial`. Typecheck, lint, backend (73 suites, 2850 tests), frontend (143 files, 1979 tests), build and full e2e (168 passed) are green
 - [x] Slice 2 (2026-10-26) — French as a language (no forms yet): `Lang.FR`, backend table row, `UI_LANGUAGES` row, `FR.svg`, `--lang-fr` (violet), locale name keys in the 4 old locales, tests updated. Typecheck, lint, backend (73 suites, 2850 tests), frontend (143 files, 1979 tests), build and full e2e (168 passed; `phase-1-auth.spec.ts` now expects "of 5") are green
-- [ ] Slice 3 — French interface (14 locale files, emails, landing page)
+- [x] Slice 3 (2026-10-26) — French interface: 14 `fr` locale files (about 1,400 strings), `supportedLngs` and Turnstile `fr`, emails, onboarding topic names, landing page, the French line on the 404 page, the hard-coded limit of 4 translations per word (now one per language), parity tests with `fr`, e2e spec `language-french-interface.spec.ts`, review sheet `language-french-strings.md`. A new test `lib/locales.test.ts` compares all 14 files of every language with English (keys, placeholders, tags). Typecheck, lint, backend (73 suites, 2856 tests), frontend (144 files, 2046 tests), landing (48 tests), build and full e2e (170 passed) are green. Open: the native speaker reads `language-french-strings.md` (M1)
 - [ ] Slice 4 — Noun and adjective forms
 - [ ] Slice 5 — Verb form
 - [ ] Slice 6 — Adverb, conjunction and preposition forms
@@ -33,6 +33,10 @@ Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–2 done 2026-10-26. Nex
 | M1 | Moderate | Decision L1 puts machine-made French in the interface before any review. A French user sees it at the merge. | Open: the teacher reviews the screen list from slice 3 before the merge, or the merge waits. Ask at slice 7. |
 | M2 | Moderate | French elides the article (l'arbre, l'homme; but le héros, with an aspirated h). Wherever the UI joins article and noun, "le arbre" is wrong. | Open: slice 4 finds each join (Review chip, demo intro, practice). First iteration: show the gender chip apart from the noun, with no join. Teacher question. |
 | M3 | Moderate | Exercises map French "past" to the imparfait, not the passé composé. | Accepted for the first iteration. Teacher question. |
+| S3-1 | Major (found in slice 3) | `MAX_TRANSLATIONS = 4` was hard-coded in `CellDialog.tsx:50` and `useWordFormState.ts:31`, and the message said "maximum of 4 translations". With a fifth language a word could never get its fifth translation. | Fixed: one `MAX_TRANSLATIONS` in `lib/language.ts` (= number of languages), message with `{{max}}` in all five locales. |
+| S3-2 | Minor | The overview of slice 3 promised "vous". The existing languages are informal (tú, du, imperative). | Decision R1 in `language-french-strings.md`: "tu", for one product voice. The teacher confirms. |
+| S3-3 | Minor | `supportedLngs` and Turnstile `fr` were planned for slice 2. A code in `supportedLngs` without files makes i18next request missing files. | Moved to slice 3, with the files. |
+| S3-4 | Minor | Running e2e needs :5001 and :5173 free; a running `npm run dev` (or its leftover `nodemon`) blocks it and restarts the backend on every backend edit. | Side task: e2e on its own ports and database (not part of the French plan). Until then: stop dev before e2e. |
 | m1 | Minor | `verbGroupFR` replaces `regularityFR`, so French verbs have no regular/irregular drill. | Teacher question. Adding the radio later is one field. |
 
 ## Context
@@ -112,7 +116,7 @@ One slice at a time. Each slice starts with a plain-language overview, ends runn
 
 **Slice 10 — Autocomplete e2e spec.** `lexicon-fr-fixture.jsonl` in `backend/package.json` (`lexicon:load:fixture`), `e2e/playwright.config.ts:93`, `ci.yml:150`. Spec `autocomplete-j-french-lexicon.spec.ts` (pattern: `autocomplete-c-spanish-lexicon`).
 
-**Slice 11 — Onboarding pool and demo template.** `pool.tsv` gets `fr` and `fr_gender` from the English-hub translations (`scripts/lexicon/onboarding-pool.ts:47,193`, `onboarding-forms.ts:24`, `lib/onboardingPool.ts`, the pool README). `pool-forms.json` is rebuilt from the French lexicon. The demo `data.json` gets French translations, and `DemoIntro.tsx:53` gets an example row. `controllers/demoController.ts` `ALL_LANGUAGES` gets French (it is explicit since slice 2). Tests and an e2e touch.
+**Slice 11 — Onboarding pool and demo template.** Also: the texts "four languages" in `demo.json` (five locales) and the landing word card ("dance, in four languages"), and a French row in `DemoIntro.tsx`. `pool.tsv` gets `fr` and `fr_gender` from the English-hub translations (`scripts/lexicon/onboarding-pool.ts:47,193`, `onboarding-forms.ts:24`, `lib/onboardingPool.ts`, the pool README). `pool-forms.json` is rebuilt from the French lexicon. The demo `data.json` gets French translations, and `DemoIntro.tsx:53` gets an example row. `controllers/demoController.ts` `ALL_LANGUAGES` gets French (it is explicit since slice 2). Tests and an e2e touch.
 
 **Slice 12 — Close.** Finish `add-language.md` and check it against the real diff of this branch (`git diff main --stat`). Write the final rollout runbook. Run the final full e2e suite.
 

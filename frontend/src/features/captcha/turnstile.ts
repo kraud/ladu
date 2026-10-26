@@ -61,5 +61,5 @@ export function loadTurnstile(): Promise<TurnstileApi> {
  */
 export function turnstileLanguage(i18nCode: string): string {
     const base = i18nCode.split('-')[0];
-    return base === 'en' || base === 'es' || base === 'de' ? base : 'auto';
+    return base === 'en' || base === 'es' || base === 'de' || base === 'fr' ? base : 'auto';
 }

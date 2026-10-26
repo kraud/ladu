@@ -3,6 +3,7 @@ import de from '../../../public/locales/de/practice.json';
 import ee from '../../../public/locales/ee/practice.json';
 import en from '../../../public/locales/en/practice.json';
 import es from '../../../public/locales/es/practice.json';
+import fr from '../../../public/locales/fr/practice.json';
 
 type Tree = { [key: string]: string | Tree };
 
@@ -28,6 +29,7 @@ describe.each([
     ['es', es],
     ['de', de],
     ['ee', ee],
+    ['fr', fr],
 ])('practice.json (%s)', (_code, file) => {
     const translated = leaves(file as Tree);
 

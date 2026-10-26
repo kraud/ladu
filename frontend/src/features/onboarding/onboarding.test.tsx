@@ -15,6 +15,7 @@ import de from '../../../public/locales/de/onboarding.json';
 import ee from '../../../public/locales/ee/onboarding.json';
 import en from '../../../public/locales/en/onboarding.json';
 import es from '../../../public/locales/es/onboarding.json';
+import fr from '../../../public/locales/fr/onboarding.json';
 
 beforeEach(() => {
     buildTiming.minMs = 0;
@@ -372,6 +373,7 @@ describe.each([
     ['es', es],
     ['de', de],
     ['ee', ee],
+    ['fr', fr],
 ])('onboarding.json (%s)', (_code, file) => {
     it('has the same keys as English', () => {
         expect(keys(file)).toEqual(keys(en));

@@ -107,7 +107,7 @@
     "confirmDeleteDescription": "See eemaldab jäädavalt selle tõlke vormid ja sinu harjutamisajaloo selle kohta.",
     "savedToast": "{{language}} tõlge uuendatud",
     "removedToast": "{{language}} tõlge eemaldatud",
-    "maxTranslations": "Sellel sõnal on juba maksimaalne arv (4) tõlkeid."
+    "maxTranslations": "Sellel sõnal on juba maksimaalne arv ({{max}}) tõlkeid."
   },
   "empty": {
     "noWords": {

@@ -1,0 +1,128 @@
+{
+  "skip": "Passer",
+  "skipping": "Passage…",
+  "skipDialog": {
+    "title": "Passer la configuration ?",
+    "text": "Si tu passes, Ladu n’ajoute aucun mot ni aucune étiquette. Ta liste de mots et ta liste d’étiquettes restent vides. Tu peux ajouter des mots toi-même à tout moment.",
+    "confirm": "Passer la configuration",
+    "cancel": "Continuer la configuration"
+  },
+  "next": "Suivant",
+  "back": "Retour",
+  "start": "Commencer",
+  "saving": "Enregistrement…",
+  "retry": "Réessayer",
+  "progress": "Étape {{step}} sur {{total}}",
+  "rail": {
+    "label": "Progression de la configuration",
+    "tagline": "Quelques questions rapides et nous remplirons ta première liste de mots.",
+    "steps": "Étapes de la configuration"
+  },
+  "steps": {
+    "languages": "Langues",
+    "levels": "Ton niveau",
+    "topics": "Centres d’intérêt",
+    "count": "Nombre de mots"
+  },
+  "summary": {
+    "title": "Tes choix jusqu’ici :",
+    "languages": "Langues",
+    "native": "Maternelle",
+    "interests": "Centres d’intérêt",
+    "words": "Mots",
+    "none": "Aucun pour l’instant",
+    "notSet": "Non défini",
+    "languagesCount_one": "{{count}} langue",
+    "languagesCount_other": "{{count}} langues",
+    "topicsCount_one": "{{count}} thème",
+    "topicsCount_other": "{{count}} thèmes",
+    "wordsCount": "{{count}} mots"
+  },
+  "welcomeEyebrow": "Bienvenue",
+  "almostDone": "Presque terminé",
+  "welcome": {
+    "title": "Bienvenue sur Ladu\ncréons tes premiers mots et tes premières étiquettes.",
+    "text": "Réponds à quelques courtes questions et nous ajouterons automatiquement des mots avec leurs traductions dans toutes tes langues, pour que tu puisses t’entraîner tout de suite. Cela prend environ une minute.",
+    "items": {
+      "languages": {
+        "title": "Choisis les langues à inclure",
+        "text": "Deux ou plus — tu pourras en ajouter d’autres plus tard."
+      },
+      "levels": {
+        "title": "Dis-nous ton niveau",
+        "text": "Une estimation approximative suffit."
+      },
+      "topics": {
+        "title": "Choisis tes centres d’intérêt",
+        "text": "Nous sélectionnons des mots qui s’y rapportent."
+      }
+    }
+  },
+  "languages": {
+    "title": "Quelles langues veux-tu que nous utilisions ?",
+    "hint": "Les mots que nous créons pour toi incluront des traductions dans chaque langue que tu sélectionnes ici. Tu dois en sélectionner au moins deux.",
+    "countLow": "Sélectionne au moins deux langues",
+    "countOk_one": "1 langue sélectionnée",
+    "countOk_other": "{{count}} langues sélectionnées",
+    "nativeTitle": "Ta langue maternelle",
+    "nativeNone": "Aucune",
+    "nativeHint": "Ladu ajoute des mots à apprendre dans tes autres langues. Choisis « Aucune » pour toutes les apprendre."
+  },
+  "levels": {
+    "title": "Quel est ton niveau ?",
+    "hint": "Choisis un niveau pour chaque langue. Une estimation suffit.",
+    "beginner": "Débutant",
+    "beginnerHint": "Les mots les plus courants.",
+    "intermediate": "Intermédiaire",
+    "intermediateHint": "Des mots courants et quelques mots moins courants.",
+    "advanced": "Avancé",
+    "advancedHint": "Des mots moins courants."
+  },
+  "topics": {
+    "title": "Qu’est-ce qui t’intéresse ?",
+    "hint": "Nous ajouterons un mélange de mots liés aux thèmes que tu choisis ici.",
+    "countLow": "Choisis au moins {{min}} thèmes ({{count}} choisis)",
+    "countOk_one": "{{count}} thème choisi",
+    "countOk_other": "{{count}} thèmes choisis",
+    "names": {
+      "clothing": "Vêtements",
+      "food_drink": "Nourriture et boissons",
+      "animals": "Animaux",
+      "plants_nature": "Plantes et nature",
+      "weather": "Météo",
+      "body_health": "Corps et santé",
+      "technology_media": "Technologie et médias",
+      "home_living": "Maison et logement",
+      "travel_transport": "Voyages et transports",
+      "sports_hobbies": "Sports et loisirs",
+      "work_money": "Travail et argent",
+      "numbers_measures": "Mesures et quantités",
+      "time_calendar": "Temps et calendrier",
+      "feelings": "Sentiments",
+      "people_family": "Personnes et famille"
+    }
+  },
+  "count": {
+    "title": "Combien de mots ?",
+    "hint": "Tu pourras ajouter ou retirer des mots plus tard.",
+    "hintSmall": "Un petit début. Idéal pour essayer Ladu.",
+    "hintMedium": "Un bon début pour tes premières séances d’entraînement.",
+    "hintLarge": "Au-delà de 100 mots, du vocabulaire plus général est ajouté.",
+    "capacity": "Avec ces niveaux et ces thèmes, nous pouvons ajouter jusqu’à {{count}} mots.",
+    "capacityLow": "Avec ces niveaux et ces thèmes, nous ne pouvons ajouter que {{count}} mots. Choisis d’autres thèmes ou niveaux pour en ajouter davantage.",
+    "none": "Avec ces niveaux et ces thèmes, nous ne pouvons pas ajouter de mots. Reviens en arrière et modifie-les.",
+    "loading": "Vérification des mots…",
+    "create": "Ajouter {{count}} mots",
+    "unit": "mots"
+  },
+  "result": {
+    "label": "Tes nouveaux mots",
+    "title": "{{words}} mots ajoutés dans {{topics}} thèmes",
+    "text": "Chaque thème a sa propre étiquette. Tu peux renommer ou supprimer les étiquettes comme n’importe quelle autre étiquette.",
+    "practise": "Commencer à s’entraîner"
+  },
+  "building": {
+    "title": "Construction de ton dictionnaire…",
+    "text": "Ajout de {{words}} mots dans {{topics}} thèmes."
+  }
+}

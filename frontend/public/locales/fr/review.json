@@ -1,0 +1,142 @@
+{
+  "toastMessages": {
+    "wordDeleted": "Mot supprimé avec succès",
+    "tagAddedToWords": "Étiquettes ajoutées avec succès"
+  },
+  "fieldLabels": {
+    "activeLanguages": "Actives",
+    "hiddenLanguages": "Masquées",
+    "public": "Public",
+    "description": "Description"
+  },
+  "filters": {
+    "title": "Filtres",
+    "display": "Options d’affichage",
+    "displayBadges": "Badges",
+    "displayColumns": "Colonnes",
+    "gender": "Genre",
+    "clear": "Effacer",
+    "partOfSpeech": "Classe grammaticale",
+    "tags": "Étiquettes",
+    "owner": "Propriétaire",
+    "owners": {
+      "me": "Les miens",
+      "others": "Pas les miens"
+    },
+    "languageOrder": "Ordre des langues",
+    "languageOrderHint": "Utilise les flèches pour réordonner · 2 minimum affichées",
+    "moveEarlier": "Avancer {{language}}",
+    "moveLater": "Reculer {{language}}",
+    "hideLanguage": "Masquer {{language}}",
+    "showLanguage": "Afficher {{language}}"
+  },
+  "page": {
+    "newWord": "Nouveau mot",
+    "title": "Mots"
+  },
+  "toolbar": {
+    "searchPlaceholder": "Rechercher des mots…",
+    "searchLabel": "Filtrer le tableau",
+    "displayGender": "Genre",
+    "displayProgress": "Progression",
+    "rowCount": "{{count}} sur {{total}} mots",
+    "displayOwner": "Propriétaire",
+    "displayType": "Type de mot"
+  },
+  "openWord": {
+    "title": "Ouvrir ce mot ?",
+    "description": "Aller à la page de « {{word}} » ?",
+    "confirm": "Ouvrir"
+  },
+  "bulk": {
+    "selected": "sélectionnés",
+    "practice": "Entraînement",
+    "delete": "Supprimer",
+    "confirmTitle_one": "Supprimer {{count}} mot ?",
+    "confirmTitle_other": "Supprimer {{count}} mots ?",
+    "confirmDescription": "Cela supprime définitivement {{count}} mot(s) pour toutes les personnes avec qui ils sont partagés.",
+    "deletedToast_one": "{{count}} mot supprimé",
+    "deletedToast_other": "{{count}} mots supprimés",
+    "addTags": "Ajouter des étiquettes",
+    "tagsAddedToast_one": "Étiquette ajoutée à {{count}} mot",
+    "tagsAddedToast_other": "Étiquettes ajoutées à {{count}} mots",
+    "tagsRemovedToast_one": "Étiquette retirée de {{count}} mot",
+    "tagsRemovedToast_other": "Étiquettes retirées de {{count}} mots",
+    "unselect": "Désélectionner",
+    "ownOnlyHint": "Ajouter des étiquettes et Supprimer ne sont disponibles que lorsque tous les mots sélectionnés sont à toi.",
+    "selectAllMatching": "Sélectionner les {{count}} mots correspondants",
+    "allPages": "(+ toutes les pages)",
+    "selectAll": "Tout sélectionner",
+    "selectAllFailed": "Impossible de sélectionner tous les mots. Réessaie."
+  },
+  "table": {
+    "posAbbr": {
+      "noun": "n.",
+      "verb": "v.",
+      "adjective": "adj.",
+      "adverb": "adv.",
+      "preposition": "prép.",
+      "conjunction": "conj.",
+      "pronoun": "pron.",
+      "interjection": "interj.",
+      "properNoun": "n. pr.",
+      "numerals": "num."
+    },
+    "selectAll": "Sélectionner toutes les lignes",
+    "selectRow": "Sélectionner ce mot",
+    "ownerMe": "Toi",
+    "ownerGroup": "D’une étiquette suivie",
+    "ringDetail": "{{value}} sur {{total}} formes",
+    "addTranslation": "Ajouter une traduction ({{language}})",
+    "blockedTranslation": "Non traduit — mot en lecture seule d’une étiquette suivie",
+    "loaded": "Affichage de {{loaded}} sur {{total}}",
+    "allLoaded": "Les {{total}} sont chargés",
+    "loadMore": "Charger plus",
+    "tags": "Étiquettes",
+    "tagsOpen": "Afficher les étiquettes",
+    "tagsOpenAdd": "Ajouter des étiquettes à ce mot",
+    "sort": {
+      "off": "Trier {{lang}} de A à Z",
+      "asc": "{{lang}} trié de A à Z. Trier de Z à A",
+      "desc": "{{lang}} trié de Z à A. Supprimer le tri"
+    }
+  },
+  "cellDialog": {
+    "deleteTranslation": "Supprimer la traduction",
+    "confirmDeleteTitle": "Supprimer la traduction ({{language}}) ?",
+    "confirmDeleteDescription": "Cela supprime définitivement les formes de cette traduction et ton historique d’entraînement associé.",
+    "savedToast": "Traduction ({{language}}) mise à jour",
+    "removedToast": "Traduction ({{language}}) supprimée",
+    "maxTranslations": "Ce mot a déjà le nombre maximal de {{max}} traductions."
+  },
+  "empty": {
+    "noWords": {
+      "title": "Pas encore de mots",
+      "description": "Ajoute ton premier mot pour commencer à construire ton dictionnaire.",
+      "action": "Ajouter un mot"
+    },
+    "noMatches": {
+      "title": "Aucun mot ne correspond à tes filtres",
+      "description": "Essaie une autre recherche ou efface tes filtres.",
+      "action": "Effacer les filtres"
+    },
+    "noLanguages": {
+      "title": "Ajoute une deuxième langue pour utiliser les mots",
+      "description": "Les mots nécessitent au moins deux langues configurées.",
+      "action": "Aller au compte"
+    }
+  },
+  "tagsDialog": {
+    "title": "Étiquettes",
+    "empty": "Ce mot n’a pas d’étiquettes.",
+    "add": "Ajouter des étiquettes",
+    "remove": "Retirer l’étiquette {{label}}",
+    "restore": "Garder l’étiquette {{label}}",
+    "saved": "Étiquettes mises à jour",
+    "by": "par {{username}}",
+    "words": "{{count}} mots",
+    "filter": "Filtrer les mots par l’étiquette {{label}}",
+    "unfilter": "Retirer l’étiquette {{label}} du filtre",
+    "open": "Ouvrir l’étiquette {{label}}"
+  }
+}

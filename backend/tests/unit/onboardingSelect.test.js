@@ -8,6 +8,7 @@ const {
     TOPIC_LABELS, topicLabel, CORE_SHARE, MAX_WORDS,
 } = require('../../services/onboarding');
 const { readPool, readForms } = require('../../lib/onboardingPool');
+const { LANGUAGE_NAMES } = require('../../lib/languages');
 const { TOPICS } = require('../../scripts/lexicon/onboarding-topics');
 
 // --- Synthetic pool -----------------------------------------------------------------------------
@@ -241,14 +242,26 @@ describe('validateChoice / validateCreate / checkCount', () => {
 });
 
 describe('topic tag names (D23)', () => {
-    it('names every topic and core in the 4 UI languages', () => {
+    it('names every topic and core in every UI language', () => {
         for (const id of [...TOPICS.map((t) => t.id), 'core']) {
-            expect(Object.keys(TOPIC_LABELS[id]).sort()).toEqual(['English', 'Estonian', 'German', 'Spanish']);
+            expect(Object.keys(TOPIC_LABELS[id]).sort()).toEqual([...LANGUAGE_NAMES].sort());
         }
     });
 
+    // The topic grid in the app (onboarding.json) and the tag names made here must read the same.
+    it.each([['English', 'en'], ['Spanish', 'es'], ['German', 'de'], ['Estonian', 'ee'], ['French', 'fr']])(
+        'gives the topics of %s the same names as the frontend locale (%s)',
+        (language, code) => {
+            const { topics } = require(`../../../frontend/public/locales/${code}/onboarding.json`);
+            for (const id of TOPICS.map((t) => t.id)) {
+                expect({ id, name: TOPIC_LABELS[id][language] }).toEqual({ id, name: topics.names[id] });
+            }
+        },
+    );
+
     it('uses the UI language, English when it is not set or unknown', () => {
         expect(topicLabel('animals', 'German')).toBe('Tiere');
+        expect(topicLabel('animals', 'French')).toBe('Animaux');
         expect(topicLabel('numbers_measures', 'English')).toBe('Measures & quantities');
         expect(topicLabel('animals', null)).toBe('Animals');
         expect(topicLabel('core', 'Klingon')).toBe('Core vocabulary');
