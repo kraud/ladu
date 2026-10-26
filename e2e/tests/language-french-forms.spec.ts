@@ -32,7 +32,9 @@ import {
  *     between French and Spanish, and between French and German, with no English card; the gender
  *     drill of a noun; the tense card, the participle drill and the auxiliary / group drills of a verb.
  *
- * No autocomplete runs for French yet (slices 8 to 10).
+ * The French lexicon fixture is loaded in the e2e database (slice 10), so a whole French word opens the
+ * type-ahead list: the tests close it after typing (`closeTypeAheadList`). The lookup itself is tested in
+ * `autocomplete-j-french-lexicon.spec.ts`.
  */
 
 test.afterAll(async () => {
@@ -78,6 +80,7 @@ test.describe.serial('French forms (slices 4 to 6: noun, adjective, verb, adverb
         // Exact match: "le" would also match the "le/la" option.
         await page.getByRole('radio', { name: 'le', exact: true }).click();
         await page.getByLabel('Singular', { exact: true }).last().fill('cheval');
+        await closeTypeAheadList(page);
         await page.getByLabel('Plural', { exact: true }).last().fill('chevaux');
 
         await saveAndOpen(page);
@@ -130,6 +133,7 @@ test.describe.serial('French forms (slices 4 to 6: noun, adjective, verb, adverb
 
         await page.getByRole('button', { name: 'Français' }).click();
         await page.getByLabel('Male singular', { exact: true }).fill('beau');
+        await closeTypeAheadList(page);
         await page.getByLabel('Female singular', { exact: true }).fill('belle');
         await page.getByLabel('Male plural', { exact: true }).fill('beaux');
         await page.getByLabel('Female plural', { exact: true }).fill('belles');
@@ -183,6 +187,7 @@ test.describe.serial('French forms (slices 4 to 6: noun, adjective, verb, adverb
 
         // An irregular comparative is typed (the "plus" box stays off); the superlative follows it.
         await page.getByLabel('Male singular', { exact: true }).fill('bon');
+        await closeTypeAheadList(page);
         await page.getByLabel('Comparative (male singular)', { exact: true }).fill('meilleur');
         await expect(superlative).toHaveValue('le meilleur');
     });
@@ -198,6 +203,7 @@ test.describe.serial('French forms (slices 4 to 6: noun, adjective, verb, adverb
         // The infinitive is the only required French field.
         await expect(page.getByRole('button', { name: 'Save' })).toBeDisabled();
         await page.getByLabel('Infinitive', { exact: true }).fill('aller');
+        await closeTypeAheadList(page);
         await expect(page.getByRole('button', { name: 'Save' })).toBeEnabled();
 
         // The verb group takes the place of the regularity radio (checked in verbs.test.ts: the English card has one).
@@ -283,6 +289,7 @@ test.describe.serial('French forms (slices 4 to 6: noun, adjective, verb, adverb
         await expect(page.getByRole('button', { name: 'Save' })).toBeDisabled();
         await page.getByRole('radio', { name: 'Gradable', exact: true }).last().click();
         await page.getByLabel('Adverb', { exact: true }).last().fill('vite');
+        await closeTypeAheadList(page);
         await expect(page.getByRole('button', { name: 'Save' })).toBeEnabled();
 
         await page.getByRole('checkbox', { name: /Uses "plus"/ }).click();
@@ -309,6 +316,7 @@ test.describe.serial('French forms (slices 4 to 6: noun, adjective, verb, adverb
         await expect(superlative).toHaveAttribute('placeholder', 'Depends on the comparative');
 
         await page.getByLabel('Adverb', { exact: true }).last().fill('bien');
+        await closeTypeAheadList(page);
         await page.getByLabel('Comparative', { exact: true }).fill('mieux');
         await expect(superlative).toHaveValue('le mieux');
 

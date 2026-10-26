@@ -125,7 +125,8 @@ Verified in slice 1 (2026-10-26). The `Lang` enum **key** is the two-letter suff
 - [x] `controllers/dictionaryController.ts` `MAX_PICKS`: a draft has one pick per language. It was a hard-coded 4 and answered 400 for a fifth language (found in French slice 9a).
 - [x] Licence: the Wiktionary source and CC BY-SA 4.0 are the same for every language, so `.context/licence-study.md` needs no row. `landing/credits.html` lists the languages of the word forms: add the new one.
 - [x] Backend tests that name the language as an example of "no data" (`dictionary.test.js`: translate and type-ahead lists) change when the language gets data.
-- [ ] Fixture for CI and e2e: `lexicon-<code>-fixture.jsonl`, `backend/package.json` (`lexicon:load:fixture`), `e2e/playwright.config.ts`, `.github/workflows/ci.yml`. `(unverified)`
+- [x] Fixture for CI and e2e (French slice 10): `lexicon-<code>-fixture.jsonl` (made in the ingest step above) goes into `backend/package.json` `lexicon:load:fixture`, before the translations file. That is the only edit that changes behaviour: `e2e/playwright.config.ts` runs the script (its comment lists the languages) and `ci.yml` starts that config, so neither needs a new line. `load.js` takes the language from the file header. The `--if-empty` flag keeps a full local lexicon.
+- [x] e2e spec `e2e/tests/autocomplete-<letter>-<language>-lexicon.spec.ts` (pattern: `autocomplete-c-spanish-lexicon`): one noun, one verb with its group and auxiliary, a dual-auxiliary or reflexive edge case, one adjective, one function word and a miss. Use only words that are in the fixture. The spec registers the user with the new language, so the card button carries its native name.
 
 ### Onboarding and demo (only when the plan includes them)
 

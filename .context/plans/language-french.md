@@ -1,6 +1,6 @@
 # Plan: Add French to Ladu (+ a reusable "add a language" guide)
 
-Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–9b done 2026-10-26 (slices 0–7 committed; slice 8 is research only; slices 9a and 9b are built, not yet committed). Next: Slice 10, the autocomplete e2e spec (see "Resume here"). Side task done 2026-10-26: e2e on its own ports and its own database.
+Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–10 done 2026-10-26 (slices 0–9b committed; slice 10 is built, not yet committed). Next: Slice 11, onboarding pool and demo template (see "Resume here"). Side task done 2026-10-26: e2e on its own ports and its own database.
 
 ## How to start (read this first in a new session)
 
@@ -10,7 +10,13 @@ Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–9b done 2026-10-26 (sl
 4. Branch: `new-language-french`.
 5. Then read "Resume here" below: it holds the state, the working rules and the next slice.
 
-## Resume here (updated 2026-10-26, session 3, after slice 8)
+## Resume here (updated 2026-10-26, session 4, after slice 10)
+
+**Slice 10 (done 2026-10-26, session 4; not yet committed).** The French fixture loads in the e2e backend and in CI. **Next: slice 11** (onboarding pool and demo template; see "Slice 11" and "Later slices still need" below). Give the plain-language overview and ask for a confirmation first.
+- Built: `backend/package.json` `lexicon:load:fixture` (the French fixture, before the translations file); `e2e/playwright.config.ts` (comment only); `e2e/tests/autocomplete-j-french-lexicon.spec.ts`: 7 tests (cheval; aimer with group, auxiliary, both participles and four tenses; partir with an empty auxiliary; "se laver" through "laver"; beau with the vowel form; "parce que" type; a miss with the notice and no button). The user chose the lookup-only scope; start-from-word with a French draft stays covered by the backend route tests. `ci.yml` needs no edit (it starts the Playwright config, which runs the script). `.context/guides/add-language.md` updated.
+- **Side effect found by the full run:** once the e2e database holds French words, typing a whole French word opens the type-ahead list, and the list hides the page from the accessibility tree. The old French forms spec failed at the auxiliary radios (and 44 later tests did not run). Fixed: `closeTypeAheadList` after the six French words that are in the fixture (cheval, beau, bon, aller, vite, bien) in `language-french-forms.spec.ts`. Any new e2e that types a fixture word in a French card needs the same.
+- Gates: full e2e **196 passed** (2.6 min) on the third run. Run 1 failed on the issue above. Run 2 had one failure in `practice-change-configuration.spec.ts` (the name field got "Morning drillMorning drill (9)": a fill race under 6 workers); that spec passed 4 of 4 alone and the next full run was green. Not touched by this slice; treat as a flake. Backend and frontend unit tests were not rerun: this slice changes no backend or frontend source (only `package.json` script, a config comment, e2e specs and docs).
+- The e2e database loaded exactly the 55 fixture lexemes (log line "French: loaded 55 lexemes"), so the spec ran against what CI loads. Not run against the full lexicon in the dev database (the unit and route tests pin the same values there).
 
 **Slice 9b (done 2026-10-26, session 3; not yet committed).** French verb autocomplete works. **Next: slice 10** (wire `lexicon-fr-fixture.jsonl` into `lexicon:load:fixture`, the Playwright config and CI; write the e2e spec; also check the verb flow in a real browser). Give the plain-language overview and ask for a confirmation first.
 - Built: `VERB_SELECTORS_FR` in `selectors/fr.ts`; `ingest.ts` (verbs on, ten verbs in `FIXTURE_WORDS`, `ni` instead of `ni … ni`); `registry.ts` (French `Verb`: `lexiconAdapter` behind `withPronominalFallback`); frontend `AUTOCOMPLETE_REGISTRY` (`French/Verb` → `infinitive`) and its test. Fixtures `lexicon-fr-fixture.jsonl` (55 lexemes, 28 verbs) and `tests/unit/fixtures/lexicon-fr.json` regenerated. Tests: nine verb tests in `lexiconSelectorsFR.test.js`, five verb tests in `dictionary.test.js`.
@@ -83,7 +89,7 @@ Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–9b done 2026-10-26 (sl
 - [x] Slice 8 (2026-10-26) — Autocomplete research: French extracted from the raw dump, coverage measured with draft selectors on the top lemmas, translations and size measured, decisions Q1–Q4 taken (see "Slice 8 results"). No code changed
 - [x] Slice 9a (2026-10-26) — French lexicon and lookup: nouns, adjectives, adverbs, conjunctions, prepositions. `selectors/fr.ts`, ingest, registry, gender map, frontend registry, credits page, fixtures, tests; lexicon and translations built and loaded into the dev database; draft route limit fixed (A8). Backend 74 suites / 2930 tests and frontend 144 files / 2086 tests green
 - [x] Slice 9b (2026-10-26) — French lexicon and lookup: verbs. Table-based verb selectors, `withPronominalFallback`, ingest, registry, frontend registry, fixtures, tests; French lexicon rebuilt and reloaded into the dev database. Typecheck and lint (both workspaces), backend 74 suites / 2945 tests and frontend 144 files / 2086 tests are green
-- [ ] Slice 10 — Autocomplete e2e spec
+- [x] Slice 10 (2026-10-26) — Autocomplete e2e spec: `lexicon-fr-fixture.jsonl` added to `lexicon:load:fixture`, `autocomplete-j-french-lexicon.spec.ts` (7 tests: noun, verb, dual-auxiliary verb, "se laver", adjective, conjunction, a miss). Full e2e green (196 passed). The French fixture made `language-french-forms.spec.ts` fail (the type-ahead list hid the radios), fixed with `closeTypeAheadList`
 - [ ] Slice 11 — Onboarding pool and demo template
 - [ ] Slice 12 — Close: finish the guide, rollout runbook, final e2e run
 

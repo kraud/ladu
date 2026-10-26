@@ -90,7 +90,7 @@ export default defineConfig({
         {
             // Migrations are a separate step from server startup (backend/scripts/migrate.js)
             // — the backend no longer applies them itself on boot.
-            // Then the committed lexicon fixtures (German, Spanish; ~40 words each) load, each only if its
+            // Then the committed lexicon fixtures (German, Spanish, English, Estonian, French; ~40-55 words each) load, each only if its
             // language has no rows yet (--if-empty): CI gets them, a local full lexicon is kept.
             // Then the demo template (demo-access.md Slice 2), kept when it is there: every demo start copies it.
             command: 'npm run db:ensure -w e2e && npm run migrate -w backend && npm run lexicon:load:fixture -w backend && npm run demo:template -w backend && npm run dev -w backend',
