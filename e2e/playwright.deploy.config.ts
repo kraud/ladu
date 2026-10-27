@@ -19,6 +19,22 @@ if (!BASE_URL) {
     throw new Error('BASE_URL is not set — this config only runs against a real deployed environment.');
 }
 
+// staging.ladu.com.ar sits behind Cloudflare Access (deploy/terraform/access.tf).
+// CI authenticates with a service token: Playwright sends these two headers on
+// every request (page navigations, subresources, and the `request` fixture),
+// so Access lets the smoke job through without a login page. Both are set, or
+// neither is: when they are absent (e.g. a local run before the rollout), the
+// config is unchanged and the smoke suite just runs against an open host.
+const ACCESS_CLIENT_ID = process.env.CF_ACCESS_CLIENT_ID;
+const ACCESS_CLIENT_SECRET = process.env.CF_ACCESS_CLIENT_SECRET;
+const ACCESS_HEADERS =
+    ACCESS_CLIENT_ID && ACCESS_CLIENT_SECRET
+        ? {
+              'CF-Access-Client-Id': ACCESS_CLIENT_ID,
+              'CF-Access-Client-Secret': ACCESS_CLIENT_SECRET,
+          }
+        : undefined;
+
 const CI = !!process.env.CI;
 
 export default defineConfig({
@@ -38,6 +54,7 @@ export default defineConfig({
 
     use: {
         baseURL: BASE_URL,
+        extraHTTPHeaders: ACCESS_HEADERS,
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
     },

@@ -125,6 +125,16 @@ alert email actually arrives when one goes red. See
 [`05-troubleshooting-playbook.md`](05-troubleshooting-playbook.md) for how
 to test this deliberately.
 
+**⚠️ After staging went behind Cloudflare Access (2026-10-27):** the
+`https://staging.ladu.com.ar` monitor no longer proves the staging backend is
+up — Cloudflare answers it with the Access login page (a 200), so the monitor
+is green whenever Cloudflare itself is reachable, even if `web-staging`/`backend-staging`
+are down. Staging's backend is still exercised by every deploy's own
+`/api/health` check and the smoke e2e gate, so this is a loss of *alerting*,
+not of *coverage*. If you want a real staging health alert, add a fifth
+monitor on `https://staging.ladu.com.ar/api/health` (that path is a bypass
+app, so it needs no Access login).
+
 ## Healthchecks.io
 
 **What it is:** the inverse of UptimeRobot. Instead of *polling* something

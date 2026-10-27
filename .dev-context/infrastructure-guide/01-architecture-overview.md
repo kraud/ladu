@@ -46,7 +46,10 @@ VPS :443 → Caddy ("edge" container)
   │  reads the Host header
   ├─ app.ladu.com.ar        /api/* → backend-prod:5001   else → web-prod:80
   ├─ staging.ladu.com.ar    /api/* → backend-staging:5001 else → web-staging:80
-  │                         (on both: /api/admin/* → 404, the admin API is not served here)
+  │                         (behind Cloudflare Access; /api/health is exempt
+  │                          via a path-scoped bypass app — see access.tf)
+  │                         (on both app. and staging.: /api/admin/* → 404,
+  │                          the admin API is not served here)
   ├─ admin.ladu.com.ar          /api/admin/* → backend-prod:5001    else → admin-prod:80
   ├─ admin-staging.ladu.com.ar  /api/admin/* → backend-staging:5001 else → admin-staging:80
   │                         (any other /api/* path → 404; both sit behind Cloudflare Access)
@@ -75,6 +78,14 @@ plan is `.context/plans/admin-dashboard.md`). A request passes two checks:
 Access only protects the hostnames it is set up for. That is why Caddy answers
 404 for `/api/admin/*` on `app.` and `staging.`: otherwise the admin API could
 be called there, with no Access login in front of it.
+
+`staging.` (the learner app) is behind the same Cloudflare Access lock since
+2026-10-27, but with two differences: the CI smoke job authenticates with a
+service token instead of a person, and `/api/health` is a path-scoped bypass so
+`deploy.sh` and UptimeRobot can poll it without a login. Behind Access, staging
+still has the app's own access gates (`access_settings`): registration `closed`,
+login `limited` to the smoke account — defence in depth, because Access is
+checked at Cloudflare's edge, not at the VPS.
 
 Everything after Cloudflare lives on **Docker networks that publish no ports
 except Caddy's 80/443** — `web` and `backend` containers are unreachable

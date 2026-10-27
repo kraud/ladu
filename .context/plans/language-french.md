@@ -16,6 +16,7 @@ Status: plan agreed on 2026-10-25. All slices (0–12) done 2026-10-26 (slices 0
 - Checked the guide against the real diff (223 files, no migration). A search for the old languages in files the branch did not change found three gaps, all fixed: `lib/demoTemplate.ts` (the template account listed four languages; now `LANGUAGE_NAMES`), `frontend/src/test/msw/authHandlers.ts` (the mock register route accepted four; slice 2 had missed it), and the docs that list the languages (`CLAUDE.md`, `.context/overview.md`, `README.md` with its word-card diagram; user decision: all five lines). Dev scripts `bench-exercises.ts` and `seed-pagination-words.ts` keep four languages on purpose.
 - `add-language.md`: no `(unverified)` mark is left; new section 4a (search for the other languages in files the branch did not change); section 5 and 6 extended. One item stays open: the native-speaker review.
 - The rollout runbook is written with the real file sizes and row counts (French lexicon 84,873 rows, 2.4 MB; translations 413,356 rows, 7.3 MB, 113,115 French). Nothing on staging or production has changed yet.
+- **Open follow-up from staging (2026-10-27): V10**, the type-ahead does not offer "se laver". Cause and fix plan: section "V10 fix plan". Not a blocker for the rollout.
 - Gates: backend typecheck and lint, frontend typecheck and lint, `npm run build`; backend 74 suites / 2947 tests; frontend 144 files / 2086 tests; landing 48 tests; full e2e **196 passed** (2.7 min).
 
 **Slice 11 (done 2026-10-26, session 4; committed).**
@@ -154,8 +155,39 @@ Status: plan agreed on 2026-10-25. All slices (0–12) done 2026-10-26 (slices 0
 | V7 | Moderate (found in slice 9b) | Wiktionary gives only 257 pronominal verbs an entry of their own ("se souvenir", "s'appeler"). "se laver" lives inside "laver", so the form's own convention found nothing. | Fixed: `withPronominalFallback` in `registry.ts`. When "se X" / "s'X" is not found, X is looked up; if it is marked reflexive, its forms come back as a **partial** answer with the infinitive as typed, "Always reflexive" and être. A verb not marked reflexive stays not-found. Teacher question: are the forms of a pronominal verb always those of the plain verb (yes for the tenses we store: the pronoun is the only change)? |
 | V8 | Minor (slice 9b) | "Optionally reflexive" is 556 of 3,253 verbs (17%), including *pouvoir*, *envoyer*, even *être* (from an "s'être" table). The slice 8 draft counted 71 because it read row tags. | Accepted: 552 of the 556 also have a sense tagged reflexive or pronominal, so Wiktionary states it twice. |
 | V9 | Minor (slice 9b) | Verb entries with no conjugation table (noise such as *peut*, *voilà*, *vader*) have no infinitive. The lexicon does not copy the lemma as an infinitive (the Spanish table does): it would invent forms for non-verbs. | Accepted: 4,249 entries are skipped as "nothing beyond the lemma". |
+| V10 | Minor (found on staging, 2026-10-27; **open, fix planned**) | In the French verb form, the type-ahead list does not offer "se laver" (typing "se la…" lists nothing; typing "laver" lists only the plain verb). The lookup does work: typing "se laver" whole and pressing "Use autocomplete values" fills the card (`être`, "Always reflexive"), and so does "Start from a word". Picking `laver` from the list gives the plain verb (`avoir`, "Optionally reflexive"), which is correct for that word (V6, V7) but hides the pronominal use. | Cause and fix plan: section "V10 fix plan" below. Feasible, small, no data rebuild, no reload, no migration. |
 | Q3 | Decision (slice 8) | Which forms to store. | **Decided (user): only what the form uses**: present, imperfect, simple future, both participles, plus the properties. Conditional and subjunctive are not stored. A new tense later needs one rebuild and reload of the lexicon file. |
 | Q4 | Decision (slice 8) | Slice 9 touches many files. | **Decided (user): split** into 9a (nouns, adjectives, adverbs, function words) and 9b (verbs). |
+
+## V10 fix plan: pronominal verbs in the type-ahead (written 2026-10-27, not built)
+
+**Cause (read in the code; the SQL counts below are from the built lexicon file).**
+- The list is `lexiconSuggestions` in `backend/services/dictionary/lexicon.ts`. It selects rows of `lexemes` whose `search_key` starts with the typed prefix (`searchKey` is only lowercase + NFC + trim). A pronominal infinitive such as "se laver" is a row only when Wiktionary gives it an entry of its own. The built French file has **27** such lemmas (`se souvenir`, `s'en aller`, `se pouvoir` …; the other pronominal entries have no conjugation table and were skipped, review log V9). "se laver" lives inside the entry "laver".
+- The lookup has a fallback for that case, `withPronominalFallback` in `services/dictionary/registry.ts`: for "se X" / "s'X" with no row, it looks up X, and if X is marked reflexive it answers `partial` with the infinitive as typed, "Always reflexive" and `être`. The suggest route (`controllers/dictionaryController.ts` `suggest`) does not use the adapters, so it has no such fallback.
+- "Start from a word" does not use `lexemes` for its list. It reads `lexeme_translations`, where "se laver" is a French translation of an English sense, so it shows up there.
+- Data in the built file (7,374 verbs): Not reflexive 6,475, Optionally reflexive 791, Always reflexive 108. So **899 verbs** can take "se" / "s'", and 27 of them already have their own entry.
+
+**Fix (all in the suggest path; the lookup needs no change).**
+1. `lexiconSuggestions` (French verbs only; guard with `language === 'French' && partOfSpeech === 'Verb'`, ideally through a small helper in `services/dictionary/` so other languages stay untouched):
+   - Build the normal list as today.
+   - For each suggestion whose row has `forms.reflexivityFR` of `Optionally reflexive` or `Always reflexive` (`forms` is already selected), add a second suggestion right after it: `lemma` = "se " + lemma, or "s'" + lemma when the lemma starts with a vowel or a mute h (`/^[aeiouyàâäéèêëîïôöùûüœæh]/i`); `entryId` = **the id of the plain verb's row**. Skip it when the lemma is already in the list (the 27 own entries) and cut the result at `limit`.
+   - When the prefix starts with `se ` or `s'` / `s’` (use `PRONOMINAL_PREFIX` from `registry.ts`, export it), strip it, query the verbs whose key starts with the rest, **filtered in SQL** to reflexive-marked verbs (`forms->>'reflexivityFR' <> 'Not reflexive'`, else the overfetch fills with plain verbs), and return them as "se X" / "s'X". Keep frequency order. The rows of the 27 own entries match the first query by themselves; remove duplicates by lemma.
+2. Why a plain-verb `entryId` is safe: when the user picks "se laver", `TranslationCard.tsx` (`pickSuggestion`) sets the field to "se laver" and calls the lookup with `query = "se laver"` and `entry = <id of laver>`. `lexiconAdapter` first selects rows by the **query's** search key ("se laver": no row), returns `not-found` before it looks at `entryId`, and `withPronominalFallback` then runs, with the entry id dropped. The result is the pronominal answer. The controller only requires the `entry` value to be a UUID, which the plain verb's id is.
+3. Frontend, one line: `TypeAheadInput.tsx` uses `key={item.entryId}` for the list items. "laver" and "se laver" would share a key. Use `` `${item.entryId}:${item.lemma}` ``. Nothing else changes (`Suggestion` keeps its shape; `AutocompleteRow` compares the field with the picked lemma).
+
+**Choices to take when you build it.**
+- *How many "se" suggestions.* The plan above adds "se X" after every reflexive-marked verb, so typing "lav" shows `laver` and `se laver`. For 899 verbs this is the complete answer but lengthens some lists. A quieter variant: add "se X" only when the typed text equals X (the user finished typing "laver") or starts with "se ". I recommend the full version first: the pronominal use stays visible (a user who picks `laver` otherwise never sees `être`).
+- *Elision.* The vowel / mute-h rule gets aspirated-h verbs wrong ("se hâter", "se hisser" are written with "se"). The form still works either way (the lookup strips both pronouns), but the list would show "s'hâter". Option: a short exception list for aspirated h, or store the real pronominal infinitive from the Wiktionary table (a new form such as `pronominalInfinitiveFR` in `selectors/fr.ts` `VERB_SELECTORS_FR`, then `ingest.ts fr`, a reload of the French file in every environment, and a lexicon fixture rebuild). That is exact and also marks which verbs really have a pronominal use, but it needs the rebuild and the Ansible reload again. Recommended order: runtime rule now, the stored infinitive only if the teacher finds errors.
+- *Fallback result is `partial`.* The card shows the "not fully sure" notice for a "se X" pick, as it does today for a typed "se laver". The teacher question in V7 (are the forms of a pronominal verb always those of the plain verb?) applies.
+
+**Tests to add.**
+- `backend/tests/dictionary.test.js`, in the French block (fixture has `laver` = Optionally reflexive, `se souvenir` own entry, `appeler`, `aimer` = Not reflexive): `prefix=se la` → `["se laver"]`; `prefix=lav` → `["laver", "se laver"]`; `prefix=aim` has no "se aimer"; `prefix=se so` has "se souvenir" **once**; `prefix=s'ap` → "s'appeler" with the elision; the "se laver" entry id equals the id of `laver`; German and Spanish lists are unchanged. A unit test of the elision rule.
+- `backend/tests/dictionary.test.js` lookup test: `French/Verb/se%20laver?entry=<laver id>` gives `être` and "Always reflexive" (pins step 2).
+- `e2e/tests/autocomplete-j-french-lexicon.spec.ts`: type `se la`, pick "se laver" from the list, expect "Always reflexive" and `être`; type `laver`, expect both `laver` and `se laver` in the list. Close the list with `closeTypeAheadList` where the next step uses roles.
+- Frontend: a `TypeAheadInput` test with two suggestions that share an `entryId` (no React key warning).
+- Docs: the French block of `add-language.md` (verbs: the suggest route needs the same fallback as the lookup), `forms-french.md`, and this plan (tick V10).
+
+**Size.** About 40 lines of backend code, one line of frontend, the tests above. No migration, no data rebuild, no reload, no new secret. A normal deploy is enough.
 
 ## Slice 8 results (autocomplete research, 2026-10-26)
 
@@ -283,7 +315,7 @@ One slice at a time. Each slice starts with a plain-language overview, ends runn
 
 ## Rollout runbook (at or after the merge; written 2026-10-26, slice 12)
 
-**Status: not started. Nothing on staging or production has changed yet.**
+**Status (2026-10-27): staging loaded and tested (the user found one small issue, V10). Production: the user is loading it. Open item: step 7, delete the safety copy.**
 
 **What and why.** The code (French forms, interface, onboarding pool, demo and landing page) goes out with the normal deploy when the branch merges to `main`: no migration, no new secret, no server step for the interface or the pool. Two kinds of server data need a manual step, because they live in the database and not in the repo:
 1. **Reference data** (tables `lexemes` and `lexeme_translations`): the French lexicon and the translation file that now has French rows. Loaded with `deploy/ansible/lexicon.yml` (role `lexicon`). No user data changes.
@@ -322,7 +354,9 @@ Expected: the lexeme counts of the table above (French only; the other languages
 
 **6. Production**: the same two load commands with `-e '{"lexicon_environments": ["prod"]}'`, the same SQL checks and two lookups on `ladu.com.ar`, then `docker exec backend-prod node scripts/seed-demo-template.js --reset`.
 
-**7. Delete the safety copy a few days after production works** (it is about 30 MB and nothing deletes it by itself): `ansible vps -b -m ansible.builtin.file -a "path=/opt/ladu/lexicon.before-french state=absent"`.
+- [ ] **7. REMINDER, on or after 2026-10-31: delete the safety copy** (if it was made in step 2). Command, from `deploy/ansible/`: `ansible vps -b -m ansible.builtin.file -a "path=/opt/ladu/lexicon.before-french state=absent"`. Tick this box when done.
+
+**7 (details). Delete the safety copy a few days after production works** (it is about 30 MB and nothing deletes it by itself): `ansible vps -b -m ansible.builtin.file -a "path=/opt/ladu/lexicon.before-french state=absent"`.
 
 **Cautions.** A load replaces one language (a translation load replaces all translations) in one transaction: a failed load changes nothing. A reload keeps the old rows until autovacuum frees them (guide 02). `--reset` of the demo template replaces the template account; running demos are copies and are not touched.
 

@@ -42,3 +42,16 @@ variable "admin_access_emails" {
     error_message = "Give at least one email address, or nobody can open the admin dashboard."
   }
 }
+
+variable "staging_access_emails" {
+  description = <<-EOT
+    Email addresses allowed through Cloudflare Access to staging.ladu.com.ar
+    (access.tf). Optional: when empty, Access falls back to
+    `admin_access_emails`, so the same people who open the admin dashboards
+    can open staging. Set it as a Terraform variable only if staging needs a
+    wider or narrower list than the admin dashboards (for example, letting a
+    tester in without production access).
+  EOT
+  type        = list(string)
+  default     = []
+}
