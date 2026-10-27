@@ -1,6 +1,7 @@
 # Deployment Strategy — Ladu v2
 
-> Status: **Phases 0, A, B, C, D done** (2026-09-19). Staging live at `staging.ladu.com.ar`, production live at `app.ladu.com.ar` — automated CI/CD, proven rollback, real transactional email on both. Phase E (backups and monitoring) is next. Last revised 2026-09-19.
+> Status: **Phases 0, A, B, C, D done** (2026-09-19). Staging live at `staging.ladu.com.ar`, production live at `app.ladu.com.ar` — automated CI/CD, proven rollback, real transactional email on both. Phase E (backups and monitoring) is next. Last revised 2026-10-27.
+> Update 2026-10-27 — **staging is no longer public.** `staging.ladu.com.ar` now sits behind Cloudflare Access (`deploy/terraform/access.tf`), the same first lock as the admin dashboards; the CI smoke job authenticates with a service token (`CF_ACCESS_CLIENT_ID`/`CF_ACCESS_CLIENT_SECRET` on the `staging` Environment). `/api/health` is exempt (a path-scoped bypass app), so `deploy.sh`'s SHA poll and UptimeRobot still work. The app gates on staging are also closed (registration `closed`, login `limited` to the smoke account), and the leaked smoke-account password was rotated out of this repo. The `staging.` Caddy block sends `X-Robots-Tag: noindex`.
 > Goal: run v2 on the real domain **now**, and ship each later feature phase
 > through a real CI/CD pipeline (staging → production).
 > Cost limit: ≤ ~€7/mo. No service may charge by usage without a hard cap.
@@ -99,6 +100,7 @@ Rules:
 | Postgres superuser, DB user passwords, Cloudflare DNS token for Caddy | Ansible Vault (encrypted, in git) |
 | Cloudflare API token for Terraform | HCP Terraform workspace variable |
 | Staging smoke-test account | `staging` Environment secrets |
+| Cloudflare Access service token (`CF_ACCESS_CLIENT_ID`, `CF_ACCESS_CLIENT_SECRET`) | `staging` Environment secrets. Created by `deploy/terraform/access.tf`; read with `terraform output -raw staging_smoke_client_id` / `staging_smoke_client_secret` after the apply. |
 
 The DB user passwords are stored twice: in Ansible Vault (to create the users) and in the `DATABASE_URL` secrets. If you change a password, change it in both places.
 
@@ -303,7 +305,7 @@ No DB fixture access (`fixtures/db.ts` is dev-DB-only, and CI can't reach stagin
 - **Real bug surfaced by this, not yet fixed — flagged for D-g:** registration (and password reset, same `await sendMail(...)` pattern in `userController.ts`) blocks the HTTP response on the full email send finishing. Harmless right now only because nothing is actually listening on the placeholder Resend credentials' other end long enough to matter for testing — but once D-g wires up real credentials, any slowness or hiccup on Resend's side will make registration *appear* to hang or fail for real users the same way it just did here, even though the write already succeeded. Fix: stop awaiting the send before responding (fire-and-forget with its own error handling). Deliberately not fixed as part of D-e — unrelated to the smoke gate itself, and D-g is precisely where this stops being masked.
 - No DB access for me to flip `verified = true` either (blocked by the same read/write restriction as D-c's connectivity check) — the user ran that one `UPDATE` by hand over SSH.
 - Two more `staging` Environment secrets beyond D-d's set: `SMOKE_TEST_EMAIL`, `SMOKE_TEST_PASSWORD`.
-- **TODO, not yet done:** `SMOKE_TEST_PASSWORD` is still the throwaway value (`REPLACE_ME_TEMP_PW_123!`) used for the one-off `curl` registration while setting this up — chosen for expediency, not meant to be the password long-term. Rotate it (update the account's password, then the GitHub secret to match) before this is relied on as a real gate rather than a just-verified one-off.
+- **Rotated 2026-10-27:** `SMOKE_TEST_PASSWORD` is no longer the throwaway value that used to appear in this document and in the infrastructure-guide README. It is now a random 48-hex password stored only in the `staging` Environment secret, and the account's `token_version` was bumped (invalidating every token issued under the old password). Because the repo is public, the old value still exists in git history — rotation is the only real fix.
 
 **Gate:** ✅ Verified 2026-09-19 — ran `npm run test:e2e:smoke` locally (`BASE_URL=https://staging.ladu.com.ar`) against the real, already-deployed staging site: both tests passed (health SHA check, and the full login → create → delete flow) in under 5 seconds. The `deploy.yml` `smoke` job that runs this automatically in CI is unverified until the same merge that verifies D-d/D-b.
 

@@ -391,6 +391,26 @@ Two different locks can be the cause:
   not only a reload). If you must do it by hand on the VPS:
   `cd /opt/ladu/platform/compose && docker compose -f platform.yml --env-file ../.env up -d --build edge`.
 
+### "The deploy smoke job lands on the Cloudflare Access login page"
+
+The `smoke` job reaches staging with a service token, so it must not see the
+Access login. If it does, the test fails with "Landed on
+`…cloudflareaccess.com` instead of the app". Causes, in order:
+
+1. **The `staging` Environment secrets are missing or stale** —
+   `CF_ACCESS_CLIENT_ID` / `CF_ACCESS_CLIENT_SECRET`. Set them from
+   `terraform output -raw staging_smoke_client_id` / `staging_smoke_client_secret`
+   (see [`06-secrets-and-access.md`](06-secrets-and-access.md#staging-service-token)).
+2. **The token was regenerated** in Cloudflare after the secrets were set.
+   Regenerate → update both secrets → rerun the Deploy workflow.
+3. **The token was deleted** (or `duration` changed from `forever`). Restore
+   it with `terraform apply` (the resource is in `deploy/terraform/access.tf`)
+   and update the secrets.
+
+Note: `/api/health` is a path-scoped bypass, so that one request still succeeds
+even when the token is broken — a failing smoke job for this reason usually
+shows the *health* test green and the *login* test red.
+
 ### "TLS certificate errors, or Caddy won't start"
 
 **Check:** `docker logs <edge container name>` on the VPS for ACME

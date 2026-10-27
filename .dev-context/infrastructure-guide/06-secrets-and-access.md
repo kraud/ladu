@@ -118,7 +118,8 @@ variable names, different (environment-appropriate) values:
 | Secret | What |
 |---|---|
 | `SMOKE_TEST_EMAIL` | The persistent smoke-test account's email (`smoke-test@ladu.test`) |
-| `SMOKE_TEST_PASSWORD` | Its password — **currently still the throwaway value set during initial one-off setup, not yet rotated** |
+| `SMOKE_TEST_PASSWORD` | Its password. Rotated 2026-10-27: a random 48-hex value, no longer the throwaway string that once appeared in the public repo (it remains in git history, so never reuse it). |
+| `CF_ACCESS_CLIENT_ID`, `CF_ACCESS_CLIENT_SECRET` | The two halves of the Cloudflare Access **service token** that lets the `smoke` job get through Access without a login page. Created by `deploy/terraform/access.tf`; set them with `terraform output -raw staging_smoke_client_id` / `staging_smoke_client_secret` after the apply. |
 
 ### The admin health page links (`ADMIN_LINKS`) {#admin-links}
 
@@ -180,13 +181,22 @@ client secret.
 
 `smoke-test@ladu.test` on staging is used by the automated `smoke` job on
 every deploy. It's low-risk (staging only, no real user data, synthetic
-`@ladu.test` address) but its password was set expediently during one-off
-manual setup and was never rotated to something intentional. To rotate it:
+`@ladu.test` address). Rotated 2026-10-27 from a throwaway value that had
+leaked into the public repo. To rotate it again, do **not** use the normal
+password-reset flow — the synthetic address has no inbox. Instead:
 
-1. Change the account's password through its own normal update flow (not a
-   raw DB edit) — either on the running site or via the API directly.
+1. On the VPS, set a new bcrypt hash and bump the token version in one step
+   (`ladu_staging`):
+   ```bash
+   PW=$(openssl rand -hex 24)
+   HASH=$(node -e 'const b=require("bcryptjs");console.log(b.hashSync(process.argv[1],10))' "$PW")
+   docker exec -i ladu-platform-postgres-1 psql -U ladu_admin -d ladu_staging \
+     -c "UPDATE users SET password='$HASH', token_version=token_version+1, updated_at=now() WHERE email='smoke-test@ladu.test'"
+   ```
+   Bumping `token_version` invalidates every token issued under the old
+   password (learner password changes do not do this on their own).
 2. Update the `SMOKE_TEST_PASSWORD` GitHub Environment secret (`staging`) to
-   match.
+   `$PW`.
 
 ## HCP Terraform
 
@@ -195,13 +205,34 @@ token Terraform itself uses, stored as a workspace variable (never as a
 local env var, never in a GitHub secret) — this is the one credential in the
 whole system that was created manually in Cloudflare's dashboard rather than
 managed by Terraform, since Terraform obviously can't hand itself its own
-starting credential. That token needs the permission **Access: Apps and
-Policies: Edit** (on the account) for `access.tf`, besides the DNS permissions.
+starting credential. That token needs the permissions **Access: Apps and
+Policies: Edit** and **Access: Service Auth Tokens: Edit** (both on the
+account) for `access.tf`, besides the DNS permissions. The Service Auth Tokens
+permission was added for the staging CI service token (2026-10-27); without it
+`terraform apply` fails on `cloudflare_zero_trust_access_service_token` with
+`403 auth.forbidden`.
 
-It also holds one plain (non-sensitive) workspace variable,
-`admin_access_emails`: the list of email addresses that Cloudflare Access lets
-through to the admin dashboard, for example `["you@example.com"]`. It has no
-default on purpose, so the addresses are not in the repository.
+It also holds two plain (non-sensitive) workspace variables:
+
+- `admin_access_emails`: the list of email addresses that Cloudflare Access
+  lets through to the admin dashboards, for example `["you@example.com"]`. It
+  has no default on purpose, so the addresses are not in the repository.
+- `staging_access_emails`: optional; the same list but for `staging.ladu.com.ar`.
+  Empty (unset) means "same people as the admin dashboards". Set it only if
+  staging needs a different list.
+
+### The staging CI service token {#staging-service-token}
+
+`deploy/terraform/access.tf` creates one Cloudflare Access service token,
+`ladu-staging-smoke`, with `duration = "forever"` (no expiry — a deploy must
+not start failing on a calendar date). Its two halves are Terraform outputs
+(`staging_smoke_client_id`, `staging_smoke_client_secret`) and are also stored
+as the `staging` Environment secrets `CF_ACCESS_CLIENT_ID` / `CF_ACCESS_CLIENT_SECRET`.
+
+To rotate it: regenerate the token in Cloudflare (Zero Trust → Access → Service
+Auth → Service tokens → the token → Regenerate), then update both GitHub
+Environment secrets, then run the Deploy workflow once to confirm the smoke job
+still passes. Because it is `forever`, this is only needed on a suspected leak.
 
 ## Sudo on the VPS
 
@@ -220,5 +251,7 @@ adds no new privilege in practice, just convenience.
 | An app-level env var value (email, JWT secret, API URLs) | The relevant GitHub Environment's secrets |
 | A DNS record, TLS setting, or email-verification record | `deploy/terraform/*.tf`, then `terraform apply` |
 | Who may open the admin dashboard (the Access login) | The `admin_access_emails` variable on the HCP Terraform workspace, then `terraform apply` |
+| Who may open staging (the Access login) | The `staging_access_emails` variable on the HCP Terraform workspace (falls back to `admin_access_emails` when unset), then `terraform apply` |
+| The staging CI service token (gets the smoke job through Access) | Cloudflare Zero Trust → Access → Service Auth → Service tokens, then the `staging` Environment secrets `CF_ACCESS_CLIENT_ID`/`CF_ACCESS_CLIENT_SECRET` |
 | Who may use the admin dashboard once inside (staff accounts) | The staff page in the dashboard; the first `owner` is made with `scripts/create-staff.js` (see the troubleshooting playbook) |
 | Server-level config (firewall rules, installed packages, backup schedule) | The relevant Ansible role, then `ansible-playbook site.yml` |

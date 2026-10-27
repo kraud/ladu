@@ -87,6 +87,14 @@ test.describe.serial('Post-deploy smoke', () => {
 
     test('logs in, creates a word, and deletes it', async ({ page, request, baseURL }) => {
         await page.goto('/login');
+        // If staging is behind Cloudflare Access but the service token is missing
+        // or stale, this navigation lands on Cloudflare's login host instead of
+        // the app. Fail here with that fact, rather than a confusing "Email not
+        // found" five seconds later.
+        expect(
+            new URL(page.url()).host,
+            `Landed on ${page.url()} instead of the app — staging is behind Cloudflare Access and this run was not authenticated. Check CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET on the staging Environment.`,
+        ).toBe(new URL(baseURL!).host);
         await page.getByLabel('Email').fill(SMOKE_EMAIL);
         await page.getByLabel('Password', { exact: true }).fill(SMOKE_PASSWORD);
         await page.getByRole('button', { name: 'Sign in' }).click();

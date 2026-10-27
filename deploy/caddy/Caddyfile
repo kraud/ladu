@@ -63,6 +63,7 @@ app.{$APEX_DOMAIN} {
 
 staging.{$APEX_DOMAIN} {
 	import security_headers
+	header X-Robots-Tag "noindex, nofollow"
 
 	handle /api/admin/* {
 		respond 404
