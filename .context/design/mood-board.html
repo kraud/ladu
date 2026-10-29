@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ladu mood board</title>
+<style>
+/* Tokens copied from frontend/src/styles/tokens.css. If tokens.css changes, update this block. */
+:root {
+  color-scheme: light;
+  --bg: #f7f8fa; --surface: #ffffff; --fg: #1a1c20; --muted: #666b73; --border: #e3e5ea;
+  --accent: #007aff; --accent-strong: #0062cc; --accent-ink: #ffffff;
+  --accent-soft: color-mix(in oklch, var(--accent) 12%, transparent);
+  --accent-soft2: color-mix(in oklch, var(--accent) 22%, transparent);
+  --fg-soft: color-mix(in srgb, var(--fg) 5%, transparent);
+  --fg-soft2: color-mix(in srgb, var(--fg) 10%, transparent);
+  --hover: color-mix(in srgb, var(--fg) 4%, var(--surface));
+  --success: #1a7f37; --success-soft: color-mix(in oklch, var(--success) 12%, transparent);
+  --danger: #c03038; --danger-ink: #ffffff; --danger-soft: color-mix(in oklch, var(--danger) 11%, transparent);
+  --warning: #a35a0a; --warning-soft: color-mix(in oklch, var(--warning) 14%, transparent);
+  --lang-gb: #2c4a8a; --lang-de: #42403c; --lang-es: #b8352f; --lang-ee: #2265a8; --lang-fr: #6a3fa0;
+  --font-display: 'Iowan Old Style', 'Charter', Georgia, 'Times New Roman', serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+  --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #121417; --surface: #1b1e23; --fg: #eef0f4; --muted: #9aa0aa; --border: #2c3036;
+  --accent: #4da3ff; --accent-strong: #7cbaff; --accent-ink: #062a52;
+  --success: #4cc36b; --danger: #f0686f; --danger-ink: #2a0a0c; --warning: #e0a03c;
+  --lang-gb: #7f9fe0; --lang-de: #b4b0a6; --lang-es: #ef7d76; --lang-ee: #6fb0ec; --lang-fr: #b79af0;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 14px/1.5 var(--font-body); -webkit-font-smoothing: antialiased; }
+h1, h2, h3, p { margin: 0; text-wrap: balance; }
+a { color: var(--accent-strong); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+.serif { font-family: var(--font-display); }
+.mono { font-family: var(--font-mono); }
+.muted { color: var(--muted); }
+.eyebrow { font: 11px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.meta { font: 12px var(--font-mono); color: var(--muted); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+
+/* page frame */
+.top { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 90%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+.top-in { max-width: 1120px; margin: 0 auto; padding: 0 24px; height: 52px; display: flex; align-items: center; gap: 20px; }
+.top img { height: 24px; }
+.top nav { display: flex; gap: 2px; overflow-x: auto; flex: 1; }
+.top nav a { height: 32px; padding: 0 12px; display: inline-flex; align-items: center; border-radius: var(--radius-md); color: var(--muted); text-decoration: none; font-weight: 500; white-space: nowrap; transition: color .12s, background .12s; }
+.top nav a:hover { color: var(--fg); background: var(--fg-soft); }
+.theme { height: 32px; padding: 0 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--fg); font: 600 12px var(--font-body); cursor: pointer; }
+.theme:hover { background: var(--hover); }
+main { max-width: 1120px; margin: 0 auto; padding: 0 24px 96px; }
+section { padding-top: 72px; scroll-margin-top: 0; }
+.sec-head { display: flex; flex-direction: column; gap: 6px; margin-bottom: 24px; }
+.sec-head h2 { font: 600 26px/1.15 var(--font-display); letter-spacing: -.015em; }
+.sec-head p { color: var(--muted); max-width: 70ch; }
+
+/* hero */
+.hero { padding-top: 64px; display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: center; }
+.hero h1 { font: 600 clamp(2rem, 4.6vw, 3.1rem)/1.1 var(--font-display); letter-spacing: -.02em; }
+.hero p.lead { margin-top: 16px; font-size: 16px; color: var(--muted); max-width: 46ch; }
+.kw { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+.kw span { height: 30px; padding: 0 14px; display: inline-flex; align-items: center; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); font: 600 12px var(--font-mono); letter-spacing: .05em; }
+.wcard { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; box-shadow: 0 12px 18px -14px rgb(0 0 0 / .3); }
+.pos-badge { display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 9px; border-radius: 999px; background: var(--fg-soft); font: 700 11px var(--font-body); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.wcard .row { display: flex; align-items: baseline; gap: 14px; padding: 9px 14px; margin-bottom: 7px; border-top: 2px solid var(--c); border-radius: 8px; background: color-mix(in oklch, var(--c) 7%, transparent); }
+.wcard .row:last-child { margin-bottom: 0; }
+.wcard .code { font: 700 11px var(--font-body); color: var(--c); width: 22px; }
+.wcard .w { font: 500 20px var(--font-display); }
+.wcard .art { margin-left: auto; font: 600 11px var(--font-body); padding: 1px 9px; border-radius: 999px; background: color-mix(in srgb, var(--c) 14%, transparent); color: var(--c); }
+.sweep { --track: color-mix(in oklch, var(--accent) 13%, transparent); --fill: color-mix(in oklch, var(--accent) 30%, transparent); }
+.sweep span { padding: 1px 4px; border-radius: 5px; background: linear-gradient(var(--fill), var(--fill)) 0 0 / 45% 100% no-repeat, var(--track); color: var(--fg); }
+.logos { display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap; }
+.logos figure { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.logos img { display: block; width: auto; max-width: 100%; }
+.logos img.sm { height: 40px; } .logos img.lg { height: 96px; }
+
+/* swatches */
+.grid { display: grid; gap: 12px; }
+.g6 { grid-template-columns: repeat(6, 1fr); } .g5 { grid-template-columns: repeat(5, 1fr); } .g4 { grid-template-columns: repeat(4, 1fr); }
+.g3 { grid-template-columns: repeat(3, 1fr); } .g2 { grid-template-columns: repeat(2, 1fr); }
+.sw { overflow: hidden; }
+.sw .chip { height: 84px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-end; padding: 8px 10px; font: 600 12px var(--font-body); }
+.sw .info { padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+.sw b { font: 600 13px var(--font-mono); }
+.sw .hex { font: 12px var(--font-mono); color: var(--muted); }
+.sw .use { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.sub { font: 600 16px var(--font-body); margin: 32px 0 12px; }
+.sub:first-of-type { margin-top: 0; }
+
+.ratio { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+.ratio .card { padding: 14px 16px; display: flex; align-items: center; gap: 14px; }
+.ratio .demo { font: 600 20px var(--font-display); }
+
+/* type */
+.type-row { display: grid; grid-template-columns: 170px 1fr; gap: 24px; padding: 18px 0; border-bottom: 1px solid var(--border); align-items: baseline; }
+.type-row:last-child { border-bottom: 0; }
+.type-row .tag { font: 12px var(--font-mono); color: var(--muted); }
+.fonts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.fonts .card { padding: 20px; }
+.fonts .big { font-size: 56px; line-height: 1; margin-bottom: 14px; }
+.fonts .role { font-weight: 600; margin-bottom: 4px; }
+
+/* patterns */
+.pat { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.pat h3 { font: 600 14px var(--font-body); }
+.pat .note { font-size: 12px; color: var(--muted); }
+.pat .stage { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn { height: 36px; padding: 0 15px; border-radius: var(--radius-md); border: 1px solid transparent; font: 500 14px var(--font-body); cursor: pointer; display: inline-flex; align-items: center; gap: 7px; }
+.btn.def { background: var(--accent); color: var(--accent-ink); }
+.btn.out { background: var(--bg); border-color: var(--border); color: var(--fg); }
+.btn.ghost { background: transparent; color: var(--fg); }
+.btn.des { background: color-mix(in oklch, var(--danger) 10%, transparent); color: var(--danger); }
+.btn.link { background: none; color: var(--accent-strong); padding: 0; }
+.btn:disabled { opacity: .45; }
+.pchip { height: 28px; padding: 0 11px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); font: 500 13px var(--font-body); color: var(--muted); display: inline-flex; align-items: center; gap: 5px; }
+.pchip.on { background: var(--accent-soft); border-color: var(--accent-soft2); color: var(--accent-strong); font-weight: 600; }
+.tagchip { height: 22px; padding: 0 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--fg-soft); font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
+.badge { height: 17px; padding: 0 7px; border-radius: 999px; font: 700 9.5px var(--font-mono); letter-spacing: .04em; text-transform: uppercase; display: inline-flex; align-items: center; }
+.b-own { background: var(--accent-soft); color: var(--accent-strong); }
+.b-fol { background: var(--success-soft); color: var(--success); }
+.b-priv { background: var(--warning-soft); color: var(--warning); }
+.gender { padding: 1px 8px; border-radius: 999px; font: 600 11px var(--font-body); }
+.g-m { background: color-mix(in oklch, var(--lang-gb) 14%, transparent); color: var(--lang-gb); }
+.g-f { background: var(--danger-soft); color: var(--danger); }
+.g-n { background: var(--success-soft); color: var(--success); }
+.seg { display: inline-flex; height: 36px; padding: 3px; border-radius: 999px; background: var(--fg-soft2); }
+.seg span { padding: 0 14px; border-radius: 999px; display: inline-flex; align-items: center; font-weight: 500; color: var(--muted); }
+.seg span.on { background: var(--surface); color: var(--accent-strong); font-weight: 600; box-shadow: 0 1px 2px rgb(0 0 0 / .12); }
+.stat { padding: 16px 18px; }
+.stat .n { font: 600 34px/1.1 var(--font-display); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.stat .l { color: var(--muted); font-size: 13px; margin-top: 2px; }
+.stat .s { font: 11.5px var(--font-mono); color: var(--muted); margin-top: 8px; }
+.meter { height: 4px; border-radius: 2px; background: var(--fg-soft2); margin-top: 10px; overflow: hidden; }
+.meter i { display: block; height: 100%; width: 60%; background: var(--accent); }
+.lcard { border-top: 2px solid var(--c); border-radius: var(--radius-lg); }
+.lcard .h { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border); font-weight: 500; }
+.lcard .h img { width: 16px; height: 16px; border-radius: 3px; object-fit: cover; }
+.lcard .b { padding: 14px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; }
+.lcard .b label { font-size: 12px; color: var(--muted); display: block; }
+.lcard .b div div { font-weight: 500; }
+.opt { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); font-size: 16px; }
+.opt kbd { font: 12px var(--font-body); border: 1px solid var(--border); border-radius: 4px; padding: 0 6px; color: var(--muted); }
+.opt.ok { border-color: var(--success); background: var(--success-soft); }
+.opt.bad { border-color: var(--danger); background: var(--danger-soft); }
+.opt.dim { opacity: .6; }
+.dots { display: flex; gap: 4px; }
+.dots i { width: 24px; height: 24px; border-radius: 50%; border: 1px dashed var(--border); display: grid; place-items: center; font: 700 12px var(--font-body); font-style: normal; color: var(--muted); }
+.dots i.ok { border: 1px solid var(--success); background: var(--success-soft); color: var(--success); }
+.dots i.no { border: 1px solid var(--danger); background: var(--danger-soft); color: var(--danger); }
+.ring { --pct: 70; width: 18px; height: 18px; border-radius: 50%; background: conic-gradient(var(--accent) calc(var(--pct) * 1%), var(--fg-soft2) 0); display: grid; place-items: center; position: relative; }
+.ring::after { content: ''; width: 12px; height: 12px; border-radius: 50%; background: var(--surface); position: absolute; }
+.banner { display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-radius: var(--radius-md); font-size: 13.5px; }
+.banner.w { background: var(--warning-soft); color: var(--warning); }
+.banner.i { background: var(--accent-soft); color: var(--accent-strong); }
+.empty { text-align: center; padding: 8px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.empty .ic { width: 44px; height: 44px; border-radius: 12px; background: var(--fg-soft); display: grid; place-items: center; color: var(--muted); font-size: 20px; }
+.skel { height: 14px; border-radius: 6px; background: linear-gradient(90deg, var(--fg-soft) 25%, var(--fg-soft2) 45%, var(--fg-soft) 65%); background-size: 240% 100%; animation: sh 1.3s ease infinite; }
+@keyframes sh { from { background-position: 120% 0; } to { background-position: -120% 0; } }
+@media (prefers-reduced-motion: reduce) { .skel { animation: none; } html { scroll-behavior: auto; } }
+.field label { font: 600 12.5px var(--font-body); display: block; margin-bottom: 5px; }
+.field label i { color: var(--danger); font-style: normal; }
+.input { height: 36px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); padding: 0 12px; display: flex; align-items: center; color: var(--muted); }
+.input.focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); color: var(--fg); }
+.input.err { border-color: var(--danger); box-shadow: 0 0 0 3px var(--danger-soft); color: var(--fg); }
+.field .e { font-size: 12px; color: var(--danger); margin-top: 4px; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.tbl th { text-align: left; padding: 8px 12px; font-size: 12px; font-weight: 600; color: var(--fg); box-shadow: inset 0 -1px 0 var(--border); }
+.tbl th img, .tbl td img { width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px; margin-right: 6px; }
+.tbl td { padding: 8px 12px; border-bottom: 1px solid var(--border); font-weight: 500; }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl tr.hov td { background: var(--hover); }
+.tbl tr.sel td { background: var(--accent-soft); }
+.tbl .pos { font: 12px var(--font-mono); color: var(--muted); font-weight: 400; }
+
+/* screens */
+.shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+figure { margin: 0; }
+figure button { display: block; width: 100%; padding: 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--surface); cursor: zoom-in; transition: border-color .12s; }
+figure button:hover { border-color: var(--accent); }
+figure img { display: block; width: 100%; height: auto; }
+figcaption { padding: 8px 2px 0; font-size: 12px; color: var(--muted); }
+figcaption b { color: var(--fg); font-weight: 600; display: block; font-size: 13px; }
+.shots.wide { grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)); }
+.tall img { max-height: 340px; object-fit: cover; object-position: top; }
+dialog { border: 0; padding: 0; background: transparent; max-width: 96vw; max-height: 96vh; }
+dialog::backdrop { background: rgb(0 0 0 / .55); backdrop-filter: blur(3px); }
+dialog img { max-width: 96vw; max-height: 92vh; border-radius: var(--radius-lg); display: block; }
+
+/* wireframes */
+.wf { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.wf h3 { font: 600 14px var(--font-body); }
+.wf .frame { border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg); height: 150px; padding: 6px; display: grid; gap: 5px; }
+.wf .frame .b { background: var(--fg-soft2); border-radius: 3px; }
+.wf .frame .a { background: var(--accent-soft2); border-radius: 3px; }
+.wf .frame .s { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; }
+.wf .frame .hd { background: var(--surface); border-bottom: 1px solid var(--border); }
+.wf p { font-size: 12px; color: var(--muted); }
+
+.dd { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.dd ul { margin: 10px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.dd .card { padding: 20px; }
+.dd h3 { font: 600 16px var(--font-body); display: flex; align-items: center; gap: 8px; }
+.do h3 { color: var(--success); } .dont h3 { color: var(--danger); }
+
+footer { max-width: 1120px; margin: 0 auto; padding: 24px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+
+@media (max-width: 920px) {
+  .hero, .dd { grid-template-columns: 1fr; }
+  .g6 { grid-template-columns: repeat(3, 1fr); } .g5, .g4 { grid-template-columns: repeat(2, 1fr); }
+  .g3, .fonts { grid-template-columns: 1fr; } .g2 { grid-template-columns: 1fr; }
+  .type-row { grid-template-columns: 1fr; gap: 4px; }
+  .shots, .shots.wide { grid-template-columns: 1fr; }
+  main { padding: 0 16px 72px; } .top-in { padding: 0 16px; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <img src="assets/brand/Ladu_title_with_icon.svg" alt="Ladu">
+    <nav aria-label="Sections">
+      <a href="#palette">Palette</a><a href="#type">Type</a><a href="#patterns">Patterns</a>
+      <a href="#screens">Screens</a><a href="#layouts">Layouts</a><a href="#rules">Rules</a>
+    </nav>
+    <button class="theme" id="theme" type="button" aria-pressed="false">Dark mode</button>
+  </div>
+</header>
+
+<main>
+
+<!-- HERO -->
+<div class="hero">
+  <div>
+    <p class="eyebrow">Design mood board</p>
+    <h1 style="margin-top:10px">A dictionary's calm, a workbench's speed.</h1>
+    <p class="lead">Ladu keeps every language of a polyglot alive. The interface is flat, quiet and precise. One blue. Serif for what a thing is. Sans for what you do. Mono for small facts.</p>
+    <div class="kw"><span>SCHOLARLY</span><span>CALM</span><span>PRECISE</span><span>MULTILINGUAL</span><span>FLAT</span></div>
+    <p class="meta" style="margin-top:20px">Built from real screenshots and <code>tokens.css</code>. Toggle dark mode (top right). Click any screenshot to enlarge.</p>
+  </div>
+  <div class="wcard" role="img" aria-label="Preview: the verb dance in five languages">
+    <span class="pos-badge">文A Verb</span>
+    <div class="row" style="--c:var(--lang-gb)"><span class="code">EN</span><span class="w">dance</span></div>
+    <div class="row" style="--c:var(--lang-es)"><span class="code">ES</span><span class="w">bailar</span></div>
+    <div class="row" style="--c:var(--lang-de)"><span class="code">DE</span><span class="w">tanzen</span></div>
+    <div class="row" style="--c:var(--lang-ee)"><span class="code">EE</span><span class="w">tantsima</span></div>
+    <div class="row" style="--c:var(--lang-fr)"><span class="code">FR</span><span class="w">danser</span></div>
+  </div>
+</div>
+
+<!-- PALETTE -->
+<section id="palette">
+  <div class="sec-head"><h2>Colour palette</h2><p>Six seed colours drive both themes. Every other tone is derived with <code>color-mix</code>. Always use the token, never the hex.</p></div>
+
+  <h3 class="sub">Seeds</h3>
+  <div class="grid g6" id="seeds"></div>
+
+  <h3 class="sub">Accent family</h3>
+  <div class="grid g4">
+    <div class="card sw"><div class="chip" style="background:var(--accent-strong);color:#fff">Aa</div><div class="info"><b>--accent-strong</b><span class="hex" data-hex="--accent-strong"></span><span class="use">Accent as small text: links, active nav label.</span></div></div>
+    <div class="card sw"><div class="chip" style="background:var(--accent-ink);color:var(--accent)">Aa</div><div class="info"><b>--accent-ink</b><span class="hex" data-hex="--accent-ink"></span><span class="use">Label on an accent fill.</span></div></div>
+    <div class="card sw"><div class="chip" style="background:var(--accent-soft);color:var(--accent-strong)">selected</div><div class="info"><b>--accent-soft</b><span class="hex">accent 12%</span><span class="use">Active nav, selected row, info banner.</span></div></div>
+    <div class="card sw"><div class="chip" style="background:var(--accent-soft2);color:var(--accent-strong)">hover</div><div class="info"><b>--accent-soft2</b><span class="hex">accent 22%</span><span class="use">Chip border when active, selected row hover.</span></div></div>
+  </div>
+
+  <h3 class="sub">Derived neutrals</h3>
+  <div class="grid g4">
+    <div class="card sw"><div class="chip" style="background:var(--fg-soft)">5%</div><div class="info"><b>--fg-soft</b><span class="hex">fg 5%</span><span class="use">Hover wash, tag chip, skeleton.</span></div></div>
+    <div class="card sw"><div class="chip" style="background:var(--fg-soft2)">10%</div><div class="info"><b>--fg-soft2</b><span class="hex">fg 10%</span><span class="use">Stronger hover, toggle track, avatar.</span></div></div>
+    <div class="card sw"><div class="chip" style="background:var(--hover)">4%</div><div class="info"><b>--hover</b><span class="hex">fg 4% over surface</span><span class="use">Table row hover.</span></div></div>
+    <div class="card sw"><div class="chip" style="background:var(--surface);border-bottom:3px solid color-mix(in srgb,var(--fg) 25%,transparent)">25%</div><div class="info"><b>--border-strong</b><span class="hex">fg 25%</span><span class="use">Rare emphasised outline.</span></div></div>
+  </div>
+
+  <h3 class="sub">State</h3>
+  <div class="grid g3">
+    <div class="card sw"><div class="chip" style="background:var(--success-soft);color:var(--success)">Correct</div><div class="info"><b>--success</b><span class="hex" data-hex="--success"></span><span class="use">Correct answer, public, neuter.</span></div></div>
+    <div class="card sw"><div class="chip" style="background:var(--danger-soft);color:var(--danger)">Wrong</div><div class="info"><b>--danger</b><span class="hex" data-hex="--danger"></span><span class="use">Error, delete, feminine, missing.</span></div></div>
+    <div class="card sw"><div class="chip" style="background:var(--warning-soft);color:var(--warning)">Incomplete</div><div class="info"><b>--warning</b><span class="hex" data-hex="--warning"></span><span class="use">Incomplete words, private, unverified.</span></div></div>
+  </div>
+  <p class="meta" style="margin-top:10px">Pattern: soft fill + solid text of the same hue.</p>
+
+  <h3 class="sub">Language identity (flag-derived)</h3>
+  <div class="grid g5">
+    <div class="card sw"><div class="chip" style="background:var(--lang-gb);color:#fff"><img src="assets/flags/GB.svg" alt="" width="22" height="22" style="border-radius:3px;margin-right:8px">EN</div><div class="info"><b>--lang-gb</b><span class="hex" data-hex="--lang-gb"></span><span class="use">English (GB flag)</span></div></div>
+    <div class="card sw"><div class="chip" style="background:var(--lang-es);color:#fff"><img src="assets/flags/ES.svg" alt="" width="22" height="22" style="border-radius:3px;margin-right:8px">ES</div><div class="info"><b>--lang-es</b><span class="hex" data-hex="--lang-es"></span><span class="use">Spanish</span></div></div>
+    <div class="card sw"><div class="chip" style="background:var(--lang-de);color:var(--bg)"><img src="assets/flags/DE.svg" alt="" width="22" height="22" style="border-radius:3px;margin-right:8px">DE</div><div class="info"><b>--lang-de</b><span class="hex" data-hex="--lang-de"></span><span class="use">German</span></div></div>
+    <div class="card sw"><div class="chip" style="background:var(--lang-ee);color:#fff"><img src="assets/flags/EE.svg" alt="" width="22" height="22" style="border-radius:3px;margin-right:8px">EE</div><div class="info"><b>--lang-ee</b><span class="hex" data-hex="--lang-ee"></span><span class="use">Estonian</span></div></div>
+    <div class="card sw"><div class="chip" style="background:var(--lang-fr);color:#fff"><img src="assets/flags/FR.svg" alt="" width="22" height="22" style="border-radius:3px;margin-right:8px">FR</div><div class="info"><b>--lang-fr</b><span class="hex" data-hex="--lang-fr"></span><span class="use">French (violet chosen for chart contrast)</span></div></div>
+  </div>
+  <p class="meta" style="margin-top:10px">Use only as a 2px card top border, a code label, a masculine chip, or a chart series.</p>
+
+  <h3 class="sub">Contrast (measured)</h3>
+  <div class="ratio" id="ratios"></div>
+</section>
+
+<!-- TYPE -->
+<section id="type">
+  <div class="sec-head"><h2>Typography</h2><p>No web fonts. System stacks only. Three roles.</p></div>
+  <div class="fonts">
+    <div class="card"><div class="big serif">Aa</div><div class="role">Display — serif</div><p class="meta">Iowan Old Style, Charter, Georgia</p><p class="muted" style="margin-top:8px">Titles, big numbers, taglines. The dictionary feel.</p></div>
+    <div class="card"><div class="big" style="font-family:var(--font-body)">Aa</div><div class="role">Body — sans</div><p class="meta">system-ui, San Francisco, Segoe UI</p><p class="muted" style="margin-top:8px">Forms, tables, buttons, navigation, long text.</p></div>
+    <div class="card"><div class="big mono">Aa</div><div class="role">Mono</div><p class="meta">ui-monospace, SF Mono, Menlo</p><p class="muted" style="margin-top:8px">Counts, steps, eyebrows, badges, subtitles.</p></div>
+  </div>
+  <div class="card" style="margin-top:16px;padding:8px 24px">
+    <div class="type-row"><span class="tag">Landing hero · serif 600 · 2.4rem (3rem at 1600px+)</span><span class="serif" style="font-size:38px;font-weight:600;letter-spacing:-.01em;line-height:1.1;white-space:nowrap">Keep all your languages alive.</span></div>
+    <div class="type-row"><span class="tag">Auth tagline · serif 600 · 32px</span><span class="serif" style="font-size:32px;font-weight:600;line-height:1.22">Your words, your languages, one place.</span></div>
+    <div class="type-row"><span class="tag">Stat number · serif 600 · 34px</span><span class="serif" style="font-size:34px;font-weight:600;font-variant-numeric:tabular-nums">1,248</span></div>
+    <div class="type-row"><span class="tag">H1 · serif 600 · 26px</span><span class="serif" style="font-size:26px;font-weight:600;letter-spacing:-.015em">Words</span></div>
+    <div class="type-row"><span class="tag">H2 · serif 600 · 20px</span><span class="serif" style="font-size:20px;font-weight:600;letter-spacing:-.01em">Choose the words to use</span></div>
+    <div class="type-row"><span class="tag">H3 · sans 600 · 16px</span><span style="font-size:16px;font-weight:600">Distribution of word types</span></div>
+    <div class="type-row"><span class="tag">Body · sans 400 · 14px</span><span>Save each word once, with its translations in every language you know.</span></div>
+    <div class="type-row"><span class="tag">Label · sans 600 · 12.5px</span><span style="font-size:12.5px;font-weight:600">Infinitive non-finite simple</span></div>
+    <div class="type-row"><span class="tag">Meta · mono 400 · 12px</span><span class="meta">14 of 14 words · Last practised: Oct 19, 2026</span></div>
+    <div class="type-row"><span class="tag">Eyebrow · mono · 11px caps</span><span class="eyebrow">Step 1 of 4</span></div>
+    <div class="type-row"><span class="tag">Badge · mono 700 · 9.5px caps</span><span class="badge b-own">Yours</span> </div>
+  </div>
+</section>
+
+<!-- PATTERNS -->
+<section id="patterns">
+  <div class="sec-head"><h2>UI patterns</h2><p>Live copies of the real patterns, drawn with the same tokens. They follow the theme switch.</p></div>
+  <div class="grid g2">
+    <div class="card pat"><h3>Buttons</h3>
+      <div class="stage"><button class="btn def">＋ New word</button><button class="btn out">Return</button><button class="btn ghost">Skip</button><button class="btn des">Delete</button><button class="btn link">Learn more</button><button class="btn def" disabled>Disabled</button></div>
+      <p class="note">36px high, 8px radius, 14px / 500. One primary per view. Destructive is a soft red, never solid.</p></div>
+
+    <div class="card pat"><h3>Chips, segmented toggle, tag chips</h3>
+      <div class="stage"><span class="pchip on">All</span><span class="pchip">Yours</span><span class="pchip">Followed</span><span class="pchip">Discover</span></div>
+      <div class="stage"><span class="seg"><span class="on">Type</span><span>Language</span></span><span class="tagchip">🔒 Nouns</span><span class="tagchip">Verbs</span></div>
+      <p class="note">A chip is a filter or choice. A tag chip is a label. Never mix them.</p></div>
+
+    <div class="card pat"><h3>Badges and gender chips</h3>
+      <div class="stage"><span class="badge b-own">Yours</span><span class="badge b-fol">Following</span><span class="badge b-priv">🔒 Private</span></div>
+      <div class="stage">casa <span class="gender g-f">la</span> &nbsp; Haus <span class="gender g-n">das</span> &nbsp; Hund <span class="gender g-m">der</span></div>
+      <p class="note">Soft fill plus same-hue text. Mono, uppercase, tiny. Gender: masculine blue, feminine red, neuter green.</p></div>
+
+    <div class="card pat"><h3>Stat card</h3>
+      <div class="grid g2"><div class="card stat"><div class="n">14</div><div class="l">Total words</div><div class="s">+14 this month</div></div>
+      <div class="card stat"><div class="n" style="color:var(--warning)">3</div><div class="l">Incomplete words</div><div class="meter"><i style="background:var(--warning);width:22%"></i></div><div class="s">21% incomplete</div></div></div>
+      <p class="note">Serif number, muted label, mono sub-line, 4px meter. Warning turns number and meter amber.</p></div>
+
+    <div class="card pat"><h3>Language card (2px top border)</h3>
+      <div class="card lcard" style="--c:var(--lang-es)"><div class="h"><img src="assets/flags/ES.svg" alt="">Español<span style="margin-left:auto;color:var(--muted)">⌃</span></div>
+      <div class="b"><div><label>Infinitive</label><div>bailar</div></div><div><label>Gerund</label><div>bailando</div></div><div><label>Yo</label><div>bailo</div></div><div><label>Él/Ella/eso</label><div>baila</div></div></div></div>
+      <p class="note">One language per card. The top border carries the language colour. Nothing else does.</p></div>
+
+    <div class="card pat"><h3>Practice: answers and mastery</h3>
+      <div class="opt dim"><kbd>1</kbd>räägin</div>
+      <div class="opt ok"><kbd>2</kbd><span style="flex:1">sööb</span><span style="color:var(--success)">✓</span></div>
+      <div class="opt bad"><kbd>3</kbd><span style="flex:1">tantsib</span><span style="color:var(--danger)">✕</span></div>
+      <div class="eyebrow">Knowledge — this exact form</div>
+      <div class="stage"><span class="dots"><i class="ok">✓</i><i class="no">✕</i><i>·</i><i>·</i></span><b>25 %</b><span class="muted">Last practised: Oct 19, 2026</span></div>
+      <p class="note">Colour and an icon together. 44px rows. Number keys pick an answer.</p></div>
+
+    <div class="card pat"><h3>Form field and states</h3>
+      <div class="field"><label>Label <i>*</i></label><div class="input focus">cantar</div></div>
+      <div class="field"><label>Email <i>*</i></label><div class="input err">kai@</div><div class="e">Enter a valid email address.</div></div>
+      <div class="stage"><span class="ring" style="--pct:70"></span><span class="muted">Completion ring</span></div>
+      <p class="note">Focus: accent border + soft ring. Error text sits under the field.</p></div>
+
+    <div class="card pat"><h3>Table rows</h3>
+      <table class="tbl"><thead><tr><th></th><th><img src="assets/flags/GB.svg" alt="">EN</th><th><img src="assets/flags/ES.svg" alt="">ES</th><th><img src="assets/flags/DE.svg" alt="">DE</th></tr></thead>
+      <tbody><tr><td class="pos">n.</td><td>house</td><td>casa <span class="gender g-f">la</span></td><td>Haus <span class="gender g-n">das</span></td></tr>
+      <tr class="hov"><td class="pos">v.</td><td>dance</td><td>bailar</td><td>tanzen</td></tr>
+      <tr class="sel"><td class="pos">adj.</td><td>big</td><td>grande</td><td>groß</td></tr></tbody></table>
+      <p class="note">Row hover and selected row use soft washes. Header shows flag + code. One line per cell.</p></div>
+
+    <div class="card pat"><h3>Banners</h3>
+      <div class="banner w">⚠ Your email is not verified yet. <b style="text-decoration:underline">Verify now</b></div>
+      <div class="banner i">ⓘ 100 words added in 4 topics.</div>
+      <p class="note">Soft fill, same-hue text, 8px radius, 13.5px.</p></div>
+
+    <div class="card pat"><h3>Empty and loading</h3>
+      <div class="empty"><div class="ic">🔍</div><p style="font-weight:600;font-size:16px">No words yet</p><p class="muted">Add your first word to start practising.</p><button class="btn def">＋ New word</button></div>
+      <div class="skel" style="width:60%"></div><div class="skel" style="width:90%"></div><div class="skel" style="width:40%"></div>
+      <p class="note">Skeletons match the final layout. Empty states explain and offer one action. (Emoji here are stand-ins; the app uses Phosphor icons.)</p></div>
+  
+    <div class="card pat"><h3>Logo placement</h3>
+      <div class="logos">
+        <figure><img src="assets/brand/Ladu_title_with_icon.svg" alt="Ladu wordmark with small bubble" class="sm"><figcaption>App header, and landing hero below 1600px.</figcaption></figure>
+        <figure><img src="assets/brand/Ladu_inside_bubble_outline.svg" alt="Ladu logo inside a bubble" class="lg"><figcaption>Auth, demo, and landing hero at 1600px and up.</figcaption></figure>
+      </div>
+      <p class="note">On the landing home page the logo sits above the headline and the header shows only "Log in". Always the brand blue.</p></div>
+
+    <div class="card pat"><h3>Landing highlight sweep</h3>
+      <p class="sweep" style="font-size:16px;color:var(--muted)">Ladu is a vocabulary manager for people who speak more than one language. <span>Save each word once, with its translations in every language you know.</span> Then practice them together.</p>
+      <p class="note">The sentence of the visible preview gets a soft track and a fill that sweeps across it. The sweep times the preview on the right. Frozen here at 45%.</p></div>
+</div>
+</section>
+
+<!-- SCREENS -->
+<section id="screens">
+  <div class="sec-head"><h2>Real screens</h2><p>Screenshots from the live app. Click to enlarge. Grouped by pattern. All light mode except the dark landing page.</p></div>
+
+  <h3 class="sub">Public: landing</h3>
+  <div class="shots" data-shots='[
+    ["landing-hero-words","Landing — current design (1600px+ window)","Logo above the headline, one-row serif title, flat word card with five language rows."],
+    ["landing-hero-dark","Landing — dark mode (older layout)","Dark seeds, lighter accent. Layout and bubble frame are out of date."],
+    ["landing-hero-practice-choice","Landing — practice, choice","Flat exercise card with serif word and answer tiles (older layout)."],
+    ["landing-hero-practice-typed","Landing — practice, typed","Typed answer, success state, attempt dots (older layout)."],
+    ["landing-hero-tags","Landing — tags","Tag card preview, serif words in language colours (older layout)."],
+    ["landing-mobile","Landing — phone (375px)","Large logo on top, previews beside their sentences. Card frame is out of date."]
+  ]'></div>
+
+  <h3 class="sub">Auth, demo, onboarding</h3>
+  <div class="shots" data-shots='[
+    ["login-google","Sign in","Split layout: brand ground left, tinted panel right."],
+    ["signup-account","Create account","Step pill, two-column fields, 360px form."],
+    ["demo-start","Demo start","Outlined-bubble logo, one clear primary action."],
+    ["demo-languages","Demo — languages","Language tiles with round check."],
+    ["onboarding-1-welcome","Onboarding — welcome","Step rail, choices summary, option cards."],
+    ["onboarding-2-languages","Onboarding — languages","Large selectable tiles, native language chips."],
+    ["onboarding-4-interests","Onboarding — interests","Large chips with icon that becomes a check."],
+    ["onboarding-6-result","Onboarding — result","Blue banner with topic chips, then the dashboard."]
+  ]'></div>
+
+  <h3 class="sub">App: dashboard, words, tags</h3>
+  <div class="shots" data-shots='[
+    ["app-dashboard","Dashboard","1fr / 2fr grid: stat stack and chart card."],
+    ["app-words","Words table","Flag headers, gender chips, tag chips, icon rail."],
+    ["app-tags","Tags grid","Scope chips, toolbar, equal-width cards."],
+    ["app-tag-detail","Tag detail","Header card with stat tile, actions, table."],
+    ["app-tag-create","New tag dialog","Blurred overlay, 12px card, right-aligned actions."]
+  ]'></div>
+
+  <h3 class="sub">App: add a word, word detail</h3>
+  <div class="shots" data-shots='[
+    ["app-add-word-typeahead","Start from a word","Sparkle card, type-ahead popover, type cards."],
+    ["app-add-word-preview","Choose the words","Language cards with top borders and dropdowns."],
+    ["app-add-word-draft","Verb form","Language card, tense columns, fixed footer bar."],
+    ["app-word-detail","Word detail","Stack of language cards. Footer bar with actions."]
+  ]'></div>
+
+  <h3 class="sub">App: practice</h3>
+  <div class="shots" data-shots='[
+    ["app-practice-configs","Saved configurations","Cards with four divided facts."],
+    ["app-practice-exercise","Exercise","Narrow column, progress header, numbered answers."],
+    ["app-practice-feedback","Feedback","Green row with check, mastery dots, Next becomes primary."]
+  ]'></div>
+</section>
+
+<!-- LAYOUTS -->
+<section id="layouts">
+  <div class="sec-head"><h2>Layout inspiration</h2><p>Six page shapes. Pick one before you build. One breakpoint: 920px.</p></div>
+  <div class="grid g3">
+    <div class="card wf"><h3>App page</h3><div class="frame" style="grid-template-rows:14px 1fr"><div class="hd"></div><div style="display:grid;grid-template-columns:1fr 2fr;gap:5px;padding:0 24px"><div style="display:grid;gap:5px"><div class="s"></div><div class="s"></div><div class="a"></div></div><div class="s"></div></div></div><p>Sticky 53px header. Centred column, 1024px (1280px wide). Dashboard: 1fr / 2fr.</p></div>
+    <div class="card wf"><h3>App page with sidebar</h3><div class="frame" style="grid-template-rows:14px 1fr"><div class="hd"></div><div style="display:grid;grid-template-columns:18px 1fr;gap:5px"><div class="b"></div><div style="display:grid;grid-template-rows:12px 12px 1fr;gap:5px;padding:0 20px"><div class="b" style="width:40%"></div><div class="b"></div><div class="s"></div></div></div></div><p>Panel docked to the window edge. Collapses to a 3.5rem rail. Phone: slide-in sheet. Fixed footer bar for save.</p></div>
+    <div class="card wf"><h3>Split auth page</h3><div class="frame" style="grid-template-columns:46fr 54fr;padding:0"><div style="padding:14px;display:flex;flex-direction:column;gap:6px;justify-content:center"><div class="a" style="width:34px;height:34px"></div><div class="b" style="height:8px;width:80%"></div><div class="b" style="height:8px;width:60%"></div></div><div style="margin:6px;background:var(--fg-soft2);border-radius:12px;display:grid;place-items:center"><div class="s" style="width:60%;height:60%"></div></div></div><p>Brand left. Tinted 20px-radius panel right. 360px form, centred.</p></div>
+    <div class="card wf"><h3>Onboarding wizard</h3><div class="frame" style="grid-template-columns:40fr 60fr;padding:0"><div style="padding:12px;display:flex;flex-direction:column;gap:5px"><div class="a" style="height:14px;width:50%"></div><div class="b" style="height:7px;width:60%"></div><div class="b" style="height:7px;width:55%"></div><div class="b" style="height:7px;width:50%"></div><div class="s" style="margin-top:auto;height:28px"></div></div><div style="margin:6px;background:var(--fg-soft2);border-radius:12px;padding:10px;display:grid;grid-template-rows:7px 12px 1fr 14px;gap:6px"><div class="b" style="width:30%"></div><div class="b" style="width:70%"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:5px"><div class="s"></div><div class="s"></div></div><div class="a" style="width:22%;justify-self:end"></div></div></div><p>Step rail with a summary card. Question panel with a footer bar.</p></div>
+    <div class="card wf"><h3>Focus page (practice)</h3><div class="frame" style="grid-template-rows:14px 1fr"><div class="hd"></div><div style="display:grid;grid-template-rows:12px 1fr 12px;gap:5px;padding:0 70px"><div class="s"></div><div class="s" style="display:grid;gap:4px;padding:6px"><div class="b" style="width:40%"></div><div class="b"></div><div class="b"></div><div class="b"></div></div><div style="display:flex;justify-content:space-between"><div class="b" style="width:20%"></div><div class="a" style="width:20%"></div></div></div></div><p>Narrow 720px column. Progress bar, one card, Previous / Next. Nothing else.</p></div>
+    <div class="card wf"><h3>Landing hero</h3><div class="frame" style="grid-template-rows:10px 1fr 8px"><div class="b" style="width:10%;justify-self:end"></div><div style="display:grid;grid-template-columns:1.4fr 1fr;gap:14px;align-items:center;padding:0 18px"><div style="display:grid;gap:5px"><div class="a" style="width:34px;height:34px;border-radius:7px"></div><div class="b" style="height:11px"></div><div class="b" style="height:6px;width:90%"></div><div class="b" style="height:6px;width:75%"></div><div style="display:flex;gap:5px"><div class="a" style="width:38%;height:13px"></div><div class="s" style="width:28%;height:13px"></div></div></div><div class="s" style="height:78%;display:grid;gap:3px;padding:5px"><div class="b" style="width:30%"></div><div class="b"></div><div class="b"></div><div class="b"></div></div></div><div class="b" style="width:100%"></div></div><p>Logo above the headline (no header logo). One-row serif title. Flat word card on the right. 1184px max, 1440px at 1600px+.</p></div>
+  </div>
+
+  <h3 class="sub">Spacing, shape, elevation</h3>
+  <div class="grid g4">
+    <div class="card pat"><h3>Radius</h3><div class="stage"><div style="width:36px;height:36px;border:1px solid var(--border);border-radius:6px;background:var(--surface)" title="6"></div><div style="width:36px;height:36px;border:1px solid var(--border);border-radius:8px;background:var(--surface)" title="8"></div><div style="width:36px;height:36px;border:1px solid var(--border);border-radius:12px;background:var(--surface)" title="12"></div><div style="width:36px;height:36px;border:1px solid var(--border);border-radius:999px;background:var(--surface)" title="999"></div></div><p class="note">6 · 8 control · 12 card · pill</p></div>
+    <div class="card pat"><h3>Control heights</h3><div class="stage" style="align-items:flex-end"><div style="width:22px;height:22px;background:var(--fg-soft2);border-radius:999px" title="22"></div><div style="width:28px;height:28px;background:var(--fg-soft2);border-radius:999px" title="28"></div><div style="width:32px;height:32px;background:var(--fg-soft2);border-radius:8px" title="32"></div><div style="width:36px;height:36px;background:var(--fg-soft2);border-radius:8px" title="36"></div></div><p class="note">22 tag · 28 chip · 32 header · 36 control</p></div>
+    <div class="card pat"><h3>Elevation</h3><div class="stage"><div class="card" style="width:64px;height:40px"></div><div style="width:64px;height:40px;border-radius:12px;background:var(--surface);box-shadow:0 10px 24px rgb(0 0 0 / .14),0 0 0 1px color-mix(in srgb,var(--fg) 10%,transparent)"></div></div><p class="note">Cards: flat, 1px border. Shadow only on dialogs and menus.</p></div>
+    <div class="card pat"><h3>Page width</h3><div style="display:flex;flex-direction:column;gap:5px"><div style="height:8px;width:80%;background:var(--accent-soft2);border-radius:3px"></div><div style="height:8px;width:100%;background:var(--accent-soft2);border-radius:3px"></div><div style="height:8px;width:56%;background:var(--accent-soft2);border-radius:3px"></div></div><p class="note">1024 default · 1280 wide · 720 practice</p></div>
+  </div>
+</section>
+
+<!-- RULES -->
+<section id="rules">
+  <div class="sec-head"><h2>Do and do not</h2><p>The short version. The full rules are in <code>01-principles.md</code> to <code>07-agent-checklist.md</code>.</p></div>
+  <div class="dd">
+    <div class="card do"><h3>✓ Do</h3><ul>
+      <li>Use tokens: <code>var(--accent)</code>, not a hex.</li>
+      <li>Reuse <code>Button</code>, <code>.card</code>, <code>.chip</code>, <code>.dtable</code>, <code>SidebarLayout</code>.</li>
+      <li>Show every language with a flag and a code, in the account's order.</li>
+      <li>Pair colour with an icon or text for state.</li>
+      <li>Give every page loading, empty, error and success states.</li>
+      <li>Test light, dark, 375px, 1440px, and German or Estonian text.</li>
+      <li>Put all text in the i18n files for five languages.</li>
+    </ul></div>
+    <div class="card dont"><h3>✕ Do not</h3><ul>
+      <li>Add a gradient, a heavy shadow or an emoji icon.</li>
+      <li>Colour a whole card with a language colour.</li>
+      <li>Treat EN or ES as the main language.</li>
+      <li>Use serif for body text, buttons or labels.</li>
+      <li>Use <code>--accent</code> for small text. Use <code>--accent-strong</code>.</li>
+      <li>Write a second table, dialog, menu or side panel.</li>
+      <li>Copy a pattern from a "Known drift" note.</li>
+    </ul></div>
+  </div>
+</section>
+
+</main>
+
+<footer>Ladu design mood board · tokens from <code>frontend/src/styles/tokens.css</code> · screenshots in <code>assets/screens/</code>. When the code changes, update the documents next to this file.</footer>
+
+<dialog id="lightbox"><img id="lbimg" alt=""></dialog>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var btn = document.getElementById('theme');
+
+  function saved() { try { return localStorage.getItem('ladu.moodboard.theme'); } catch (e) { return null; } }
+  function save(v) { try { localStorage.setItem('ladu.moodboard.theme', v); } catch (e) {} }
+  var theme = saved() || (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+  function css(name) { return getComputedStyle(root).getPropertyValue(name).trim(); }
+  function lum(hex) {
+    var h = hex.replace('#', ''), c = [0, 2, 4].map(function (i) { return parseInt(h.substr(i, 2), 16) / 255; })
+      .map(function (v) { return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  }
+  function ratio(a, b) { var x = lum(a), y = lum(b); if (x < y) { var t = x; x = y; y = t; } return ((x + 0.05) / (y + 0.05)).toFixed(1); }
+
+  var SEEDS = [
+    ['--bg', 'Page background'], ['--surface', 'Cards, inputs, popovers'], ['--fg', 'Main text and icons'],
+    ['--muted', 'Secondary text, labels'], ['--border', 'Every 1px line'], ['--accent', 'Brand blue: fills, rings, charts']
+  ];
+
+  function render() {
+    root.setAttribute('data-theme', theme);
+    btn.textContent = theme === 'dark' ? 'Light mode' : 'Dark mode';
+    btn.setAttribute('aria-pressed', theme === 'dark');
+
+    var seeds = document.getElementById('seeds');
+    seeds.innerHTML = SEEDS.map(function (s) {
+      var textOn = s[0] === '--accent' ? 'var(--accent-ink)' : (s[0] === '--fg' ? 'var(--bg)' : 'var(--fg)');
+      return '<div class="card sw"><div class="chip" style="background:var(' + s[0] + ');color:' + textOn + '">Aa</div>' +
+        '<div class="info"><b>' + s[0] + '</b><span class="hex">' + css(s[0]) + '</span><span class="use">' + s[1] + '</span></div></div>';
+    }).join('');
+
+    document.querySelectorAll('[data-hex]').forEach(function (el) { el.textContent = css(el.getAttribute('data-hex')); });
+
+    var bg = css('--bg'), sf = css('--surface'), acc = css('--accent'), strong = css('--accent-strong'), ink = css('--accent-ink'), fg = css('--fg'), mu = css('--muted');
+    var pairs = [
+      ['--fg on --bg', fg, bg], ['--muted on --bg', mu, bg], ['--muted on --surface', mu, sf],
+      ['--accent on --bg', acc, bg], ['--accent-strong on --bg', strong, bg], ['--accent-ink on --accent', ink, acc]
+    ];
+    document.getElementById('ratios').innerHTML = pairs.map(function (p) {
+      var r = ratio(p[1], p[2]);
+      var ok = parseFloat(r) >= 4.5;
+      return '<div class="card"><span class="demo" style="color:' + p[1] + ';background:' + p[2] + ';padding:4px 10px;border-radius:6px;border:1px solid var(--border)">Aa</span>' +
+        '<div><b class="mono" style="font-size:12px">' + p[0] + '</b><div class="meta">' + r + ':1 · ' + (ok ? 'AA text' : 'under AA for small text') + '</div></div></div>';
+    }).join('');
+  }
+
+  btn.addEventListener('click', function () { theme = theme === 'dark' ? 'light' : 'dark'; save(theme); render(); });
+  render();
+
+  // screenshots
+  var dlg = document.getElementById('lightbox'), lb = document.getElementById('lbimg');
+  document.querySelectorAll('[data-shots]').forEach(function (box) {
+    var items = JSON.parse(box.getAttribute('data-shots'));
+    box.innerHTML = items.map(function (it) {
+      var src = 'assets/screens/' + it[0] + '.png';
+      return '<figure><button type="button" data-src="' + src + '" aria-label="Enlarge: ' + it[1] + '"><img loading="lazy" src="' + src + '" alt="' + it[1] + '"></button>' +
+        '<figcaption><b>' + it[1] + '</b>' + it[2] + '</figcaption></figure>';
+    }).join('');
+  });
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('figure button');
+    if (b) { lb.src = b.getAttribute('data-src'); lb.alt = b.getAttribute('aria-label') || ''; dlg.showModal(); return; }
+    if (e.target === dlg || e.target === lb) dlg.close();
+  });
+})();
+</script>
+</body>
+</html>
