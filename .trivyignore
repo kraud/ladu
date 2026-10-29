@@ -21,11 +21,16 @@
 # still Caddy v2.11.7 with go1.26.8: those pushes only bring Alpine updates. Our Caddy only
 # serves static files on :80 behind the edge proxy, so we judge the risk low (not verified
 # in detail).
-# FOLLOW-UP: look for a new Caddy release (and run `docker run --rm caddy:alpine caddy
-# build-info | grep go1`) every few days. If caddy:alpine still has go1.26.8 on or after
-# 2026-10-29, make a PR that builds our own patched Caddy in frontend/, landing/ and admin/
-# Dockerfiles (for example `xcaddy` in a Go build stage), and remove these entries.
+# 2026-10-29: one more, CVE-2026-116587 (HIGH): Go JOSE denial of service when it parses
+# JWKs that contain RSA keys. It is a library inside Caddy (github.com/go-jose/go-jose/v4
+# v4.1.5, fixed in 4.1.6), not the Go stdlib. caddy:alpine is still Caddy v2.11.7 with
+# go1.26.8, so the fix is not available to us yet.
+# FOLLOW-UP: on or after 2026-11-03, check again (`docker run --rm caddy:alpine caddy
+# build-info | grep -E "^go|go-jose"`). If caddy:alpine still has go1.26.8, make a PR that
+# builds our own patched Caddy in frontend/, landing/ and admin/ Dockerfiles (for example
+# `xcaddy` in a Go build stage), and remove all the entries below.
 CVE-2026-78667
 CVE-2026-97031
 CVE-2026-78669
 CVE-2026-111943
+CVE-2026-116587
