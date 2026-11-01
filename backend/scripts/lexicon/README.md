@@ -65,7 +65,7 @@ Runs the draft lookup (DATABASE_URL lexicon + Ekilex) for the onboarding pool. R
 edit of `pool.tsv`; onboarding reads the result and makes no lookups at runtime.
 
 Estonian lookups that the lexicon cannot answer go online to the Ekilex API, which needs
-`EKILEX_API_KEY` in the repo-root `.env` (see `.dev-context/infrastructure-guide/06-secrets-and-access.md`).
+`EKILEX_API_KEY` in the repo-root `.env` (see `.context/guides/infrastructure-guide/06-secrets-and-access.md`).
 
 The file format (JSONL, a header line then one lexeme per line) is described at the top of
 `load.js`. The table is `lexemes` (`backend/src/db/schema.ts`). Re-ingest is manual, about

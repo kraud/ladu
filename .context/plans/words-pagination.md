@@ -123,7 +123,7 @@ Also update the contract in the file's header comment.
 
 ## Test data for the manual checks
 
-A local seed account owns a Public tag with 200 words ("Pagination test (200 words)"). Follow it from your own account to test `/words` and `/tag/$tagId` with several pages. The account, the tag and the rebuild command are in `.dev-context/infrastructure-guide/02-environments-and-databases.md` (section "The seed account and the pagination test tag"). The script is `backend/scripts/seed-pagination-words.ts`.
+A local seed account owns a Public tag with 200 words ("Pagination test (200 words)"). Follow it from your own account to test `/words` and `/tag/$tagId` with several pages. The account, the tag and the rebuild command are in `.context/guides/infrastructure-guide/02-environments-and-databases.md` (section "The seed account and the pagination test tag"). The script is `backend/scripts/seed-pagination-words.ts`.
 
 ## Verification (at the end of each slice)
 

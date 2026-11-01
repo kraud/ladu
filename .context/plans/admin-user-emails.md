@@ -73,7 +73,7 @@ These are my recommendations. Confirm them in one question before coding. Change
 ### Docs
 
 - Plan file status notes (this file, then `.context/plans/admin-dashboard.md`).
-- `.dev-context/infrastructure-guide/05-troubleshooting-playbook.md`: a short entry, "A user did not get the verification or reset email", that says to use the new actions and to look at the Resend dashboard for delivery, because the admin panel cannot know.
+- `.context/guides/infrastructure-guide/05-troubleshooting-playbook.md`: a short entry, "A user did not get the verification or reset email", that says to use the new actions and to look at the Resend dashboard for delivery, because the admin panel cannot know.
 
 ## Out of scope
 

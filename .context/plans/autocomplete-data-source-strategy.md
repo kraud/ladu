@@ -974,7 +974,7 @@ Code reaches staging and production through the normal deploy (merge to `main`):
 the `lexemes` and `lexeme_translations` tables (migrations 0021–0025). The server-side steps below are manual. Until they
 run, autocomplete still works, but every lexicon language answers only from the old libraries,
 marked "not fully sure". Commands run from `deploy/ansible/`. Details:
-`.dev-context/infrastructure-guide/02-environments-and-databases.md`, "The autocomplete lexicon".
+`.context/guides/infrastructure-guide/02-environments-and-databases.md`, "The autocomplete lexicon".
 
 - [x] **BEFORE the Slice D deploy — Ekilex key** (done 2026-10-09): in GitHub → Settings → Environments, add the
       secret `EKILEX_API_KEY` (your Ekilex API key) to **both** `staging` and `production`.

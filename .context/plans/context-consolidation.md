@@ -18,13 +18,15 @@ Every file in `.context/` reads as current truth. The history of finished work s
 | C6 | This plan lives in `.context/plans/` while it is in flight. It is archived at the end. | `docs/superpowers/specs/`. |
 | C8 | `MOCKUPS/` stays. About 45 code comments in about 38 files cite it as the design origin, and they stay correct. The README row says "historical visual reference; `design/` and the code win". `MOCKUPS/DESIGN-HANDOFF.md` gets a 2-line banner with the same words (it says "source of truth" and "match the exported pixels", which contradicts `design/README.md`). Not Tier A any more. | Delete the folder (checked: nothing builds from it, but it breaks the comments); delete only the handoff. |
 | C9 | Four more fixes, each with one obvious answer: trim `frontend-structure.md` §2 (the tree) to a rule and a pointer; replace build plan §2, §3 and §9 with a paragraph and a status table; fix the two stale lines in `CLAUDE.md`; fix the stale text in `README.md` outside the table. | Leave them. |
+| C10 | The two finished OAuth docs go into Task 3. `oauth-backlog-plan.md` becomes an archive record (`2026-09-oauth-backlog`). `oauth-login-strategy.md` is **not** shrunk to 30 lines: about 30 code comments in backend, frontend and e2e cite its section names ("State, not sessions", "provider quirks", "§4 Phase 5"). It moves with `git mv` to `.context/features/oauth-login-strategy.md` (same file name, so bare-name citations stay valid), loses its status noise, and keeps its section names. Only the 10 code and config files that write the `.dev-context/` prefix in a comment need a path edit, plus the link in `new-repo-build-plan.md`. | Archive it as a record (orphans the section citations); rename it to `oauth-login.md` (about 30 comment edits). |
+| C11 | `.dev-context/deployment-strategy.md` (497 lines) moves with `git mv` to `.context/guides/infrastructure-guide/deployment-strategy.md`, same file name. It has one open item (E-c: the UptimeRobot alert test), so it is not archived. 23 files cite it, many by section ("§2 Secrets", "Phase E, E-d", "D-g"). Its stale status line ("Phase E is next") is rewritten. 17 files (19 mentions) that write the `.dev-context/` prefix get a path edit (comments and links only). `.dev-context/` is then empty and disappears. Done in Task 3. | Archive as a 30-line record (orphans the section citations); move to `plans/` (same 17 file edits, twice); leave in place. |
 | C7 | The snapshot files are split by file (see "Snapshot split"). Built-feature files and code copies are removed. Deferred-feature files, live specs and test oracles stay. Removed files stay in `git log`. | Keep all; remove all. |
 
 ## Facts verified 2026-10-29 and 2026-11-01
 
 - `.context/` has 73 Markdown files (19,579 lines). `.dev-context/` has 11 files (3,394 lines). Total 84 files, 22,973 lines.
 - `plans/` has 32 files (12,841 lines). The first count was 31 files.
-- The README table does not name 12 plans. It cannot be the only source of truth.
+- The README table does not name 7 plans (`access-requests`, `adverb-gradable-radio`, `autocomplete-coverage-report`, `captcha`, `conjunctions-prepositions-strings`, `landing-terms-licences-blog`, `manual-production-release`). The five phase plans are covered by its `phase-*.md` row. Corrected in Task 1.
 - `.context/design/` (8 files, 846 lines) is in no tier. The README calls it "Authoritative for UI look". It becomes Tier A.
 - `snapshot/forms-french.md` and `snapshot/forms-conjunctions-prepositions.md` describe v2 only. They are live specs, not frozen legacy.
 - `MOCKUPS/` (40 files on disk with `word-lists/`) and `word-lists/` are in `.gitignore` (lines 42 and 48). No file in them is tracked. `git log` cannot recover them, and a fresh clone or CI does not have them. This includes two Tier A files: `MOCKUPS/DESIGN-HANDOFF.md` and `word-lists/new-onboarding-values.md`. Found in Task 0. Effect: the banner on `DESIGN-HANDOFF.md` is a local edit that no commit carries, and about 45 code comments plus several docs point to files that exist only on this machine.
@@ -112,7 +114,7 @@ Result: about 1,500 lines removed now. About 1,700 lines stay.
 | # | Slice | Result |
 |---|---|---|
 | 0 | Table approved (this file) | Done when the user approves the spec. |
-| 1 | Pure moves: infra guide to `guides/`; `design/` into Tier A; the 12 missing plans in the README table; create `features/` and `archive/` | Links repaired. Link check passes. |
+| 1 | Pure moves: infra guide to `guides/`; `design/` into Tier A; the 7 unlisted plans in the README table; create `features/` and `archive/` | Links repaired. Link check passes. |
 | 2 | Small finished plans: fold and archive | Link check passes. |
 | 3 | Phase 1–4, 3.5, 3.9 records and the study: fold into the build plan and archive. Replace build plan §2 and §3 (snapshot strategy and corpus) with one paragraph and a `git log` pointer. Turn §9 "Progress" into a table: phase, status, archive record. | Phase-gate references in the build plan resolve. |
 | 4 | Snapshot split: fold the deltas into the build plan, check the code copies, remove the files in the split table, add stop dates to the README. Trim `frontend-structure.md`: keep §0 (D1–D5), §1 and §5; replace §2 (the directory tree, 25 of 103 named files do not exist) with a rule and a pointer to `frontend/src`; mark §3 historical or drop it. | The build plan Phase 8 annex holds the deltas. `frontend-structure.md` no longer names missing files. Link check passes. |
@@ -141,7 +143,10 @@ Edit path text only, in: `frontend/src/features/metrics/api.ts` (it names `snaps
 ## Out of scope (flag only)
 
 - `backend/vercel.json` is a migration leftover that nothing uses. It is code. Delete it in a separate PR.
-- Not checked: `.dev-context/oauth-*.md`, `backend/scripts/onboarding/first-review.md`, `backend/scripts/lexicon/.data/*.md`. They look like one-off records. Check them in slice 1.
+- Checked in Task 1 (2026-11-01):
+  - `.dev-context/oauth-backlog-plan.md` (179 lines) and `.dev-context/oauth-login-strategy.md` (547 lines): both **done** on 2026-09-24. The user decided to include them in Task 3 (decision C10).
+  - `backend/scripts/onboarding/first-review.md` (347 lines): its own text says "delete it before the onboarding feature is merged". It stays while onboarding is in flight. Remove it at the onboarding merge.
+  - `backend/scripts/lexicon/.data/*.md`: not tracked by git. Generated measurement output. Not part of the corpus. No action.
 - `.dev-context/deployment-strategy.md` (one alert test left) and the two OAuth files stay where they are.
 - At the Phase 8 cutover: remove `forms-nouns`, `forms-verbs` and `ui/00-global`. When the social phases ship: remove `ui/06-social`, `pages-social-account` and the social part of `endpoints.md`.
 - Part B of `phase-5-practice.md` is a finished implementation plan inside a Tier A file. Ask the user at the end of the pass if it should be trimmed.

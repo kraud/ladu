@@ -38,7 +38,7 @@ Slice 5 notes:
 - Each action runs in one transaction: lock the row (`FOR UPDATE`), check the state (409 if not allowed), change it, write the audit row. The typed username is checked on the server as well as in the UI. `users.ban_reason` holds the ban reason; unban clears it.
 - Restore does not bump `token_version`, so old sessions work again. A restored account that was also banned stays banned.
 - `GET /auth/me` and the login response now include `permissions`. The UI shows only the buttons a role may use (`useCan`). A session saved before this change is dropped once.
-- `deploy/ansible/roles/purge`: cron at 03:30 UTC for staging and prod (after the 03:00 backup). **Not applied yet:** run the Ansible playbook to install it. The operator guide (`.dev-context/infrastructure-guide/01-architecture-overview.md`) lists it.
+- `deploy/ansible/roles/purge`: cron at 03:30 UTC for staging and prod (after the 03:00 backup). **Not applied yet:** run the Ansible playbook to install it. The operator guide (`.context/guides/infrastructure-guide/01-architecture-overview.md`) lists it.
 - "Resend verification email" and "Send password reset" were not in slice 5. They are built and merged (PR #62): see `.context/plans/admin-user-emails.md` (permission `users.email`). A failed purge job has no alert: the log file is the only trace (a Healthchecks.io ping is a possible later step).
 
 Slice 6 notes:
@@ -297,7 +297,7 @@ Old users have no values for these fields until they log in again. Start this sl
 - new: `backend/routes/admin/*`, `backend/controllers/admin/*`, `backend/middleware/staffAuth.ts`, `backend/scripts/create-staff.ts`, `backend/scripts/purge.js`
 - new workspace `admin/`, added to the root `package.json` workspaces
 - `deploy/compose/app.yml`, `deploy/caddy/Caddyfile`, `deploy/terraform/dns.tf` and a new `access.tf`, `.github/workflows/deploy.yml`, an Ansible role or task for the purge cron job
-- docs: a new `.context/` spec file, `.dev-context/infrastructure-guide/` updates, `landing/privacy.html`
+- docs: a new `.context/` spec file, `.context/guides/infrastructure-guide/` updates, `landing/privacy.html`
 
 **Code to reuse:**
 - the `protect` pattern (`authMiddleware.ts`) and `generateToken` (`userController.ts:111`)

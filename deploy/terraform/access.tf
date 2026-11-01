@@ -90,7 +90,7 @@ resource "cloudflare_zero_trust_access_application" "admin_staging" {
 # `CF-Access-Client-Id`/`CF-Access-Client-Secret` on every request, and Access
 # lets those through without a login page. The token is `forever` (no expiry),
 # so a deploy does not silently start failing on a calendar date; rotating it
-# is a manual step (see infrastructure-guide/06-secrets-and-access.md).
+# is a manual step (see .context/guides/infrastructure-guide/06-secrets-and-access.md).
 resource "cloudflare_zero_trust_access_service_token" "staging_smoke" {
   account_id = var.cloudflare_account_id
   name       = "ladu-staging-smoke"

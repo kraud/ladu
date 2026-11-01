@@ -5,7 +5,7 @@
 #   ansible-playbook lexicon.yml -e lexicon_file=../../backend/scripts/lexicon/.data/out/lexicon-de-2026-10-03.jsonl.gz
 #
 # Staging only:  add  -e '{"lexicon_environments": ["staging"]}'
-# Guide: .dev-context/infrastructure-guide/02-environments-and-databases.md, "The autocomplete lexicon".
+# Guide: .context/guides/infrastructure-guide/02-environments-and-databases.md, "The autocomplete lexicon".
 - name: Load the autocomplete lexicon
   hosts: vps
   gather_facts: false

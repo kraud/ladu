@@ -5,7 +5,7 @@
 > Slice B: PR #50 (redirect check in the staging smoke), production confirmed
 > by hand. Below is the plan as approved, with results filled in where they
 > changed it. Final docs: `.dev-context/oauth-login-strategy.md` Phase 6,
-> `infrastructure-guide/05` and `06`.
+> `.context/guides/infrastructure-guide/05` and `06`.
 
 ## Context
 
@@ -159,10 +159,10 @@ sign-in page.
   "e2e" and "Gate" bullets to the redirect-check approach; state why full
   login automation was not done (Google blocks automated sign-ins; the
   disposable-account option stays open for later). Mark Phase 6 done.
-- `.dev-context/infrastructure-guide/06-secrets-and-access.md`: note that the
+- `.context/guides/infrastructure-guide/06-secrets-and-access.md`: note that the
   `smoke` job now also reads `GOOGLE_CLIENT_ID` from the `staging` Environment.
 - If the check fails, add a short entry to
-  `.dev-context/infrastructure-guide/05-troubleshooting-playbook.md`
+  `.context/guides/infrastructure-guide/05-troubleshooting-playbook.md`
   (what `redirect_uri_mismatch` / `invalid_client` mean and where to fix them
   in Google Cloud Console).
 - Update memory: `project_deployment_strategy_progress.md` if relevant.
