@@ -1,6 +1,6 @@
 # Test inventory (2026-11-02)
 
-Evidence for `.context/guides/testing-policy.md`. It is the input of the prune plan (`.context/plans/test-prune-pass.md`). Nothing here is a task.
+Evidence for `.context/guides/testing-policy.md`. It was the input of the first prune pass (record: `.context/archive/2026-11-test-prune-pass.md`). Nothing here is a task.
 
 ## Method
 
@@ -162,3 +162,25 @@ One cleanup plus one register and login is about 0.2 s, which matches the averag
 **Frontend: 51 s wall, 311 s summed.** The slowest: `ReviewPage.test.tsx` 43 s (60 tests), `PracticePage.configs` 19 s, `TagViewPage` 17 s, `TranslationCard` 16 s (105 tests), `PracticePage.test` 16 s, `PracticePage.tags` 16 s, `onboarding.test` 15 s.
 
 **Admin: 14 s wall.** `AccessPage.test.tsx` is 14 s of the 51 s sum (75 tests).
+
+## After the first prune pass (2026-11-02)
+
+All suites were green. Frontend, backend and admin were run with coverage on; e2e was run plain.
+
+| Workspace | Tests before | Tests after | Removed | Run time before | Run time after |
+|---|---|---|---|---|---|
+| frontend | 2,086 | 2,085 | 1 | 51 s | not re-timed (unchanged within noise) |
+| backend | 2,947 | 2,944 | 3 | 328 s | not re-timed (unchanged within noise) |
+| admin | 329 | 329 | 0 | 14 s | unchanged |
+| e2e | 196 | 147 | 49 | 173 s | **144 s** |
+| landing | 40 (static) | 40 | 0 | — | — |
+| **Total** | **5,598** | **5,545** | **53 (1%)** | **566 s** | **about 537 s (-5%)** |
+
+Where the 49 e2e tests went: 4 whole tests that repeat backend rules (Slice 2), 8 tests of the test tooling (Slice 3: `smoke.spec.ts` 3, `oauth-0-harness.spec.ts` 5), and 37 autocomplete tests (Slice 4: 58 became 21). Slice 2 also removed the API half of 2 more tests. The autocomplete e2e specs went from 249 s to 100 s of summed time.
+
+**Coverage:** line coverage did not change (frontend 95.24%, backend 93.26%, admin 96.36%); no file lost covered lines after Slice 3. This measure does not include e2e, so it says nothing about Slices 2 and 4.
+
+**Whole-chain autocomplete cells with no e2e test after the pass:** Spanish adverb, conjunction and reflexive fill; English conjunction; German adverb and conjunction; Estonian noun; French conjunction. A check of the backend case names against the frontend form fields (English, Spanish, German, French; 202 names) found 191 matches and 11 deliberate extras (Spanish verb conditional and imperative): no drift on 2026-11-02. See deferred idea I-13.
+
+**Not run:** Slices 1, 5 and 6 of the plan (the e2e geometry specs, the style assertions, the component tests that repeat page tests). See deferred idea I-12.
+

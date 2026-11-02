@@ -10,7 +10,7 @@ Use this guide before you add a test to a feature. It says which tests to write 
 - **e2e:** one spec for each feature, with the headline journey. No API-only checks. No repeat for each language.
 - **On demand:** all other detail tests. Write them when the user asks, or when a bug comes back.
 
-Decided on 2026-11-02, after the inventory in `.context/research/2026-11-test-inventory.md`. This policy is for new work. The old tests are pruned by a separate plan (`.context/plans/test-prune-pass.md`).
+Decided on 2026-11-02, after the inventory in `.context/research/2026-11-test-inventory.md`. This policy is for new work. The old tests were pruned once, on 2026-11-02 (`.context/archive/2026-11-test-prune-pass.md`); the rest is deferred idea I-12.
 
 ## 1. The test types
 
@@ -46,7 +46,7 @@ Do not write these by default. Write them when the user asks, or for a regressio
 
 - Pixel sizes, CSS classes, colours, border radius, alignment, spacing and fonts. Example of what to avoid: "renders at 36px with the Ladu radius".
 - Geometry checks in e2e (bounding boxes, "lines up with the logo").
-- A repeat for each language or variant after the first one. The first one proves the path. Language data is proved by the unit tests of the lexicon selectors.
+- A repeat for each language or variant after the first one. The first one proves the path. Language data is proved by the unit tests of the lexicon selectors. **Exception:** keep one whole-chain e2e test for each language and main part of speech of a lookup. The backend sends case names as strings and the form matches them by name; no lower test compares the two lists, so this e2e test is the only guard (see §7).
 - Edge cases that a lower layer already proves.
 - An e2e test of a backend rule through the API (for example, "another user gets 404"). The backend integration test owns it.
 - A test of text content that the user can change (copy, translation strings), except the rule that all languages have the same files.
@@ -61,7 +61,7 @@ Do not write these by default. Write them when the user asks, or for a regressio
 | A filter is kept in the URL and sent to the API | Frontend flow | Nothing. |
 | Form fields of Spanish verbs | Form-engine config test | Nothing. |
 | A new user adds a word and finds it again | e2e | (This is the e2e test.) |
-| The type-ahead fills a form from the lexicon | Backend integration (route) + frontend flow (fill) | One e2e case for the whole feature, in one language. |
+| The type-ahead fills a form from the lexicon | Backend integration (route) + frontend flow (fill) | One e2e case for each language and main part of speech (the names match), not one for each word or scenario. |
 
 When you are not sure, ask: "What breaks first if this rule is wrong?" Test at that layer.
 
@@ -79,3 +79,12 @@ Answer these four questions before you add a test:
 4. Will this test break when only the design changes? If yes, do not write it.
 
 Then write the plan's "Verification" section from the tests you kept, not from the tests you could write.
+
+## 7. What the first prune pass taught (2026-11-02)
+
+The first prune pass removed 53 tests of 5,598 (1%) and cut the run time by about 5%, from 566 s to about 537 s (`.context/archive/2026-11-test-prune-pass.md`). Rules that came out of it:
+
+- **Judge a suite by run time, not by test count.** One data test made 1,193 of the 2,947 backend tests and ran in 0.6 s. A backend database test costs about 0.2 s (cleanup plus a password hash), whatever it asserts.
+- **Line coverage does not measure e2e.** Before you remove an e2e test, name the lower test that owns each of its assertions. Match the assertions, not only the titles.
+- **The backend–frontend connection has no lower test.** Case names are strings on both sides. Keep the e2e exception in §3 until a contract test exists (deferred idea I-13).
+- **Prune for clarity, not for speed.** The large time cost is in the harness (deferred idea I-11), not in the number of tests.
