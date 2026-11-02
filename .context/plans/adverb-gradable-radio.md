@@ -4,12 +4,6 @@ Status: plan agreed on 2026-10-24. No slice started.
 
 Goal: the adverb form has the same "Gradable / Non-gradable" radio in all four languages. Today only German has it. The user sees at once that an adverb with no degrees is complete, not unfinished.
 
-## How to start (read this first in a new session)
-
-1. Read `CLAUDE.md` and `.context/README.md`. Follow the working rules: one small slice at a time, a plain-language overview **before** any file change, ask before assuming, docs and tests with the code. The user runs `git commit` themselves. Suggest a commit message after each slice.
-2. Do the slices in order. After each slice: run its checks, tick the **Progress** list with the date, and suggest a commit message.
-3. Before slice 1, read `frontend/src/features/words/form-engine/configs/adverbs.ts` and its test, `FieldRenderer.tsx`, and `review/completion.ts`.
-
 ## Progress
 
 - [x] Slice 1 — Form engine: new case names, labels, radio in EN, ES and EE configs (2026-10-24)

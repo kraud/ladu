@@ -14,8 +14,7 @@ the selection service, and the three routes (see "Slice 3d — what was built").
 several topics; the topic limits are 4 minimum and no maximum (D15 changed). Decisions and the applied
 record: `.context/research/onboarding-word-pool.md`; see "Review log — Pool refresh" at the end.
 
-**Resume here (2026-10-17):** the build is done; only open item 8 is open (review the ES/DE/EE texts, see "Open items").
-Next: the user reviews and commits, then the rollout (turn the switch on per environment; see the infrastructure guide, file 02).
+**Open:** item 8 (review the ES/DE/EE texts, see "Open items"). **Next:** the rollout: turn the switch on per environment (infrastructure guide, file 02).
 Decisions D1–D28 are confirmed with the user on 2026-10-16 (D11–D13 during Slice 1, D14–D19 during Slice 2,
 D20–D23 at the start of Slice 3, D24–D25 during Slice 3c, D26–D28 at the start of Slice 4). The second opinion
 (`onboarding-blueprint-proposal.md`) was reviewed against the data and the code; the findings and their

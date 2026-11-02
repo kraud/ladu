@@ -2,23 +2,6 @@
 
 Status: plan agreed on 2026-10-24. All slices done (2026-10-25). Open: the user's review of the strings (see "Open at the end"), review-log items #5, #7 and #8, and the per-environment reload ("Rollout runbook").
 
-## How to start (read this first in a new session)
-
-1. Read `CLAUDE.md` and `.context/README.md`. Follow the working rules: one small slice at a time, a plain-language overview **before** any file change, ask before assuming, docs and tests with the code. The user runs `git commit` themselves. Suggest a commit message after each slice.
-2. Read `.context/guides/add-part-of-speech.md`. It is the checklist for this work.
-3. Do the slices in order. After each slice: run its checks, tick the **Progress** list with the date, and suggest a commit message.
-
-## Progress
-
-- [x] Slice 0 (2026-10-24) — Docs: the process guide, this plan file, the README index
-- [x] Slice 1 (2026-10-25) — Conjunction form (frontend + backend property rules). Open: no browser check yet; the e2e spec in slice 4 covers it
-- [x] Slice 2 (2026-10-25) — Preposition form. Open: the user reviews the Estonian case list and the new strings; no browser check yet
-- [x] Slice 3 research (2026-10-25) — see "Slice 3 research results"; decisions Q8–Q10
-- [x] Slice 3a (2026-10-25) — Estonian: Ekilex adapter for Conjunction and Preposition (word, position, governed case). Open: the Estonian e2e stub gets `kuigi` and `pärast` in slice 4
-- [x] Slice 3b (2026-10-25) — DE/EN/ES lexicon: `extract.ts` keeps categories, selectors for `conj`/`prep`/`postp`, `prep` + `postp` merged into one row, re-extracted, re-ingested, re-loaded locally. Staging and production still need the reload (see "Rollout runbook")
-- [x] Slice 3c (2026-10-25) — Translations (`conj`/`prep`/`postp` in the translation file: 483 conjunction and 1,190 preposition rows), the translate/senses/sense/draft routes, the "Start from a word" part-of-speech list, and a pair split for ellipsis words. Staging and production need the translation file loaded too (see "Rollout runbook")
-- [x] Slice 4 (2026-10-25) — e2e spec `autocomplete-i-conjunctions-prepositions.spec.ts` (6 tests), the Ekilex stub words, snapshot docs (`forms-conjunctions-prepositions.md`, `data-model.md`), the string table. Full `npm run test:e2e`: 168 passed, 0 failed. Open: the user reviews `conjunctions-prepositions-strings.md`
-
 ## Review log
 
 | # | Severity | Finding | Resolution |

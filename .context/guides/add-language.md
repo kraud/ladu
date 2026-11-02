@@ -4,7 +4,7 @@ Use this guide when Ladu must support a new language. The first use is French (`
 
 **Status of this guide (2026-10-26, French slice 12): checked.** Every item was confirmed against the diff of the French branch (`git diff main`, 223 files). Check each path again with a search before you start: the code moves. The one open item is the native-speaker review.
 
-Write the plan file first. Copy the shape of `language-french.md`: Progress list, user decisions, slices, review log, rollout runbook.
+Write the plan file first. Copy the shape of `language-french.md`: user decisions, slices, review log, rollout runbook (and a Progress list while the work is open; remove it when the work is done).
 
 ## 0. Words used here
 
