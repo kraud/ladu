@@ -1,13 +1,13 @@
 /**
  * Tag wire contracts — pinned against `backend/controllers/tagController.ts`
- * as rebuilt in phase-4-tags.md Slices 2–3. Every tag response is `id`-only
+ * as rebuilt in .context/features/tags.md Slices 2–3. Every tag response is `id`-only
  * (no `_id`/`author`-alias, per the standing rule) and shaped as
  * `TagSummary`: counts and relations the backend computes via SQL, never a
  * tag's actual word list (that comes from `GET /api/words/simple?tag=`,
  * `features/words/api.ts`).
  *
  * `TagVisibility` here is the two values the create/edit UI ever writes
- * (phase-4-tags.md D3) — `Friends-Only` stays a schema/authz-only value
+ * (.context/features/tags.md D3) — `Friends-Only` stays a schema/authz-only value
  * until Phase 6 ships real friendships, so nothing in this feature needs to
  * type for it.
  */
@@ -126,7 +126,7 @@ export interface CloneTagResult {
 /**
  * `POST /api/tags/links` / `POST /api/tags/links/remove` body. The caller
  * must own every tag AND every word, or the whole call 403s — no
- * partial-apply (phase-4-tags.md Risks).
+ * partial-apply (.context/features/tags.md Risks).
  */
 export interface LinkTagsToWordsBody {
     tagIds: string[];

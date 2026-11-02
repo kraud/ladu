@@ -115,7 +115,7 @@ describe('POST /api/words - Create Word', () => {
         expect(tagWordRows).toHaveLength(1);
     });
 
-    // Ownership check (phase-4-tags.md — missing before this phase): a user
+    // Ownership check (.context/features/tags.md — missing before this phase): a user
     // may only attach tags they own to a word they're creating.
     it('fails with 403 when tagIds includes a tag owned by another user, and creates nothing', async () => {
         const otherData = await registerAndLogin('TagOwner', 'tagowner@test.com', 'tagowner', 'pass123');
@@ -292,7 +292,7 @@ describe('PUT /api/words/:id - Update Word', () => {
         wordId = r.body.id;
     });
 
-    // `PUT /api/words/:id` never touches tag associations (phase-4-tags.md,
+    // `PUT /api/words/:id` never touches tag associations (.context/features/tags.md,
     // agent call under D5) — that's the dedicated link/unlink endpoints' job
     // (Phase 4 Slice 2). These two guard against reintroducing the exact
     // class of bug Phase 3.9 fixed once already: a `tags`-less PUT (every

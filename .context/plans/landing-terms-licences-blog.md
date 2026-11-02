@@ -189,7 +189,7 @@ These have their own terms. None is a code licence. Check the **commercial-use**
 1. **Done in this plan:** first results (3.3 to 3.7).
 2. **To do (research only):** open the items marked **VERIFY**. Check the source and licence of the `is-word` lists, `spanish-verbs`, the flags and the icons. Read the commercial-use terms of each service in 3.7.
 3. **To do (tool):** run a licence report (for example `npx license-checker --production --summary`) in each workspace, and keep the result with the study. Re-run it in CI later to catch a new copyleft package.
-4. **Output:** a final study file `.context/licence-study.md` (table per dependency: licence, use, duty, risk) and a short "can we publish?" answer at the top.
+4. **Output:** a final study file `.context/research/licence-study.md` (table per dependency: licence, use, duty, risk) and a short "can we publish?" answer at the top.
 5. **Lawyer questions:** Q4 and Q5, plus the liability and governing-law text of the Terms.
 
 ---
@@ -261,7 +261,7 @@ Small vertical slices. Each one ends with something runnable and its docs.
 
 | # | Slice | Why this order | Ends with |
 |---|---|---|---|
-| 1 | **Licence study, finish and write up** (section 3.9) — **done 2026-10-06** | No code. It can change what the Terms and the credits say. | `.context/licence-study.md` (answer: yes, we can publish; 5 actions before launch, listed there) |
+| 1 | **Licence study, finish and write up** (section 3.9) — **done 2026-10-06** | No code. It can change what the Terms and the credits say. | `.context/research/licence-study.md` (answer: yes, we can publish; 5 actions before launch, listed there) |
 | 1b | **Private GHCR images + MIT licence file** — **done 2026-10-06** (token in vault, `ansible-playbook` run, backend + admin private, re-run of the last deploy green) | Small, and it removes the GPL word list from public images. | Ansible login task, `LICENSE`, docs. User: token, vault, `ansible-playbook`, switch visibility, check a deploy. |
 | 2 | **Landing: Terms page, credits page, Impressum, footer, i18n keys, `lang` fix, contact address** (1, 3.6, Q9) — **built 2026-10-06.** Address is work in progress: both pages show only "Kevin Raud, 04155 Leipzig, Germany" for now. Before the public launch, add the full postal address (street, or c/o / mail-forwarding) in `impressum.html` and `privacy.html` (search for `TODO(address)`) | Static work. Needs the study for the credits. | Image builds. Pages checked in 4 languages and 2 themes. |
 | 3 | **Third-party notices file** in the frontend build (3.5) — **done 2026-10-06** | Legal duty for the shipped JavaScript. | Build output contains the notices file. Own Vite plugin `frontend/third-party-notices.ts` (copy in `admin/`), no new dependency, 8 unit tests each; frontend 1,420 and admin 267 tests green. The build fails on a copyleft package. Credits page links to `app.ladu.com.ar/THIRD-PARTY-NOTICES.txt`. |

@@ -178,7 +178,7 @@ Auth column: ✅ = `protect` middleware on the route; ❌ = unguarded (by design
 >   objects — the `_id` reader was stripped here, ahead of the Phase 4/6 schedule the build plan's
 >   `_id` ledger originally predicted.
 >
-> See `.context/plans/phase-3-forms-autocomplete-review.md`'s Slice 5/6 outcomes for the full
+> See `.context/features/word-form-engine.md`'s Slice 5/6 outcomes for the full
 > implementation record (the keyset predicate's Postgres parameter-inference gotcha, the new
 > `words_created_at_id_idx` index, the frontend `WordSimpleBE` type, etc).
 

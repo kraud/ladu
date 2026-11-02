@@ -1,11 +1,6 @@
 # OAuth Login Strategy — Ladu v2
 
-> Status: **Done 2026-09-24.** Phases 0–5 done 2026-09-23; Phase 6 done
-> 2026-09-24 (real-Google redirect check in the staging smoke, production
-> confirmed by hand). Phase 0 delivered the stub harness and the Google Cloud
-> OAuth client registration. Microsoft was dropped the same day:
-> Azure sign-in returned `AADSTS16000` on every account tried, so it never
-> got past registration (see Decisions).
+> Status: **Done 2026-09-24. Live spec.** Replaces the build plan of the same name; the phases in section 4 are kept because backend, frontend and e2e code cite them by number (for example "Phase 3", "§4 Phase 5"). Phases 0 to 5 were done 2026-09-23. Phase 6 was done 2026-09-24 (real-Google redirect check in the staging smoke, production confirmed by hand). Microsoft was dropped the same day: Azure sign-in returned `AADSTS16000` on every account tried, so it never got past registration (see Decisions). Archive record of the follow-up work: `.context/archive/2026-09-oauth-backlog.md`.
 > Goal: add "Sign in with Google" as an extra way in, alongside the existing
 > email+password flow — without disturbing it and without abandoning the
 > hand-rolled JWT design.
@@ -519,25 +514,6 @@ Layered the same way the rest of the repo already is:
 Google isn't usage-billed at the scopes this plan uses. Confirm scope list
 stays at `openid email profile` — broader scopes can trigger paid tiers or a
 formal verification review.
-
----
-
-## 7. Skills this plan shows (CV)
-
-1. OAuth 2.0 / OIDC: authorization code flow with PKCE, state and nonce for
-   CSRF/replay protection, ID-token verification against a provider's live
-   JWKS
-2. Identity modelling: linking multiple sign-in methods to one account
-   without opening an account-takeover path (password-confirmed linking,
-   provider-`sub`-keyed lookup instead of email-keyed)
-3. Integrating a third-party identity provider into an existing hand-rolled
-   auth layer (JWT, bcrypt) without introducing a session store or rewriting
-   what already works
-4. Deterministic testing of third-party auth: a stub OIDC issuer implementing
-   the real discovery/token/JWKS contract, wired into CI instead of mocking
-   the client library away
-5. Secret and redirect-URI management across three environments (local,
-   staging, production) for an external identity provider
 
 ---
 

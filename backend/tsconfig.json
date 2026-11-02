@@ -53,11 +53,11 @@
   // friendshipController.ts and notificationController.ts stay excluded from
   // the typecheck gate: friendships are still deferred (CLAUDE.md), and
   // notifications haven't been touched since Phase 0. tagController.ts was
-  // excluded for the same original reason, but phase-4-tags.md's 2026-09-27
+  // excluded for the same original reason, but .context/features/tags.md's 2026-09-27
   // audit found that deferral note never actually held for tags — the
   // controller was already built out and under active development — so it
   // rejoins the gate as of Phase 4 Slice 2 rather than staying excluded on a
-  // stale rationale. See the note in .dev-context/deployment-strategy.md
+  // stale rationale. See the note in .context/guides/infrastructure-guide/deployment-strategy.md
   // Phase A.
   "exclude": [
     "node_modules",

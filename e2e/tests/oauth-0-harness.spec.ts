@@ -4,7 +4,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 
 /**
- * OAuth Phase 0 — local OIDC stub harness (.dev-context/oauth-login-strategy.md §4).
+ * OAuth Phase 0 — local OIDC stub harness (.context/features/oauth-login-strategy.md §4).
  *
  * Proves the stub issuer (e2e/fixtures/oidc-stub/server.ts) implements enough
  * of the real discovery/authorize/token/jwks contract to stand in for Google

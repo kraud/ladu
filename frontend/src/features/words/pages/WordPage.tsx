@@ -16,7 +16,7 @@
  * `extraActions` — so toggling Edit never reshuffles the page.
  *
  * `GET /api/words/:id` 403s a caller with no standing at all, but (since
- * phase-4-tags.md Slice 1) succeeds read-only for a word reached via a tag
+ * .context/features/tags.md Slice 1) succeeds read-only for a word reached via a tag
  * the caller follows and can currently view — `word.user !== session user`
  * marks that case, same convention Review's `isOwn` already uses. Nothing in
  * the app currently links to such a word (a follower only ever sees it

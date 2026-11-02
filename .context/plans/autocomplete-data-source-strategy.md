@@ -9,7 +9,7 @@ whether one source can replace the current per-language set of libraries and API
 
 *Related: `.context/.frontend/snapshot/autocomplete.md` (the frozen 8-endpoint spec),
 `.context/.frontend/snapshot/word-cases-data.md` (the case registry),
-`.context/licence-study.md` (licence decisions, 2026-10-06), `new-repo-build-plan.md` §5 phase 3.*
+`.context/research/licence-study.md` (licence decisions, 2026-10-06), `new-repo-build-plan.md` §5 phase 3.*
 
 *Read section 11 first. It lists the claims in sections 2 to 8 that the 2026-10-08 review
 found wrong or incomplete.*
@@ -420,7 +420,7 @@ This section records the situation. It does not give legal advice.
 | `german-pos-dict` data | CC-BY-SA-4.0 | Already in use today. |
 | Vabamorf | LGPL | Keep the library replaceable. A separate process is the simplest way. |
 
-> **Update (2026-10-08).** `.context/licence-study.md` (2026-10-06) closes most of this
+> **Update (2026-10-08).** `.context/research/licence-study.md` (2026-10-06) closes most of this
 > item. CC BY-SA 4.0 allows commercial use. For German, option C was chosen: a separate table
 > with `source` and `licence` columns, and no data download for users. The same rule applies
 > to the EN and ES data from kaikki. One lawyer question is still open (licence study §7

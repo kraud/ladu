@@ -7,7 +7,7 @@
 - W-6: Owner filter (Mine / Not mine), backed by `owner=me` and `owner=others`.
 - W-7: a row click asks "Open this word?" first. The View button is removed.
 - Hint text: "Add tags and Delete are available only when all selected words are your own."
-- A filled cell of a followed word opens read-only (this closed D28 of `phase-3-forms-autocomplete-review.md`).
+- A filled cell of a followed word opens read-only (this closed D28 of the Phase 3 plan (now `features/word-form-engine.md`)).
 
 **Plan versus built:**
 - Slice 2b replaced the "Select all N matching" banner with a "(+ all pages)" text button.

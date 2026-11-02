@@ -14,7 +14,7 @@ feature branch → PR → ci.yml (6 checks, all required) → merge to main
 There is **no manual "promote to production" button.** A successful merge to
 `main` reaches real users within a few minutes, gated only by staging's
 health check and the smoke test passing. This was a deliberate choice (see
-`.dev-context/deployment-strategy.md` §1, "Rejected options") — the safety
+`.context/guides/infrastructure-guide/deployment-strategy.md` §1, "Rejected options") — the safety
 net is the automated gate, not a human clicking approve.
 
 ## Step by step

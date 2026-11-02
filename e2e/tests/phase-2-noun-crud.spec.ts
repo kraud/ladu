@@ -5,7 +5,7 @@ import { closePool, deleteUsersByEmail, getVerifyToken } from '../fixtures/db';
 
 /**
  * Phase 2 — noun create / view (form engine v1), vertical slice against the
- * real stack (`.context/plans/phase-2-noun-crud.md` Slice 6 gate).
+ * real stack (`.context/features/word-form-engine.md` Slice 6 gate).
  *
  * A logged-in user adds a noun with three language translations through the
  * real "+ Add language" form -> `WordPage` shows every translation's case

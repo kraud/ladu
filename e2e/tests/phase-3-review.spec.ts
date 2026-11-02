@@ -5,7 +5,7 @@ import { closePool, deleteUsersByEmail, getVerifyToken } from '../fixtures/db';
 
 /**
  * Phase 3 — form engine completion, autocomplete, Review table, vertical
- * slice against the real stack (`.context/plans/phase-3-forms-autocomplete-review.md`
+ * slice against the real stack (`.context/features/word-form-engine.md`
  * Slice 11 gate).
  *
  * A logged-in user creates a German noun through the real "+ Add translation"

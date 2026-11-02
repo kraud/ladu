@@ -29,7 +29,7 @@ export interface TranslationBE {
 /**
  * A tag as it rides on a word response — slimmed server-side to exactly
  * this shape (`WordTagSummary` in `backend/services/wordService.ts`,
- * phase-4-tags.md Slice 1): enough to render a chip and tell
+ * .context/features/tags.md Slice 1): enough to render a chip and tell
  * ownership/visibility apart, not a full tag row. The richer shape
  * (`wordCount`, `followerCount`, timestamps, …) is `TagSummary` in
  * `features/tags/types.ts`, used by the tags feature's own endpoints, never
@@ -75,7 +75,7 @@ export interface TranslationInput {
 
 /**
  * `POST /api/words` body. `partOfSpeech` and >= 2 translations are required
- * (400 otherwise). `tagIds` (phase-4-tags.md D4) is optional and
+ * (400 otherwise). `tagIds` (.context/features/tags.md D4) is optional and
  * ownership-checked server-side — tags picked before the word has an id yet
  * ride along in this same request rather than waiting for a second call.
  */
@@ -92,7 +92,7 @@ export interface CreateWordBody {
  * `api.ts` sends the id in the path and echoes it in the body for shape parity.
  * `partOfSpeech` is immutable after creation but still sent (the controller
  * updates it only when present, and it never changes). `tagIds` is never sent
- * here — the update route dropped tag handling entirely (phase-4-tags.md
+ * here — the update route dropped tag handling entirely (.context/features/tags.md
  * "Calls made by the agent"); tag membership on an existing word only ever
  * changes via `linkTagsToWords`/`unlinkTagsFromWords`.
  */

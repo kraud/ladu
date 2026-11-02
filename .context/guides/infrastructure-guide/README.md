@@ -1,12 +1,12 @@
 # Infrastructure guide — index
 
-Ladu v2's deployment architecture (Phases 0–E of `.dev-context/deployment-strategy.md`)
+Ladu v2's deployment architecture (Phases 0–E of `.context/guides/infrastructure-guide/deployment-strategy.md`)
 is fully built and live. This guide is the **operator's manual** for it: how the
 pieces fit together, how to read each dashboard, what the development workflow
 looks like now that there's a real staging + production pipeline, and what to
 do when something breaks.
 
-`.dev-context/deployment-strategy.md` stays as-is — it's the **build log**
+`.context/guides/infrastructure-guide/deployment-strategy.md` stays as-is — it's the **build log**
 (decisions, what was tried, what broke, what fixed it, phase by phase). This
 guide is the **reference** you come back to day-to-day once the building is
 finished. Where this guide says "why," it's the short version; the full story

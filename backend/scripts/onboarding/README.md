@@ -28,7 +28,7 @@ always written to the git-ignored `word-lists/pool-candidates.tsv` for compariso
 ## How to review
 
 The 2026-10 refresh replaced the first pool with the reviewed one (583 concepts; the decisions are in
-`.context/onboarding-words-resolutions.md`). The topic `numbers_measures` now holds measures and
+`.context/research/onboarding-word-pool.md`). The topic `numbers_measures` now holds measures and
 quantities only (label "Measures & quantities"); numerals are not in the pool. Five English nouns
 exist only as a plural (`clothes`, `pants`, `news`, `data`, `stairs`): `onboarding-forms.ts` builds
 their English forms from the word (`lib/onboardingPool.ts` `PLURAL_ONLY_NOUNS_EN`).

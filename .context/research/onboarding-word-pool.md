@@ -1,34 +1,53 @@
-# Onboarding vocabulary pool — resolutions after the questionnaire
+# Onboarding word pool: analysis, questions and decisions
 
-**Status:** decisions from `.context/onboarding-words-questionnaire.md` are applied here.
+Research record, kept whole. It merges three files of 2026-10-19 (the questionnaire, its resolutions, and a temporary audit of the old pool). The decisions are applied in code (see "Applied in code"). Live plan of the feature: `.context/plans/onboarding.md`. Code that cites this file: `backend/lib/onboardingPool.ts`, `backend/scripts/lexicon/onboarding-pool.ts`, `backend/scripts/onboarding/README.md`. The applied pool, with the chosen sense of every concept, is `backend/scripts/onboarding/pool.tsv`.
+
+## Starting point
+
+Analysis of `word-lists/new-onboarding-values.md` (620 entries, 606 unique English lemma and part-of-speech pairs), before the decisions:
+
+| Measure | First sense (current builder) | Best sense |
+|---|---:|---:|
+| Entries with ≥2 languages incl. English | 614 / 620 | 616 / 620 |
+| Entries with ≥2 target languages (ES/DE/ET) | 568 / 620 | 602 / 620 |
+| Entries with all 4 languages | 388 / 620 | 432 / 620 |
+| ≥2 target languages with Estonian via Ekilex | 601 / 620 | — |
+
+| Language | Translation available | Usable forms | Main weakness |
+|---|---:|---:|---|
+| English | 617 / 620 | 612 / 620 | 8 entries lack the required key case |
+| Spanish | 597 / 620 | 570 / 620 | no online fallback; 25 picks are not in the lexicon |
+| German | 607 / 620 | 580 / 620 | 27 picks need a generator or a manual word |
+| Estonian | 493 / 620 | 423 / 620 | Ekilex adds 114 of 123 missing keys |
 
 ## Decisions accepted
 
-| # | Decision |
-|---|---|
-| Q1 | Replace the current `pool.tsv` after review. |
-| Q2 | Keep an entry only with English + at least 2 target languages (ES/DE/ET) with usable forms. |
-| Q3 | Keep the 15 topic ids and English labels. |
-| Q4 | Keep `CORE_SHARE = 0.2`; core always eligible. |
-| Q5 | Minimum 4 topics; **no maximum** (all 15 are allowed). |
-| Q6 | The 620-entry set is final except for words that cannot be translated. |
-| Q7 | Extend the generator to read an explicit entry list (lemma, POS, topic, band, rank). |
-| Q8 | Drop `appliance`, `humidity`, `kilogram`, `total (n)`, `past (n)` (rank > 15,000). |
-| Q9 | Generation scripts may change. |
-| Q10 | Use the CEFR bands in the new list; do not re-derive from frequency. |
-| Q11 | One concept, one topic, but a Word may receive more than one topic tag. |
-| Q12–Q14 | Curate the sense; store `entry_order` + `sense_order`; review the 67 Appendix F entries. |
-| Q15 | Use the proposed senses in the questionnaire table. |
-| Q16–Q18 | Manual Spanish single-word replacements; drop when none exists; supply missing gender/form. |
-| Q19–Q20 | Manual German words; use noun/verb generators; drop when no form is possible. |
-| Q21–Q24 | Fill missing Estonian at pool-build time from Ekilex and freeze it in `pool.tsv`; runtime stays offline. |
-| Q25 | Add a plural-only noun case to `KEY_CASES`; keep `clothes`, `data`, `news`, `pants`, `stairs`. |
-| Q26 | Use the hub spellings: `kilometre`, `litre`, `neighbour`, `photograph`, `zip`. |
-| Q27 | Replace multiword onboarding picks with single-word lemmas. |
-| Q28 | Drop `internet`, `thousand`, `yes`. |
-| Q29–Q31 | Record decisions here; produce a reviewed pool + forms + green tests; the agent proposes all missing words. |
-| Q32 | Drop the numerals, keep the measures; rename the topic id `numbers_measures` to **“Measures & quantities”**. |
+Taken by the user on 2026-10-19. Each answer is the one marked in the questionnaire.
 
+| # | Question | Decision |
+|---|---|---|
+| Q1 | Q1: What role should the new 620-entry list have? | Replace the current `pool.tsv` after review. |
+| Q2 | Q2: What is the acceptance rule for one entry? | Keep an entry only with English + at least 2 target languages (ES/DE/ET) with usable forms. |
+| Q3 | Q3: Keep the 15 topic ids and labels as they are? | Keep the 15 topic ids and English labels. |
+| Q4 | Q4: Keep the 20% core allocation? | Keep `CORE_SHARE = 0.2`; core always eligible. |
+| Q5 | Q5: Keep the current onboarding UI limits? | Minimum 4 topics; **no maximum** (all 15 are allowed). |
+| Q6 | Q6: Is the 620-entry list final, or may we replace flagged words? | The 620-entry set is final except for words that cannot be translated. |
+| Q7 | Q7: Ten entries are absent from `word-lists/en/*.tsv`, so the current generator cannot source them. | Extend the generator to read an explicit entry list (lemma, POS, topic, band, rank). |
+| Q8 | Q8: Five entries have a frequency rank above 15,000 and would get no band. | Drop `appliance`, `humidity`, `kilogram`, `total (n)`, `past (n)` (rank > 15,000). |
+| Q9 | Q9: May this work change the generation scripts? | Generation scripts may change. |
+| Q10 | Q10: How should difficulty bands be assigned? | Use the CEFR bands in the new list; do not re-derive from frequency. |
+| Q11 | Q11: Fourteen concepts appear in two topics, and some also have two different bands. `pool.tsv` requires one unique id per concept… | One concept, one topic, but a Word may receive more than one topic tag. |
+| Q12–Q14 | Q12: How should the sense be chosen for each concept?<br>Q13: How should the chosen sense be recorded in `pool.tsv`?<br>Q14: What should we do with the 67 entries where a later sense gives more languages? | Curate the sense; store `entry_order` + `sense_order`; review the 67 entries where a later sense gave more languages. |
+| Q15 | Q15: Confirm the high-impact sense corrections below (first sense is wrong or unhelpful). | Use the proposed senses (the applied senses are in `pool.tsv`). |
+| Q16–Q18 | Q16: Twenty entries have no Spanish word in the first sense. What is the policy?<br>Q17: Twenty-five Spanish picks are not in the local lexicon (mostly multiword or reflexive phrases) and Spanish has no fallback.…<br>Q18: Two Spanish words exist but lack a required key case (`azúcar` has no gender, `arte` lacks a form). What should we do? | Manual Spanish single-word replacements; drop when none exists; supply missing gender/form. |
+| Q19–Q20 | Q19: Ten entries have no German word in the first sense. What is the policy?<br>Q20: Twenty-seven German picks have no usable local row. German has noun/verb generators but no adjective/adverb fallback. What… | Manual German words; use noun/verb generators; drop when no form is possible. |
+| Q21–Q24 | Q21: Should the onboarding pool builder use Ekilex to fill missing Estonian translations?<br>Q22: Nine words have no Estonian answer even from Ekilex. What should happen to them?<br>Q23: Seventy Estonian picks are not in the local Eesthetic lexicon (mostly adjectives/adverbs, plus some nouns/verbs). What should…<br>Q24: Is `EKILEX_API_KEY` available in the environment where the pool is generated? | Fill missing Estonian at pool-build time from Ekilex and freeze it in `pool.tsv`; runtime stays offline. |
+| Q25 | Q25: Eight entries lack the required English key case (`singularEN`, `adverbEN`). | Add a plural-only noun case to `KEY_CASES`; keep `clothes`, `data`, `news`, `pants`, `stairs`. |
+| Q26 | Q26: Five entries use a spelling the translation hub does not have. | Use the hub spellings: `kilometre`, `litre`, `neighbour`, `photograph`, `zip`. |
+| Q27 | Q27: Twenty-eight first-sense translation picks are multiword phrases (18 ES, 9 DE, 1 ET). | Replace multiword onboarding picks with single-word lemmas. |
+| Q28 | Q28: Three entries have no translation row at all: `internet (n)`, `thousand (n)`, `yes (adv)`. | Drop `internet`, `thousand`, `yes`. |
+| Q29–Q31 | Q29: Where should the decisions be recorded?<br>Q30: Expected output of the next step?<br>Q31: Who supplies the missing Spanish/German/Estonian words? | Record decisions here; produce a reviewed pool + forms + green tests; the agent proposes all missing words. |
+| Q32 | Q32: The Numbers & Measures topic tags numerals as nouns (`one (n)` … `thousand (n)`). The dictionaries store them as… | Drop the numerals, keep the measures; rename the topic id `numbers_measures` to **“Measures & quantities”**. |
 ## German values (C1, C2, C3)
 
 Forms verified against the German lexicon or the German noun generator.
@@ -74,7 +93,7 @@ Forms verified against the German lexicon or the German noun generator.
 
 ## Spanish values (B1, B2, B3)
 
-Forms verified against the Spanish lexicon. These replace the multiword picks from Appendix E.
+Forms verified against the Spanish lexicon. These replace the multiword first-sense picks of the questionnaire (its Appendix E, kept in git only).
 
 | Word | Proposed Spanish | Status |
 |---|---|---|
@@ -133,16 +152,16 @@ Number words (`one` … `ten`, `hundred`, `thousand`, `zero`, `half`) are droppe
 
 ## Senses
 
-- Q15: use the proposed senses in the questionnaire table.
-- Appendix F: use the sense that matches the intended meaning, not simply the coverage-best sense.
+- Q15: the proposed senses were accepted. The applied sense of every concept is in `backend/scripts/onboarding/pool.tsv` (columns `sense` and `sense_key`).
+- The 67 entries where a later sense gave more languages (the old Appendix F): use the sense that matches the intended meaning, not simply the coverage-best sense.
   - **Keep the first sense:** `cost` (amount of money), `consider` (think seriously), `reach`
     (arrive at), `stay` (remain), `say` (say/tell), `start` (begin), `think` (ponder), `drink`
     (beverage), `camera` (still camera, both topics), `fly` (Diptera insect), `border` (frontier),
     `anxiety` (uneasiness).
-  - **Use a third sense not shown in Appendix F:** `plane` → airplane `(2,0)`; `platform` → travel
+  - **Use a third sense that the old list did not show:** `plane` → airplane `(2,0)`; `platform` → travel
     raised structure `(0,3)`; `degree` → temperature unit `(0,2)`; `zip` → clothing fastener
     (manual, no hub sense).
-  - **All other Appendix F entries:** use the later sense shown in the appendix.
+  - **All other entries of that list:** use the later sense (the applied sense is in `pool.tsv`).
 
 ## Duplicate concepts (Q11)
 
@@ -169,7 +188,7 @@ Duplicates and the recommended primary topic/band:
 | sun (n) | Weather | Plants & Nature | Beginner |
 | work (v) | Work & Money | Core | Beginner |
 
-## Appendix G — answer
+## Entries the generator could not source (questionnaire Appendix G)
 
 It is informative; no input is needed. It tells us:
 
@@ -193,14 +212,6 @@ after drops, spelling changes and duplicate merges.
 - 16 entries remain in `numbers_measures`; the topic now contains measures and quantities only and
   needs the label **“Measures & quantities”**.
 - `trust`, `try on`, `internet`, `thousand`, `yes`, the numerals and the Q8 five are absent.
-
-## Next slices
-
-1. Review `word-lists/new-onboarding-pool-review.tsv` (data slice done).
-2. Implement the code changes: explicit entry list, `topics` list/multi-tag, minimum 4 topics/no
-   maximum, plural-only key cases, `entry_order`/`sense_order`.
-3. Regenerate `pool-forms.json`, run `onboardingPool` + `onboardingSelect` tests, and smoke-test
-   onboarding.
 
 ## Applied in code (2026-10-19)
 
@@ -228,3 +239,9 @@ The data slice is now the runtime pool. Facts that differ from, or add to, the t
   words, not the sense, so `onboarding-forms.ts` does not use it. The generator writes it.
 - Generator: `onboarding-pool.ts --entries <file>` (Q7) reads and validates an explicit list and never
   writes `pool.tsv`.
+
+## What was dropped from the three source files
+
+- The questionnaire's options and reasoning for each question, and its appendices A to F (gap tables for Spanish, German and Estonian, the multiword picks, the 67 sense entries). Their results are in the decisions above and in `pool.tsv`.
+- The audit file `onboarding-words-audit` ("temporary": a list of the old pool's concepts, word lists and quality flags, made before the decisions).
+- Read them with `git log -- .context/onboarding-words-questionnaire.md` (and the audit and resolutions paths).

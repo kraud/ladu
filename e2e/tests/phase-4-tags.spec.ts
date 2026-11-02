@@ -3,7 +3,7 @@ import { test, expect, type APIRequestContext, type Browser, type Page } from '@
 import { closePool, deleteUsersByEmail, getVerifyToken } from '../fixtures/db';
 
 /**
- * Phase 4 — tags, against the real stack (`.context/plans/phase-4-tags.md`
+ * Phase 4 — tags, against the real stack (`.context/features/tags.md`
  * Slice 9 gate).
  *
  * Two accounts, two browser contexts (the same "separate device" pattern

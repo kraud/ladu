@@ -2,7 +2,7 @@
 //
 // Used before the backend process starts — by the e2e webServer
 // (e2e/playwright.config.ts) and, in production, as a separate deploy step
-// run before the container swap (see .dev-context/deployment-strategy.md §3):
+// run before the container swap (see .context/guides/infrastructure-guide/deployment-strategy.md §3):
 //   docker compose run --rm backend node scripts/migrate.js
 
 const path = require('path');

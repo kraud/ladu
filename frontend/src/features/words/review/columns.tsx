@@ -91,7 +91,7 @@ function SortHeader({
 /**
  * The Type/part-of-speech column, alone — extracted out of `buildWordColumns`
  * for the same reason as `buildLanguageColumns` below: `WordPicker` and
- * `TagWordsTable` (`features/tags/components/`, phase-4-tags.md D18/Slice 6)
+ * `TagWordsTable` (`features/tags/components/`, .context/features/tags.md D18/Slice 6)
  * each need this exact abbreviation column without Review's own select/owner
  * column alongside it. `size` differs slightly per host (a picker's compact
  * row vs. Review's own column width), so it's the one parameter.
@@ -113,7 +113,7 @@ export function buildPartOfSpeechColumn(t: TFunction, size = 44): ColumnDef<Word
 /**
  * Just the per-language `WordCell` columns — extracted out of
  * `buildWordColumns` so a second table (`features/tags/components/
- * TagWordsTable.tsx`, phase-4-tags.md Slice 6) can reuse the exact same
+ * TagWordsTable.tsx`, .context/features/tags.md Slice 6) can reuse the exact same
  * language rendering without also inheriting Review's own select/owner
  * column, which is shaped around `RowSelectionState` + a bulk-action bar,
  * not that table's own row shape.

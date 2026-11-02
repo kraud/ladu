@@ -46,7 +46,7 @@ const isUuid = (value: unknown): value is string =>
 
 /**
  * The tag response shape for every new list/get/mutate endpoint
- * (phase-4-tags.md's `TagSummary`). Counts and relations are always
+ * (.context/features/tags.md's `TagSummary`). Counts and relations are always
  * computed via SQL, never by loading the tag's actual word list — that's
  * the whole point of the rebuild (see the plan's "Why" section).
  */
@@ -136,7 +136,7 @@ const getFollowedTagIdsByUserId = async (userId: string) => {
  * Word ids reachable through a tag `userId` follows AND can currently view —
  * `canViewTag`-equivalent visibility, evaluated fresh on every call rather
  * than trusting the `user_following_tags` row alone. This is what makes D9
- * (phase-4-tags.md) work: the moment an owner flips a followed tag to
+ * (.context/features/tags.md) work: the moment an owner flips a followed tag to
  * Private, its words stop matching here immediately, with no separate
  * "unfollow" step — the follow row itself is untouched.
  *
@@ -222,7 +222,7 @@ const computeIsAvailable = (
  * mirroring wordService.ts's own `fetchTranslationsMap`/`fetchTagsMap`
  * pattern) rather than N+1 queries per tag, and never load the tags' actual
  * word lists — that per-tag cost is exactly what made the legacy tag list
- * endpoints slow (phase-4-tags.md's "Why" section).
+ * endpoints slow (.context/features/tags.md's "Why" section).
  */
 const buildTagSummaries = async (
   tagRows: TagRow[],
@@ -326,7 +326,7 @@ const buildTagSummary = async (tagRow: TagRow, viewerId: string): Promise<TagSum
 };
 
 // @desc    List tags in a scope, optionally searched, sorted, and
-//          keyset-paginated (phase-4-tags.md D2/D16 — replaces
+//          keyset-paginated (.context/features/tags.md D2/D16 — replaces
 //          getTags/searchTags/getOtherUserTags/getFollowedTagsIdByUserId/
 //          filterTags, all of which either loaded every matching tag's full
 //          word list or leaked another user's followed-tag list with no
@@ -472,7 +472,7 @@ const getTagById = asyncHandler(async (req: any, res: any) => {
 /**
  * Shared ownership guard for the link/unlink endpoints: the caller must own
  * every tag id AND every word id, or the whole call is refused — no
- * partial-apply (phase-4-tags.md Risks).
+ * partial-apply (.context/features/tags.md Risks).
  */
 const assertOwnsTagsAndWords = async (
   req: any,
@@ -589,7 +589,7 @@ const unfollowTag = asyncHandler(async (req: any, res: any) => {
 
 /**
  * Append a numeric suffix until `label` is unique for `authorId`
- * (phase-4-tags.md D13/D11 — a clone whose label collides with one the
+ * (.context/features/tags.md D13/D11 — a clone whose label collides with one the
  * recipient already has gets "Label (2)", "Label (3)", ...).
  */
 const resolveUniqueLabel = async (label: string, authorId: string): Promise<string> => {
@@ -607,7 +607,7 @@ const resolveUniqueLabel = async (label: string, authorId: string): Promise<stri
  * inside the caller's own transaction (`tx`) — the caller opens and commits
  * it, so a share-accept and a direct clone can each wrap this in their own
  * single transaction instead of this function nesting a second one
- * (phase-4-tags.md's "Why" section — the old nested-transaction bug this
+ * (.context/features/tags.md's "Why" section — the old nested-transaction bug this
  * fixes).
  *
  * Batch-inserts words/translations/cases (three `INSERT ... RETURNING`
@@ -676,7 +676,7 @@ const cloneTagForUser = async (
 };
 
 // @desc    Clone a Public tag (and its words) for the current user, with a
-//          visibility the caller chooses (phase-4-tags.md D11).
+//          visibility the caller chooses (.context/features/tags.md D11).
 // @route   POST /api/tags/:id/clone
 // @access  Private
 const cloneTag = asyncHandler(async (req: any, res: any) => {
@@ -948,7 +948,7 @@ const labelAlreadyUsedByAuthor = async (
 };
 
 // @desc    Create a tag, optionally attaching it to some of the caller's
-//          own words up front (phase-4-tags.md D4-adjacent).
+//          own words up front (.context/features/tags.md D4-adjacent).
 // @route   POST /api/tags
 // @access  Private
 const createTag = asyncHandler(async (req: any, res: any) => {

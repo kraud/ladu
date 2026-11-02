@@ -1,8 +1,8 @@
 # New-Repo Reimplementation Build Plan
 
-*2026-09-05. Planning only — no code was changed. Executing the verdict of [frontend-reimplementation-study.md](../.frontend/frontend-reimplementation-study.md) §11: a **new repository** (npm-workspaces monorepo: copied backend + clean-slate frontend), built in small vertical slices, deployed to a temporary domain, cutover by manual domain switch. Companion document: the study (§7 target shape, §8 deficiency catalog, §9 flow catalog, §11 verdict).*
+*2026-09-05. Planning only — no code was changed. Executing the verdict of the frontend re-implementation study (archive record: `archive/2026-09-frontend-reimplementation-study.md`) §11: a **new repository** (npm-workspaces monorepo: copied backend + clean-slate frontend), built in small vertical slices, deployed to a temporary domain, cutover by manual domain switch. Companion document: the study (§7 target shape, §8 deficiency catalog, §9 flow catalog, §11 verdict).*
 
-**The documentation snapshot this plan is built on lives in [`snapshot/`](../.frontend/snapshot/)** — fourteen files + the [`ui/`](../.frontend/snapshot/ui/) blueprint collection (7 files), ~4,100 lines total, every claim carrying `file:line` evidence, produced 2026-09-05 (see §3). It has two halves: the **behavior inventory** (what each page/component does — the "long list of use cases") and the **data model + form/logic specs** (the enums, interfaces, case registry, per-form field lists, Review-table column+cell model, exercise-flow card model, autocomplete transforms, and general utility functions you need to literally rebuild the forms).
+**The documentation snapshot this plan was built on is described in section 3 (closed).** Its lasting parts are listed in the README table.
 
 ---
 
@@ -28,70 +28,14 @@ keelapp-v2/
 - Start small (user decision): Phase 1 = auth (register/login + verify/reset), Phase 2 = create/view **nouns** with translations in ≥3 languages (EN/ES/DE/EE — all four come free from the config-driven form engine). Each phase ships something runnable.
 - **Kill-switch** (study §11): after Phase 1's vertical slice, if measured pace suggests the full rewrite exceeds ~2× the migration-plan effort, stop and execute the corrected migration plan instead.
 
-## 2. Snapshot strategy — decision
+## 2. Snapshot strategy — decision (closed)
 
-The question: how do we always know what to do in the new frontend? Three options were evaluated.
+On 2026-09-05 three ways to know "what to build" were compared: **A** a use-case inventory written from the old code (the *snapshot*), **B** a copy of the old frontend inside the repo (rejected: it breaks every grep gate, and 32,400 dead lines mislead), **C** the live old app as the executable specification. The decision was **A + C**. The old app stays the tiebreaker until the Phase 8 cutover, and Phase 8 has a per-route parity pass because the inventory cannot carry every incidental behaviour.
 
-| Option | What it is | Verdict |
-|--------|-----------|---------|
-| **A. Use-case inventory (documentation snapshot)** | A compact, evidence-grounded description of every page/component: purpose, exhaustive use cases, endpoints, guards, effect/flag sequencing, reuse notes. **Produced now — see §3.** | **Adopt — it is the primary working spec.** ~1,100 lines replaces 32.4K lines of code as the thing you read while building. It is also the source of the route-parity checklist (§5 Phase 8). |
-| **B. Copy the old frontend into the new repo as read-only reference** | `frontend-old/` alongside `frontend/` | **Rejected.** (1) It breaks every grep gate the plan relies on (`grep "from '@mui'"` must be 0; a copied MUI tree makes every gate ambiguous or requires path-exclusions forever). (2) 32.4K dead lines of Redux+MUI actively mislead: an agent asked "how does X work?" finds two implementations and may port flag machines the rewrite is supposed to delete. (3) It duplicates what the old repo already provides on disk, one `cd` away. |
-| **C. Old repo side-by-side + live old app as executable spec** | Keep `keelapp` checked out; v1 keeps running on the real domain until cutover | **Adopt as the complement to A.** Behavior questions not covered by the inventory ("what exactly happens if the token is expired mid-form?") are answered by *running* v1. Zero maintenance cost; it already exists. |
+## 3. Documentation snapshot (closed)
 
-**Recommendation: A + C, reject B.** The inventory is the spec; the live old app is the tiebreaker; the old repo on disk is the greppable fallback. A copy inside the new repo adds nothing those three don't provide and permanently pollutes the codebase (a 32.4K-line read-only tree is never deleted, always excluded from greps, and always one confused import away from being linked).
+The snapshot was produced and frozen on 2026-09-05 from the old code (about 4,100 lines under `.context/.frontend/snapshot/`, every claim with `file:line`). It served the rebuild. Files that are still useful stay in `.context/.frontend/snapshot/`, and the README table gives each one a reason and a stop date. The rest was removed in the consolidation; read any removed file with `git log -- .context/.frontend/snapshot/<file>`. The full text of the old sections 2 and 3 (file table, coverage checks, key snapshot facts) is in `git log -- .context/plans/new-repo-build-plan.md`.
 
-Tradeoff accepted: the inventory abstracts — it cannot carry every incidental behavior. That residual risk is exactly why C stays (run v1 for any doubt) and why Phase 8 has a per-route parity pass *before* cutover, not trust in documents alone.
-
-## 3. Documentation snapshot (produced)
-
-Ten files under [`snapshot/`](../.frontend/snapshot/), all generated 2026-09-05 by reading the actual code (not the prior docs), every claim carrying `file:line`:
-
-**Half A — behavior inventory** (what each page/component does — the use-case list):
-
-| File | Covers | Size |
-|------|--------|------|
-| `endpoints.md` | All 57 backend endpoints (method, path, auth, purpose, FE consumer file:line), count reconciliation (54 FE HTTP calls across 10 services; 3 backend-only), TODO-route status, request/response shapes for the vertical-slice endpoints | 180 lines |
-| `pages-auth-shell.md` | Login, Register, VerificationUser, ResetPassword, NotFound, LoadingScreen, MainView, RoutesWithAnimation, LocationProvider, AuthVerify, Header | 225 lines |
-| `pages-word-flow.md` | Dashboard, AddWord, DisplayWord, WordForm, TranslationFormGeneric, WordFormSelector, form commons + autocomplete functions, NounFormEE/EN, WordSimpleList, autocompletedTranslation feature | 253 lines |
-| `pages-review-practice.md` | Review, Practice, table components, ExerciseCard, ExerciseParameterSelector, EndScreen, ResultRow, exercises + exercisePerformance features, charts (structure) | 150 lines |
-| `pages-social-account.md` | Account, NotificationHub, DisplayTag, FriendSearchModal, TagInfoModal, UserBadge, AutocompleteSearch/Multiple, GeneralUseComponents, DnD components, ImageCarousel, ConfirmationButton/Modal, useFollowUnfollowTag, useInterval, users/friendships/notifications/tags/metrics features | 330 lines |
-| `review-table.md` | Full column & cell-interaction spec for the Review table: simplified row shape, the 5 column kinds (select/owner, Type, per-language, tags), the primary-case `dataXX` mapping per PoS×language, cell→modal edit/delete/new-translation flows, owner differentiation, row selection + bulk actions | 200 lines |
-| `exercise-flow.md` | Full spec for the exercise domain: `ExerciseParameters` model + defaults, the 9-control parameter menu with difficulty-slider semantics + validation, `getUserExercises` contract, answer-evaluation rules (TI 3-level accent/case normalization + MC), performance save/master-forget payloads, end-screen + result-row, rebuild checklist | 220 lines |
-
-**Half B — data model + form specs** (the shape — what you need to literally rebuild the forms):
-
-| File | Covers | Size |
-|------|--------|------|
-| `data-model.md` | Verbatim transcription of `ts/enums.ts` (all 30 enums: NounCases, VerbCases, AdjectiveCases, AdverbCases, Lang, PartOfSpeech, gender/plural/declension, pronoun enums, …) and `ts/interfaces.ts` (WordData, WordDataBE, TranslationItem, WordItem, TagData, NotificationData, FriendshipData, FilterItem, exercise/performance types, …) + `wordCasesDataByPoS` interface | 262 lines |
-| `word-cases-data.md` | Complete `WordCasesData` registry verbatim: all 132 entries — Noun 21 (EN 2, ES 3, DE 9, EE 7), Verb 111 (EN 21, ES 42, DE 28, EE 20), each `caseName → language + plurality/declension/person/tense/mood` | 257 lines |
-| `forms-nouns.md` | NounFormEN/ES/DE/EE — verbatim yup schemas, structural fields (regularity, gender, shortForm), field order | 148 lines |
-| `forms-verbs.md` | VerbFormEN/ES/DE/EE — verbatim yup schemas, structural fields (regularity, DE auxVerb/caseType/prefix, ES non-finite), tense-grouped field order | 272 lines |
-| `forms-adjectives-adverbs.md` | AdjectiveForm×4 + AdverbForm×3 — verbatim yup schemas, field order; confirms **no Estonian adverb form** | 257 lines |
-| `general-use-functions.md` | Full export inventory of `generalUseFunctions.ts` (748 lines): all ~30 helpers — language/PoS lookups, avatar/color, friendship-button logic, filter extraction, word-chip/primary-case display, timers, sorting, color interpolation — with quirks + port/test guidance | 180 lines |
-| `autocomplete.md` | The 8 autocomplete endpoint variants + the 4 shared EE/ES sanitize transforms (exact case mappings + word-form codes), the found/partial/not-found status, and the 4 inline (non-shared) sanitizers to lift | 150 lines |
-
-**UI blueprint** — [`ui/`](../.frontend/snapshot/ui/) (7 files, ~700 lines): design-neutral, screen-by-screen layout + interaction spec for the reimplementation frontend (built for AI-assisted UI development). `00-global.md` fixes the shell, navigation, shared patterns, states, and the §8 intentional deltas; 01–06 cover auth, Dashboard, word editor, Review table, Practice flow, and social views. Feed 00→06 in order.
-
-Key snapshot facts the roadmap relies on:
-
-- **Session model**: `localStorage['user']` holds the *entire* verified login response incl. token (`authService.ts:18-20`); register does NOT persist the response (`Register.tsx:71-73`); verify stores `response.data.user` (`authService.ts:52-54`). Three different write shapes — the new session store normalizes to one.
-- **Guards**: `AuthVerify.tsx:19-29` (expiry on route change) is the *only* guard; per-page redirects exist on Dashboard/AddWord/Review; **Practice, Account, NotificationHub, DisplayTag render unauthenticated** (known bug — the rewrite's `ProtectedRoute` fixes it in the first commit, per §8.4).
-- **Polling**: 90,000 ms + immediate first fetch (`MainView.tsx:67-75`; comment wrongly says 60 s); no visibility handling; ships full history incl. dismissed; badge filtered client-side (`Header.tsx:200-206`).
-- **Flag machines to delete**: WordForm's 4 `recently*` flags + chained effects (`WordForm.tsx:64-67, 114-149`, incl. the self-triggering `setHideView` effect :147-149); FriendSearchModal's 4-op-boolean dual-slice wait (:91-94, 148-180); TagInfoModal's 5 booleans over an overloaded `fullTagData` slot (`tagSlice.ts:437-492`); follow/unfollow overloading `followedTagResponse` (`tagSlice.ts:541-562`).
-- **Form duplication**: 15 per-language forms ≈ 8,700 lines of identical scaffolding; per-language variance = yup field lists + case names, now fully transcribed in Half B (`data-model.md` for the enums, `word-cases-data.md` for the 132-entry case registry, `forms-{nouns,verbs,adjectives-adverbs}.md` for the per-form yup schemas + field order). Port `enums.ts` + `interfaces.ts` verbatim; generate the forms from the registry + schema specs.
-- **EE autocomplete sanitization** (`sanitizeDataStructureEENoun/EEAdjective/EEVerb/ESVerb`, `autocompleteFormFunctions.ts`) moves into query transforms; module-level shared debounce timer (`generalUseFunctions.ts:544-550`) becomes per-instance `useDebouncedCallback`.
-- **Contract oddities to normalize in the copied backend** (from `endpoints.md`): the legacy `_id` alias in responses — a hand-written mirror of the Postgres `id` (`serializeUser`'s `{ ...user, _id: user.id }`, `serializeLoginUser`/`publicUserResponse` returning `_id` *instead of* `id`, `authMiddleware`'s `_id`, `wordService`'s `_id: t.id`/`_id: word.id`, `notificationController`/`tagController` mappers, …). The Drizzle schema has **no `_id` column**; it is a MongoDB artifact kept only for a still-Mongo-shaped frontend — and the old frontend runs against its **own separate backend/Docker stack**, not this copy, so nothing here consumes it. **Strip it per-slice** as each controller is touched (see §4), not "until cutover". Other oddities: `DELETE /api/words/deleteMany` and `DELETE /api/tags/unfollowTag/:id` carry request bodies (move to POST/DELETE-with-query); `GET /api/words/:id` has no ownership check (`wordController.ts:571-580`); EE autocomplete proxies an external API with unhandled-rejection risk (`autocompleteTranslationController.ts:314`).
-- **TODO routes — decision**: `GET /api/tags/filterTags` (TODO-marked `tagRoutes.js:17`) **keep** — consumed by `tagService.filterTags` (`tagService.ts:130-145`); `GET /api/words/getAllWordDataByWord` (TODO-marked `wordRoutes.js:17`, no FE consumer) **delete** in the copy.
-
-**Coverage & verification (performed 2026-09-05):**
-
-- Routes: 14 files under `frontend/src/pages` (12 routed + unrouted `LoadingScreen`) + 3 `management/` files — all covered across the four page snapshot files; route list verified against `RoutesWithAnimation.tsx:54-138` (12 routes + catch-all; `/tag/:tagId?` env-gated via `checkEnvironmentAndIterationToDisplay(2)` at :122-129).
-- Endpoints: independent grep of `router.(get|post|put|delete)` across `backend/routes/*.js` = **57** — matches `endpoints.md` exactly.
-- Spot-checks of inventory claims against source, all confirmed: `Review.tsx:228-254` (index-keyed selection + TODOs at :232,:237,:246), `WordForm.tsx:64-67,114-149` (flag machine), `MainView.tsx:67-75` (90 s poll + wrong comment), `tagSlice.ts:541-562` (overloaded slot), `RoutesWithAnimation.tsx:122-129` (env-gated route), `AuthVerify.tsx:19-29` (expiry check + malformed-token crash).
-- Spot-checks of the form specs against source: `NounFormES.tsx:33-46` (regularity/gender/singular/plural) and `NounFormDE.tsx:34-61` (regularity/gender + 4-case × sing/plural, only nominative-singular required) match `forms-nouns.md`; `word-cases-data.md` totals (Noun 21 = EN 2 + ES 3 + DE 9 + EE 7; Verb 111 = EN 21 + ES 42 + DE 28 + EE 20) sum correctly to 132 and were programmatically cross-checked against `wordCasesDataByPoS.ts` by the writing agent.
-- Review-table spec (`review-table.md`) grounded against `ReviewTableColumns.tsx:52-321` (column factory), `ExtraTableComponents.tsx:142-241` (cell→modal), and `wordController.ts:155-232` (the `dataXX` primary-case extraction). Confirmed the FE type `TableWordData` (`ReviewTableColumns.tsx:13-40`) is stale — it omits the `dataDE/dataEE/dataEN/dataES` accessors the factory actually reads — a discrepancy the spec flags for the rewrite.
-
-**Maintenance rule**: the snapshot is frozen at 2026-09-05. The old app is dormant (no commits touching `frontend/src` in ~3 months), so drift risk is ~zero; if v1 ever changes, re-diff the affected snapshot sections.
 
 ## 4. New-repo architecture (decisions inherited + final)
 
@@ -129,8 +73,8 @@ Each phase: scope → gate. Order chosen so every phase ends with a runnable app
 | 5 | Exercises + performance | 3 |
 | 6 | Social: friendships + notifications + users (redesigned models) | 1 |
 | 7 | Tag shares/clone + Account + polish | 4, 6 |
-| D | **Deployment pipeline** (staging + production on the real domain) — see [`.dev-context/deployment-strategy.md`](../../.dev-context/deployment-strategy.md) | 3.5 |
-| O | **OAuth login** (Sign in with Google/Microsoft, alongside email+password) — see [`.dev-context/oauth-login-strategy.md`](../../.dev-context/oauth-login-strategy.md) | 1 |
+| D | **Deployment pipeline** (staging + production on the real domain) — see [`.context/guides/infrastructure-guide/deployment-strategy.md`](../../.context/guides/infrastructure-guide/deployment-strategy.md) | 3.5 |
+| O | **OAuth login** (Sign in with Google/Microsoft, alongside email+password) — see [`.context/features/oauth-login-strategy.md`](../../.context/features/oauth-login-strategy.md) | 1 |
 | 8 | Parity checklist + apex cutover | all |
 
 ### Phase 0 — Scaffold + backend copy
@@ -202,7 +146,7 @@ Slices (each one ends with something runnable):
 
 | Slice | Scope |
 |---|---|
-| 0 | Persist the plan (`phase-3-9-dark-mode.md`) |
+| 0 | Persist the plan (now `features/theme-and-language.md`) |
 | 1 | Dark palette + theme store + no-flash script + `ThemeToggle` on the auth screens |
 | 2 | Backend: `users.theme` + tests |
 | 3 | Header `ThemeToggle` + login/register carry-over |
@@ -241,8 +185,32 @@ Slices (each one ends with something runnable):
 - **Gate**: §8.2/§8.3 intentional-deltas each have a green verification; full-suite green.
 - **e2e** (`phase-7-tag-shares.spec.ts`, two browser contexts): user A shares a tag → user B accepts → B gets an independent editable clone whose words keep every translation + case (the data-loss bug); a non-viewer is refused on `getTagById`/`followTag`/clone; Account language-order drag persists.
 
+### Design for the deferred social phases (from the study, §8.1 to §8.3 and §9)
+
+*Folded here from the frontend re-implementation study (archive record: `archive/2026-09-frontend-reimplementation-study.md`) so the design stays readable while the work waits. The defects were verified against the old code on 2026-09-05. Friendship and notification controllers and tests are not reconciled yet (`CLAUDE.md`); the schema changes were kept. The tag-side items already built are in `features/tags.md`.*
+
+**Notifications (§8.1, Phase 6).** The old app polled every 90 s whether the tab was visible or not, shipped the whole history (dismissed rows too) and filtered the unread badge on the client. Poll errors were silent.
+- Use one `['notifications']` query with `refetchInterval: 90_000`, `refetchIntervalInBackground: false`, `refetchOnWindowFocus: 'always'`, and an `onError` toast.
+- The list endpoint takes `?unreadOnly=&since=` so a poll ships changes, not history. Dismiss and snooze are mutations that update the cache with `setQueryData`.
+- Notifications become a **display-only inbox**. A pending action (accept a friend request, accept a shared tag) is drawn from the domain query (friendships, tag shares), never by parsing notification JSON.
+- Options rejected: SSE (needs a persistent process; it forces a host that can hold connections; keep it as a documented upgrade at `/api/notifications/stream` with `Last-Event-ID`), websockets (no two-way need).
+- The notification row is created **server-side in the same transaction** as the domain action.
+
+**Friendships (§8.2, Phase 6).** Old defects: no requester column (the id pair was sorted, so the requester existed only in a notification's JSON); no decline action (a request stayed `pending` forever); duplicate pending rows were possible (the schema comment claimed a CHECK that did not exist); compound endpoints were not transactional; the client sent two calls (notification, then friendship) and waited with four booleans.
+- One `friendships` table: `requesterId` and `addresseeId` (not null, foreign keys), `status` enum `pending|accepted|declined|cancelled` (not null).
+- Partial unique index `(requesterId, addresseeId) WHERE status = 'pending'` (one open request per direction). Expression unique index `(LEAST(requesterId, addresseeId), GREATEST(requesterId, addresseeId)) WHERE status = 'accepted'` (one friendship per pair). The create handler checks both directions.
+- One action per endpoint: `POST /api/friendships` (also creates the notification in the same `db.transaction`), `POST /:id/accept`, `POST /:id/decline` (**new**), `DELETE /:id` (cancel by the requester while pending; unfriend by either side once accepted), a list and a pending inbox. The `friendship_partnerships` table carries over. Drop the legacy `userIds` array shape.
+- Frontend: `useFriendships` and `useFriendRequests`, one mutation per action. The dual-slice wait dies by construction.
+
+**Tag sharing (§8.3, Phase 7).** Old defects: the share lifecycle used a notification as its state machine (no accept or decline state); any user could clone any tag by id, private ones included; a clone copied only the part of speech and clue of each word (translations and cases were lost) and ran as three inserts without a transaction; follow and unfollow shared one state slot.
+- Already built in Phase 4 (see `features/tags.md`): the `canViewTag` check, the author set on the server, and the transactional tag clone.
+- Still to build: a `tag_shares` table (`tagId`, `senderId`, `recipientId`, `status` enum `pending|accepted|declined`, partial unique pending per `(tagId, recipientId)`), and the endpoints `POST /api/tags/:id/share`, `POST /api/tag-shares/:id/accept`, `POST /api/tag-shares/:id/decline`. Accept checks `recipientId === req.user.id` and `status = 'pending'`, then runs the server-side clone. A clone of a shared tag is allowed when a pending share exists for the caller or the tag is Public.
+- Frontend: one accept mutation. The clone button on a tag page and the inbox entry collapse into it.
+
+**Flows to re-encode on purpose (study §9).** Friend request send, cancel, accept, delete; tag share and accept-and-clone; notification polling. Each becomes mutation callbacks and invalidation edges, never chained effects.
+
 ### Phase 8 — Parity + cutover
-- Deployment moved forward (2026-09-16): `app.` and `staging.` subdomains of the real domain run v2 from the pipeline in [`.dev-context/deployment-strategy.md`](../../.dev-context/deployment-strategy.md), and every phase after 3.5 ships through it. Phase 8 no longer deploys; it verifies parity and switches the apex.
+- Deployment moved forward (2026-09-16): `app.` and `staging.` subdomains of the real domain run v2 from the pipeline in [`.context/guides/infrastructure-guide/deployment-strategy.md`](../../.context/guides/infrastructure-guide/deployment-strategy.md), and every phase after 3.5 ships through it. Phase 8 no longer deploys; it verifies parity and switches the apex.
 - **Route-parity checklist**: per route (12 + catch-all), walk every use case in the snapshot files against the new build; **intentional-deltas annex** lists every §8-driven behavior change with its own verification (decline action, visibility-aware polling, clone preserving translations, server-side authz + notifications, 401→logout, guards on the 4 pages, URL-persisted filters, pagination).
 - User points the apex domain at the VPS (Terraform) once `landing/` is ready. Old repo becomes greppable reference; archive when satisfied.
 - **Gate**: checklist + annex fully green; zero unexplained parity failures.
@@ -277,136 +245,23 @@ Performed 2026-09-05, before this plan was written:
 
 ## 9. Progress — quick reference
 
-*Snapshot 2026-09-08. This is the "where are we" glance for when work resumes; keep the tail current as slices land. Per-slice detail — goals, decisions taken with the user, what actually shipped vs. what was planned — lives in the per-phase files in this folder, one file per phase.*
+*Updated 2026-11-02 (consolidation). One row per phase: status, and where the lasting content is. Per-phase plans were folded into the live specs and archived; their old text is one `git log -- <old path>` away. Counts of tests at each gate are in the archive records.*
 
-| Phase | Status |
-|---|---|
-| 0 — Scaffold + backend copy | ✅ done — commit `c030b68`; backend 130/130 green |
-| 1 — Auth + app shell | ✅ **done & committed** 2026-09-10 — merged to `main` via PR #1 (`0cf091f`); final state backend 144/144, frontend 98/98, e2e 7/7, build green (breakdown below) |
-| 2 — Noun create/view (form engine v1) | ✅ **done** 2026-09-12 — plan: [`phase-2-noun-crud.md`](./phase-2-noun-crud.md); final state backend **145/145**, frontend **188/188**, e2e **9/9**, build green (breakdown below) |
-| 3 — Form engine completion + autocomplete + Review | ✅ **done** 2026-09-15 — plan: [`phase-3-forms-autocomplete-review.md`](./phase-3-forms-autocomplete-review.md); 12 slices (0–11), all done; final state backend **165/165**, frontend **540/540**, e2e **10/10**, build green (breakdown below) |
-| 3.5 — Dashboard + user metrics | ✅ **done** 2026-09-16 — plan: [`phase-3-5-dashboard-metrics.md`](./phase-3-5-dashboard-metrics.md); 8 slices (0–7), all done; final state backend **175/175**, frontend **611/611**, e2e **12/12**, build green (breakdown below) |
-| 3.9 — Dark mode + small fixes | ✅ **dark mode done & gated** 2026-09-25 (Slices 0–6) — plan: [`phase-3-9-dark-mode.md`](./phase-3-9-dark-mode.md); light/dark theme on the landing page, auth screens and app (switch on all three; backend `users.theme`; login carry-over; `?lng=&theme=` handoff; landing language selector); final state backend **244/244**, frontend **696/696**, e2e **34/34**, build green. Small fixes: 404 theme switch and `<html lang>` (Slice 7), form-row bottom alignment (Slice 8), out-of-flow validation messages on rows with a mandatory field (Slices 9–10) done; more (Slice 11+) waiting for the user's list |
-| 4 — Tags | ✅ **done & gated** 2026-09-28 (Slices 0–9) — plan: [`phase-4-tags.md`](./phase-4-tags.md); the tag backend rebuilt (ownership checks, pagination, a `TagSummary` list API, clone/link-unlink endpoints) alongside the frontend's `/tags` + `/tag/:id` pages, Review integration (tags column/filter/bulk-assign) and the word editor's real Tags section; final state backend **291/291**, frontend **960/960**, e2e **35/35** non-OAuth (the suite's 8 pre-existing `oauth-*` specs are unrelated to this phase and could not be verified in the sandbox this phase was built in — see the plan's Slice 9 write-up), build green |
-| 5 — Practice (exercises + performance) | ✅ **done & gated** 2026-09-30 (Slices 0–9) — plan: [`phase-5-practice.md`](./phase-5-practice.md); backend domain module + new `/api/exercises/*`, the practice UI (set-up, cards, performance indicator with Mastered/Revise, results), Review → Practice hand-off. Final state backend **517** (25 suites), frontend **1286** (113 files), build green, `e2e/tests/phase-5-practice.spec.ts` **5/5**. **Full e2e run: 37 passed, 8 failed — all 8 are `oauth-2` … `oauth-5` (Google sign-in through the stub issuer), none touch practice.** Likely cause: the dev backend that was already running (Playwright reuses it) was started without `OAUTH_ISSUER_GOOGLE`, so it talks to real Google; not confirmed, because that would mean stopping the dev server. Same 8 as in the Phase 4 note. |
-| 5.5 — Saved practice configs + sessions | ✅ **done & gated** 2026-09-30 (Slices 1–5) — plan: [`features/saved-practice.md`](../features/saved-practice.md); not in the original outline. Migrations `0008` (`practice_configs`) and `0009` (`practice_sessions`), `/api/practice/*`, saved configurations and saved sessions (limit 10, 7-day expiry) in the set-up and Leave dialog. Same final counts as Phase 5; `e2e/tests/phase-5-5-saved-practice.spec.ts` **5/5**. Staging and production need `node scripts/migrate.js` (the deploy step) for `0008` and `0009`. |
-| 6–8 | not started |
+| Phase | Status | Live spec | Archive record |
+|---|---|---|---|
+| 0 — Scaffold + backend copy | ✅ done (`c030b68`) | — | — |
+| 1 — Auth + app shell | ✅ 2026-09-10, PR #1 | [`features/auth-and-shell.md`](../features/auth-and-shell.md) | `archive/2026-09-phase-1-auth-app-shell.md` |
+| 2 — Noun create/view (form engine v1) | ✅ 2026-09-12, PR #2 | [`features/word-form-engine.md`](../features/word-form-engine.md) | `archive/2026-09-phase-2-noun-crud.md` |
+| 3 — Form engine completion + autocomplete + Review | ✅ 2026-09-15, PR #3 | [`features/word-form-engine.md`](../features/word-form-engine.md), [`features/words-list.md`](../features/words-list.md) | `archive/2026-09-phase-3-forms-review.md` |
+| 3.5 — Dashboard + user metrics | ✅ 2026-09-16, PR #4 | [`features/dashboard.md`](../features/dashboard.md) | `archive/2026-09-phase-3-5-dashboard.md` |
+| 3.9 — Dark mode + small fixes | ✅ 2026-09-26, PR #52 | [`features/theme-and-language.md`](../features/theme-and-language.md) | `archive/2026-09-phase-3-9-dark-mode.md` |
+| 4 — Tags | ✅ 2026-09-28, PR #53 | [`features/tags.md`](../features/tags.md) | `archive/2026-09-phase-4-tags.md` |
+| 5 — Practice (exercises + performance) | ✅ 2026-09-30 | [`phase-5-practice.md`](./phase-5-practice.md) (live: Part A is the practice knowledge base) | — |
+| 5.5 — Saved practice configs + sessions | ✅ 2026-09-30 | [`features/saved-practice.md`](../features/saved-practice.md) | `archive/2026-09-saved-practice.md` |
+| D — Deployment pipeline | ✅ phases 0, A to E, 2026-09-19 to 2026-11-01 | [`guides/infrastructure-guide/deployment-strategy.md`](../guides/infrastructure-guide/deployment-strategy.md) and the guide | — |
+| O — OAuth login (Google) | ✅ 2026-09-24 | [`features/oauth-login-strategy.md`](../features/oauth-login-strategy.md) | `archive/2026-09-oauth-backlog.md` |
+| 6 — Social: friendships + notifications | not started | design in "Design for the deferred social phases" (§5, after Phase 7) | — |
+| 7 — Tag shares + Account + polish | not started | same | — |
+| 8 — Parity + cutover | not started | the intentional-deltas annex is in the Phase 8 section (§5) | — |
 
-- **Context docs refactored** (commit `891ffba`): `CLAUDE.md` is now product intro + working rules only; commands, target stack, invariants, spec index and roadmap table moved to [`.context/README.md`](../README.md).
-- **Test infra** (commit `39fe6d6`): the `e2e/` Playwright workspace + the `@playwright/mcp` server (`.mcp.json`) landed. `e2e/tests/smoke.spec.ts` (Phase 0 harness check) is green; per-phase specs (`phase-N-*.spec.ts`) are authored as each phase reaches its gate. `phase-1-auth.spec.ts` landed 2026-09-10 (4 tests; the workspace gained `pg` + `dotenv` + `fixtures/db.ts` for reading the verification token off the dev DB). `phase-2-noun-crud.spec.ts` landed 2026-09-12 (2 tests; registers users straight through the API + DB-read verification token, everything else through the real form). `phase-3-review.spec.ts` landed 2026-09-15 (1 test; creates a noun and a verb through the real engine — including a real offline autocomplete lookup — then filters/reloads/paginates/selects on `/review`); the same slice fixed `fixtures/db.ts`'s pool-per-worker sharing bug (see the Phase 3 write-up below). `phase-3-9-theme.spec.ts` landed 2026-09-25 (6 tests; handoff, login carry-over, row theme on a fresh browser, OS start value, 404 switch, `<html lang>`). `phase-3-5-dashboard.spec.ts` landed 2026-09-16 (2 tests; a seeded account drives every stat card, both charts, all three chart toggles and the worst-category link, adds a word through the real form and confirms the `['metrics']` invalidation edge, plus a second fresh account for the empty state) — `npm run test:e2e` is 12/12 green, verified both at the default parallelism and under `--workers=1` (the shape CI will eventually use). `phase-4-tags.spec.ts` landed 2026-09-28 (1 comprehensive test, `test.step`-segmented; two `browser.newContext()` sessions held open side by side — the "separate device" pattern `phase-3-9-theme.spec.ts` established, reused here for a genuine two-*account* story — walk a tag from creation through bulk-assign, discovery, follow, a Private/Public visibility round-trip and a clone into an independent copy, checking word-count/follower badges at each step); the suite is 35/35 excluding the 8 pre-existing `oauth-*` specs, which need a `backend/.env` with real Google OAuth credentials this phase's build sandbox didn't have.
-
-### Phase 1 — [`phase-1-auth-app-shell.md`](./phase-1-auth-app-shell.md)
-
-Five reviewable slices; the user commits and re-confirms between each.
-
-| Slice | Status |
-|---|---|
-| 0 — persist the plan into the repo | ✅ done |
-| 1 — design system + UI primitives (Ladu tokens in Tailwind v4, shadcn/Base UI init, 8 primitives) | ✅ done 2026-09-08 — commit `39fe6d6`; frontend 9/9 + build green |
-| 2 — app plumbing (axios client + 401 interceptor, Zustand `persist` session, typed router, `ProtectedRoute`, real 404, MSW infra) | ✅ done 2026-09-08 — frontend 42/42 + build green; guard + 404 verified in-browser |
-| 3 — auth pages (register / verify / login / logout / reset) | ✅ done 2026-09-08 — frontend 74/74 + build green; backend 130/130 green |
-| 4 — app shell + Home (`AppHeader`, `LanguageSelector`, `UserMenu`, welcome banner) | ✅ done 2026-09-10 — frontend 81/81 + build green; shell + language switch + logout + nav-gate + mobile Sheet verified in-browser |
-| 5 — backend hygiene + phase gate | ✅ done 2026-09-10 — leaks closed (`serializeUser` allowlist; both `userColumnsWithoutPassword` trimmed); registration language picker + public UI-language selector added; `phase-1-auth.spec.ts` written; grep gate + guard verified |
-| 5b — Account page (profile + language editing) | ✅ done 2026-09-10 — user-requested "one last modification". `features/account/` (`AccountPage` view/edit + `ProfileForm` + `buildProfileSchema`); edits name/username/languages only; `updateUser` now backend-validates `languages` (>= 2, like registration); zero-languages edge case → warning banner; `LanguagePicker` moved to `components/common/`; new `account` i18n namespace (EE flagged) |
-| **commit** | ✅ 2026-09-10 — everything above landed on `main` via **PR #1** (`0cf091f`, from branch `auth-and-app-shell`). Final Phase-1 state: backend **144/144**, frontend **98/98**, **e2e 7/7**, build green |
-
-Deviations agreed with the user (full text in the plan's Slice 4/5 outcomes): no `VerifyEmailBanner` (unverified users are blocked at login); five shadcn primitives (`dialog`, `alert-dialog`, `checkbox`, `radio-group`, `textarea`) held to Phase 2; Dashboard/metrics (metrics query, stat cards, both word-derived charts) re-scoped to **Phase 3.5** (2026-09-10) — Phase 1 Home is only the welcome banner and ships **no `useQuery`**; `button.tsx` wrapped in `forwardRef` (React-18 ref support, first needed by `sheet.tsx`). **Three blueprint additions** (none in `ui/01-auth.md`): a language-selection step in registration (`users.languages`, >= 2, selection order; backend-validated); a UI-language selector on the public routes (persists via the i18next detector cache, and is written to `users.uiLanguage` on the login/register request); and a **profile-editing subset of the Account page** (`/user` — name/username/languages, backend-validated `updateUser`; the full tags/friends/DnD Account page stays Phase 7). Kill-switch (study §11b): 5 slices / 3 sessions, landed on scope, reusable design-system cost paid down — **verdict: continue the rewrite**; re-evaluate if Phase 3's form engine overruns. The Phase 1 e2e spec (`phase-1-auth.spec.ts`, 4 tests) landed 2026-09-10 — `npm run test:e2e` is 7/7 green (local only; no CI job until Phase 8).
-
-**Dashboard/metrics re-scoped out of Phase 1 (2026-09-10):** Slice 4 originally bundled the app shell with a Dashboard reading `getUserMetrics`. Since that endpoint aggregates `words` + `translations` only, it has nothing to show until Phases 2–3 exist. Slice 4 now ships the shell plus a Home page that is only the welcome banner; the full Dashboard (metrics query, stat cards, both word-derived charts) moved to the new **Phase 3.5** — see [`phase-3-5-dashboard-metrics.md`](./phase-3-5-dashboard-metrics.md). Phase 5 lost its "+ Dashboard charts" for the same reason. The `getUserMetrics` path correction (blueprint's `/api/metrics/...` → real `/api/users/getUserMetrics`) now lives in the Phase 3.5 file.
-
-**`_id` correction (2026-09-08):** the `_id` MongoDB artifact is being removed as-we-go, not in one refactor — see the standing rule in §4. Frontend done in Slice 2: `ts/interfaces.ts` (`UserData`/`NotificationData`/`FriendshipData`/`TagData`/`FilterItem` → `id`) and `authStore` (`RawUser._id` and the `raw._id` fallback dropped) plus their tests. **Slice 3 (2026-09-08) swept the entire auth/user/metrics backend surface** (Option B, agreed with the user): `serializeUser` / `serializeLoginUser` / `publicUserResponse` / `authMiddleware` (`serializeAuthenticatedUser` wrapper deleted) / `getBasicUserMetrics`'s internal arg / `metricController.calculateBasicUserMetrics`'s param type — all `id` now, no `_id` anywhere in that surface. `backend/tests/auth.test.js` plus the `registerAndLogin` call sites in `tests/{words,exercises,tags,notifications}.test.js` updated; backend 130/130 green. **Remaining `_id` aliases** live only in `wordController` / `tagController` / `notificationController` / `exerciseController` responses — stripped in their consuming phases (2/4/6). Slice 5's backend scope is now just the bcrypt-hash and `passwordTokens` leaks + the phase gate.
-- **Phase 2 Slice 1 (2026-09-10):** the word-response surface is now `id`-only — `WordResponse` / `AssembledTranslation` (`services/wordService.ts`), `simplifyWord` and the `deleteWord` `{ id }` response (`wordController.ts`). `exerciseController.fetchWordsWithData` remaps to its own internal legacy `_id` shape so the exercise-generation helpers are untouched. Tests updated: `words.test.js`, `exercises.test.js`, `snapshots.test.js`, `tags.test.js` (word-id reads), `unit/wordService.test.js`. Still carrying `_id`: `tagController` (`normalizeTag`) and `notificationController` — stripped in Phases 4 / 6. The `/simple` + tag-filter request-input readers were stripped ahead of schedule by Phase 3 Slice 5 (2026-09-13): `getWordsSimplified` now takes a flat, repeatable `?tag=<uuid>` param instead of a JSON `filters` array keyed by `_id`.
-
-### Phase 2 — [`phase-2-noun-crud.md`](./phase-2-noun-crud.md)
-
-✅ **Done and gated 2026-09-12.** Seven slices (0–6); the user committed and re-confirmed between each. Decisions D1–D4 taken with the user 2026-09-10 (pagination deferred to Phase 3; clue-only, no tags field; `GET /api/words/:id` returns 403 for non-owner with the non-owner read-only view deferred to Phase 4; noun field labels i18n-keyed).
-
-| Slice | Status |
-|---|---|
-| 0 — persist the plan | ✅ done |
-| 1 — backend: `_id` strip on word responses + `GET /api/words/:id` ownership check (403) + tests | ✅ done 2026-09-10 — backend **145/145** green; `snapshot/endpoints.md` corrected (`data-model.md` §2.1 already `id`-clean) |
-| 2 — `features/words` data layer (types / api / keys / hooks / MSW) | ✅ done 2026-09-10 — `features/words/{types,api,keys,hooks}.ts` + `test/msw/wordHandlers.ts`; hooks do invalidation only (toasts/nav deferred to the pages); `wordKeys` namespaced; frontend **98 → 105**, build green |
-| 3 — form engine core: configs + `buildYupSchema` + `FieldRenderer` + `TranslationCard` + 5 held-over shadcn primitives + regression test | ✅ done 2026-09-11 — frontend **105 → 133**, build green |
-| 4 — `WordForm` orchestrator + `PartOfSpeechSelector` + `AddWordPage` (create) | ✅ done 2026-09-12 — frontend **133 → 180**, build green |
-| 5 — `WordPage` (owner view / edit / delete) | ✅ done 2026-09-12 — `WordPage` owns its own read-only View (no `displayOnly` mode added to `WordForm`) + an Edit state mounting `WordForm` unchanged; new `ConfirmDialog` (first consumer of Slice 3's unused `alert-dialog`); zero new i18n keys needed (old-app locale scaffolding already had them). Frontend **180 → 188**, build green |
-| 6 — phase gate: `phase-2-noun-crud.spec.ts` + docs + full green run | ✅ done 2026-09-12 — real-stack e2e spec (2 tests); found and fixed a real bug along the way (below); final gate backend **145/145**, frontend **188/188**, e2e **9/9**, build green; `grep -r "_id" frontend/src/features/words` = 0 |
-
-**Bug found by the Slice 6 e2e gate:** `WordPage`'s not-found/403 handling and its **Return** button called `router.history.back()` unconditionally. For a *direct* landing on `/word/:id` (a bookmarked or shared link, or — as the e2e non-owner test does — a hard `page.goto`) there is no client-side history to pop into: the browser either no-ops or unloads the current document for whatever came before the tab's session, taking the just-shown toast down with it before it's ever seen. Fixed with `useCanGoBack()`: when there's nothing to go back to, fall back to a client-side `navigate({ to: '/' })`, which stays inside the SPA and keeps the toast visible. Same-session "Return" clicks are unaffected. See `WordPage.tsx`'s `goBack()` and the Phase 2 plan's Slice 6 outcome for the full e2e trace that surfaced this.
-
-### Phase 3 — [`phase-3-forms-autocomplete-review.md`](./phase-3-forms-autocomplete-review.md)
-
-✅ **Done and gated 2026-09-15.** Twelve slices (0–11), the largest phase so far; the user commits
-and re-confirms between each. Decisions D1–D7 taken 2026-09-12 (tags deferred to Phase 4; the
-in-cell translation editor ships last so it can be cut; no header global search; language order
-lives in the URL; verb/adjective/adverb labels composed from pronoun/tense tables, not enumerated
-per case). D8–D24 taken 2026-09-14 across Slices 6–8 (the list endpoint gains a `total`; the table
-is styled with ported mockup CSS; no sorting yet; the completion ring reads as a case count; the
-language control reorders *and* hides with a min-2 floor and no drag-and-drop; search stays
-server-side; the cell dialog is own-words-only this phase; a tag-wipe bug found and fixed in
-`updateWord`). D25–D43 taken/found 2026-09-14/15 across Slices 8–10 and four rounds of user-review
-fixes (paired-row and tense-column form layouts; a wide shell + wide cell dialog for verbs;
-collapsible translation cards; the Review cell dialog opens read-only with an explicit Edit; the
-"Display progress" switch defaults off). D44 taken 2026-09-15 closing Slice 11's own gate wording
-(see below).
-
-| Slice | Status |
-|---|---|
-| 0 — persist the plan | ✅ done |
-| 1 — form engine v2 (7 `FieldConfig` additions: select/multi-select/group/visibleWhen/pattern/adornment/persisted) | ✅ done 2026-09-12 — frontend **188 → 220**, build green |
-| 2 — verb configs (4 languages, pronoun + tense tables) | ✅ done 2026-09-13 — frontend **220 → 237** |
-| 3 — adjective and adverb configs (7 configs; `visibleWhen.invert` added) | ✅ done 2026-09-13 — frontend **237 → 259** |
-| 4 — autocomplete (8-endpoint registry, per-instance debounce, Estonian 502-on-failure backend fix) | ✅ done 2026-09-13 — frontend **259 → 296**; backend **145 → 148** |
-| 5 — backend: list contract (`?cursor=&limit=`, flat `pos`/`gender`/`q`, `{ items, nextCursor }`) | ✅ done 2026-09-13 — backend **148 → 161** (new `words-simple.test.js`, 13 tests) |
-| 6 — Review table core (`WordSimpleBE`, `useWordsInfinite`/`useBulkDeleteWords`, `ReviewTable` on TanStack Table, completion ring, both empty states) | ✅ done 2026-09-14 — added `total` to `/simple` (D8, backend **161 → 163**); frontend **296 → 378**, build green; route `/review` now real |
-| 7 — filters, toolbar, bulk bar (`FilterBar`, `LanguageOrderControl`, `TableToolbar`, `BulkActionBar`) | ✅ done 2026-09-14 — frontend **378 → 450** |
-| 8 — cell dialog (`CellDialog`; backend tag-wipe bug fix) | ✅ done 2026-09-14 — backend **163 → 165**; frontend **450 → 469** |
-| 9 — form layout: paired rows (nouns, Spanish adjectives) | ✅ done 2026-09-15 — frontend **469 → 491** |
-| 10 — form layout: verb tense columns + wide shell/dialog | ✅ done 2026-09-15 — frontend **491 → 499**; six further rounds of user-review layout/UX fixes landed in this window, frontend **499 → 535** |
-| 11 — phase gate: `phase-3-review.spec.ts` + docs + full green run | ✅ done 2026-09-15 — real-stack e2e spec (1 test); found and fixed a real e2e-infra bug along the way (below); final gate backend **165/165**, frontend **540/540**, e2e **10/10**, build green; `grep -rn "setTimerTriggerFunction" frontend/src` = 1 expected non-hit (a docstring) |
-
-Full per-slice detail (deviations, exact files, test breakdowns) lives in the phase plan file
-linked above, appended as each slice lands — a few findings worth knowing without opening the full
-record: `ReviewTable` had to become fully router/store-free (navigation as callback props, not
-`<Link>`) once a test proved `renderWithProviders` has no router context; the backend's
-any-401-clears-the-session interceptor is a latent hazard the bulk-delete UI closes by construction
-(`enableRowSelection` excludes non-owned rows) rather than by patching the interceptor itself; and
-`updateWord` was silently wiping a word's tags on every edit-dialog save (`req.body.tags || []`
-treating "field omitted" the same as "clear the tags") until Slice 8 guarded it the same way
-`translations` already was.
-
-**Bug found by the Slice 11 e2e gate:** `e2e/fixtures/db.ts`'s pg `Pool` is a per-worker-process
-singleton — every `*.spec.ts` file's `afterAll` calls `closePool()`, which is only safe if each
-file gets its own Playwright worker process. That held by luck locally (more CPU cores than spec
-files), but `playwright.config.ts` sets `workers: CI ? 1 : undefined` — the very first CI run
-(Phase 8) would have put every spec file in one shared process, and whichever file's `afterAll` ran
-first would kill the pool for every file still queued behind it. Reproduced locally with
-`--workers=1` once a third spec file (this phase's) existed to collide with it. Fixed with a lazy,
-re-openable `getPool()` instead of a plain module-scope `pool` — `closePool()` is now a no-op once
-already closed, and a later call from another file in the same worker transparently reopens a fresh
-pool. Verified both under `--workers=1` and the default parallel run.
-
-### Phase 3.5 — [`phase-3-5-dashboard-metrics.md`](./phase-3-5-dashboard-metrics.md)
-
-✅ **Done 2026-09-16.** Created 2026-09-10 by splitting the Dashboard/metrics work out of Phase 1
-Slice 4. Eight slices (0–7); decisions D1–D12 taken with the user 2026-09-16 (bar chart's
-month/language × grouped/separate control set; hand-rolled inline SVG charts instead of a chart
-library, dropping `c3`/`d3`; toggle state is local component state; the mockup's copy is ignored in
-favour of the existing i18n keys; a language-less account shows `—` rather than a lying `0%`).
-
-| Slice | Status |
-|---|---|
-| 0 — persist the plan | ✅ done |
-| 1 — backend: `tests/metrics.test.js` | ✅ done 2026-09-16 — 10 tests; backend **165 → 175** |
-| 2 — `features/metrics` data layer + selectors + MSW handlers + close `METRICS_KEY` contract | ✅ done 2026-09-16 — frontend **540 → 564** |
-| 3 — Dashboard CSS port + `StatCard`/`UserInfoPanel` + skeletons | ✅ done 2026-09-16 — frontend **564 → 573** |
-| 4 — `chartColors.ts` + `PieChart` + distribution toggle | ✅ done 2026-09-16 — frontend **573 → 582** |
-| 5 — `BarChart` + both toggles + `SegmentedToggle.allowDeselect`; drop c3/d3 | ✅ done 2026-09-16 — frontend **582 → 593** |
-| 6 — `MetricsPanel` composition, empty/error states, i18n | ✅ done 2026-09-16 — frontend **593 → 598**; manually verified against the real backend via Playwright MCP |
-| 7 — phase gate: `phase-3-5-dashboard.spec.ts` + docs + full green run | ✅ done 2026-09-16 — real-stack e2e spec (2 tests); found and fixed a real bug along the way (below); final gate backend **175/175**, frontend **611/611** (two post-Slice-6 UI commits had already moved it past 598), e2e **12/12**, build green; `grep -rn "c3\|from 'd3'" frontend/src frontend/package.json` = 0 |
-
-**Bug found by the Slice 7 e2e gate:** the bar chart's month-range `Select` trigger showed the raw
-option *value* ("6", "all") instead of its label ("Last 6 months", "All time"). Base UI's
-`<Select.Value>` renders the selected value verbatim unless given a children function to map it to
-a label, and `MetricsPanel.tsx`'s `<SelectValue />` had none — no test exercised the trigger's
-rendered text closely enough to catch it before the e2e spec drove it directly. Fixed by passing
-that mapper.
+Features built after the roadmap (admin dashboard, access gates, account badges, word tables, onboarding, demo, French, captcha) are listed in the README table (`.context/README.md`, "Where the specs live"). Standing rules for tests: `e2e/README.md` (one spec per phase, a green `npm run test:e2e` as the gate).

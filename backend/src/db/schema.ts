@@ -19,7 +19,7 @@ const { relations, sql }: typeof import('drizzle-orm') = require('drizzle-orm');
 // Type-only import (erased at compile time) — needed to break the circular
 // type inference a self-referencing FK's `.references(() => table.column)`
 // callback would otherwise hit (`words.sourceWordId` -> `words.id`,
-// `tags.sourceTagId` -> `tags.id`; phase-4-tags.md D11).
+// `tags.sourceTagId` -> `tags.id`; .context/features/tags.md D11).
 import type { AnyPgColumn } from 'drizzle-orm/pg-core';
 
 // ---------------------------------------------------------------------------
@@ -197,7 +197,7 @@ export const users = pgTable('users', {
     uiLanguage:     varchar('ui_language', { length: 50 }),
     // 'light' | 'dark' (validated in userController, like `uiLanguage`). NULL
     // means the user never chose one, so the client keeps following the OS
-    // (.context/plans/phase-3-9-dark-mode.md D1/D7).
+    // (.context/features/theme-and-language.md D1/D7).
     theme:          varchar('theme', { length: 10 }),
     nativeLanguage: varchar('native_language', { length: 50 }),
     verified:       boolean('verified').default(false),
@@ -370,7 +370,7 @@ export const words = pgTable(
         // If this word was cloned from another user's word, store the original creator
         originalCreatorId: uuid('original_creator_id').references(() => users.id, { onDelete: 'set null' }),
         // The specific word row this one was cloned from (tag clone —
-        // phase-4-tags.md D11), for display/auditing. Distinct from
+        // .context/features/tags.md D11), for display/auditing. Distinct from
         // `originalCreatorId`, which names a *user*, not a word: a word can
         // be re-cloned (clone-of-a-clone), so this always points one hop
         // back, not to some ultimate origin. `set null` rather than cascade
@@ -420,7 +420,7 @@ export const tags = pgTable(
         description: text('description'),
         // 'Public' | 'Private' | 'Friends-Only' — typed enum (study §8.3).
         visibility:  tagVisibilityEnum('visibility').notNull(),
-        // The tag this one was cloned from (phase-4-tags.md D11), for
+        // The tag this one was cloned from (.context/features/tags.md D11), for
         // display ("Cloned from X by Y") and auditing. `set null` — deleting
         // the source tag must not delete every clone of it.
         sourceTagId: uuid('source_tag_id').references((): AnyPgColumn => tags.id, { onDelete: 'set null' }),
@@ -428,7 +428,7 @@ export const tags = pgTable(
     },
     (table) => [
         // Backs `GET /api/tags`'s `scope=owned` filter and the ownership
-        // checks throughout tagController (phase-4-tags.md — missing before).
+        // checks throughout tagController (.context/features/tags.md — missing before).
         index('tags_author_id_idx').on(table.authorId),
         // A user's tag labels are unique, case-insensitively (D13). Create/
         // rename maps this constraint's 23505 to a 409 with a clear message
@@ -455,7 +455,7 @@ export const tagWords = pgTable(
         primaryKey({ columns: [table.tagId, table.wordId] }),
         // The PK above only serves lookups by `tag_id` first. `removeTagsFromWords`
         // and the per-word tags list both look up by `word_id` alone
-        // (phase-4-tags.md — missing before).
+        // (.context/features/tags.md — missing before).
         index('tag_words_word_id_idx').on(table.wordId),
     ],
 );
@@ -476,7 +476,7 @@ export const userFollowingTags = pgTable(
         primaryKey({ columns: [table.tagId, table.followerUserId] }),
         // The PK above only serves lookups by `tag_id` first. Resolving "which
         // tags does this user follow" (every followed-word/followed-tag query)
-        // looks up by `follower_user_id` alone (phase-4-tags.md — missing before).
+        // looks up by `follower_user_id` alone (.context/features/tags.md — missing before).
         index('user_following_tags_follower_user_id_idx').on(table.followerUserId),
     ],
 );
@@ -587,7 +587,7 @@ export const passwordResetTokens = pgTable('password_reset_tokens', {
 
 // ---------------------------------------------------------------------------
 // OAUTH_IDENTITIES
-// New in Phase 1 (.dev-context/oauth-login-strategy.md) — one row per linked
+// New in Phase 1 (.context/features/oauth-login-strategy.md) — one row per linked
 // external sign-in provider per user, supporting password + OAuth
 // simultaneously rather than one method per account. Empty until Phase 2
 // starts inserting rows. `provider` stays a plain varchar rather than a typed

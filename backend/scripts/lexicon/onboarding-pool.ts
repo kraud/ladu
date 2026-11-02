@@ -16,7 +16,7 @@
  * Output: word-lists/pool-candidates.tsv (always), and the committed, hand-reviewed
  * scripts/onboarding/pool.tsv only when it does not exist yet, or with --force (it discards the review).
  *
- * Explicit entry list (2026-10 refresh, Q7 of .context/onboarding-words-resolutions.md): with
+ * Explicit entry list (2026-10 refresh, Q7 of .context/research/onboarding-word-pool.md): with
  * `--entries <file>` the candidates are the lines of a TSV instead of the word lists, so a word that
  * has no word-list row (or a rank above the bands) can still be sourced. Columns:
  *

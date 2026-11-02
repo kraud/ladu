@@ -1,4 +1,4 @@
-# Gitleaks false positives, reviewed 2026-10-06 (see .context/licence-study.md, action A6).
+# Gitleaks false positives, reviewed 2026-10-06 (see .context/research/licence-study.md, action A6).
 # Format: <commit>:<file>:<rule>:<line>
 
 # Fake passwords in admin unit tests.

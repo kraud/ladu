@@ -31,7 +31,7 @@ export interface WordCellProps {
     showProgress: boolean;
     /**
      * Gates only the empty-cell Add affordance — `/tag/:id`'s word table
-     * (phase-4-tags.md, post-Slice-6 fixes) renders every own word read-only
+     * (.context/features/tags.md, post-Slice-6 fixes) renders every own word read-only
      * outside its own edit mode: an empty own cell shows a plain grayed dash
      * instead of "+" while `editable` is `false`. Defaults to `true`, so
      * Review (which has no such toggle) is unaffected. A *filled* cell's own

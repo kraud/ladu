@@ -5,7 +5,7 @@ import { routeGoogleStartTo } from '../fixtures/oauthRouting';
 
 /**
  * OAuth Phase 2 — Google sign-in, already-linked identity only
- * (.dev-context/oauth-login-strategy.md §4).
+ * (.context/features/oauth-login-strategy.md §4).
  *
  * Walks the real button through the real backend and the Phase 0 stub
  * issuer — see `fixtures/oauthRouting.ts` for how these specs control which

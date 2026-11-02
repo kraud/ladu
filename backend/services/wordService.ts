@@ -45,7 +45,7 @@ type PerformanceCaseRow = typeof exercisePerformanceCases.$inferSelect;
  * The slim shape a tag rides on a word response in — enough to render a
  * chip and tell ownership/visibility apart, not the full tag row (word
  * count, follower count, timestamps, …), which belongs to the tag API
- * itself (phase-4-tags.md Slice 2's `TagSummary`).
+ * itself (.context/features/tags.md Slice 2's `TagSummary`).
  */
 export interface WordTagSummary {
     id: string;
@@ -154,7 +154,7 @@ const fetchTranslationsMap = async (
  * Fetch all tags linked to a set of word UUIDs, filtered to what `viewerId`
  * may see: the viewer's own tags, or another author's Public tags — a
  * follower must never see the word owner's unrelated Private tag labels
- * just because that word also happens to carry one (phase-4-tags.md, "Why
+ * just because that word also happens to carry one (.context/features/tags.md, "Why
  * the backend is being rebuilt"). Friends-Only is deferred (excluded here
  * unless the viewer is the author) until Phase 6 wires real friendships
  * into this filter too.
@@ -494,7 +494,7 @@ const ownCopyIdsBySource = async (userId: string, sourceIds: string[]): Promise<
 // Generic list-pagination helpers
 // ---------------------------------------------------------------------------
 // Shared by `getWordsSimplified` (wordController.ts) and the tag list
-// (tagController.ts's `listTags`, phase-4-tags.md Slice 2) — homed here,
+// (tagController.ts's `listTags`, .context/features/tags.md Slice 2) — homed here,
 // rather than on either controller, for the same reason this whole file
 // exists: a controller->controller import (tagController needing something
 // from wordController, which itself already imports from tagController)

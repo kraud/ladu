@@ -4,7 +4,7 @@ import { backdateWordsCreatedAt, closePool, deleteUsersByEmail, getVerifyToken }
 
 /**
  * Phase 3.5 — Dashboard + user metrics, vertical slice against the real
- * stack (`.context/plans/phase-3-5-dashboard-metrics.md` Slice 7 gate).
+ * stack (`.context/features/dashboard.md` Slice 7 gate).
  *
  * A logged-in user with a seeded, known set of words sees the three stat
  * cards, the pie chart, and the bar chart match the real backend's

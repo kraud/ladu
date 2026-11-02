@@ -5,7 +5,7 @@ import { routeGoogleStartTo } from '../fixtures/oauthRouting';
 
 /**
  * OAuth Phase 4 — linking to an existing password account
- * (.dev-context/oauth-login-strategy.md §4, outcome (c)).
+ * (.context/features/oauth-login-strategy.md §4, outcome (c)).
  *
  * Walks the real button through the real backend and the Phase 0 stub
  * issuer, into the real password-confirm screen, and back out through

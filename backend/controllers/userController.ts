@@ -330,7 +330,7 @@ const registerUser = asyncHandler(async (req: any, res: any) => {
 
   // Not awaited: sendEmail.js catches its own send errors and never rejects, so
   // awaiting it would only add latency (a slow mail provider used to block a
-  // registration that already succeeded, .dev-context/deployment-strategy.md D-g).
+  // registration that already succeeded, .context/guides/infrastructure-guide/deployment-strategy.md D-g).
   // Sent after the commit, so no email leaves for a registration that rolled back.
   sendVerification();
 

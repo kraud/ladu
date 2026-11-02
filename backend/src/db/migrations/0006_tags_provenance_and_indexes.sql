@@ -4,7 +4,7 @@ ALTER TABLE "tags" ADD CONSTRAINT "tags_source_tag_id_tags_id_fk" FOREIGN KEY ("
 ALTER TABLE "words" ADD CONSTRAINT "words_source_word_id_words_id_fk" FOREIGN KEY ("source_word_id") REFERENCES "public"."words"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "tag_words_word_id_idx" ON "tag_words" USING btree ("word_id");--> statement-breakpoint
 CREATE INDEX "tags_author_id_idx" ON "tags" USING btree ("author_id");--> statement-breakpoint
--- Data fix (phase-4-tags.md D13 / Slice 1): rename pre-existing duplicate
+-- Data fix (.context/features/tags.md D13 / Slice 1): rename pre-existing duplicate
 -- (author_id, lower(label)) tags before the unique index below is added, so
 -- this migration does not fail against seeded/staging data that predates
 -- the uniqueness rule. Within each duplicate group the oldest tag
@@ -12,7 +12,7 @@ CREATE INDEX "tags_author_id_idx" ON "tags" USING btree ("author_id");--> statem
 -- suffix ("Label" -> "Label (2)", "Label (3)", ...). This does not guard
 -- against a suffixed name colliding with some other, unrelated tag that
 -- already happens to have that exact label -- verify against a copy of real
--- data before this migration runs past local dev (see phase-4-tags.md
+-- data before this migration runs past local dev (see .context/features/tags.md
 -- "Risks: Migration on real data").
 DO $$
 DECLARE

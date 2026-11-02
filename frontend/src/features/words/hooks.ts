@@ -131,7 +131,7 @@ export function normalizeWordFilters(filters: WordListFilters): WordListFilters 
  * `hasNextPage` needs, with no translation.
  *
  * `pageSize` defaults to Review's own page size but is overridable — `
- * WordPicker` (phase-4-tags.md) uses a much smaller one for its compact
+ * WordPicker` (.context/features/tags.md) uses a much smaller one for its compact
  * embedded list. It's folded into the query key (not just the request) so a
  * Review-sized and a picker-sized call over the same filters never collide
  * on one cache entry and fight over each other's page size.

@@ -4,7 +4,7 @@
 #
 # `edge` is built locally rather than pulled from GHCR: deploy/caddy/
 # changes rarely and isn't part of the CI image-build pipeline
-# (.dev-context/deployment-strategy.md §3 builds only backend/web/landing
+# (.context/guides/infrastructure-guide/deployment-strategy.md §3 builds only backend/web/landing
 # per commit). `landing` IS part of that pipeline despite being a single
 # instance like postgres/edge, since apex has no staging/prod split.
 #

@@ -7,7 +7,7 @@
  * else (`WordPage`'s view state) tags are read-only chips, because tag
  * editing is no longer possible outside the create/edit form (a 2026-09-28
  * reversal of the original "mutations apply instantly, independent of the
- * word's own Save" design — see `phase-4-tags.md`'s Risks). The actions
+ * word's own Save" design — see `.context/features/tags.md`'s Risks). The actions
  * (Save word, Change word type, …) live in the bottom bar, not here.
  *
  * `onClueChange` absent means read-only (`WordPage`'s view state) — clue

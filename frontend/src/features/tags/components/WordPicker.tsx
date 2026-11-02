@@ -1,5 +1,5 @@
 /**
- * Search -> table -> selected list (phase-4-tags.md D18, revised after
+ * Search -> table -> selected list (.context/features/tags.md D18, revised after
  * Slice 6 feedback). Shared by the create-tag dialog's optional "Add words
  * now" section (embedded inline) and `/tag/:id`'s "Add words" action
  * (wrapped in `AddWordsDialog`) — this component renders no dialog chrome of

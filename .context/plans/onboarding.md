@@ -12,7 +12,7 @@ the selection service, and the three routes (see "Slice 3d — what was built").
 
 **Pool refresh (2026-10-19):** the reviewed 583-concept pool is now the runtime pool; a concept can have
 several topics; the topic limits are 4 minimum and no maximum (D15 changed). Decisions and the applied
-record: `.context/onboarding-words-resolutions.md`; see "Review log — Pool refresh" at the end.
+record: `.context/research/onboarding-word-pool.md`; see "Review log — Pool refresh" at the end.
 
 **Resume here (2026-10-17):** the build is done; only open item 8 is open (review the ES/DE/EE texts, see "Open items").
 Next: the user reviews and commits, then the rollout (turn the switch on per environment; see the infrastructure guide, file 02).
@@ -447,8 +447,7 @@ Review of `onboarding-blueprint-proposal.md` (second opinion) against the data a
 
 ## Review log — Pool refresh (2026-10-19)
 
-Source of the decisions: `.context/onboarding-words-questionnaire.md` (the answers) and
-`.context/onboarding-words-resolutions.md` (the decisions and what was applied).
+Source of the decisions: `.context/research/onboarding-word-pool.md` (the questions, the answers, the decisions and what was applied).
 
 | # | Severity | Finding | Resolution |
 |---|---|---|---|

@@ -121,7 +121,7 @@ Prefix rule (decision Q6). For each language, the autocomplete:
 
 ## Slice 4 — Docs, e2e and string review
 
-- Update `.context/.frontend/snapshot/forms-adjectives-adverbs.md` and `data-model.md` (the new case names), and the notes in `phase-3-forms-autocomplete-review.md` that say German is the only gradable adverb.
+- Update `.context/.frontend/snapshot/forms-adjectives-adverbs.md` and `data-model.md` (the new case names), and the notes in `.context/features/word-form-engine.md` that say German is the only gradable adverb.
 - Add an e2e spec step: pick "Non-gradable" in EN, ES and EE, and check that the degree fields disappear. `npm run test:e2e` must be green.
 - The user reviews the new ES, DE and EE strings (the error messages for the required radio).
 

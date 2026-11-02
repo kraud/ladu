@@ -7,7 +7,7 @@
  * all its topics ("core" = no topic; a concept can have a second topic and then gets both tags),
  * its level band, and one word per language (with the noun gender for German, Spanish and French). The
  * words go through the same lookup as the "Start from a word" draft route to get their forms.
- * Decisions of the 2026-10 refresh: .context/onboarding-words-resolutions.md.
+ * Decisions of the 2026-10 refresh: .context/research/onboarding-word-pool.md.
  */
 
 const fs: typeof import('fs') = require('fs');

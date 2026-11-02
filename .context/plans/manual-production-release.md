@@ -12,7 +12,7 @@ Goal: a merge to `main` still deploys to staging and runs the smoke test by itse
 
 ## Today
 
-`deploy.yml` runs on every push to `main`: `build-and-push` → `staging` → `smoke` → `production` (`needs: smoke`). No human step exists. `03-development-workflow.md` says this was a deliberate choice, so that doc and `.dev-context/deployment-strategy.md` must change at the end.
+`deploy.yml` runs on every push to `main`: `build-and-push` → `staging` → `smoke` → `production` (`needs: smoke`). No human step exists. `03-development-workflow.md` says this was a deliberate choice, so that doc and `.context/guides/infrastructure-guide/deployment-strategy.md` must change at the end.
 
 ## Target
 

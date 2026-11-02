@@ -1,5 +1,5 @@
 /**
- * An in-memory fake of the `tagController` endpoints (phase-4-tags.md
+ * An in-memory fake of the `tagController` endpoints (.context/features/tags.md
  * Slices 2–3), for the tags data-layer tests (Slice 4) and the `/tags` /
  * `/tag/$tagId` pages (Slices 5–7). Each call to `makeTagHandlers()` gets
  * its own isolated store.

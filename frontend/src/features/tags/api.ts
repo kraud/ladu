@@ -1,7 +1,7 @@
 /**
  * Thin transport layer over `apiClient` (baseURL `/api`). No React, no
  * toasts, no store or query-cache access — those live in `hooks.ts`. Each
- * function maps 1:1 to a `tagController` endpoint (phase-4-tags.md Slices
+ * function maps 1:1 to a `tagController` endpoint (.context/features/tags.md Slices
  * 2–3's rebuilt API).
  *
  * Tag-*sharing* (`share`/`accept`/`decline`) is deliberately absent here —

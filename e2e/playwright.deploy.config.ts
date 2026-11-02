@@ -7,7 +7,7 @@ import { defineConfig, devices } from '@playwright/test';
  * already exist. No DB fixture access either (see fixtures/db.ts's own
  * comment) — CI cannot reach the staging DB, so `deployed-smoke.spec.ts`
  * creates and deletes its own data through the real UI, the way a real
- * user would (`.dev-context/deployment-strategy.md` §3).
+ * user would (`.context/guides/infrastructure-guide/deployment-strategy.md` §3).
  *
  * Run: BASE_URL=https://staging.ladu.com.ar SMOKE_TEST_EMAIL=... \
  *      SMOKE_TEST_PASSWORD=... EXPECTED_SHA=<sha> GOOGLE_CLIENT_ID=... \
