@@ -23,7 +23,7 @@ import { PartOfSpeech } from '@/ts/enums';
 import { UI_LANGUAGES } from '@/lib/language';
 import type { BasicUserMetricsBE } from './types';
 
-/** The only parts of speech the form engine can create (`data-model.md`, `word-cases-data.md`). */
+/** The only parts of speech the form engine can create (`data-model.md`, `ts/wordCasesDataByPoS.ts`). */
 export const CREATABLE_POS: readonly PartOfSpeech[] = [
     PartOfSpeech.noun,
     PartOfSpeech.verb,

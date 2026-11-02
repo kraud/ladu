@@ -7,8 +7,8 @@ History: research 2026-09-25, per-slice plan 2026-10-08 (sections 9 to 12).*
 *Scope: which free or very cheap source can supply the word-form autocomplete data, and
 whether one source can replace the current per-language set of libraries and APIs.*
 
-*Related: `.context/.frontend/snapshot/autocomplete.md` (the frozen 8-endpoint spec),
-`.context/.frontend/snapshot/word-cases-data.md` (the case registry),
+*Related: the removed snapshot `autocomplete` (the frozen 8-endpoint spec),
+`frontend/src/ts/wordCasesDataByPoS.ts` (the case registry),
 `.context/research/licence-study.md` (licence decisions, 2026-10-06), `new-repo-build-plan.md` §5 phase 3.*
 
 *Read section 11 first. It lists the claims in sections 2 to 8 that the 2026-10-08 review
@@ -74,7 +74,7 @@ The pain is not coverage. The pain is that **the seam is duplicated 8 times**. E
 language or part of speech needs a new route, a new response envelope, a new frontend transform
 and a new source licence review.
 
-`snapshot/autocomplete.md` records the result: 4 sanitize transforms in the old frontend, 4 more
+the removed snapshot `autocomplete` records the result: 4 sanitize transforms in the old frontend, 4 more
 sanitizers written inline inside form components, and 2 different response envelopes (the
 `found<Type>` envelope, and the raw Estonian passthrough).
 
@@ -221,18 +221,18 @@ result as **`partial`**. The frontend already shows a notice for `partial` ("We'
 sure, but here's our best guess.", key `partialMatch`, all four locales). This adds coverage
 and tells the user when the data is uncertain. It also fits the app model, because the app needs only a small,
 named set of cases per language and part of speech — not a full paradigm. The Estonian noun
-needs 7 cases. The Estonian verb needs 20 cells. `snapshot/word-cases-data.md` lists them all.
+needs 7 cases. The Estonian verb needs 20 cells. `frontend/src/ts/wordCasesDataByPoS.ts` lists them all.
 
 ### 5.1 Can we identify every case? — verified audit
 
 **Yes, with caveats.** The tags are canonical and machine-readable, so each app case becomes a
 **selector**, not a filled cell. The selector is a predicate: "the form whose tag set contains
 `{first-person, indicative, present, singular}`". This is the same pattern the app already uses
-for Estonian. `snapshot/autocomplete.md` §2 records
+for Estonian. the removed snapshot `autocomplete` §2 records
 `getWordFromWordFormsList(wordForms, code)`, which finds a form by `code ===`. The same function
 becomes "find the form whose tags match".
 
-I audited every EN, ES and DE entry in the registry (`snapshot/word-cases-data.md`, 105 entries)
+I audited every EN, ES and DE entry in the registry (`frontend/src/ts/wordCasesDataByPoS.ts`, 105 entries)
 against the real `forms[]` data.
 
 | group | registry entries | identifiable from kaikki | what is missing |
@@ -376,7 +376,7 @@ search.
 `kindla kõneviisi oleviku ainsuse 1.pööre` ("indicative present singular, 1st person"). The
 `api.sonapi.ee` response we use today also returns a short `code`, for example `SgN` and
 `IndPrSg1`. Our current frontend transform already matches on those codes
-(`snapshot/autocomplete.md` §2).
+(the removed snapshot `autocomplete` §2).
 
 **The code → case mapping is already published.** The Eesthetic dataset
 (`https://doi.org/10.5281/zenodo.14069724`, CC-BY-4.0, 15.23 MiB) contains a `cells` table. Each
@@ -1029,7 +1029,7 @@ All checks were made on 2026-09-25.
 | EE has 12,595 distinct word forms | `https://kaikki.org/dictionary/Estonian/index.html` |
 | Form arrays for `bailar`, `tanzen`, `Haus`, `run`, `casa`, `maja` | Downloaded each entry page and parsed the embedded JSON |
 | No English `future` or `conditional` form exists | Downloaded `run`, `walk`, `be`, `talk`; no form in any of them has a `future` or `conditional` tag |
-| Every EN/ES/DE registry entry audited against real tags | Section 5.1; sources `snapshot/word-cases-data.md` and the downloaded entries above |
+| Every EN/ES/DE registry entry audited against real tags | Section 5.1; sources `frontend/src/ts/wordCasesDataByPoS.ts` and the downloaded entries above |
 | Wiktextract lemma and inflection counts | Ylonen, *Wiktextract: Wiktionary as Machine-Readable Structured Data*, LREC 2022, Table 1 |
 | Postprocessed JSONL is deprecated | Notice on each kaikki language page, linking to `tatuylonen/wiktextract` issue 1178 |
 | Wikidata Lexeme counts | `https://www.wikidata.org/wiki/Wikidata:Lexicographical_data/Statistics/Counts_of_various_things_by_language` |

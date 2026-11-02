@@ -7,8 +7,8 @@ This file has four parts:
 
 - **Part A — Practice knowledge base.** One source of truth for everything about `/practice`: parameters,
   exercise catalogue, generation, answer checking, knowledge math, Mastered/Revise, the old UI, and known
-  defects. It merges `.context/overview.md` §3.4, `snapshot/exercise-flow.md`,
-  `snapshot/pages-review-practice.md`, `snapshot/ui/05-practice.md`, `snapshot/data-model.md` §2.8, the
+  defects. It merges `.context/overview.md` §3.4, the old snapshot `exercise-flow` (removed),
+  `pages-review-practice` and `05-practice` (removed snapshots), `snapshot/data-model.md` §2.8, the
   copied backend (`backend/controllers/exercise*.ts`, `backend/utils/equivalentTranslations/*`) and the old
   frontend (`../../Ladu/keelapp/frontend/src/components/ExerciseCard.tsx` and friends).
 - **Part B — Implementation plan.** Decisions, architecture, slices, files, verification, risks.
@@ -710,7 +710,7 @@ thin), `backend/routes/exerciseRoutes.js`, `backend/src/db/schema.ts`, `wordCont
 
 **Deleted:** `backend/utils/equivalentTranslations/**` (moved to `catalogue.ts`).
 
-**Docs:** `snapshot/exercise-flow.md` and `ui/05-practice.md` get a "superseded by phase-5-practice.md" note;
+**Docs:** the old snapshot files `exercise-flow` and `05-practice` got a "superseded by phase-5-practice.md" note (both are now removed);
 `new-repo-build-plan.md` §9 progress; `.context/README.md` spec index points to Part A of this file.
 
 ## B.6 Verification

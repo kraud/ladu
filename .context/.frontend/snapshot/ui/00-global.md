@@ -2,14 +2,11 @@
 
 *2026-09-05. Screen-by-screen UI blueprint for the reimplementation frontend, distilled from the snapshot behavior inventories. **Design is intentionally neutral** — this spec fixes structure, hierarchy, states, and interactions, not branding. Target stack: Tailwind v4 + shadcn/Base UI + Phosphor icons; React 18; TanStack Router + Query; RHF + yup; i18next (all copy through translation keys, 4 UI languages EN/ES/DE/EE). Feed files 00→06 in order.*
 
-Files:
-1. `00-global.md` (this file) — shell, navigation, shared patterns, states
-2. `01-auth.md` — Login, Register, Email verification, Reset password, 404
-3. `02-dashboard.md` — Dashboard
-4. `03-word-editor.md` — Add/Edit word, translation forms
-5. `04-review.md` — Review table
-6. `05-practice.md` — Exercise parameter menu, cards, results
-7. `06-social.md` — Account, Notifications, Tag view, modals
+Files that remain (2026-11-02):
+1. `00-global.md` (this file) — shell, navigation, shared patterns, states. **Stop date:** the Phase 8 cutover.
+2. `06-social.md` — Account, Notifications, Tag view, modals. **Stop date:** when the social phases ship.
+
+The screens of auth, dashboard, word editor, Review and Practice are built. Their blueprint files (`01` to `05`) were removed; read them with `git log -- .context/.frontend/snapshot/ui/`. Their intentional deltas are in the annex of `plans/new-repo-build-plan.md` (Phase 8), and the look is in `.context/design/`.
 
 ---
 

@@ -2,7 +2,7 @@
  * yup schemas for the auth forms, ported from the old app's per-page schemas.
  *
  * Each is a **factory** taking a translate function so validation messages are
- * localised (the old app hard-coded English — snapshot `pages-auth-shell.md`).
+ * localised (the old app hard-coded English — snapshot `pages-auth-shell (removed snapshot)`).
  * The message strings are resolved at build time and rendered verbatim by
  * `<FormMessage>`; unit tests pass an identity `t` and assert on the keys.
  *
@@ -138,7 +138,7 @@ export function buildResetSetSchema(t: TranslateFn): yup.ObjectSchema<ResetSetVa
 /**
  * The reset-password route is one page, two modes: "set" when both the `userId`
  * and `tokenId` route params are present, "request" otherwise (snapshot
- * `pages-auth-shell.md` — ResetPassword §1).
+ * `pages-auth-shell (removed snapshot)` — ResetPassword §1).
  */
 export function buildResetSchema(t: TranslateFn, isSetMode: boolean) {
     return isSetMode ? buildResetSetSchema(t) : buildResetRequestSchema(t);

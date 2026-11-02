@@ -136,7 +136,7 @@ Verbatim, grouped:
 
 **French** (`*FR`, v2 only, plan `plans/language-french.md` slice 5): `infinitiveFR`, `verbGroupFR` (replaces regularity), `auxVerbFR`, `reflexivityFR`, `pastParticipleFR`, `presentParticipleFR`; indicative present / imperfect / perfect (passé composé) / simple-future × `1s,2s,3s,1pl,2pl,3pl` (24 forms). Fields and rules: `forms-french.md`.
 
-> Full enumeration is mechanical (language × tense × pronoun) and reproducible from the source file; the schema/pronoun inventory below and `word-cases-data.md` enumerate every concrete instance. Do **not** hand-retype — copy `enums.ts` verbatim.
+> Full enumeration is mechanical (language × tense × pronoun) and reproducible from the source file; the schema/pronoun inventory below and the registry `frontend/src/ts/wordCasesDataByPoS.ts` enumerate every concrete instance. Do **not** hand-retype — copy `enums.ts` verbatim.
 
 ### 1.7 Auxiliary enums (verb morphology)
 
@@ -318,4 +318,4 @@ const WordCasesData: WordCasesDataByPoS = { Noun: [...], Verb: [...] }
 
 **Critical design fact**: `WordCasesData` only has `Noun` and `Verb` keys. Adjective and adverb form fields are **not** registry-driven — they hard-code `AdjectiveCases`/`AdverbCases` lists directly. The form engine must therefore treat noun+verb as config-driven and adjective+adverb as small fixed schemas (still collapsed from 4+3 hand-rolled components into config, but their config source is the enum, not `WordCasesData`).
 
-The complete, verbatim `Noun[]` and `Verb[]` registry (every `caseName` → language + plurality/declension or person/tense/mood/property) is transcribed in [`word-cases-data.md`](./word-cases-data.md) — that listing is the input that generates each language×PoS form's field list.
+The complete, verbatim `Noun[]` and `Verb[]` registry (every `caseName` → language + plurality/declension or person/tense/mood/property) is in `frontend/src/ts/wordCasesDataByPoS.ts` — that listing is the input that generates each language×PoS form's field list.

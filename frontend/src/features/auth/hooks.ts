@@ -1,6 +1,6 @@
 /**
  * One mutation hook per auth action. All flow sequencing that the old app did
- * with Redux status booleans + chained effects (snapshot `pages-auth-shell.md`)
+ * with Redux status booleans + chained effects (snapshot `pages-auth-shell (removed snapshot)`)
  * becomes `onSuccess` / `onError` callbacks here:
  *   - toasts fire from the callbacks, never from a `useEffect` on a flag;
  *   - `queryClient.clear()` runs on every session boundary (login / verify /

@@ -1,6 +1,6 @@
 # Frontend `src/` Structure & Component Breakdown
 
-*2026-09-07. Proposal for the reimplementation frontend's file layout, derived from the UI-blueprint (`snapshot/ui/00–06`, behaviour) and `MOCKUPS/` (design language). Review target — nothing scaffolded yet. Pairs with the frontend invariants in [`.context/README.md`](../README.md) and [`.context/plans/new-repo-build-plan.md`](../plans/new-repo-build-plan.md) §5 (phases).*
+*2026-09-07, trimmed 2026-11-02. The rules for the layout of `frontend/src/`: decisions D1 to D5, the principles, the shape of a feature folder and the conventions. The directory tree and the screen-to-module map of the first proposal were removed (the code is the truth). Pairs with the frontend invariants in [`.context/README.md`](../README.md) and [`.context/plans/new-repo-build-plan.md`](../plans/new-repo-build-plan.md) §5 (phases).*
 
 ---
 
@@ -27,240 +27,24 @@
 
 ---
 
-## 2. Directory tree
+## 2. Directory layout
 
-```
-frontend/src/
-├── main.tsx                     # entry — mounts <Providers/>
-├── env.ts                       # (exists) all import.meta.env access
-├── i18n.ts                      # (exists) i18next init (4 UI langs, http-backend from /locales)
-│
-├── app/                         # app-wide wiring (not feature code)
-│   ├── Providers.tsx            # QueryClientProvider + RouterProvider + ToastHost + root ErrorBoundary + I18nextProvider
-│   ├── router.tsx               # route tree: root, _public / _protected layout routes, all leaf routes, code-split
-│   ├── query-client.ts          # QueryClient factory + default options + staleTime policy table
-│   └── feature-flags.ts         # env-based flags (tags / search / notifications / friends), default on
-│
-├── routes/                      # thin per-route view modules (composed by router.tsx)
-│   ├── protected-layout.tsx     # ProtectedRoute gate (reads authStore) + <AppShell/> + <Outlet/>
-│   ├── public-layout.tsx        # bare centered layout, no header
-│   ├── dashboard.tsx            # "/"                         → features/metrics
-│   ├── add-word.tsx             # "/addWord/$partOfSpeech?"   → features/words
-│   ├── word.tsx                 # "/word/$wordId"             → features/words
-│   ├── review.tsx               # "/words" (was /review; search-param schema lives here)
-│   ├── practice.tsx             # "/practice"                 → features/exercises
-│   ├── account.tsx             # "/user"                     → features/social (deferred)
-│   ├── notifications.tsx        # "/user/$userId/notifications" (deferred)
-│   ├── tag.tsx                  # "/tag/$tagId"               (Phase 4)
-│   ├── login.tsx  register.tsx  verify.tsx  reset-password.tsx
-│   └── not-found.tsx
-│
-├── api/
-│   ├── client.ts                # single axios instance; baseURL from env; request interceptor (Bearer from authStore);
-│   │                            #   response interceptor: 401 → authStore.clearSession() + redirect /login
-│   │                            #   (retry-once refresh leg present but disabled — no refresh endpoint)
-│   └── types.ts                 # shared wire primitives: ApiError shape, CursorPage<T>, Id
-│
-├── stores/
-│   ├── authStore.ts             # Zustand + persist; { user, token }; setSession / clearSession; ONE normalized shape
-│   │                            #   (migrates the old localStorage['user'] key, guarded parse)
-│   └── uiStore.ts               # selectedPoS, review sidebar collapsed, practice pre-selected word ids, search mode
-│
-├── components/
-│   ├── ui/                      # shadcn / Base UI primitives (added per phase) — button, input, textarea, label,
-│   │                            #   form (RHF bridge), select, checkbox, radio-group, dialog, alert-dialog, sheet,
-│   │                            #   tooltip, card, badge, skeleton, switch, dropdown-menu, toast host
-│   ├── layout/
-│   │   ├── AppShell.tsx         # sticky header + centered container; `wide` prop (max-w-7xl) is read
-│   │                        #   off the matched route's `staticData.wide` (Phase 3 Slice 10) —
-│   │                        #   the word-editor routes (verb tense grids need the room), not Review
-│   │   ├── AppHeader.tsx        # logo, primary nav (Add Word / Practice / Review), ≥2-language gate on nav items
-│   │   ├── GlobalSearch.tsx     # input + word/tag mode Switch; result → /word/:id or /tag/:id
-│   │   ├── LanguageSelector.tsx # EN/ES/DE/EE dropdown → persists uiLanguage via profile update
-│   │   ├── UserMenu.tsx         # avatar (initials, deterministic bg) + unread badge; menu: Dashboard/Account/Notifications/Logout
-│   │   └── VerifyEmailBanner.tsx# persistent "verify your email" banner while unverified
-│   └── common/                  # cross-feature widgets (not primitives)
-│       ├── FlagIcon.tsx         # per-language flag (GB/DE/ES/EE) + optional native name (LanguageIdentity)
-│       ├── PartOfSpeechSelector.tsx  # 4 radio cards (Noun/Verb/Adjective/Adverb) — Add Word step 1 + inline
-│       ├── CompletionRing.tsx   # conic-gradient ring + a floating Tooltip "N of M cases" detail (Phase 3)
-│       ├── TagPicker.tsx        # AutocompleteMultiple — search tags, add-new, chip removal
-│       ├── ConfirmDialog.tsx    # AlertDialog wrapper for destructive confirms
-│       ├── EmptyState.tsx  ErrorState.tsx  LoadingScreen.tsx
-│       └── PageTransition.tsx   # CSS fade/slide wrapper (`.page` keyframe from the mockup)
-│
-├── features/
-│   ├── auth/
-│   │   ├── api.ts               # login, register, verifyEmail, requestPasswordReset, setPassword, getMe, updateProfile
-│   │   ├── hooks.ts             # useLogin, useRegister, useVerifyEmail, useRequestReset, useSetPassword, useUpdateProfile
-│   │   ├── schemas.ts           # yup: loginSchema, registerSchema, resetSchema (mode-conditional)
-│   │   ├── components/          # LoginForm, RegisterForm, ResetPasswordForm, VerifyEmailStatus
-│   │   └── pages/               # LoginPage, RegisterPage, VerifyEmailPage, ResetPasswordPage
-│   │
-│   ├── metrics/                 # Phase 3.5 — all new
-│   │   ├── api.ts               # getUserMetrics() → GET /api/users/getUserMetrics
-│   │   ├── keys.ts              # metricsKeys.all = ['metrics'] — closes the `METRICS_KEY` contract
-│   │   │                        #   `features/words/hooks.ts` held open since Phase 2
-│   │   ├── hooks.ts             # useUserMetrics() → useQuery, staleTime 5 * 60_000 (first per-query override)
-│   │   ├── types.ts             # BasicUserMetricsBE + the five row shapes (mind `label` vs `language` on
-│   │   │                        #   translationsPerLanguageAndPOS)
-│   │   ├── selectors.ts         # pure, fully unit-tested: totalTranslations, wordsAddedThisMonth,
-│   │   │                        #   translationsPerWord, practicedPercent, pieSeries, worstSegment,
-│   │   │                        #   barSeriesByMonth/byLanguage (12-month window + zero-fill), availableBarMonthRanges
-│   │   ├── components/
-│   │   │   ├── WelcomeBanner.tsx    # rotating EN/ES/DE/EE greeting alongside the `<h1>` welcome heading
-│   │   │   ├── StatCard.tsx         # one stat tile: number + label + either a sub-line or a `.meter` (both,
-│   │   │   │                        #   for the unpracticed-words card — count on top, meter, share below)
-│   │   │   ├── UserInfoPanel.tsx    # the 3 StatCards; the third shows the unpracticed words and the
-│   │   │   │                        #   % of cases practiced, or an empty card with an add-words link (no cases)
-│   │   │   ├── MetricsPanel.tsx     # both chart blocks + all 3 toggles (local state, D4) + the month-range
-│   │   │   │                        #   `Select`; loading/error/empty gates; both worst-segment `useNavigate()`
-│   │   │   │                        #   cases (D7)
-│   │   │   └── charts/
-│   │   │       ├── chartColors.ts   # PoS → token, Lang → token
-│   │   │       ├── PieChart.tsx     # donut + legend; only the worst-segment legend row is interactive
-│   │   │       └── BarChart.tsx     # grouped/stacked bars; per-bar value in a Base UI tooltip, not a native `<title>`
-│   │   └── pages/DashboardPage.tsx   # WelcomeBanner + UserInfoPanel + MetricsPanel
-│   │
-│   ├── words/
-│   │   ├── api.ts               # getWords (cursor), getWordById, createWord, updateWord, deleteWord, deleteMany,
-│   │   │                        #   getWordsSimplified (Phase 3 — cursor + total, flat pos/gender/q/tag params)
-│   │   ├── hooks.ts             # useWordsInfinite, useWord, useCreateWord, useUpdateWord, useDeleteWord, useBulkDeleteWords
-│   │   ├── keys.ts              # ['words'], ['words', filters], ['words', id] key factory
-│   │   ├── types.ts             # WordData, TranslationItem, WordSimpleBE (real `/simple` row shape — the
-│   │   │                        #   originally-sketched `TableWordData` was never ported, see plan's "Intentional deltas")
-│   │   ├── form-engine/         # (Phase 2 Slice 3-4 core, widened by Phase 3 — see phase-3 plan §Architecture)
-│   │   │   ├── WordForm.tsx         # orchestrator: PoS gate → translation grid → "+ Add language" dialog →
-│   │   │   │                        #   clue textarea → sticky save bar. No tags (D2 — deferred past Phase 3;
-│   │   │   │                        #   slots into WordForm in Phase 4). Phase 3 added "Change word type"
-│   │   │   │                        #   (create mode only, confirm-gated) and `translationGridClass(pos)`
-│   │   │   │                        #   (verb cards render one per row inside the `wide` shell).
-│   │   │   ├── TranslationCard.tsx  # one language: tinted top border, collapsible header (flag + native name +
-│   │   │   │                        #   headline word + "N of M cases" once collapsed), config-driven body laid
-│   │   │   │                        #   out via `fieldLayout.ts` (paired rows / tense-column grids / grouped
-│   │   │   │                        #   property blocks), an `AutocompleteRow` mount, Clear / Remove rendered
-│   │   │   │                        #   only when their handler prop is passed. Owns its own RHF instance + yup
-│   │   │   │                        #   resolver per card — NOT a shared form. No in-place language switch;
-│   │   │   │                        #   changing a slot's language is Remove + re-Add.
-│   │   │   ├── AutocompleteRow.tsx  # Phase 3 — automatic debounced lookup + manual "Fill in" for the 9
-│   │   │   │                        #   (lang, PoS) pairs `AUTOCOMPLETE_REGISTRY` covers; `null` otherwise.
-│   │   │   │                        #   `applyLookup` = the fill, shared with a type-ahead pick (Slice E)
-│   │   │   ├── TypeAheadInput.tsx   # Slice E — the query field as a Base UI Autocomplete: suggestion list
-│   │   │   │                        #   from 2 chars; a pick fills the card (TranslationCard's `pickSuggestion`)
-│   │   │   ├── ../start-from-word/  # Slice G — "Start from a word" above the part-of-speech list on the
-│   │   │   │                        #   Add Word gate: `StartFromWord` (language + part-of-speech selects, text
-│   │   │   │                        #   field), `SenseTypeAhead` (senses), `SensePreview` (one row per account
-│   │   │   │                        #   language, "Create draft"). A draft seeds the cards (`TranslationCard`'s
-│   │   │   │                        #   `draft` prop; `useWordFormState`'s `initialDraft`)
-│   │   │   ├── fieldLayout.ts       # Phase 3 — FieldConfig[] → row/column/block grid items for TranslationCard;
-│   │   │   │                        #   also owns the shared `isEmptyValue`/`isHiddenInDisplayOnly`/`isPersistedCaseField`
-│   │   │   ├── buildYupSchema.ts    # (config, t) → yup object — generic over any TranslationFormConfig; Phase 3
-│   │   │   │                        #   added `visibleWhen`/`pattern`/`relaxedWhen` conditional rules
-│   │   │   ├── FieldRenderer.tsx    # FieldConfig → text / radio / select / multi-select / checkbox; `displayOnly`
-│   │   │   │                        #   renders static text, hidden when non-required + empty
-│   │   │   ├── useWordFormState.ts  # plain React state (translations[]/partOfSpeech/clue) + derived
-│   │   │   │                        #   per-slot completion/dirty aggregation, save gating, and `hasContent`
-│   │   │   │                        #   (Phase 3 — gates the "Change word type" confirm) — each TranslationCard
-│   │   │   │                        #   owns its own RHF instance, not this hook
-│   │   │   └── configs/
-│   │   │       ├── index.ts         # getFormConfig(pos, lang) → TranslationFormConfig
-│   │   │       ├── types.ts         # FieldConfig, TranslationFormConfig
-│   │   │       ├── nouns.ts         # 4 lang configs (Phase 2) — derived from the shared WordCasesData.Noun registry
-│   │   │       └── verbs.ts adjectives.ts adverbs.ts   # Phase 3 — registry (verbs) / enums (adj/adv); EE adverb since Slice H4
-│   │   ├── review/               # Phase 3 — all new
-│   │   │   ├── ReviewTable.tsx      # TanStack Table instance; stable-id row selection (`getRowId`); router-
-│   │   │   │                        #   and store-free — every input, including navigation, is a prop
-│   │   │   ├── columns.tsx          # column factory: select/owner → Type → per-language (WordCell: primary
-│   │   │   │                        #   case, optional gender chip, optional CompletionRing) — no Tags column (D1)
-│   │   │   ├── WordCell.tsx         # one language cell: filled (own words: button → CellDialog; others: inert
-│   │   │   │                        #   span, D28) / empty (Add, own words only) / blocked (followed-tag words)
-│   │   │   ├── FilterBar.tsx        # collapsible `.filterbar`; PoS chips + per-language gender chip rows (D16) —
-│   │   │   │                        #   language order/visibility is `LanguageOrderControl`, a separate control
-│   │   │   ├── LanguageOrderControl.tsx  # a flat row of ← / eye(-slash) / → chips (D19/D20 — no drag-and-drop;
-│   │   │   │                        #   the originally-sketched `DualListDnD` was never built, `@dnd-kit` has no consumer)
-│   │   │   ├── languageOrder.ts     # pure array math behind the control (`initialOrder`/`reconcileOrder`/
-│   │   │   │                        #   `hideLanguage`/`showLanguage`/`moveWithinOrder`)
-│   │   │   ├── search.ts            # URL ⇄ filters (`resolveLanguageOrder`, `accountLanguageOrder`, `reviewSearchToFilters`)
-│   │   │   ├── row.ts               # `WordSimpleBE` → per-language cell accessors (`hasTranslation`, `headlineWord`, …)
-│   │   │   ├── completion.ts        # a `CompletionRing`'s denominator, mirroring `TranslationCard`'s own drop rules
-│   │   │   ├── TableToolbar.tsx     # debounced search, Display-gender / Display-progress switches, row count
-│   │   │   ├── BulkActionBar.tsx    # View (exactly one selection) / Delete (one or more, behind ConfirmDialog) —
-│   │   │   │                        #   Create-exercises and Assign-tag are absent, not disabled (Phases 5 and 4)
-│   │   │   └── CellDialog.tsx       # click a filled cell → read-only Dialog with Edit (D41); click Add on an
-│   │   │                            #   empty cell → the same dialog straight into edit mode; reuses form-engine
-│   │   ├── components/WordSimpleList.tsx   # not yet built — compact read-only word list (tag view,
-│   │   │                        #   pre-selected panel), still Phase 4/5 scope
-│   │   └── pages/               # AddWordPage, WordPage (view/edit toggle, owner vs read-only), ReviewPage
-│   │
-│   ├── autocomplete/            # Phase 3 — all new
-│   │   ├── api.ts               # lookupDictionary — GET /api/dictionary/:language/:pos/:query (?entry= a pick);
-│   │   │                        #   suggestDictionary — GET /api/dictionary/:language/:pos?prefix= (Slice E)
-│   │   ├── hooks.ts             # useAutocompleteTranslation(lang, pos, query, extra?, entryId?); enabled only on a
-│   │   │                        #   non-blank query — debouncing itself lives in `AutocompleteRow`.
-│   │   │                        #   useDictionarySuggestions (2+ chars); lookupQueryOptions (shared with a pick)
-│   │   ├── keys.ts              # ['autocomplete', lang, pos, query, extra, entryId], ['autocomplete', 'suggestions', …]
-│   │   ├── types.ts             # `DictionaryResponse` ({ status, cases }) and `AutocompleteResult` —
-│   │   │                        #   `cases: Map<CaseName, string>` (a `Record` can't index the `CaseName` union)
-│   │   └── transforms.ts        # AUTOCOMPLETE_REGISTRY (the 9-entry lang×PoS table: query field)
-│   │                            #   + `toAutocompleteResult`. Which source answers
-│   │                            #   a pair is the backend's business (autocomplete-data-source-strategy.md Slice A)
-│   │
-│   ├── exercises/              # Phase 5
-│   │   ├── api.ts hooks.ts keys.ts types.ts   # getUserExercises; saveTranslationPerformance / master / forget mutations
-│   │   ├── lib/evaluateAnswer.ts  # TI strictness L1–L3 (accent/case normalization) + MC checking
-│   │   ├── components/          # ParameterMenu, ScoreHeader, ExerciseCard, TextInputCard, MultipleChoiceCard,
-│   │   │                        #   PerformanceControls (%, thumbs, Master/Forget), EndScreen, ResultRow
-│   │   └── pages/PracticePage.tsx  # state machine: parameters → cards → results
-│   │
-│   ├── tags/                   # Phase 4
-│   │   ├── api.ts hooks.ts keys.ts
-│   │   ├── components/          # TagInfoModal (create/edit/review, mode-driven), TagWordList
-│   │   └── pages/TagPage.tsx
-│   │
-│   └── social/                 # Phases 6–7 — DEFERRED. Placeholder folder only.
-│       ├── friendships/  notifications/  users/   # api + hooks per domain (redesigned models §8.1/§8.2)
-│       ├── components/          # FriendSearchModal, NotificationInbox, UserBadge, FriendList
-│       └── pages/               # AccountPage, NotificationsPage
-│
-├── lib/
-│   ├── cn.ts                    # class-merge helper for shadcn
-│   ├── useDebouncedCallback.ts  # per-instance debounce (kills the old module-global timer)
-│   ├── useMediaQuery.ts
-│   ├── avatar.ts                # stringAvatar / deterministic colour (from generalUseFunctions)
-│   ├── language.ts              # langKeyByLabel, flag URL, native names, ordering helpers
-│   ├── words.ts                 # getChipFieldsByPoS, primary-case extraction, completion (cases filled / max)
-│   └── sort.ts                  # deterministicSort
-│
-├── styles/
-│   ├── tokens.css              # MOCKUPS/app.css :root tokens → Tailwind v4 @theme + CSS vars (palette, type, spacing,
-│   │                           #   radius, per-language --lang-* tints, state colours)
-│   └── globals.css             # @layer base reset + @layer components for classes not worth a shadcn component
-│
-├── ts/                         # (exists) ported verbatim — DO NOT edit casually
-│   ├── enums.ts  interfaces.ts  wordCasesDataByPoS.ts
-│
-└── test/
-    ├── setup.ts                # (exists)
-    ├── smoke.test.ts           # (exists)
-    ├── msw/{handlers.ts,server.ts}   # MSW — handlers added per phase from endpoints.md
-    └── render.tsx              # renderWithProviders (QueryClient + Router + i18n) for component/integration tests
-```
+The tree in `frontend/src/` is the truth. The original proposal listed about 100 files; 25 of them were never built or were built under other names, so the list was removed (read it with `git log -- .context/.frontend/frontend-structure.md`). The rule is the shape of the top level:
 
----
+- `api/` — the one axios client and its interceptor.
+- `app/` — the router, the query client (with the `staleTime` policy), the feature flags.
+- `components/` — `ui/` (shadcn and Base UI primitives), `common/` (shared pieces), `layout/` (shell, header, sidebar).
+- `features/<x>/` — one folder for each domain: `access`, `account`, `auth`, `autocomplete`, `captcha`, `demo`, `metrics`, `onboarding`, `practice`, `tags`, `words`. The anatomy is in section 4.
+- `lib/` — focused shared modules (D5).
+- `routes/` — thin route files (D4): `ProtectedRoute`, the layouts, the 404.
+- `stores/` — the client-state stores of principle 4.
+- `styles/`, `i18n.ts`, `env.ts`, `main.tsx` — tokens and global CSS, i18next, the typed environment, the entry point.
+- `test/` — MSW handlers and test helpers.
+- `ts/` — the ported enums, interfaces and case registry (`wordCasesDataByPoS.ts`): extend them with new modules, never rewrite them.
 
-## 3. Blueprint / mockup → module map
+## 3. Screen-to-module map
 
-| Blueprint screen | Route file | Feature module(s) | Key components |
-|------------------|-----------|-------------------|----------------|
-| Shell (00) | `routes/protected-layout.tsx` | `components/layout` | AppShell, AppHeader, GlobalSearch, LanguageSelector, UserMenu, VerifyEmailBanner |
-| Login / Register / Verify / Reset / 404 (01) | `routes/{login,register,verify,reset-password,not-found}.tsx` | `features/auth` | LoginForm, RegisterForm, VerifyEmailStatus, ResetPasswordForm |
-| Dashboard (02) | `routes/dashboard.tsx` | `features/metrics` | DashboardPage, WelcomeBanner, UserInfoPanel, StatCard, MetricsPanel, PieChart, BarChart, chartColors |
-| Word editor (03) | `routes/{add-word,word}.tsx` | `features/words/form-engine` | WordForm, TranslationCard, FieldRenderer, PartOfSpeechSelector, TagPicker (Phase 4), AutocompleteRow |
-| Review table (04) | `routes/review.tsx` | `features/words/review` (+ `autocomplete` via CellDialog) | ReviewTable, columns, WordCell, FilterBar, LanguageOrderControl, TableToolbar, BulkActionBar, CellDialog, CompletionRing |
-| Practice (05) | `routes/practice.tsx` | `features/exercises` | ParameterMenu, ExerciseCard, Text/MC cards, PerformanceControls, EndScreen, ResultRow |
-| Account / Notifications / Tag view / modals (06) | `routes/{account,notifications,tag}.tsx` | `features/social`, `features/tags` | AccountPage, NotificationInbox, TagPage, TagInfoModal, FriendSearchModal, UserBadge, DualListDnD |
-
-**Design-language carry-over from `MOCKUPS/app.css`** (into `styles/` + `components/ui`):
-`--bg` paper / `--surface` / `--fg` ink / `--muted` / `--border` hairline / `--accent` brand blue (#007AFF; the mockup used teal #0f766e) plus `--accent-strong` (#0062CC) for accent-coloured small text; serif display font for headings & word titles, system sans for UI, mono for numerics/cases/badges; 36px controls, 4px spacing grid, `--radius` 8/12; per-language tints `--lang-gb/de/es/ee` used as 2px card-top borders and column-header accents; bottom-centre toasts; `.page` fade/slide keyframe for route transitions; skeleton shimmer; dense no-chrome tables.
+Removed. It named files that were built under other names. To find the code of a screen, open the feature folder in the list above, or look at the README table of `.context/README.md`.
 
 ---
 

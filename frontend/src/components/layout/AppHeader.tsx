@@ -34,7 +34,7 @@ const NAV_ITEMS = [
 /**
  * Returns a click handler that blocks Words when the user has fewer
  * than two configured languages, raising a toast with a "Go to Account" action
- * (`pages-auth-shell.md:205` — business rule kept, Redux string-compare dropped).
+ * (`pages-auth-shell (removed snapshot):205` — business rule kept, Redux string-compare dropped).
  */
 function useLanguageGate() {
     const { t } = useTranslation();

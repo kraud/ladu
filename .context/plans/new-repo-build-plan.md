@@ -44,7 +44,7 @@ The snapshot was produced and frozen on 2026-09-05 from the old code (about 4,10
 **Frontend invariants (enforced from commit one):**
 1. No server state outside TanStack Query; no status booleans — mutations expose `isPending/isError/data` + `onSuccess/onError`; all §9 flow sequencing becomes mutation callbacks and invalidation edges.
 2. One invalidation graph document, declared once, extended per phase (migration plan §5.2 is the seed).
-3. Config-driven form engine: one renderer + per-PoS/language configs. Noun + verb configs derive from the `WordCasesData` registry (`word-cases-data.md`); adjective + adverb configs derive from the `AdjectiveCases`/`AdverbCases` enums directly (`data-model.md`) — `WordCasesData` only holds `Noun` and `Verb` keys, so those four adjective/adverb forms are enum-driven fixed schemas, not registry-driven. Field lists + yup rules + ordering per form are in `forms-{nouns,verbs,adjectives-adverbs}.md`; `enums.ts` + `interfaces.ts` port verbatim. Net: 15 × ~580-line components → ~2,000 lines total (study §7).
+3. Config-driven form engine: one renderer + per-PoS/language configs. Noun + verb configs derive from the `WordCasesData` registry (`frontend/src/ts/wordCasesDataByPoS.ts`); adjective + adverb configs derive from the `AdjectiveCases`/`AdverbCases` enums directly (`data-model.md`) — `WordCasesData` only holds `Noun` and `Verb` keys, so those four adjective/adverb forms are enum-driven fixed schemas, not registry-driven. Field lists + yup rules + ordering per form are in `forms-{nouns,verbs,adjectives-adverbs}.md`; `enums.ts` + `interfaces.ts` port verbatim. Net: 15 × ~580-line components → ~2,000 lines total (study §7).
 4. Centralized `ProtectedRoute` from the first commit; stable-id row selection; URL as state (filters in searchParams); stable keys everywhere; guarded `JSON.parse` via Zustand `persist`.
 5. Strict TS; zero non-null assertions (lint rule) — kills the `x!!` crash vector (`§8.4 #5`).
 
@@ -101,7 +101,7 @@ Each phase: scope → gate. Order chosen so every phase ends with a runnable app
 ### Phase 3 — Form engine completion + autocomplete + Review
 - Verbs/adjectives/adverbs configs (engine already proven on nouns; the ~5,300 lines of verb forms collapse to configs); `checkEnvironmentAndIterationToDisplay` ported into `env.ts`.
 - `useAutocompleteTranslation(lang, pos, query)` family with typed query keys; EE sanitizers as query transforms (`sanitizeDataStructureEE*`); per-instance debounce (deletes the module-level shared timer, `generalUseFunctions.ts:544-550`); `AutocompleteButtonWithStatus` ported.
-- Review page: TanStack table; **all filters in URL searchParams** (today only the tag param hydrates, once — snapshot `pages-review-practice.md`); **stable-id row selection** (fixes `Review.tsx:228-254`); `useInfiniteQuery` over the paginated list; TableFilters + DnD column order ported on @dnd-kit.
+- Review page: TanStack table; **all filters in URL searchParams** (today only the tag param hydrates, once — the old snapshot `pages-review-practice`); **stable-id row selection** (fixes `Review.tsx:228-254`); `useInfiniteQuery` over the paginated list; TableFilters + DnD column order ported on @dnd-kit.
 - **Gate**: word CRUD + search + autocomplete flows' MSW tests green; filters survive reload (URL round-trip); selecting row N after a filtered refetch navigates to the right word.
 - **e2e** (`phase-3-review.spec.ts`): create words of each PoS via the engine; on Review, apply a filter → reload → filter still applied from the URL; scroll triggers the next page; click a row after a filtered refetch and land on the correct word; an autocomplete lookup populates fields.
 
@@ -187,7 +187,7 @@ Slices (each one ends with something runnable):
 
 ### Design for the deferred social phases (from the study, §8.1 to §8.3 and §9)
 
-*Folded here from the frontend re-implementation study (archive record: `archive/2026-09-frontend-reimplementation-study.md`) so the design stays readable while the work waits. The defects were verified against the old code on 2026-09-05. Friendship and notification controllers and tests are not reconciled yet (`CLAUDE.md`); the schema changes were kept. The tag-side items already built are in `features/tags.md`.*
+*Folded here from the frontend re-implementation study (archive record: `archive/2026-09-frontend-reimplementation-study.md`) so the design stays readable while the work waits. The defects were verified against the old code on 2026-09-05. **State of the backend (checked 2026-11-02):** the redesigned schema and routes exist. `friendships` has `requester_id`, `addressee_id` and a `friendship_status` enum with the two partial unique indexes; `tag_shares` has a `tag_share_status` enum and a pending-unique index; `tags.visibility` is a `tag_visibility` enum. The routes are `GET/POST /api/friendships`, `POST /api/friendships/:id/accept`, `/decline`, `DELETE /api/friendships/:id`, `POST /api/tags/:id/share`, `POST /api/tag-shares/:id/accept` and `/decline`. The controllers, the notification changes and the tests are **not reconciled** (`CLAUDE.md` defers them): there is no friendship or tag-share test, and no frontend. Phases 6 and 7 mean: reconcile and test these controllers, then build the frontend. The tag-side items already built are in `features/tags.md`.*
 
 **Notifications (§8.1, Phase 6).** The old app polled every 90 s whether the tab was visible or not, shipped the whole history (dismissed rows too) and filtered the unread badge on the client. Poll errors were silent.
 - Use one `['notifications']` query with `refetchInterval: 90_000`, `refetchIntervalInBackground: false`, `refetchOnWindowFocus: 'always'`, and an `onError` toast.
@@ -204,14 +204,32 @@ Slices (each one ends with something runnable):
 
 **Tag sharing (§8.3, Phase 7).** Old defects: the share lifecycle used a notification as its state machine (no accept or decline state); any user could clone any tag by id, private ones included; a clone copied only the part of speech and clue of each word (translations and cases were lost) and ran as three inserts without a transaction; follow and unfollow shared one state slot.
 - Already built in Phase 4 (see `features/tags.md`): the `canViewTag` check, the author set on the server, and the transactional tag clone.
-- Still to build: a `tag_shares` table (`tagId`, `senderId`, `recipientId`, `status` enum `pending|accepted|declined`, partial unique pending per `(tagId, recipientId)`), and the endpoints `POST /api/tags/:id/share`, `POST /api/tag-shares/:id/accept`, `POST /api/tag-shares/:id/decline`. Accept checks `recipientId === req.user.id` and `status = 'pending'`, then runs the server-side clone. A clone of a shared tag is allowed when a pending share exists for the caller or the tag is Public.
+- In the schema and routes already (not tested, not reconciled): a `tag_shares` table (`tagId`, `senderId`, `recipientId`, `status` enum `pending|accepted|declined`, partial unique pending per `(tagId, recipientId)`), and the endpoints `POST /api/tags/:id/share`, `POST /api/tag-shares/:id/accept`, `POST /api/tag-shares/:id/decline`. The design for accept is: it checks `recipientId === req.user.id` and `status = 'pending'`, then runs the server-side clone. A clone of a shared tag is allowed when a pending share exists for the caller or the tag is Public.
 - Frontend: one accept mutation. The clone button on a tag page and the inbox entry collapse into it.
 
 **Flows to re-encode on purpose (study §9).** Friend request send, cancel, accept, delete; tag share and accept-and-clone; notification polling. Each becomes mutation callbacks and invalidation edges, never chained effects.
 
 ### Phase 8 — Parity + cutover
 - Deployment moved forward (2026-09-16): `app.` and `staging.` subdomains of the real domain run v2 from the pipeline in [`.context/guides/infrastructure-guide/deployment-strategy.md`](../../.context/guides/infrastructure-guide/deployment-strategy.md), and every phase after 3.5 ships through it. Phase 8 no longer deploys; it verifies parity and switches the apex.
-- **Route-parity checklist**: per route (12 + catch-all), walk every use case in the snapshot files against the new build; **intentional-deltas annex** lists every §8-driven behavior change with its own verification (decline action, visibility-aware polling, clone preserving translations, server-side authz + notifications, 401→logout, guards on the 4 pages, URL-persisted filters, pagination).
+- **Route-parity checklist**: per route (12 + catch-all), walk every use case against the new build (run the old app; the remaining snapshot files in `.context/.frontend/snapshot/` help); **intentional-deltas annex** lists every §8-driven behavior change with its own verification (decline action, visibility-aware polling, clone preserving translations, server-side authz + notifications, 401→logout, guards on the 4 pages, URL-persisted filters, pagination).
+
+**Intentional-deltas annex (folded 2026-11-02 from the old UI blueprint files `ui/00-global` §4, `ui/04-review` and `ui/05-practice`; the last two were removed).** Each row is a place where the new app is meant to differ from the old one. The three source files list 14 items; 3 of them (stable id, URL filters, pagination) appear in two files, so the table has 11 rows. Phase 8 checks each row against the running app and maps it to a passing assertion. The column "State" says what the specs show today; it is not a Phase 8 verification.
+
+| # | Delta (old app, then new app) | State today | Source |
+|---|---|---|---|
+| 1 | Protected routes are guarded. Old: Practice, Account, Notifications and Tag pages rendered without sign-in. | Built: `ProtectedRoute` (`features/auth-and-shell.md` §2). | `ui/00` §4.1 |
+| 2 | Rows are selected by stable id. Old: by array index, so a filter selected the wrong row. | Built: `features/words-list.md` §3, `features/word-form-engine.md` D44. | `ui/00` §4.2, `ui/04` |
+| 3 | Filters and params live in the URL, and word lists are paginated. Old: only the tag parameter, read once; the list was not paginated. | Built: numbered pages (`features/words-list.md` W-1 to W-4). | `ui/00` §4.3, `ui/04` (two rows) |
+| 4 | A 401 clears the session and redirects to `/login`. | Built: the axios interceptor (`features/auth-and-shell.md` §2). | `ui/00` §4.4 |
+| 5 | Notifications are a display-only inbox. Pending actions (friend request, tag share) come from domain queries with an explicit accept or decline. Decline is new. | Not built in the frontend. Schema and routes exist (see "Design for the deferred social phases"). | `ui/00` §4.5 |
+| 6 | Tag share has accept and decline. Old: dismissing a notification was the state. | Not built in the frontend. Routes `POST /api/tag-shares/:id/accept` and `/decline` exist, untested. | `ui/00` §4.6 |
+| 7 | One mutation per action. No multi-wait flag machines. Toasts fire from `onSuccess` and `onError`. | Built: invariant of the frontend (`.context/README.md`, invariant 1). | `ui/00` §4.7 |
+| 8 | The language order is user preference data (`users.languages` order). The ordering UI writes it. Everything else (table columns, exercise generation) reads it. | Reading is built. The Review column order lives in the URL and does not write the preference (`word-form-engine.md` D6). Editing the languages on `/user` writes it (`auth-and-shell.md` P1-9); drag and drop belongs to Phase 7. | `ui/00` §4.8 |
+| 9 | The Review row type follows the real simplified response (`dataXX` accessors), not the stale `TableWordData` type. | Built (`word-form-engine.md` §3). | `ui/04` |
+| 10 | A failed performance save is shown with a toast. Old: an unhandled error left the card state out of step. | Phase 5 rebuilt the flow (`plans/phase-5-practice.md`); not yet checked against this delta. | `ui/05` |
+| 11 | The amount validator accepts only true positive integers. Old: it accepted `+1`. | Phase 5 rebuilt the validators (`plans/phase-5-practice.md`); not yet checked against this delta. | `ui/05` |
+
+Also part of the annex, kept where they are: the form validation fixes (`features/word-form-engine.md` §3), the practice deltas (`plans/phase-5-practice.md` Part A, "known defects"), and the social items of the study (decline, visibility-aware polling, a clone that keeps translations, server-side authorisation; `Design for the deferred social phases`).
 - User points the apex domain at the VPS (Terraform) once `landing/` is ready. Old repo becomes greppable reference; archive when satisfied.
 - **Gate**: checklist + annex fully green; zero unexplained parity failures.
 - **e2e**: the full `e2e/tests/` suite (Phases 1–7 specs, incl. 3.5) green in CI and the deployed smoke spec green against `app.`; the intentional-deltas annex items each map to a passing assertion.
@@ -241,7 +259,7 @@ Performed 2026-09-05, before this plan was written:
 
 1. **Route cross-check** — `glob frontend/src/pages/**/*.tsx` (14 files) vs snapshot coverage: 0 missing; route table re-read from `RoutesWithAnimation.tsx:54-138`.
 2. **Endpoint cross-check** — `grep -c "router.(get|post|put|delete)" backend/routes/*.js` = 57 total (autocomplete 8, exercise 3, friendship 6, notification 5, tag 15, user 10, word 10) — matches `endpoints.md` (57 exposed / 54 FE-called / 3 backend-only).
-3. **Spot-checks** (file:line resolved in source): `Review.tsx:228-254` ✓ · `WordForm.tsx:64-67,114-149` ✓ · `MainView.tsx:67-75` ✓ · `tagSlice.ts:541-562` ✓ · `RoutesWithAnimation.tsx:122-129` ✓ · `AuthVerify.tsx:19-29` ✓ (per `pages-auth-shell.md` highlights).
+3. **Spot-checks** (file:line resolved in source): `Review.tsx:228-254` ✓ · `WordForm.tsx:64-67,114-149` ✓ · `MainView.tsx:67-75` ✓ · `tagSlice.ts:541-562` ✓ · `RoutesWithAnimation.tsx:122-129` ✓ · `AuthVerify.tsx:19-29` ✓.
 
 ## 9. Progress — quick reference
 
