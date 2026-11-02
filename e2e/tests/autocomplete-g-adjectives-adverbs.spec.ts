@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { clickUseValues, closeTypeAheadList } from '../fixtures/autocomplete';
+import { clickUseValues } from '../fixtures/autocomplete';
 import { closePool, deleteUsersByEmail } from '../fixtures/db';
 import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtures/practice';
 
@@ -10,16 +10,17 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
  *
  *  1. German adjective "gut": comparative "besser", superlative "besten" (stored without "am"; the
  *     form shows "am" in front of the field).
- *  2. German adverb "oft" is Gradable and fills all degrees; "hier" has no degree form, so the radio is left to the user.
- *  3. Spanish adjective: "rojo" fills the M/F cells; a Neutral word ("feliz") typed on the M/F
- *     branch switches the card to Neutral; a pick from the list works too.
- *  4. English: "beautiful" picked from the list gets "more beautiful"; the adverb "quickly" is
+ *  2. Spanish adjective: "rojo" fills the M/F cells.
+ *  3. English: "beautiful" picked from the list gets "more beautiful"; the adverb "quickly" is
  *     Gradable and checks the "Uses more / most" box, so the form derives "more quickly".
- *  5. Estonian adverb (new in H4, Ekilex stub): "kiiresti" fills the comparative and checks the
+ *  4. Estonian adverb (new in H4, Ekilex stub): "kiiresti" fills the comparative and checks the
  *     "no one-word superlative" box (D27) and the Gradable radio, so the superlative reads "kõige kiiremini"; a conjunction
  *     ("ja") is not found. The word is saved with an English adverb and shows after a reload.
  *
- *  6. English, Spanish and Estonian adverbs: the "Non-gradable" radio hides the degree fields and the box.
+ * Removed in the test prune pass (`.context/plans/test-prune-pass.md`): the German adverb,
+ * the other Spanish adjective cases (Neutral, a pick from the list), and the "Non-gradable" radio.
+ * `backend/tests/dictionary.test.js`, `adverbs.test.ts`, `TranslationCard.test.tsx` and
+ * `AutocompleteRow.test.tsx` own them.
  *
  * Only the Estonian adverb is saved: the subject of the others is the fill.
  */
@@ -64,24 +65,6 @@ test.describe.serial('Autocomplete — adjectives and adverbs (Slice H3)', () =>
         await expect(page.getByText('am', { exact: true })).toBeVisible();
     });
 
-    test('German adverb: "oft" is Gradable with all degrees; "hier" leaves the radio to the user', async ({ page }) => {
-        await openCard(page, /Adverb/, 'Deutsch');
-        await typeAndFill(page, 'Adverb', 'oft');
-        await expect(page.getByRole('radio', { name: 'Gradable', exact: true })).toBeChecked();
-        await expect(page.getByLabel('Comparative', { exact: true })).toHaveValue('öfter');
-        await expect(page.getByLabel('Superlative', { exact: true })).toHaveValue('öftesten');
-
-        // A new card: "hier" has no degree form, so the lookup has nothing to add to the typed word and does not
-        // prove it is non-gradable. Neither radio is set; the user picks Non-gradable, and that hides the degrees.
-        await openCard(page, /Adverb/, 'Deutsch');
-        await page.getByLabel('Adverb', { exact: true }).pressSequentially('hier');
-        await closeTypeAheadList(page);
-        await expect(page.getByRole('radio', { name: 'Gradable', exact: true })).not.toBeChecked();
-        await expect(page.getByRole('radio', { name: 'Non-gradable', exact: true })).not.toBeChecked();
-        await page.getByRole('radio', { name: 'Non-gradable', exact: true }).click();
-        await expect(page.getByLabel('Comparative', { exact: true })).toHaveCount(0);
-    });
-
     test('Spanish adjective: a gendered word fills the M/F cells', async ({ page }) => {
         await openCard(page, /Adjective/, 'Español');
         await page.getByRole('radio', { name: 'M/F', exact: true }).click();
@@ -90,26 +73,6 @@ test.describe.serial('Autocomplete — adjectives and adverbs (Slice H3)', () =>
         await expect(page.getByLabel('Male plural', { exact: true })).toHaveValue('rojos');
         await expect(page.getByLabel('Female singular', { exact: true })).toHaveValue('roja');
         await expect(page.getByLabel('Female plural', { exact: true })).toHaveValue('rojas');
-    });
-
-    test('Spanish adjective: a Neutral word typed on the M/F branch switches the card to Neutral', async ({ page }) => {
-        await openCard(page, /Adjective/, 'Español');
-        await page.getByRole('radio', { name: 'M/F', exact: true }).click();
-        await typeAndFill(page, 'Male singular', 'feliz');
-
-        await expect(page.getByRole('radio', { name: 'Neutral', exact: true })).toBeChecked();
-        await expect(page.getByLabel('Neutral singular', { exact: true })).toHaveValue('feliz');
-        await expect(page.getByLabel('Neutral plural', { exact: true })).toHaveValue('felices');
-        await expect(page.getByLabel('Male singular', { exact: true })).toHaveCount(0);
-    });
-
-    test('Spanish adjective: a pick from the list fills the card at once', async ({ page }) => {
-        await openCard(page, /Adjective/, 'Español');
-        await page.getByRole('radio', { name: 'M/F', exact: true }).click();
-        await page.getByLabel('Male singular', { exact: true }).pressSequentially('roj');
-        await page.getByRole('listbox').getByRole('option', { name: 'rojo', exact: true }).click();
-
-        await expect(page.getByLabel('Female singular', { exact: true })).toHaveValue('roja');
     });
 
     test('English adjective picked from the list, and an adverb in -ly: "more" forms', async ({ page }) => {
@@ -126,20 +89,6 @@ test.describe.serial('Autocomplete — adjectives and adverbs (Slice H3)', () =>
         await expect(page.getByRole('checkbox', { name: /Uses "more" \/ "most"/ })).toBeChecked();
         await expect(page.getByTestId('derived-comparative')).toHaveValue('more quickly');
         await expect(page.getByTestId('derived-superlative')).toHaveValue('most quickly');
-    });
-
-    test('English, Spanish, Estonian adverb: "Non-gradable" hides the degree fields and the box, and the word is complete (gradable-radio plan)', async ({ page }) => {
-        for (const [language, box] of [['English', /Uses "more" \/ "most"/], ['Español', /Uses "más"/], ['Eesti', /No one-word superlative/]] as const) {
-            await openCard(page, /Adverb/, language);
-            await page.getByLabel('Adverb', { exact: true }).fill('test');
-            await expect(page.getByLabel('Comparative', { exact: true })).toBeVisible();
-            await expect(page.getByRole('checkbox', { name: box })).toBeVisible();
-
-            await page.getByRole('radio', { name: 'Non-gradable', exact: true }).click();
-            await expect(page.getByLabel('Comparative', { exact: true })).toHaveCount(0);
-            await expect(page.getByLabel('Superlative', { exact: true })).toHaveCount(0);
-            await expect(page.getByRole('checkbox', { name: box })).toHaveCount(0);
-        }
     });
 
     test('Estonian adverb: the comparative fills, the "kõige" box is checked, a conjunction is not found, and the word saves', async ({ page }) => {

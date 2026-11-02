@@ -11,10 +11,10 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
  *
  *  1. A stem-changing verb ("sentir") is conjugated right (the old library said "sento") and is
  *     irregular (decision D16).
- *  2. 2nd person is labelled Tú / Ustedes and filled with the tú and ustedes forms (decision D10);
- *     the gerund fills too (the old library had none).
- *  3. A noun the old library gave the wrong gender ("leche") is feminine, with its plural.
- *  4. A verb the lexicon does not have falls back to the library, marked as a guess.
+ *  2. A noun the old library gave the wrong gender ("leche") is feminine, with its plural.
+ *
+ * Removed in the test prune pass (`.context/plans/test-prune-pass.md`): the Tú / Ustedes
+ * forms and the library fallback. `backend/tests/dictionary.test.js` owns them.
  *
  * Nothing is saved: the subject is the lookup.
  */
@@ -57,17 +57,6 @@ test.describe.serial('Autocomplete — Spanish from the lexicon (Slice C1)', () 
         await expect(guessNotice(page)).toHaveCount(0);
     });
 
-    test('2nd person is Tú and Ustedes, filled with the tú and ustedes forms', async ({ page }) => {
-        await openSpanish(page, /Verb/);
-        await page.getByLabel('Infinitive non-finite simple').fill('bailar');
-
-        await clickUseValues(page);
-        await expect(page.getByLabel('Tú').first()).toHaveValue('bailas');
-        await expect(page.getByLabel('Ustedes').first()).toHaveValue('bailan');
-        await expect(page.getByLabel('Gerund non-finite simple')).toHaveValue('bailando');
-        await expect(page.getByLabel('Vos')).toHaveCount(0);
-    });
-
     test('a noun gets the right gender and its plural', async ({ page }) => {
         await openSpanish(page, /Noun/);
         await page.getByLabel('Singular', { exact: true }).fill('leche');
@@ -77,13 +66,4 @@ test.describe.serial('Autocomplete — Spanish from the lexicon (Slice C1)', () 
         await expect(page.getByLabel('Plural', { exact: true })).toHaveValue('leches');
     });
 
-    test('a verb not in the lexicon falls back to the library, marked as a guess', async ({ page }) => {
-        await openSpanish(page, /Verb/);
-        await page.getByLabel('Infinitive non-finite simple').fill('abarrancar');
-
-        await expect(guessNotice(page)).toBeVisible();
-        await clickUseValues(page);
-        await expect(page.getByText('Autocomplete values applied')).toBeVisible();
-        await expect(guessNotice(page)).toBeVisible();
-    });
 });

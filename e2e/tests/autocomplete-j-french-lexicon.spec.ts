@@ -12,13 +12,13 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
  *  1. A noun ("cheval") gets its gender and its irregular plural.
  *  2. A verb ("aimer") fills the group, the auxiliary, reflexivity, both participles and the boxes of
  *     the present, imparfait, passé composé and futur simple.
- *  3. A verb that takes both auxiliaries ("partir") leaves the auxiliary empty (review log A1).
- *  4. A pronominal verb typed as "se laver" is found through "laver": Always reflexive, être, and the
+ *  3. A pronominal verb typed as "se laver" is found through "laver": Always reflexive, être, and the
  *     forms of the plain verb (review log V7).
- *  5. An adjective ("beau") fills the four agreement forms and the form before a vowel.
- *  6. A conjunction ("parce que") fills its type.
- *  7. A word the lexicon does not have shows the "we don't know this word" notice and no button: French
- *     has no library to fall back to.
+ *  4. An adjective ("beau") fills the four agreement forms and the form before a vowel.
+ *
+ * Removed in the test prune pass (`.context/plans/test-prune-pass.md`): the two-auxiliary
+ * verb, the conjunction and the unknown word. The French block of `backend/tests/dictionary.test.js`
+ * owns them.
  *
  * Nothing is saved: the subject is the lookup.
  */
@@ -81,18 +81,6 @@ test.describe.serial('Autocomplete — French from the lexicon (Slice 10)', () =
         await expect(field(page, 'indicativeSimpleFuture1s')).toHaveValue('aimerai');
     });
 
-    test('a verb with both auxiliaries leaves the auxiliary empty', async ({ page }) => {
-        await openFrench(page, /Verb/);
-        await typeAndFill(page, 'Infinitive', 'partir');
-
-        await expect(page.getByRole('radio', { name: '3e groupe', exact: true })).toBeChecked();
-        await expect(field(page, 'indicativePresent1s')).toHaveValue('pars');
-        // The passé composé still fills, with the masculine singular participle.
-        await expect(field(page, 'indicativePerfect1pl')).toHaveValue('parti');
-        await expect(auxiliary(page).getByRole('radio', { name: 'avoir' })).not.toBeChecked();
-        await expect(auxiliary(page).getByRole('radio', { name: 'être' })).not.toBeChecked();
-    });
-
     test('"se laver" is found through "laver": Always reflexive, être, the pronoun before the auxiliary', async ({ page }) => {
         await openFrench(page, /Verb/);
         await typeAndFill(page, 'Infinitive', 'se laver');
@@ -116,19 +104,4 @@ test.describe.serial('Autocomplete — French from the lexicon (Slice 10)', () =
         await expect(page.getByLabel('Form before a vowel', { exact: true })).toHaveValue('bel');
     });
 
-    test('a conjunction fills its type', async ({ page }) => {
-        await openFrench(page, /Conjunction/);
-        await typeAndFill(page, 'Conjunction', 'parce que');
-
-        await expect(page.getByRole('radio', { name: 'Subordinating', exact: true })).toBeChecked();
-        await expect(page.getByRole('radio', { name: 'Coordinating', exact: true })).not.toBeChecked();
-    });
-
-    test('a word the lexicon does not know: "we don\'t know this word", and no button', async ({ page }) => {
-        await openFrench(page, /Noun/);
-        await page.getByLabel('Singular', { exact: true }).fill('zorplata');
-
-        await expect(page.getByText("Sorry, we don't know this word!")).toBeVisible();
-        await expect(page.getByRole('button', { name: 'Use autocomplete values' })).toHaveCount(0);
-    });
 });

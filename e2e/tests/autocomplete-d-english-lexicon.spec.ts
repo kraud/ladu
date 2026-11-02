@@ -11,7 +11,9 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
  *
  *  1. English nouns have autocomplete for the first time: an irregular plural fills.
  *  2. A modal verb is right (the old library said "caned"): main sense, decision D15 (refined).
- *  3. A made-up verb gets the library's rule-based guess, marked "not fully sure" (decision D17).
+ *
+ * Removed in the test prune pass (`.context/plans/test-prune-pass.md`): the made-up verb
+ * guess. `backend/tests/dictionary.test.js` owns it.
  *
  * Nothing is saved: the subject is the lookup.
  */
@@ -61,13 +63,4 @@ test.describe.serial('Autocomplete — English from the lexicon (Slice C2)', () 
         await expect(guessNotice(page)).toHaveCount(0);
     });
 
-    test('a made-up verb gets a rule-based guess, marked as one', async ({ page }) => {
-        await openEnglish(page, /Verb/);
-        await page.getByLabel('I', { exact: true }).first().fill('zorplate');
-
-        await expect(guessNotice(page)).toBeVisible();
-        await clickUseValues(page);
-        await expect(page.getByLabel('He/She/it').first()).toHaveValue('zorplates');
-        await expect(guessNotice(page)).toBeVisible();
-    });
 });

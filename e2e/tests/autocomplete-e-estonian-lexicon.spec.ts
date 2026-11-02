@@ -11,10 +11,11 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
  * "maja" and "tantsima" are in both. Ekilex is the local stub (e2e/fixtures/eki-stub), whose
  * request log tells whether the backend asked it.
  *
- *  1. A noun in the lexicon fills locally: Ekilex is not asked.
- *  2. A verb in the lexicon fills every person locally.
- *  3. Adjectives (Ekilex, D20): a one-word superlative fills the field; with only "kõige …" the
- *     new checkbox is checked and the superlative shows as read-only "kõige" + comparative.
+ *  1. A verb in the lexicon fills every person locally.
+ *
+ * Removed in the test prune pass (`.context/plans/test-prune-pass.md`): the noun (Ekilex
+ * is not asked) and the two adjective cases (D20). `backend/tests/dictionary.test.js` and
+ * `TranslationCard.test.tsx` own them.
  *
  * Nothing is saved: the subject is the lookup. Needs the stub: the e2e backend points at it
  * (see e2e/README.md, "Stub servers").
@@ -26,7 +27,6 @@ test.afterAll(async () => {
     await closePool();
 });
 
-const NO_ONE_WORD_SUPERLATIVE = 'No one-word superlative (kõige + comparative)';
 // The stub's log is shared by every worker (other specs run in parallel), so a check looks only
 // for requests about ITS OWN word, never for an empty log.
 const stubLog = async (request: APIRequestContext) =>
@@ -52,17 +52,6 @@ test.describe.serial('Autocomplete — Estonian: lexicon first, then Ekilex (Sli
         await signIn(page, user);
     });
 
-    test('a noun in the lexicon fills locally, without asking Ekilex', async ({ page, request }) => {
-        const before = (await stubLog(request)).length;
-        await openEstonian(page, /Noun/);
-        await page.getByLabel('Singular nominative').fill('maja');
-
-        await clickUseValues(page);
-        await expect(page.getByLabel('Plural nominative')).toHaveValue('majad');
-        await expect(page.getByLabel('Plural partitive')).toHaveValue('maju');
-        expect(askedAbout((await stubLog(request)).slice(before), 'maja')).toEqual([]);
-    });
-
     test('a verb in the lexicon fills every person', async ({ page, request }) => {
         const before = (await stubLog(request)).length;
         await openEstonian(page, /Verb/);
@@ -73,24 +62,4 @@ test.describe.serial('Autocomplete — Estonian: lexicon first, then Ekilex (Sli
         expect(askedAbout((await stubLog(request)).slice(before), 'tantsima')).toEqual([]);
     });
 
-    test('an adjective with a one-word superlative fills it, the "kõige" box stays unchecked (D20)', async ({ page }) => {
-        await openEstonian(page, /Adjective/);
-        await page.getByLabel('Positive degree').fill('väike');
-
-        await clickUseValues(page);
-        await expect(page.getByLabel('Comparative degree')).toHaveValue('väiksem');
-        await expect(page.getByLabel('Superlative degree')).toHaveValue('väikseim');
-        await expect(page.getByRole('checkbox', { name: NO_ONE_WORD_SUPERLATIVE })).not.toBeChecked();
-    });
-
-    test('an adjective with only "kõige …" checks the box and shows the superlative read-only (D20)', async ({ page }) => {
-        await openEstonian(page, /Adjective/);
-        await page.getByLabel('Positive degree').fill('tore');
-
-        await clickUseValues(page);
-        await expect(page.getByRole('checkbox', { name: NO_ONE_WORD_SUPERLATIVE })).toBeChecked();
-        const superlative = page.getByTestId('derived-ulivorre');
-        await expect(superlative).toHaveValue('kõige toredam');
-        await expect(superlative).toHaveAttribute('readonly', '');
-    });
 });
