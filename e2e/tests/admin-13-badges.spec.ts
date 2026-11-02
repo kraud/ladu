@@ -128,23 +128,14 @@ async function openDiscover(page: Page, query = '') {
 // --- the story -----------------------------------------------------------------------------------
 
 test.describe('Account badges', () => {
-    test('only the owner may grant: an admin sees the list but no buttons, and the API answers 403', async ({ page, request }) => {
+    // The 403 on the API is owned by `backend/tests/adminBadges.test.js`.
+    test('only the owner may grant: an admin sees the list but no buttons', async ({ page }) => {
         await staffSignIn(page, 'admin', `/users/${ids.author}`);
         await expect(page.getByRole('heading', { name: accounts.author.name })).toBeVisible();
 
         const section = badgeSection(page);
         await expect(section.getByText('This account has no badge.')).toBeVisible();
         await expect(section.getByRole('button')).toHaveCount(0);
-
-        // The API refuses too: hiding a button is not the lock.
-        const login = await request.post(`${API}/api/admin/auth/login`, { data: { email: staffEmail('admin'), password: STAFF_PASSWORD } });
-        const { token } = (await login.json()) as { token: string };
-        const refused = await request.post(`${API}/api/admin/users/${ids.author}/badges`, {
-            headers: { Authorization: `Bearer ${token}` },
-            data: { type: 'official', reason: 'not allowed' },
-        });
-        expect(refused.status()).toBe(403);
-        expect(await getBadgeRows(ids.author)).toEqual([]);
     });
 
     test('the owner grants the official badge with a reason, and it is recorded', async ({ page }) => {

@@ -135,16 +135,13 @@ async function leaveWith(page: Page, button: 'Save session and leave' | 'Leave s
 
 test.describe.serial('Phase 5.5 — saved practice', () => {
     let owner: Account;
-    let other: Account;
     let ownerToken: string;
     let wordIds: Record<string, string>;
-    /** Ids collected on the way, for the privacy test. */
-    let configId = '';
+    /** Id collected on the way. */
     let sessionId = '';
 
     test.beforeAll(async ({ request }) => {
         owner = await registerAndVerify(request, 'Saved Owner');
-        other = await registerAndVerify(request, 'Saved Other');
         ownerToken = await loginForToken(request, owner);
         wordIds = await seedNouns(request, ownerToken);
     });
@@ -242,9 +239,6 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
         await dialog.getByRole('button', { name: 'Save', exact: true }).click();
         await openConfigurationsTab(page);
         await expect(configRow(page, 'Two fruits')).toContainText('2 selected words');
-
-        const list = await request.get(`${API}/api/practice/configs`, { headers: authHeader(ownerToken) });
-        configId = ((await list.json()) as Array<{ id: string }>)[0]!.id;
 
         await test.step('Banana is deleted', async () => {
             const res = await request.delete(`${API}/api/words/${wordIds.Banana}`, { headers: authHeader(ownerToken) });
@@ -470,30 +464,5 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
             await openSessionsTab(page);
             await expect(page.getByText(/You have no saved sessions/)).toBeVisible();
         });
-    });
-
-    test('privacy: a second account sees none of it and gets 404 for every id', async ({ request }) => {
-        // A session and a configuration of the owner to try to reach.
-        sessionId = await saveSessionViaApi(request, ownerToken, 'private');
-        const otherToken = await loginForToken(request, other);
-        const bob = authHeader(otherToken);
-
-        expect(await savedSessions(request, otherToken)).toEqual([]);
-        const configs = await request.get(`${API}/api/practice/configs`, { headers: bob });
-        expect(await configs.json()).toEqual([]);
-
-        expect((await request.get(`${API}/api/practice/sessions/${sessionId}`, { headers: bob })).status()).toBe(404);
-        expect(
-            (await request.put(`${API}/api/practice/sessions/${sessionId}`, { headers: bob, data: { snapshot: snapshot('x') } })).status(),
-        ).toBe(404);
-        expect((await request.delete(`${API}/api/practice/sessions/${sessionId}`, { headers: bob })).status()).toBe(404);
-
-        expect((await request.get(`${API}/api/practice/configs/${configId}/words`, { headers: bob })).status()).toBe(404);
-        expect((await request.delete(`${API}/api/practice/configs/${configId}`, { headers: bob })).status()).toBe(404);
-
-        // Still there for the owner.
-        expect(await savedSessions(request, ownerToken)).toHaveLength(1);
-        const mine = await request.get(`${API}/api/practice/configs`, { headers: authHeader(ownerToken) });
-        expect(((await mine.json()) as unknown[]).length).toBe(1);
     });
 });

@@ -99,7 +99,7 @@ Example: `TagWordsTable.test.tsx` (41 tests) and `TagViewPage.test.tsx` (44 test
 
 ### F4. e2e tests that check backend rules through the API
 
-33 e2e files call the API directly (`page.request`, `request.get/post`). Some of these prepare data (fine). Some assert a backend rule. Example: `phase-2-noun-crud.spec.ts`, "GET /api/words/:id for another user". The backend integration suite already owns these rules.
+33 e2e files call the API directly (`page.request`, `request.get/post`). Some of these prepare data (fine). Some assert a backend rule. Example: `phase-5-5-saved-practice.spec.ts`, "privacy: a second account … 404 for every id". The backend integration suite already owns these rules. (The first version of this record named `phase-2-noun-crud` "GET /api/words/:id for another user". That was wrong: the test is a browser flow that checks a notice and a redirect.)
 
 ### F5. Meta tests
 
@@ -115,3 +115,50 @@ Admin is an internal tool. It has 310 tests, 26 files. `AccessPage.test.tsx` has
 - Run time of each suite. Measure it before the prune slice, so that the gain can be shown.
 - Which tests found a real bug in the past. `git log` can give a hint.
 - Coverage numbers. `npm run test:coverage` exists for the backend only.
+
+## Baseline (Slice 0 of the prune plan, 2026-11-02)
+
+All four suites were green. The runs had v8 coverage on (not for e2e), so the times are a little higher than in the totals table: admin 20 s, frontend 66 s, backend 333 s, e2e 170 s. The reports are kept outside the repo; the numbers are here.
+
+### Coverage
+
+| Workspace | Lines | Functions | Branches |
+|---|---|---|---|
+| admin | 96.36% (4,857 / 5,040) | 95.44% | 94.66% |
+| frontend | 95.24% (21,134 / 22,189) | 92.39% | 92.58% |
+| backend | 93.26% (5,343 / 5,729) | 92.97% | 87.04% |
+
+After each prune slice, the same run is compared file by file. A file that loses covered lines is explained or the removal is undone.
+
+### Where the test count comes from
+`backend/tests/unit/onboardingPool.test.js` has **1,193 tests** and runs in 0.6 s. It checks every word of the onboarding pool, so it is a data check, not a repeat. Without it the backend has 1,754 tests. The "5,600 tests" total is high only because of this file.
+
+### Where the time goes
+
+**Backend: 329 s, in one line.** The suite runs with `maxWorkers: 1` (one shared database), so the sum of the file times equals the wall time. Eight files take 53% of it:
+
+| Seconds | Tests | File |
+|---|---|---|
+| 49.1 | 85 | `tags.test.js` |
+| 32.1 | 131 | `dictionary.test.js` |
+| 21.4 | 59 | `exercises.test.js` |
+| 18.5 | 55 | `words-simple.test.js` |
+| 14.9 | 78 | `auth.test.js` |
+| 13.3 | 26 | `wordClone.test.js` |
+| 12.0 | 30 | `adminStaff.test.js` |
+| 11.5 | 37 | `practiceConfigs.test.js` |
+
+The average is 0.19 s for each database test (329 s / 1,754). Two costs measured on 2026-11-02:
+- `clearDB()` (runs before each test, truncates the tables): **59 ms**.
+- One `bcrypt` hash at 10 rounds (the value in `userController.ts` and `staffAccounts.ts`; a register plus a login is two hash operations): **72 ms**.
+
+One cleanup plus one register and login is about 0.2 s, which matches the average. This is an estimate, not a file-by-file measure. The consequence: in the backend, a test costs about 0.2 s whatever it asserts, so removing a database test saves about 0.2 s.
+
+**e2e: 170 s wall, 630 s summed over 6 workers.**
+- The 11 autocomplete specs take 249 s (40%). The largest: `i-conjunctions-prepositions` 38 s, `h-reflexive` 34 s, `g-adjectives-adverbs` 33 s, `j-french-lexicon` 27 s.
+- `language-french-forms.spec.ts` takes 79 s (12.5%) for 18 tests.
+- The 4 geometry specs take 21 s together (3%).
+
+**Frontend: 51 s wall, 311 s summed.** The slowest: `ReviewPage.test.tsx` 43 s (60 tests), `PracticePage.configs` 19 s, `TagViewPage` 17 s, `TranslationCard` 16 s (105 tests), `PracticePage.test` 16 s, `PracticePage.tags` 16 s, `onboarding.test` 15 s.
+
+**Admin: 14 s wall.** `AccessPage.test.tsx` is 14 s of the 51 s sum (75 tests).

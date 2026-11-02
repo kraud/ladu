@@ -1,6 +1,6 @@
 # Plan: Test prune pass (I-10)
 
-Status: **planned on 2026-11-02, not built.** Origin: deferred idea I-10 (`.context/backlog/deferred-ideas.md`), from the testing-policy discussion. The rules are in `.context/guides/testing-policy.md`. The evidence is in `.context/research/2026-11-test-inventory.md`.
+Status: **Slices 0, 2 and 3 done on 2026-11-02; the decision gate passed (Q4). Next: Slice 4 (autocomplete). Not run: Slices 1, 5, 6.** Origin: deferred idea I-10 (`.context/backlog/deferred-ideas.md`), from the testing-policy discussion. The rules are in `.context/guides/testing-policy.md`. The evidence is in `.context/research/2026-11-test-inventory.md`.
 
 Goal: remove the tests that the policy would not have added (detail tests, repeats across layers, API-rule checks in e2e, low-value meta tests), without losing the proof of any real rule. Product code does not change.
 
@@ -23,6 +23,8 @@ Success is not "fewer tests". Success is: less run time and less maintenance, th
 |---|---|
 | Q1 | **Safety guard: line coverage before and after.** Frontend and backend already have a coverage tool. Admin gets `@vitest/coverage-v8` as a dev dependency (same version as the frontend: `^3.2.7`). |
 | Q2 | **Admin is in scope**, with the same rules as the frontend. |
+| Q3 | **Slice 0 first, then decide.** The totals are normal for the size of the project (ratio 0.74 to 1.15), and the git history shows little cost from the layout tests (`button` and `input` tests changed once; the geometry specs were added with layout work and rarely edited). So only Slice 0 is committed. At the **decision gate** after Slice 0, you choose which of Slices 1 to 6 to do, from the per-file data. Slices 4, 5 and 6 are optional. |
+| Q4 | **Decision at the gate (2026-11-02): run Slices 2, 3 and 4, in that order.** Slices 1, 5 and 6 are **not run** (small or unmeasured gain; Slice 1 may remove regression tests; Slice 6 has the highest risk). They stay in this plan as notes; they come back only if the user asks. The backend speed idea is saved as deferred idea I-11. |
 
 ## What counts as "remove"
 
@@ -47,10 +49,20 @@ Overview: before we remove anything, we record what we have, so that the gain an
 
 Result: numbers in the inventory record; the admin dependency is the only change outside `.context/`.
 
+### Decision gate (after Slice 0)
+
+Show you, from the Slice 0 data: the files that take most of the run time of each suite, the source of the generated backend tests, and the coverage overlap between layers. Then you choose the slices to run. Questions to answer at the gate, with the Slice 0 data (full tables in the inventory record, "Baseline"):
+- **Is the 328 s of the backend suite caused by a few files?** Partly: 8 files take 53% (`tags` 49 s, `dictionary` 32 s, `exercises` 21 s…). But the cost is per test, not per assertion: about 0.2 s for each database test (cleanup 59 ms, plus a `bcrypt` register and login at 72 ms for each hash). Removing a database test saves about 0.2 s. A speed fix (a cheaper hash in the test environment, a lighter cleanup) is a separate idea and a product-code change.
+- **Do the layout and style tests (Slice 5) cost run time or noise?** The git history says little. The 4 geometry e2e specs take 21 s of 630 s (3%).
+- **Does the coverage data show clear duplicates between component and page tests (Slice 6)?** Not decided by Slice 0 alone: coverage is 93 to 96% lines in all three workspaces. The overlap is found pair by pair, in the slice. If the first pair shows no clear duplicates, drop Slice 6.
+- **Where is the e2e time?** The 11 autocomplete specs take 249 s of 630 s (40%) and `language-french-forms` takes 79 s (12.5%). Slice 4 (autocomplete) is the one slice with a measured gain.
+- **The test count is misleading.** `onboardingPool.test.js` makes 1,193 of the 2,947 backend tests in 0.6 s. Use run time, not test count, to judge a slice.
+
 ## Slice 1: The e2e geometry specs (category 2)
 
-Overview: four specs measure boxes in a real browser: `section-title-alignment`, `words-sidebar-layout`, `verb-radio-rows`, `field-affixes` (5 tests). The policy keeps responsive **structure** and drops pure geometry.
+Overview: four specs measure boxes in a real browser: `section-title-alignment`, `words-sidebar-layout`, `verb-radio-rows`, `field-affixes` (5 tests). The policy keeps responsive **structure** and drops pure geometry. The policy also keeps **regression tests** (§5), and these specs were added with layout fixes. So check that first.
 
+0. **Regression check.** For each spec, read the commit that added it (`git log --diff-filter=A -- <spec>`). If the commit fixed a reported bug, keep the spec, or move one structure assertion to a lower test. If the commit only added a layout feature, it can go.
 1. For each spec, find out if a Vitest test already proves the structure part. Known: `TranslationCard.test.tsx` has the phone and desktop verb-grid tests; `SidebarLayout.test.tsx` has the open and collapsed tests; `PageTitle.test.tsx` has the icon column test.
 2. Where the structure part has no lower test, move **one** structure assertion to a Vitest test first.
 3. Show you the list (spec, what it proves, where the lower test is). After your answer, delete the spec files.
@@ -77,7 +89,7 @@ Keep: locale parity (`lib/locales.test.ts`) and the two `third-party-notices.tes
 
 Show you the list. Check each: does a snapshot protect a response shape that no other test asserts? If yes, replace it with one explicit assertion, then delete the snapshot.
 
-## Slice 4: Autocomplete repeats (category 3)
+## Slice 4: Autocomplete repeats (category 3) (optional: decided at the gate)
 
 Overview: autocomplete is tested at four layers: backend unit (111 static tests in the lexicon selectors), backend integration (`dictionary.test.js`, 131), frontend (`TranslationCard`, `autocomplete/hooks`), and e2e (10 specs, 57 tests).
 
@@ -87,7 +99,7 @@ Overview: autocomplete is tested at four layers: backend unit (111 static tests 
 
 This slice removes the most tests. It runs after Slices 1 to 3, so that the coverage guard is already proven.
 
-## Slice 5: Layout and style assertions (category 1)
+## Slice 5: Layout and style assertions (category 1) (optional: decided at the gate; the weakest evidence)
 
 Overview: about 170 lines assert classes, styles or boxes (frontend 144, e2e 15, admin 11).
 
@@ -96,7 +108,7 @@ Overview: about 170 lines assert classes, styles or boxes (frontend 144, e2e 15,
 3. UI primitives: `button.test.tsx` and `input.test.tsx` test pixel sizes and the radius. Keep only what they say about behaviour (disabled, `aria-invalid`), tested by role or attribute, not by class.
 4. Show you the list for each batch of files. Edit or delete after your answer.
 
-## Slice 6: Component tests that repeat page tests (category 4)
+## Slice 6: Component tests that repeat page tests (category 4) (optional: dropped unless the coverage data shows clear duplicates)
 
 Overview: a component test and a page test often make the same user action against the same MSW call. This is the riskiest slice, so it is last.
 
@@ -126,4 +138,10 @@ Also decide here, with the Slice 0 numbers: if a few backend files take most of 
 
 | # | Slice | Severity | Finding | Resolution |
 |---|---|---|---|---|
-| | | | (filled while the slices run) | |
+| 1 | 0 | Minor | The first inventory counted only `it(` calls (3,854). The runners count 5,598. | Corrected in the inventory record. |
+| 2 | 0 | Minor | The e2e test `phase-2-noun-crud` "GET /api/words/:id for another user's word is refused" looked like an API check. Its body is a browser flow (notice and redirect). | Kept. Title changed to "another user's word page shows a notice and returns to the dashboard". |
+| 3 | 2 | Minor | Removing the `phase-5-5` privacy test left `other` and `configId` written but never read; `captcha-gate` left `blockedEmail` unused. | Removed with the tests. `tsc --noUnusedLocals` is clean for the edited files. |
+| 4 | 2 | Minor | `tsc --noUnusedLocals` reports `SIGNED_NAME` unused in `language-french-forms.spec.ts` (line 423). Not from this pass. | Not changed. The user decides. |
+| 5 | 2 | Result | Removed 4 e2e tests (`admin-6`, `admin-9`, `phase-5-5`, `captcha-gate`) and the API half of 2 (`admin-13`, `admin-8`). Every rule has a backend owner test (listed in the slice review). No backend test needed adding. `npm run test:e2e`: 192 passed in 171 s. Frontend and backend coverage cannot change (e2e files only). | Done. |
+| 6 | 3 | Result | Removed `frontend/src/test/smoke.test.ts`, 3 of 5 tests in `backend/tests/sanity.test.js` (kept `GET /` and `GET /api/health`: the e2e boot check and the Docker health check use them), `e2e/tests/smoke.spec.ts` (3) and `e2e/tests/oauth-0-harness.spec.ts` (5). Kept `snapshots.test.js` (the only shape test of Word, Tag and ExercisePerformance). Updated `e2e/README.md` and `features/oauth-login-strategy.md`. Result: admin 329, frontend 2,085, backend 2,944, e2e 184 tests, all green; coverage diff: no file lost covered lines (frontend 95.24%, backend 93.26%, admin 96.36%, all unchanged). | Done. |
+| 7 | 3 | Minor | Two coverage runs of the frontend each failed one test by timeout: `onboarding.test.tsx` "keeps Next off until the step is complete…" (5.1 s) and `ReviewPage.test.tsx` "a selection survives a change of page, and back" (5.4 s). The Vitest default limit is 5 s. These tests take 4 to 5 s alone (many `userEvent` clicks in jsdom), so extra load can push them over. Not caused by the prune. | The coverage runs of this plan now use `--testTimeout=30000` (a flag in the scratch script; no repo change). The slow tests are not changed. The user decides if they get a larger limit or fewer clicks. |

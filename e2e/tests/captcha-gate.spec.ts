@@ -32,7 +32,6 @@ const run = Date.now();
 const PASSWORD = 'a-good-password-1';
 const resetEmail = `e2e-captcha-${run}-reset@ladu.test`;
 const signupEmail = `e2e-captcha-${run}-signup@ladu.test`;
-const blockedEmail = `e2e-captcha-${run}-blocked@ladu.test`;
 /** The widget takes a moment to load and run its check. */
 const WIDGET_TIMEOUT = 30_000;
 
@@ -60,7 +59,7 @@ test.afterAll(async () => {
     await setCaptchaEnabled(false);
     await resetDemoSettings();
     await deleteDemoSessions(demoIds);
-    await deleteUsersByEmail([resetEmail, signupEmail, blockedEmail]);
+    await deleteUsersByEmail([resetEmail, signupEmail]);
     await closePool();
 });
 
@@ -129,31 +128,6 @@ test('a visitor passes the check and asks for a password reset', async ({ page }
 
     await expect(page).toHaveURL(/\/login/, { timeout: 15_000 });
     await expect.poll(() => countResetTokens(resetUserId)).toBe(1);
-});
-
-test('a direct API call with no token is refused, and nothing is written', async ({ request }) => {
-    const demo = await request.post(`${API_URL}/api/demo`, { data: {} });
-    expect(demo.status()).toBe(400);
-    expect((await demo.json()).code).toBe('captcha_failed');
-
-    const signup = await request.post(`${API_URL}/api/users`, {
-        data: {
-            name: 'E2E Blocked',
-            username: `e2eblocked${run}`,
-            email: blockedEmail,
-            password: PASSWORD,
-            languages: ['English', 'Spanish'],
-        },
-    });
-    expect(signup.status()).toBe(400);
-    expect((await signup.json()).code).toBe('captcha_failed');
-    expect(await userExists(blockedEmail)).toBe(false);
-
-    const before = await countResetTokens(resetUserId);
-    const reset = await request.post(`${API_URL}/api/users/requestPasswordReset`, { data: { email: resetEmail } });
-    expect(reset.status()).toBe(400);
-    expect((await reset.json()).code).toBe('captcha_failed');
-    expect(await countResetTokens(resetUserId)).toBe(before);
 });
 
 test('with the switch off, the forms have no widget', async ({ page }) => {

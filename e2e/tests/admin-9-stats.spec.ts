@@ -159,23 +159,6 @@ test.describe('Admin dashboard — overview statistics (slice 9)', () => {
         await expect(signups.getByTestId('column')).toHaveCount(30);
     });
 
-    test('the API answers staff only, with numbers and labels and no personal data', async ({ request }) => {
-        expect((await api(request)).status()).toBe(401);
-        expect((await api(request, 'not-a-token')).status()).toBe(401);
-
-        const res = await api(request, staffToken);
-        expect(res.status()).toBe(200);
-        const body = (await res.json()) as Stats;
-        expect(body.signups.daily).toHaveLength(30);
-        expect(body.active.points).toHaveLength(30);
-        // This spec's three accounts at day -20 are in the API too. (The database-wide total is not
-        // asserted: other specs create and delete users at the same time.)
-        expect(body.signups.daily.find((d) => d.day === dayString(-20))?.count).toBe(baselineSignups(-20) + 3);
-        const text = JSON.stringify(body);
-        expect(text).not.toContain('ladu.test');
-        expect(text).not.toContain(`sa${run}`);
-    });
-
     test('a real request through the learner app records today as an active day', async ({ request }) => {
         // A real learner session, so the line that writes the day runs in the real backend, not in a test.
         const { userId } = await seedUser(activeEmail, {
