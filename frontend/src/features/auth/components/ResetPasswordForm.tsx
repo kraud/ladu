@@ -16,7 +16,7 @@ import {
 } from '../schemas';
 
 /**
- * One route, two modes (snapshot `pages-auth-shell.md` — ResetPassword):
+ * One route, two modes (snapshot `pages-auth-shell (removed snapshot)` — ResetPassword):
  * "set" when both `userId` and `tokenId` are in the URL, "request" otherwise.
  * Each mode is a self-contained form so the value shapes and schemas stay
  * cleanly typed.

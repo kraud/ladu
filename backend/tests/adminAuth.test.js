@@ -1,5 +1,5 @@
 // Admin dashboard slice 2 — staff login, requireStaff and the role map.
-// See .context/plans/admin-dashboard.md §2.
+// See .context/features/admin.md §2.
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 
 const express = require('express');

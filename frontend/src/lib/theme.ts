@@ -3,7 +3,7 @@
  *
  * The theme is the `data-theme` attribute on `<html>`; `tokens.css` reassigns
  * the palette under `[data-theme='dark']`. Two sources decide the value, in
- * this order (`.context/plans/phase-3-9-dark-mode.md` D1, D6):
+ * this order (`.context/features/theme-and-language.md` D1, D6):
  *   1. the saved choice in `localStorage['ladu.theme']` — written ONLY when the
  *      user presses the switch,
  *   2. the OS preference (`prefers-color-scheme`).

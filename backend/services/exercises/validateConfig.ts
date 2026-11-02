@@ -1,6 +1,6 @@
 /**
  * Request validation for saved practice configurations (pure, no Express, no DB).
- * Spec: .context/plans/phase-5-5-saved-practice.md §4–§5.
+ * Spec: .context/features/saved-practice.md §4–§5.
  *
  * The settings go through `validateGenerateRequest`, so a saved configuration can
  * always start a session. `strictnessTI` is client-only but is stored with them.

@@ -5,7 +5,7 @@
  * instant-apply use of the same combobox) and Save/Cancel footer.
  *
  * `wordIds` is optional for `mode="add"` only — `WordForm`'s create flow
- * (phase-4-tags.md Slice 8) has no word id yet to link against, so Apply
+ * (.context/features/tags.md Slice 8) has no word id yet to link against, so Apply
  * there skips the mutation entirely and hands the picks straight to
  * `onApplied` for the caller to hold locally until the word itself is
  * created (D4). Every other caller (Review's bulk bar, the word editor's

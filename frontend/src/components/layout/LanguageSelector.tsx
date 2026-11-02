@@ -10,7 +10,7 @@ import { i18nCodeByLabel } from '@/lib/language';
  * persists `uiLanguage` through `updateProfile` (a full payload — see
  * `useUpdateProfile`) and folds the fresh row back into the session; the effect
  * below then syncs i18next. Mirrors the old `Header` → `MainView` split
- * (`pages-auth-shell.md:134,208`) but as one mutation, not a Redux thunk + a
+ * (`pages-auth-shell (removed snapshot):134,208`) but as one mutation, not a Redux thunk + a
  * localStorage rewrite. The public-route counterpart is `PublicLanguageSelector`.
  */
 export function LanguageSelector() {

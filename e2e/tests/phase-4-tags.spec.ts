@@ -3,7 +3,7 @@ import { test, expect, type APIRequestContext, type Browser, type Page } from '@
 import { closePool, deleteUsersByEmail, getVerifyToken } from '../fixtures/db';
 
 /**
- * Phase 4 — tags, against the real stack (`.context/plans/phase-4-tags.md`
+ * Phase 4 — tags, against the real stack (`.context/features/tags.md`
  * Slice 9 gate).
  *
  * Two accounts, two browser contexts (the same "separate device" pattern
@@ -25,7 +25,7 @@ import { closePool, deleteUsersByEmail, getVerifyToken } from '../fixtures/db';
  *    checked at each step along the way, not just at the end.
  *
  * A third account then owns a tag of 51 words, to walk the numbered pages of `/tag/:id`
- * (`.context/plans/words-pagination.md` Slice 4): page, page size and search in the URL
+ * (`.context/features/words-list.md` Slice 4): page, page size and search in the URL
  * and surviving a reload, and "Add words" not offering a word the tag already has — even
  * one that is only on page 2. It is a separate account so its 51 words do not push the
  * four words of the main story onto a second page of Review.

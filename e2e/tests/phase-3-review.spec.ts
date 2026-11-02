@@ -5,7 +5,7 @@ import { closePool, deleteUsersByEmail, getVerifyToken } from '../fixtures/db';
 
 /**
  * Phase 3 — form engine completion, autocomplete, Review table, vertical
- * slice against the real stack (`.context/plans/phase-3-forms-autocomplete-review.md`
+ * slice against the real stack (`.context/features/word-form-engine.md`
  * Slice 11 gate).
  *
  * A logged-in user creates a German noun through the real "+ Add translation"
@@ -17,7 +17,7 @@ import { closePool, deleteUsersByEmail, getVerifyToken } from '../fixtures/db';
  * reload) -> selects a row on each of the two pages, and lands on the
  * correct word via View, proving selection tracks a stable id across both a
  * filter change and a change of page, not a positional index.
- * (Numbered pages: `.context/plans/words-pagination.md` Slice 3.)
+ * (Numbered pages: `.context/features/words-list.md` Slice 3.)
  *
  * Runs against `keelapp_e2e`. Uses a unique `e2e-*@ladu.test` email and
  * deletes it in `afterAll` — `words`/`translations`/`cases` cascade off the

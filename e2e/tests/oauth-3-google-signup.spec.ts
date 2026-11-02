@@ -4,7 +4,7 @@ import { routeGoogleStartTo } from '../fixtures/oauthRouting';
 
 /**
  * OAuth Phase 3 — signup completion for a brand-new Google identity
- * (.dev-context/oauth-login-strategy.md §4, outcome (b)).
+ * (.context/features/oauth-login-strategy.md §4, outcome (b)).
  *
  * Walks the real button through the real backend and the Phase 0 stub
  * issuer, into the real signup-completion screen, and back out through

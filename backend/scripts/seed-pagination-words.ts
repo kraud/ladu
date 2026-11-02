@@ -1,6 +1,6 @@
 /**
  * Seeds the LOCAL dev database with a test account that owns 200 popular words in one Public tag,
- * so a second account can follow that tag and test pagination (`.context/plans/words-pagination.md`).
+ * so a second account can follow that tag and test pagination (`.context/features/words-list.md`).
  *
  * Every word goes through the same autocomplete routes the app uses:
  *   1. The English words come from the lexicon, most frequent first (`lexemes.frequency_rank`).
@@ -18,7 +18,7 @@
  *   npx tsx scripts/seed-pagination-words.ts --reset       # first deletes ALL words of the seed account, then seeds
  *
  * It refuses to run unless DATABASE_URL and the API both point at this machine. The account and the
- * tag are documented in `.dev-context/infrastructure-guide/02-environments-and-databases.md`.
+ * tag are documented in `.context/guides/infrastructure-guide/02-environments-and-databases.md`.
  */
 
 import path from 'node:path';

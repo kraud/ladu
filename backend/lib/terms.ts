@@ -8,7 +8,7 @@
  *
  * Change this value in the same commit as the date on the Terms page, when the
  * Terms change in a meaningful way. Existing accounts keep the old value.
- * (.context/plans/landing-terms-licences-blog.md, section 2)
+ * (.context/features/landing-and-legal.md, section 2)
  */
 export const TERMS_VERSION = "2026-10-06";
 

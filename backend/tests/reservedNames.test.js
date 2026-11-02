@@ -1,5 +1,5 @@
 // Reserved names, slice 7 — the normalizer and the check, with no database.
-// See .context/plans/verified-badges.md.
+// See .context/features/admin.md.
 const { normalizeName, isReservedName } = require('../lib/reservedNames');
 
 describe('normalizeName', () => {

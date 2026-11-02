@@ -1,5 +1,5 @@
 /**
- * Captcha (.context/plans/captcha.md): the server side of Cloudflare Turnstile.
+ * Captcha (.context/features/captcha.md): the server side of Cloudflare Turnstile.
  *
  * The browser widget gives the page a one-time token. The routes that do costly work for anyone
  * (demo start, registration, password reset) send that token in `captchaToken`; `assertCaptcha`

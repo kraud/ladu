@@ -4,6 +4,7 @@ Context for working in this monorepo. Read this first every session. It applies 
 
 - **Product/domain spec:** `.context/overview.md`
 - **Commands, conventions & spec index:** `.context/README.md`
+- **Roadmap and phase status:** `.context/roadmap.md`
 
 ---
 
@@ -39,9 +40,9 @@ This is a **from-scratch re-implementation**, not the live app.
 
 - **One feature at a time, small vertical slices.** Each slice ends with something runnable.
 - **No one-shotting big features.** Prioritise changes the user can *review, understand, and commit* before moving on.
-- **Each slice starts with a plain-language overview, before touching any files.** Explain what the slice does and why, and explain any tool or concept it introduces (e.g. what Ansible is, what a Vault is, what a Terraform provider is) — do not assume familiarity. This applies throughout the deployment-strategy work (`.dev-context/deployment-strategy.md`), where learning the tooling is as much the point as shipping it.
+- **Each slice starts with a plain-language overview, before touching any files.** Explain what the slice does and why, and explain any tool or concept it introduces (e.g. what Ansible is, what a Vault is, what a Terraform provider is) — do not assume familiarity. This applies throughout the deployment-strategy work (`.context/guides/infrastructure-guide/deployment-strategy.md`), where learning the tooling is as much the point as shipping it.
 - **Docs + tests are written alongside the feature**, not deferred.
-- **Every phase ends with a green Playwright e2e run.** One spec per phase in the `e2e/` workspace, walking that phase's vertical slice against the real backend + Postgres + a browser. `npm run test:e2e` is a required gate — see `.context/plans/new-repo-build-plan.md` §6. Interactive browser driving mid-session comes from the `@playwright/mcp` server in `.mcp.json`.
+- **Every phase ends with a green Playwright e2e run.** One spec per phase in the `e2e/` workspace, walking that phase's vertical slice against the real backend + Postgres + a browser. `npm run test:e2e` is a required gate — see `.context/roadmap.md` §6. Interactive browser driving mid-session comes from the `@playwright/mcp` server in `.mcp.json`.
 - **Ask before assuming.** On any critical/ambiguous decision, check with the user — do not guess.
 - **Present issues by severity, then ask how to act on each.** When a review, an investigation or a plan check finds problems, do not fix them one by one in silence. First, report all of them together:
   - **Group and sort them by severity**, most severe first:
@@ -53,5 +54,5 @@ This is a **from-scratch re-implementation**, not the live app.
   - **Give a suggestion for each issue**, and mark the recommended one.
   - **Ask the user how to direct the effort** on each issue that needs a decision (use the question tool, with the recommended option first). Do not ask about issues that have one obvious fix: apply the suggestion and say so.
   - Only after the user answers, apply the changes. Record each issue and its resolution where the work is tracked (for a plan: a "Review log" table with #, severity, finding and resolution).
-- **Friendships, notifications, tags and tag-sharing are explicitly deferred until after Phases 1–3.** Prior agents started the backend social redesign (§8.2/§8.3): keep its **schema changes**, but its controllers/tests are not to be reconciled now. Backend tests tied to friendship/tag_shares may be removed or left failing for now — "no test there yet" is acceptable until we return to it.
-- The user commits the working tree once **Phase 0 is agreed done** — there is one baseline commit to make, not per-change commits yet.
+- **Friendships, notifications and tag sharing are deferred** (Phases 6 and 7 of `.context/roadmap.md`). The backend social redesign (§8.2/§8.3) was started earlier: its schema and routes exist, but its controllers and tests are not reconciled. Backend tests tied to friendships or `tag_shares` may be removed or left failing until we return to it — "no test there yet" is acceptable.
+- **Documentation follows the folder map in `.context/README.md`.** Open work is in `plans/`; when it is done, its lasting rules go into `features/` (a document there starts with a `## Summary`; see `.context/features/README.md`) and a short record goes into `archive/`. Long evidence goes into `research/`; ideas that are not approved work go into `backlog/deferred-ideas.md`. Do not leave a finished plan in `plans/`.

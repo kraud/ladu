@@ -1,7 +1,7 @@
 /**
  * German lexicon selectors (lib/lexicon/selectors/de.ts) against real kaikki entries.
  * Fixture: tests/unit/fixtures/lexicon-de.json (Wiktionary excerpts, CC BY-SA 4.0).
- * Plan: .context/plans/autocomplete-data-source-strategy.md, Slice 0 step 0b.
+ * Plan: .context/research/autocomplete-data-source-strategy.md, Slice 0 step 0b.
  */
 const { selectCases, selectForm } = require('../../lib/lexicon/select');
 const { NOUN_SELECTORS_DE, VERB_SELECTORS_DE, ADJECTIVE_SELECTORS_DE, ADVERB_SELECTORS_DE, CONJUNCTION_SELECTORS_DE, PREPOSITION_SELECTORS_DE } = require('../../lib/lexicon/selectors/de');

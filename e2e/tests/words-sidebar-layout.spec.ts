@@ -3,7 +3,7 @@ import { closePool, deleteUsersByEmail } from '../fixtures/db';
 import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtures/practice';
 
 /**
- * The Words page and its filter sidebar (`sidebar-layout.md`): the sidebar starts collapsed, and the
+ * The Words page and its filter sidebar (`.context/design/04-layout.md`): the sidebar starts collapsed, and the
  * content column lines up with the header content both while it is collapsed and while it is open.
  *
  * The column is centred in the window, not in the space right of the sidebar: the sidebar is a

@@ -1,6 +1,6 @@
 # 04 — Layout
 
-Sources: `frontend/src/components/layout/` (`AppShell.tsx`, `PageColumn.tsx`, `sidebar/SidebarLayout.tsx`), `.context/plans/sidebar-layout.md`, and `globals.css`.
+Sources: `frontend/src/components/layout/` (`AppShell.tsx`, `PageColumn.tsx`, `sidebar/SidebarLayout.tsx`), `.context/archive/2026-10-sidebar-layout.md` (history), and `globals.css`.
 
 ## One breakpoint
 
@@ -88,6 +88,11 @@ One shared side panel for Words, Word detail, Add word, Tag detail and Practice.
 - State lives in `uiStore.sidebarCollapsed[id]`. It is per session and not saved.
 - The content column inside the layout lines up with the header's content. Do not add your own `mx-auto` column inside it.
 - A page gives the layout a list of `sections` (icon, label, count, content). Do not write a new side panel.
+- Props and pieces (`frontend/src/components/layout/sidebar/SidebarLayout.tsx`): a section has `id`, `label`, `icon`, and optional `filledIcon`, `filled`, `count`, `focusSelector`, `content`. Optional layout props: `drawerTop` (phone only), `footer` (fixed bar), `footerAligned` (the footer follows the page column: a spacer the width of the panel, then the centred column), `header` (page title, first in the content column), `wide` (column `max-w-7xl`). A route sets `staticData.sidebar`. `PageColumn` wraps a state with no sidebar (loading skeleton, part-of-speech gate).
+- Default state (decision of 2026-10-11): on a desktop, only `practiceResults` starts open. Words (`review`) and Practice start collapsed as the icon rail, and Practice opens when words arrive from Review, from a loaded configuration, or from "Change settings". The filter counts still show on the rail.
+- The panel title is the layout `label`, shown beside the collapse button (desktop) and as the phone menu title ("Additional information" for Add word and Word page, "Filters" for Words, "Selected words" for Practice). A lone section with the same name as the label is not repeated.
+- Column offset: the column is centred in the **window**. `columnStyle` sets `max-width` (`64rem`, `80rem` with `wide`) and `margin-left: max(0px, calc((100% - W) / 2 - panel / 2))`, where `panel` is the real width in that state (rail 3.5rem, `narrow` 16rem, `wide` 24rem, `0px` on a phone). The margin animates with the panel (150 ms). A plain `mx-auto` sits half the panel width too far right.
+- Traps: the content of a section unmounts when the phone menu closes, so keep working state outside the sidebar. `sections={[]}` renders no panel and no trigger. A trigger that uses `buttonVariants` directly must wrap it in `cn(...)`, or `border-transparent` beats `border-border`. The "Linked words" section of Add word and Word page is a placeholder for a future feature (links between synonyms) and stores nothing.
 
 ## Wide pages
 

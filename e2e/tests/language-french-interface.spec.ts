@@ -3,7 +3,7 @@ import { closePool, deleteUsersByEmail } from '../fixtures/db';
 import { createdEmails, registerAndVerify, signIn } from '../fixtures/practice';
 
 /**
- * French as an interface language (`.context/plans/language-french.md`, slice 3).
+ * French as an interface language (`.context/features/french.md`, slice 3).
  *
  *  1. A visitor picks Français on a public route: the page, `<html lang>` and the choice survive a reload.
  *  2. A signed-in learner who also learns French (the server accepts French at registration) switches the
@@ -11,7 +11,7 @@ import { createdEmails, registerAndVerify, signIn } from '../fixtures/practice';
  *     is kept after a reload.
  *
  * The French strings are a first draft for a native speaker to review
- * (`.context/plans/language-french-strings.md`).
+ * (`.context/backlog/language-french-strings.md`).
  */
 
 test.afterAll(async () => {

@@ -1,5 +1,5 @@
 /**
- * Account badges (.context/plans/verified-badges.md). A badge belongs to an
+ * Account badges (.context/features/admin.md). A badge belongs to an
  * account, and only staff grant it (admin API, permission `badge.manage`).
  *
  * Not to be confused with `users.verified`, which means "email verified".

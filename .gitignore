@@ -50,3 +50,7 @@ word-lists/
 
 # marketing videos: capture scripts, screenshots and renders (see .marketing/README.md)
 .marketing/
+
+# Python bytecode (the helper script in .context/guides/tools)
+__pycache__/
+*.pyc

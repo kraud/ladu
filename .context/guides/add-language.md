@@ -1,10 +1,10 @@
 # Guide: Add a language to Ladu
 
-Use this guide when Ladu must support a new language. The first use is French (`.context/plans/language-french.md`). The guide is written while that plan runs.
+Use this guide when Ladu must support a new language. The first use is French (`.context/features/french.md`). The guide is written while that plan runs.
 
 **Status of this guide (2026-10-26, French slice 12): checked.** Every item was confirmed against the diff of the French branch (`git diff main`, 223 files). Check each path again with a search before you start: the code moves. The one open item is the native-speaker review.
 
-Write the plan file first. Copy the shape of `language-french.md`: Progress list, user decisions, slices, review log, rollout runbook.
+Write the plan file first. Write the plan with user decisions, slices, a review log (issue, severity, resolution; see `features/french.md` section 2 for a finished one) and a rollout runbook (and a Progress list while the work is open; remove it when the work is done).
 
 ## 0. Words used here
 
@@ -114,7 +114,7 @@ Verified in slice 1 (2026-10-26). The `Lang` enum **key** is the two-letter suff
 
 ### Lexicon and autocomplete (only when the plan includes autocomplete)
 
-- [x] Coverage research first (French slice 8): re-extract the language from the dump and measure each part of speech with draft selectors (template: `.context/plans/autocomplete-coverage-report.md`; the French results are in `.context/plans/language-french.md`, "Slice 8 results"). Read a few real entries by hand: a high fill rate does not prove the values are right (the research found dual-auxiliary verbs that way).
+- [x] Coverage research first (French slice 8): re-extract the language from the dump and measure each part of speech with draft selectors (template: `.context/research/autocomplete-coverage-report.md`; the French results are in `.context/features/french.md`, "Slice 8 results"). Read a few real entries by hand: a high fill rate does not prove the values are right (the research found dual-auxiliary verbs that way).
 - [x] `backend/scripts/lexicon/common.ts`: add the code to `LANG_CODES`. `download.ts` then fetches the frequency list (`fr_50k` exists for French; check the URL for another language) and records it in the manifest. `extract.ts` needs no edit. Run the whole `extract.ts` again (about 10 minutes; it rewrites every `kaikki-<code>.jsonl`), then `sample.ts`.
 - [x] `backend/lib/lexicon/selectors/<code>.ts` (one table per part of speech; the conjunction and preposition tables are `conjunctionSelectors(SUFFIX)` and `prepositionSelectors(SUFFIX)` from `functionWords.ts`), its unit test (`tests/unit/lexiconSelectors<SUFFIX>.test.js`) and the fixture of real entries (`npx tsx scripts/lexicon/fixture.ts <code> 'word|pos' …` → `tests/unit/fixtures/lexicon-<code>.json`).
 - [x] `scripts/lexicon/ingest.ts`: the `LANGUAGES` row (a part of speech with no table is skipped) and `FIXTURE_WORDS`. Then `ingest.ts <code>`, `ingest.ts <code> --fixture` and `ingest-translations.ts [--fixture]` (the translation file has a fixed name per kaikki date: the rebuild overwrites the old file). `load.js` reads `lib/languages.ts`: no edit.
@@ -123,7 +123,7 @@ Verified in slice 1 (2026-10-26). The `Lang` enum **key** is the two-letter suff
 - [x] `frontend/src/features/autocomplete/transforms.ts` (`AUTOCOMPLETE_REGISTRY`: the RHF field name that holds the query, per part of speech) and its test, which pins the list of pairs. `StartFromWord` reads the language table: no edit.
 - [x] Verbs (French slice 9b): read the entry's conjugation tables, not only the row tags. One entry can hold several tables (a plain and a pronominal one); a table starts at each `table-tags` row. If the form writes the infinitive of a pronominal verb with its pronoun, a fallback in `registry.ts` (`withPronominalFallback`) answers "se X" from the entry of X.
 - [x] `controllers/dictionaryController.ts` `MAX_PICKS`: a draft has one pick per language. It was a hard-coded 4 and answered 400 for a fifth language (found in French slice 9a).
-- [x] Licence: the Wiktionary source and CC BY-SA 4.0 are the same for every language, so `.context/licence-study.md` needs no row. `landing/credits.html` lists the languages of the word forms: add the new one.
+- [x] Licence: the Wiktionary source and CC BY-SA 4.0 are the same for every language, so `.context/research/licence-study.md` needs no row. `landing/credits.html` lists the languages of the word forms: add the new one.
 - [x] Backend tests that name the language as an example of "no data" (`dictionary.test.js`: translate and type-ahead lists) change when the language gets data.
 - [x] Fixture for CI and e2e (French slice 10): `lexicon-<code>-fixture.jsonl` (made in the ingest step above) goes into `backend/package.json` `lexicon:load:fixture`, before the translations file. That is the only edit that changes behaviour: `e2e/playwright.config.ts` runs the script (its comment lists the languages) and `ci.yml` starts that config, so neither needs a new line. `load.js` takes the language from the file header. The `--if-empty` flag keeps a full local lexicon.
 - [x] e2e spec `e2e/tests/autocomplete-<letter>-<language>-lexicon.spec.ts` (pattern: `autocomplete-c-spanish-lexicon`): one noun, one verb with its group and auxiliary, a dual-auxiliary or reflexive edge case, one adjective, one function word and a miss. Use only words that are in the fixture. The spec registers the user with the new language, so the card button carries its native name.
@@ -137,7 +137,7 @@ Verified in slice 1 (2026-10-26). The `Lang` enum **key** is the two-letter suff
 
 - [x] `landing/app.js` (`LANGS`, `STRINGS` with the same keys as English, `HTML_LANG`), `landing/flags/<SUFFIX>.svg` (copy of the app flag), `landing/index.html` (the line `English · Español · …`), and the language lists of three tests: `landing/scripts/{app-links,demo-link,notice}.test.mjs`. The word card of the home page (French slice 11: `app.js` `WORDS` and `card` text, one `<li>` in `index.html`, `--lang-xx` tokens in light, dark and the media query, and a `.lang-xx` class in `style.css`) shows one row per language. The legal pages and the blog are English only in every language.
 - [x] `CLAUDE.md`, `.context/overview.md` (two lines) and `README.md` (the supported-languages line, the interface line and the word-card diagram): the list of supported languages. Found in slice 12 by a search for `EE`; no test checks these lines.
-- [x] `.context/.frontend/snapshot/`: `data-model.md` gets a section, and the new language gets its own file (`forms-french.md`; it is v2-only, like `forms-conjunctions-prepositions.md`). The other snapshot files are the frozen inventory of the old app (2026-09-05): do not add the language there.
+- [x] `.context/features/word-forms/`: `data-model.md` gets a section, and the new language gets its own file (`forms-french.md`; it is v2-only, like `forms-conjunctions-prepositions.md`). The other files there (`forms-nouns.md`, `forms-verbs.md`, `forms-adjectives-adverbs.md`) record the old app (2026-09-05): do not add the language there.
 - [x] e2e: `language-<name>-interface.spec.ts`, `language-<name>-forms.spec.ts` (forms and practice) and `autocomplete-<letter>-<name>-lexicon.spec.ts`. Older specs that type a whole word of the new language in a form need `closeTypeAheadList` once the fixture is loaded (found in slice 10). `npm run test:e2e` must be green.
 - [ ] The native-speaker review of the forms, the strings and the starter words (the teacher sheets; for French: `language-french-review.md` and `language-french-strings.md`). This stays open until the teacher answers; each answer is a small follow-up.
 

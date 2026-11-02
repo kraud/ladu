@@ -1,5 +1,5 @@
 /**
- * Demo access (.context/plans/demo-access.md): helpers for the ephemeral demo accounts.
+ * Demo access (.context/features/demo.md): helpers for the ephemeral demo accounts.
  *
  * - `countLiveDemos`: the demos running now, for the live cap (D15) and the admin tab.
  * - `DemoError` and `DEMO_CODE`: the refusals, with a stable `code` the learner app translates.

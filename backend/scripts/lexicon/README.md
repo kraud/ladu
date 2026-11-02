@@ -1,7 +1,7 @@
 # Lexicon scripts
 
 Scripts that build and measure the autocomplete lexicon. Plan:
-`.context/plans/autocomplete-data-source-strategy.md` (Slice 0 and later).
+`.context/research/autocomplete-data-source-strategy.md` (Slice 0 and later).
 
 All data goes into `.data/` in this folder. Git ignores it. It needs about 5 GB of disk.
 The scripts run on a developer machine, never on the VPS.
@@ -47,7 +47,7 @@ The topic map is `onboarding-topics.ts` (supersenses, WordNet hypernym anchors, 
 page-topic allowlist, the restricted words, the level bands); its unit test is
 `tests/unit/onboardingTopics.test.js`. The script fails at once if an anchor id is not a sense of
 its label in the WordNet edition. It also writes `word-lists/topic-report.md`: words per topic and
-level band, with examples, for the review (`.context/plans/onboarding.md`).
+level band, with examples, for the review (`.context/features/onboarding.md`).
 
 ```sh
 npx tsx scripts/lexicon/onboarding-pool.ts [--force]   # ~2 s: word lists + translations → onboarding pool
@@ -65,7 +65,7 @@ Runs the draft lookup (DATABASE_URL lexicon + Ekilex) for the onboarding pool. R
 edit of `pool.tsv`; onboarding reads the result and makes no lookups at runtime.
 
 Estonian lookups that the lexicon cannot answer go online to the Ekilex API, which needs
-`EKILEX_API_KEY` in the repo-root `.env` (see `.dev-context/infrastructure-guide/06-secrets-and-access.md`).
+`EKILEX_API_KEY` in the repo-root `.env` (see `.context/guides/infrastructure-guide/06-secrets-and-access.md`).
 
 The file format (JSONL, a header line then one lexeme per line) is described at the top of
 `load.js`. The table is `lexemes` (`backend/src/db/schema.ts`). Re-ingest is manual, about
@@ -75,7 +75,7 @@ once per quarter (decision D14): download → extract → sample → ingest → 
 header line): the words the tests use, common nouns, and the 20 most frequent verbs.
 
 Slice 0 measurements (each writes a Markdown file into `.data/`; the results are copied into
-`.context/plans/autocomplete-coverage-report.md`):
+`.context/research/autocomplete-coverage-report.md`):
 
 ```sh
 npx tsx scripts/lexicon/measure.ts                # EN/ES/DE: kaikki selectors vs today's controllers (~5 s)

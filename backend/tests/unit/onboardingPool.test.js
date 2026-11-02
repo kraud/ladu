@@ -2,7 +2,7 @@
  * The committed onboarding pool (scripts/onboarding/pool.tsv) and its parser (lib/onboardingPool.ts).
  * The file is edited by hand during the review, so this test is the guard for every edit.
  * pool-forms.json (Slice 3a) must match it: after an edit, run scripts/lexicon/onboarding-forms.ts.
- * Plan: .context/plans/onboarding.md, Slices 2 and 3a.
+ * Plan: .context/features/onboarding.md, Slices 2 and 3a.
  */
 const {
     readPool, parsePool, readForms, hasKeyCases, pluralOnlyCases, adverbPoolCases, PLURAL_ONLY_NOUNS_EN,

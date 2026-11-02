@@ -1,5 +1,5 @@
 // Account badges, slice 2 — grant and revoke in the admin API, and the badges
-// on the admin user detail. See .context/plans/verified-badges.md.
+// on the admin user detail. See .context/features/admin.md.
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 
 const request = require('./request');

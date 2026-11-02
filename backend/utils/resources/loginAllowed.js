@@ -1,5 +1,5 @@
 // "You can sign in now" — sent by an admin from the allowed-accounts list while
-// login is limited (.context/plans/access-requests.md). Same layout as the
+// login is limited (.context/features/access-control.md). Same layout as the
 // registration invite. The recipient has an account, so the greeting uses the
 // name and the caller passes the account's saved language.
 "use strict";

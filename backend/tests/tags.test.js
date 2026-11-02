@@ -1,7 +1,7 @@
 /**
  * Tags API — Integration Tests
  *
- * Phase 4 Slice 2 rewrite (phase-4-tags.md): the tag list/get/create/patch/
+ * Phase 4 Slice 2 rewrite (.context/features/tags.md): the tag list/get/create/patch/
  * delete/follow/unfollow/link endpoints were rebuilt wholesale —
  *   - `GET /api/tags?scope=&q=&sort=&cursor=&limit=` replaces
  *     getTags/searchTags/getOtherUserTags/getFollowedTagsIdByUserId/
@@ -137,7 +137,7 @@ describe('POST /api/tags - Create Tag', () => {
         expect(res.statusCode).toBe(400);
     });
 
-    // D13 (phase-4-tags.md): labels are unique per author, case-insensitively.
+    // D13 (.context/features/tags.md): labels are unique per author, case-insensitively.
     it('fails with 409 when the label is already used by the same author', async () => {
         await createTag(token, { label: 'Kitchen' });
         const res = await createTag(token, { label: 'kitchen' }); // case-insensitive clash
@@ -728,7 +728,7 @@ describe('Tag sharing lifecycle', () => {
         expect(res.statusCode).toBe(200);
 
         // The cloned tag must exist with the recipient as author, and
-        // (phase-4-tags.md D11) record where it was cloned from.
+        // (.context/features/tags.md D11) record where it was cloned from.
         const clonedTag = res.body.clonedTag;
         expect(clonedTag.authorId).toBe(recipient.id);
         expect(clonedTag.label).toBe('Shared');

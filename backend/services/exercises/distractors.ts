@@ -1,6 +1,6 @@
 /**
  * Wrong options for multi-language multiple-choice exercises.
- * Spec: .context/plans/phase-5-practice.md §A.6 (levels 0–3). An exercise that finds no
+ * Spec: .context/features/practice.md §A.6 (levels 0–3). An exercise that finds no
  * distractor is dropped.
  */
 

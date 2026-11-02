@@ -1,4 +1,4 @@
-// Seeds the demo template (.context/plans/demo-access.md, Slice 2): the user row that every demo
+// Seeds the demo template (.context/features/demo.md, Slice 2): the user row that every demo
 // start copies, built from scripts/demo-template/data.json. Without it, POST /api/demo answers
 // 503 demo_unavailable.
 //

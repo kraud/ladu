@@ -10,14 +10,14 @@ import { closeTypeAheadList } from '../fixtures/autocomplete';
  * `/api/health` reports the SHA just deployed -> log in with the persistent
  * smoke account -> dashboard loads -> create a word through the real form
  * -> delete it through the real UI. Cleans up after itself since there is
- * no DB fixture to do it for us (`.dev-context/deployment-strategy.md` §3).
+ * no DB fixture to do it for us (`.context/guides/infrastructure-guide/deployment-strategy.md` §3).
  *
  * A second describe block checks the Google sign-in wiring without logging
  * in: `/api/auth/google/start` must send Google our real client ID and
  * registered redirect URI, and Google must show its sign-in page for them
  * (not its `/signin/oauth/error` page). That is the one piece of the OAuth
  * setup only Google can confirm — the stub-based specs cannot. See
- * `.dev-context/oauth-backlog-plan.md` Slice B for why it stops short of a
+ * `.context/archive/2026-09-oauth-backlog.md` Slice B for why it stops short of a
  * full login.
  *
  * Requires BASE_URL, SMOKE_TEST_EMAIL, SMOKE_TEST_PASSWORD, EXPECTED_SHA,
@@ -63,7 +63,7 @@ test.describe.serial('Post-deploy smoke', () => {
         expect(body.sha).toBe(EXPECTED_SHA);
     });
 
-    // The login gate (`.context/plans/access-gates.md`) can stop the smoke account
+    // The login gate (`.context/features/access-control.md`) can stop the smoke account
     // before the flow below starts: the account is a learner, and the server refuses a
     // learner's sign-in while login is `closed` (nobody) or `limited` (only the accounts
     // on its list). Staff are exempt, so the admin panel keeps working and a closed gate

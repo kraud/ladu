@@ -57,7 +57,7 @@ The image never includes drafts. To look at a draft, use `npm run build -- --dra
 ## Publish
 
 1. Merge the pull request to `main`. `deploy.yml` builds the `ladu-landing` image and moves its `latest` tag.
-2. Run `ansible-playbook site.yml` from `deploy/ansible/`. The landing page does **not** deploy with the app: this step pulls the new image. See `.dev-context/infrastructure-guide/01-architecture-overview.md`, "Publishing a change to the landing page".
+2. Run `ansible-playbook site.yml` from `deploy/ansible/`. The landing page does **not** deploy with the app: this step pulls the new image. See `.context/guides/infrastructure-guide/01-architecture-overview.md`, "Publishing a change to the landing page".
 
 A merged post is live after step 2. Use `draft: true` while you write.
 

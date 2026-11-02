@@ -5,7 +5,7 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
 
 /**
  * English autocomplete from the local lexicon, and no is-word gate
- * (`.context/plans/autocomplete-data-source-strategy.md` Slice C2 gate). The `lexemes` table holds
+ * (`.context/research/autocomplete-data-source-strategy.md` Slice C2 gate). The `lexemes` table holds
  * the committed English fixture in CI (`--if-empty`), or the full lexicon locally; "child" and
  * "can" are in both, "zorplate" in neither.
  *

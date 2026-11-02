@@ -4,7 +4,7 @@ import { closePool, deleteUsersByEmail } from '../fixtures/db';
 import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtures/practice';
 
 /**
- * The type-ahead list on the autocomplete query field (`.context/plans/autocomplete-data-source-strategy.md`
+ * The type-ahead list on the autocomplete query field (`.context/research/autocomplete-data-source-strategy.md`
  * Slice E gate, decision D21). The `lexemes` table holds the committed fixtures in CI, or the full
  * lexicon locally; every word below is in both. The list order differs between the two (the full
  * lexicon has more words), so the checks find options by name, never by position.

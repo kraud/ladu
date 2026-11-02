@@ -14,7 +14,7 @@ const stringsOf = (source, code) => {
     return source.slice(start, source.indexOf('\n        },', start));
 };
 
-// Demo access (.context/plans/demo-access.md D14): the landing page links to the app's /demo page.
+// Demo access (.context/features/demo.md D14): the landing page links to the app's /demo page.
 describe('"Try the demo" link', () => {
     const html = read('index.html');
 

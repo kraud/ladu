@@ -1,6 +1,6 @@
 /**
  * Request validation for the exercise API (pure, no Express, no DB).
- * Spec: .context/plans/phase-5-practice.md §B.3 "Rules → Validation".
+ * Spec: .context/features/practice.md §B.3 "Rules → Validation".
  * Every failure has a stable `code` the client can switch on.
  */
 

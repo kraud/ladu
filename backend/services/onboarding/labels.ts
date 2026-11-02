@@ -1,5 +1,5 @@
 /**
- * Tag names of the onboarding topics (.context/plans/onboarding.md D23): one Private tag per picked
+ * Tag names of the onboarding topics (.context/features/onboarding.md D23): one Private tag per picked
  * topic and one for core vocabulary, named in the user's UI language when the words are created.
  * The app shows the topic grid with its own translations (Slice 4); keep both in step.
  */

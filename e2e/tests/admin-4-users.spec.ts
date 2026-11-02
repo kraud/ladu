@@ -15,7 +15,7 @@ import {
 
 /**
  * Admin dashboard, slice 4 — the read-only users list and detail, against the
- * real backend + Postgres + the `admin/` UI (`.context/plans/admin-dashboard.md`).
+ * real backend + Postgres + the `admin/` UI (`.context/features/admin.md`).
  *
  * Seeds one staff account per role and three users with a known history, then
  * signs in through the real admin login page: guard -> login -> search ->

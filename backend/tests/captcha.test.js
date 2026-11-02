@@ -1,7 +1,7 @@
 // Captcha, Slice 1: the Turnstile check on `POST /api/demo`, `POST /api/users` and
 // `POST /api/users/requestPasswordReset`, and the public site key in `GET /api/access`.
 // Cloudflare is mocked at `global.fetch` (supertest uses `http`, so it is not affected).
-// See .context/plans/captcha.md.
+// See .context/features/captcha.md.
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 const sendMail = require('../utils/sendEmail');
 jest.mock('@sentry/node', () => ({

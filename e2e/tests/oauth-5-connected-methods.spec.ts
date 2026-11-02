@@ -5,7 +5,7 @@ import { routeGoogleConnectTo, routeGoogleStartTo } from '../fixtures/oauthRouti
 
 /**
  * OAuth Phase 5 — connected methods in the Account profile
- * (.dev-context/oauth-login-strategy.md §4 Phase 5).
+ * (.context/features/oauth-login-strategy.md §4 Phase 5).
  *
  * Walks the real "Connect"/"Disconnect" controls in the profile's edit mode
  * through the real backend — `POST /api/auth/:provider/link` (protected

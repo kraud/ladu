@@ -1,5 +1,5 @@
 // Access gates, PR 2: the owner's admin API for the login gate, the allowed accounts and the
-// "sign everyone out" button. See .context/plans/access-gates.md.
+// "sign everyone out" button. See .context/features/access-control.md.
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 
 const request = require('./request');

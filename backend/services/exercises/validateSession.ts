@@ -1,6 +1,6 @@
 /**
  * Request validation and summary for saved practice sessions (pure, no Express, no DB).
- * Spec: .context/plans/phase-5-5-saved-practice.md §3–§5.
+ * Spec: .context/features/saved-practice.md §3–§5.
  *
  * The client sends its whole session as `snapshot` (resume must show the same
  * exercises). The server checks the parts it depends on — the shape, the counts and

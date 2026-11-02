@@ -187,7 +187,7 @@ flowchart LR
     SM --> PD[Deploy production]
 ```
 
-Full operator manual: [`.dev-context/infrastructure-guide/`](.dev-context/infrastructure-guide/README.md)
+Full operator manual: [`.context/guides/infrastructure-guide/`](.context/guides/infrastructure-guide/README.md)
 
 ## 🛠️ Getting started
 
@@ -260,7 +260,7 @@ Detailed plans are in [`.context/plans/`](.context/plans). The product specifica
 | [`.context/overview.md`](.context/overview.md) | Product and domain specification |
 | [`.context/README.md`](.context/README.md) | Commands, conventions and spec index |
 | [`.context/plans/`](.context/plans) | Plan for each phase and feature |
-| [`.dev-context/infrastructure-guide/`](.dev-context/infrastructure-guide/README.md) | Operator manual: servers, environments, secrets, troubleshooting |
+| [`.context/guides/infrastructure-guide/`](.context/guides/infrastructure-guide/README.md) | Operator manual: servers, environments, secrets, troubleshooting |
 | [`e2e/README.md`](e2e/README.md) | How to run the end-to-end tests |
 | [`landing/README.md`](landing/README.md) | How to write a blog post |
 

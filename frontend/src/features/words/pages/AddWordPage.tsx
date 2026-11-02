@@ -3,7 +3,7 @@
  * `WordForm` in create mode. Owns the create lifecycle the hooks
  * deliberately don't: the "Saving…" -> success/error toast morph, the
  * "See details" navigation, and resetting the form so the user stays on this
- * page for the next word (`pages-word-flow.md` §WordForm, use case 7).
+ * page for the next word (the old app did the same).
  */
 import { useState } from 'react';
 import { getRouteApi, Link, useNavigate } from '@tanstack/react-router';

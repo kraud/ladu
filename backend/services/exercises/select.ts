@@ -1,5 +1,5 @@
 /**
- * Picks which exercises go into a session. Spec: .context/plans/phase-5-practice.md §A.9.
+ * Picks which exercises go into a session. Spec: .context/features/practice.md §A.9.
  */
 
 import { addDistractors } from './distractors';

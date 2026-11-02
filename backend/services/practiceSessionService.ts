@@ -1,6 +1,6 @@
 /**
  * Practice Session Service — the database side of saved practice sessions.
- * Spec: .context/plans/phase-5-5-saved-practice.md §3 (D2–D9) and §5.
+ * Spec: .context/features/saved-practice.md §3 (D2–D9) and §5.
  *
  * Rules kept here:
  *  - Every query filters by the user id from the token. A row of another user looks

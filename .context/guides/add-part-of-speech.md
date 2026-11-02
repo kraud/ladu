@@ -1,8 +1,8 @@
 # Guide: Add a part of speech to Ladu
 
-Use this guide when Ladu must store a new part of speech (PoS), or a new group of fields on a PoS that exists. Examples: conjunctions and prepositions (`.context/plans/conjunctions-prepositions.md`), the adverb gradable radio (`.context/plans/adverb-gradable-radio.md`).
+Use this guide when Ladu must store a new part of speech (PoS), or a new group of fields on a PoS that exists. Examples: conjunctions and prepositions (`.context/features/conjunctions-prepositions.md`), the adverb gradable radio (`.context/features/adverb-gradability.md`).
 
-Write the plan file first. Copy the shape of `adverb-gradable-radio.md`: Progress list, user decisions (Q1, Q2…), slices, review log.
+Write the plan file first. Write the plan with a Progress list while the work is open (remove it when the work is done), user decisions (Q1, Q2…), slices and a review log; `features/adverb-gradability.md` shows a finished one.
 
 ## 1. Research (before any code)
 
@@ -91,7 +91,7 @@ Tick each item in the plan. The file paths are from 2026-10-24. Check them again
 
 ### Docs and e2e
 
-- [ ] `.context/.frontend/snapshot/data-model.md` (case names) and a `forms-<pos>.md` snapshot file.
+- [ ] `.context/features/word-forms/data-model.md` (case names) and a `forms-<pos>.md` snapshot file.
 - [ ] One e2e spec in `e2e/tests/`. `npm run test:e2e` must be green.
 - [ ] The user reviews the new ES, DE and EE strings.
 

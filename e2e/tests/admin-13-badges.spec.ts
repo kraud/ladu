@@ -13,7 +13,7 @@ import {
 import { signIn, type Account } from '../fixtures/practice';
 
 /**
- * Account badges (`.context/plans/verified-badges.md`, slice 8 gate), against the real
+ * Account badges (`.context/features/admin.md`, slice 8 gate), against the real
  * backend + Postgres + both UIs (`admin/` and the learner app).
  *
  * One story, told in order:

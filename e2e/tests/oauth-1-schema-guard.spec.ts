@@ -4,7 +4,7 @@ import { test, expect } from '@playwright/test';
 import { closePool, createPasswordlessUser, deleteUsersByEmail } from '../fixtures/db';
 
 /**
- * OAuth Phase 1 — schema + password-less login guard (.dev-context/oauth-login-strategy.md §4).
+ * OAuth Phase 1 — schema + password-less login guard (.context/features/oauth-login-strategy.md §4).
  *
  * Migration 0004 makes `users.password` nullable and adds `oauth_identities`
  * (empty until Phase 2). This spec proves the migration applied (the seed

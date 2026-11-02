@@ -14,7 +14,7 @@ import {
 
 /**
  * Admin dashboard, slice 6 — the health page, against the real backend +
- * Postgres + the `admin/` UI (`.context/plans/admin-dashboard.md`).
+ * Postgres + the `admin/` UI (`.context/features/admin.md`).
  *
  * Seeds a viewer (the lowest role: it already has `health.read`), two users,
  * and a backup and a restore-test row as the VPS scripts would write them, then

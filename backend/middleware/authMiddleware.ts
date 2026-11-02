@@ -114,7 +114,7 @@ const protect = asyncHandler(async (req: any, res: any, next: any) => {
                     .where(and(eq(users.id, user.id), or(isNull(users.lastSeenAt), lt(users.lastSeenAt, refreshBefore))));
             }
 
-            // Postgres `id` only — the legacy `_id` alias is gone (.context/plans/new-repo-build-plan.md §4).
+            // Postgres `id` only — the legacy `_id` alias is gone (.context/roadmap.md §4).
             req.user = publicUser;
             next();
         } catch (error) {

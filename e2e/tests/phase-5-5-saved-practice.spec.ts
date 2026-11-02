@@ -21,7 +21,7 @@ import {
 
 /**
  * Phase 5.5 — saved practice configurations and sessions, against the real stack
- * (`.context/plans/phase-5-5-saved-practice.md` Slice 5 gate).
+ * (`.context/features/saved-practice.md` Slice 5 gate).
  *
  * One account with six English/German nouns, driven in the real UI:
  *

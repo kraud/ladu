@@ -1,7 +1,7 @@
 /**
  * `/tag/:id`'s word list — a compact table reusing Review's own per-language
  * cell rendering (`buildLanguageColumns`/`WordCell`) rather than a second
- * table renderer, per phase-4-tags.md's Slice 6 architecture note.
+ * table renderer, per .context/features/tags.md's Slice 6 architecture note.
  *
  * Deliberately router-, store- and query-free, mirroring `ReviewTable`'s own
  * convention exactly: `TagViewPage` owns the single `useWordsPage({tag:

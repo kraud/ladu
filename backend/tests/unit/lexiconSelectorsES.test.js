@@ -1,7 +1,7 @@
 /**
  * Spanish lexicon selectors (lib/lexicon/selectors/es.ts) against real kaikki entries.
  * Fixture: tests/unit/fixtures/lexicon-es.json (Wiktionary excerpts, CC BY-SA 4.0).
- * Plan: .context/plans/autocomplete-data-source-strategy.md, Slice 0 step 0c.
+ * Plan: .context/research/autocomplete-data-source-strategy.md, Slice 0 step 0c.
  */
 const { selectCases } = require('../../lib/lexicon/select');
 const { NOUN_SELECTORS_ES, VERB_SELECTORS_ES, ADJECTIVE_SELECTORS_ES, ADVERB_SELECTORS_ES, CONJUNCTION_SELECTORS_ES, PREPOSITION_SELECTORS_ES } = require('../../lib/lexicon/selectors/es');

@@ -4,7 +4,7 @@ import { auditLogContains, closePool, createStaffAccount, deleteStaffByEmail } f
 
 /**
  * Admin dashboard, slice 8 — staff management and the audit log, against the real
- * backend + Postgres + the `admin/` UI (`.context/plans/admin-dashboard.md`).
+ * backend + Postgres + the `admin/` UI (`.context/features/admin.md`).
  *
  * Two browser windows: an owner, and a new staff member. The owner adds the person
  * with a temporary password; the person is forced to choose their own before they can

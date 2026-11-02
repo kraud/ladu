@@ -4,7 +4,7 @@ import { closePool, deleteUsersByEmail } from '../fixtures/db';
 import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtures/practice';
 
 /**
- * French autocomplete from the local lexicon (`.context/plans/language-french.md`, Slice 10 gate). The
+ * French autocomplete from the local lexicon (`.context/features/french.md`, Slice 10 gate). The
  * `lexemes` table holds the committed French fixture in CI (loaded by the e2e backend command,
  * `--if-empty`), or the full lexicon locally. Every word below is in both, except "zorplata", which is
  * in neither.

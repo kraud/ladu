@@ -1,5 +1,5 @@
 # Edge reverse proxy — the only container that publishes ports (see
-# .dev-context/deployment-strategy.md §2). Routes by hostname to the other
+# .context/guides/infrastructure-guide/deployment-strategy.md §2). Routes by hostname to the other
 # containers on the `edge` Docker network; service names below (landing,
 # web-prod, admin-prod, backend-prod, web-staging, admin-staging, backend-staging) must match
 # deploy/compose/app.yml and deploy/compose/platform.yml.

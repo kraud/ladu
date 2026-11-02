@@ -7,7 +7,7 @@
  * swallow a toolbar nested inside it). Slice 8 adds the cell dialog.
  *
  * The filters live in the shared `SidebarLayout` (docked column on desktop,
- * slide-in menu on a phone — `sidebar-layout.md`); `useFilterSections` builds
+ * slide-in menu on a phone — `.context/design/04-layout.md`); `useFilterSections` builds
  * their sections. On a phone the two display switches join them as a last
  * section, and the toolbar gets the "Filters" button that opens the menu.
  */

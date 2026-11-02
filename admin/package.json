@@ -4,7 +4,7 @@
   "private": true,
   "license": "MIT",
   "type": "module",
-  "description": "Ladu Admin — staff support tool (.context/plans/admin-dashboard.md)",
+  "description": "Ladu Admin — staff support tool (.context/features/admin.md)",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

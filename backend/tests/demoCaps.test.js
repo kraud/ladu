@@ -1,6 +1,6 @@
 // Demo access, Slice 2 step 1: the word and tag caps on every create and clone path (D3, D11),
 // Private-only tags and no follow (D10 b, d), and no social action from a demo (Review log S2-1).
-// See .context/plans/demo-access.md.
+// See .context/features/demo.md.
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 
 const request = require('./request');

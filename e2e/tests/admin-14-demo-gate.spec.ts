@@ -16,7 +16,7 @@ import {
 } from '../fixtures/db';
 
 /**
- * Demo access, Slice 0 — the demo gate and its caps (.context/plans/demo-access.md), against the
+ * Demo access, Slice 0 — the demo gate and its caps (.context/features/demo.md), against the
  * real backend + Postgres + the `admin/` UI.
  *
  * The owner opens the Demo tab, sees the defaults and the live count, turns the demo on with new

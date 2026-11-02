@@ -1,7 +1,7 @@
 /**
  * French lexicon selectors (lib/lexicon/selectors/fr.ts) against real kaikki entries.
  * Fixture: tests/unit/fixtures/lexicon-fr.json (Wiktionary excerpts, CC BY-SA 4.0).
- * Plan: .context/plans/language-french.md, slice 8 results and slices 9a (nouns … prepositions) and 9b (verbs).
+ * Plan: .context/features/french.md, slice 8 results and slices 9a (nouns … prepositions) and 9b (verbs).
  */
 const { selectCases } = require('../../lib/lexicon/select');
 const { NOUN_SELECTORS_FR, VERB_SELECTORS_FR, ADJECTIVE_SELECTORS_FR, ADVERB_SELECTORS_FR, CONJUNCTION_SELECTORS_FR, PREPOSITION_SELECTORS_FR } = require('../../lib/lexicon/selectors/fr');

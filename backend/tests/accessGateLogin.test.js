@@ -1,4 +1,4 @@
-// Access gates, PR 2: the login gate. See .context/plans/access-gates.md.
+// Access gates, PR 2: the login gate. See .context/features/access-control.md.
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 // The Google callback talks to a provider. Replace the three pieces that reach the network.
 jest.mock('jose', () => ({ jwtVerify: jest.fn(), createRemoteJWKSet: jest.fn() }));

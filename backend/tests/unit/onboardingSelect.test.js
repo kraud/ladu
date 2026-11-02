@@ -1,6 +1,6 @@
 /**
  * Onboarding selection, validation and tag names (services/onboarding). Pure: synthetic pools,
- * plus a few checks against the committed pool. Plan: .context/plans/onboarding.md, Slice 3c
+ * plus a few checks against the committed pool. Plan: .context/features/onboarding.md, Slice 3c
  * (D5, D9, D14–D16, D18, D22–D25).
  */
 const {

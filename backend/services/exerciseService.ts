@@ -4,7 +4,7 @@
  * The pure logic (catalogue, knowledge math, generation, selection, distractors,
  * validation, response shapes) lives in ./exercises. This file only loads data,
  * ranks the word pool in SQL, and saves answers.
- * Spec: .context/plans/phase-5-practice.md §B.3.
+ * Spec: .context/features/practice.md §B.3.
  *
  * Security rule: performance rows are ALWAYS found by (user id from the token,
  * translation id). A client never sends a performance id.
@@ -99,7 +99,7 @@ export async function rankCandidateWords(
 
     const conditions = [
         await visibleWordCondition(viewer.id),
-        // A followed word is left out when the viewer has an own copy of it (plans/words-clone-followed.md,
+        // A followed word is left out when the viewer has an own copy of it (.context/features/words-list.md,
         // Slice 5): the same rule as the word list, with no exception here. Not applied to `visibleWordCondition`
         // itself: saving an answer for a word that is already in an exercise must still work.
         notHiddenByOwnCopy(viewer.id),

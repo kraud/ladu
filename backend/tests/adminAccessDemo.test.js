@@ -1,5 +1,5 @@
 // Demo access, Slice 0: the demo gate and its caps in the owner's admin API, and `demo.enabled`
-// in the public `GET /api/access`. See .context/plans/demo-access.md.
+// in the public `GET /api/access`. See .context/features/demo.md.
 const request = require('./request');
 const bcrypt = require('bcryptjs');
 const { eq } = require('drizzle-orm');

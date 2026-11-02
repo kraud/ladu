@@ -19,7 +19,7 @@ const { relations, sql }: typeof import('drizzle-orm') = require('drizzle-orm');
 // Type-only import (erased at compile time) — needed to break the circular
 // type inference a self-referencing FK's `.references(() => table.column)`
 // callback would otherwise hit (`words.sourceWordId` -> `words.id`,
-// `tags.sourceTagId` -> `tags.id`; phase-4-tags.md D11).
+// `tags.sourceTagId` -> `tags.id`; .context/features/tags.md D11).
 import type { AnyPgColumn } from 'drizzle-orm/pg-core';
 
 // ---------------------------------------------------------------------------
@@ -54,7 +54,7 @@ const timestamps = {
 
 // ===========================================================================
 // STAFF_ACCOUNTS
-// Admin-dashboard staff logins (.context/plans/admin-dashboard.md §2). A
+// Admin-dashboard staff logins (.context/features/admin.md §2). A
 // separate table from `users` on purpose: a learner token can never open an
 // admin route, and a staff account needs no vocabulary data. Staff are
 // disabled (`disabledAt`), never deleted, so `audit_log` rows keep a valid FK.
@@ -109,7 +109,7 @@ export const auditLog = pgTable(
 );
 
 // ---------------------------------------------------------------------------
-// Access gates (.context/plans/access-gates.md): the owner switches registration
+// Access gates (.context/features/access-control.md): the owner switches registration
 // and login between 'open', 'closed' and 'limited' with no deploy. ONE row
 // (id fixed to 1); the migration inserts it with both modes 'open'. Read on
 // each request that needs it — no cache, so a change works at once.
@@ -162,7 +162,7 @@ export const registrationInvites = pgTable('registration_invites', {
 });
 
 // People who asked for access from the public /request page while a gate is limited or
-// closed (.context/plans/access-requests.md). `kind` says which list the owner would add
+// closed (.context/features/access-control.md). `kind` says which list the owner would add
 // them to: 'registration' (invite list) or 'login' (allowed accounts). Stored lowercase.
 // The row goes at approval, at removal, and when the person gets access by any other path.
 export const accessRequests = pgTable(
@@ -197,11 +197,11 @@ export const users = pgTable('users', {
     uiLanguage:     varchar('ui_language', { length: 50 }),
     // 'light' | 'dark' (validated in userController, like `uiLanguage`). NULL
     // means the user never chose one, so the client keeps following the OS
-    // (.context/plans/phase-3-9-dark-mode.md D1/D7).
+    // (.context/features/theme-and-language.md D1/D7).
     theme:          varchar('theme', { length: 10 }),
     nativeLanguage: varchar('native_language', { length: 50 }),
     verified:       boolean('verified').default(false),
-    // --- Admin dashboard, slice 1 (.context/plans/admin-dashboard.md §4) ---
+    // --- Admin dashboard, slice 1 (.context/features/admin.md §4) ---
     // Login capture. Country only (CF-IPCountry header) — IP addresses are
     // never stored. All NULL for accounts that have not logged in since this
     // column set was added.
@@ -222,7 +222,7 @@ export const users = pgTable('users', {
     // (lib/terms.ts). NULL for accounts that existed before the Terms page.
     termsAcceptedAt:  timestamp('terms_accepted_at'),
     termsVersion:     varchar('terms_version', { length: 16 }),
-    // --- Demo access (.context/plans/demo-access.md) ---
+    // --- Demo access (.context/features/demo.md) ---
     // `isDemo` with `demoExpiresAt` NULL is the template (the clone source; it
     // never signs in and is never purged). With `demoExpiresAt` set, the row is
     // a live demo session: `protect` refuses it after that instant and the
@@ -232,7 +232,7 @@ export const users = pgTable('users', {
     demoExpiresAt:    timestamp('demo_expires_at'),
     demoWordLimit:    integer('demo_word_limit'),
     demoTagLimit:     integer('demo_tag_limit'),
-    // --- First-login onboarding (.context/plans/onboarding.md, D21) ---
+    // --- First-login onboarding (.context/features/onboarding.md, D21) ---
     // 'pending' for accounts created since the feature (email and Google signup): the app opens
     // /onboarding. 'done' / 'skipped' afterwards. NULL (older, demo and template accounts): never shown.
     onboardingStatus: varchar('onboarding_status', { length: 16 }),
@@ -245,7 +245,7 @@ export const users = pgTable('users', {
 
 // ---------------------------------------------------------------------------
 // USER_BADGES
-// Account badges such as 'official' (.context/plans/verified-badges.md). Only
+// Account badges such as 'official' (.context/features/admin.md). Only
 // staff grant them (admin API, permission `badge.manage`); no learner route
 // writes this table. A revoke sets `revokedAt` and keeps the row. The partial
 // unique index allows many revoked rows of one type per user, but only one
@@ -370,7 +370,7 @@ export const words = pgTable(
         // If this word was cloned from another user's word, store the original creator
         originalCreatorId: uuid('original_creator_id').references(() => users.id, { onDelete: 'set null' }),
         // The specific word row this one was cloned from (tag clone —
-        // phase-4-tags.md D11), for display/auditing. Distinct from
+        // .context/features/tags.md D11), for display/auditing. Distinct from
         // `originalCreatorId`, which names a *user*, not a word: a word can
         // be re-cloned (clone-of-a-clone), so this always points one hop
         // back, not to some ultimate origin. `set null` rather than cascade
@@ -420,7 +420,7 @@ export const tags = pgTable(
         description: text('description'),
         // 'Public' | 'Private' | 'Friends-Only' — typed enum (study §8.3).
         visibility:  tagVisibilityEnum('visibility').notNull(),
-        // The tag this one was cloned from (phase-4-tags.md D11), for
+        // The tag this one was cloned from (.context/features/tags.md D11), for
         // display ("Cloned from X by Y") and auditing. `set null` — deleting
         // the source tag must not delete every clone of it.
         sourceTagId: uuid('source_tag_id').references((): AnyPgColumn => tags.id, { onDelete: 'set null' }),
@@ -428,7 +428,7 @@ export const tags = pgTable(
     },
     (table) => [
         // Backs `GET /api/tags`'s `scope=owned` filter and the ownership
-        // checks throughout tagController (phase-4-tags.md — missing before).
+        // checks throughout tagController (.context/features/tags.md — missing before).
         index('tags_author_id_idx').on(table.authorId),
         // A user's tag labels are unique, case-insensitively (D13). Create/
         // rename maps this constraint's 23505 to a 409 with a clear message
@@ -455,7 +455,7 @@ export const tagWords = pgTable(
         primaryKey({ columns: [table.tagId, table.wordId] }),
         // The PK above only serves lookups by `tag_id` first. `removeTagsFromWords`
         // and the per-word tags list both look up by `word_id` alone
-        // (phase-4-tags.md — missing before).
+        // (.context/features/tags.md — missing before).
         index('tag_words_word_id_idx').on(table.wordId),
     ],
 );
@@ -476,7 +476,7 @@ export const userFollowingTags = pgTable(
         primaryKey({ columns: [table.tagId, table.followerUserId] }),
         // The PK above only serves lookups by `tag_id` first. Resolving "which
         // tags does this user follow" (every followed-word/followed-tag query)
-        // looks up by `follower_user_id` alone (phase-4-tags.md — missing before).
+        // looks up by `follower_user_id` alone (.context/features/tags.md — missing before).
         index('user_following_tags_follower_user_id_idx').on(table.followerUserId),
     ],
 );
@@ -587,7 +587,7 @@ export const passwordResetTokens = pgTable('password_reset_tokens', {
 
 // ---------------------------------------------------------------------------
 // OAUTH_IDENTITIES
-// New in Phase 1 (.dev-context/oauth-login-strategy.md) — one row per linked
+// New in Phase 1 (.context/features/oauth-login-strategy.md) — one row per linked
 // external sign-in provider per user, supporting password + OAuth
 // simultaneously rather than one method per account. Empty until Phase 2
 // starts inserting rows. `provider` stays a plain varchar rather than a typed

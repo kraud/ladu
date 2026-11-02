@@ -1,5 +1,5 @@
 /**
- * Precomputes the forms of the onboarding pool (.context/plans/onboarding.md, Slice 3a, decision D20).
+ * Precomputes the forms of the onboarding pool (.context/features/onboarding.md, Slice 3a, decision D20).
  * For every `keep` concept of scripts/onboarding/pool.tsv it runs the "Start from a word" draft
  * lookup (services/dictionary/draft.ts) once per language: the local lexicon in DATABASE_URL, then
  * the usual fallbacks (Ekilex for Estonian, needs EKILEX_API_KEY). A translation is kept only when

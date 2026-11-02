@@ -16,7 +16,7 @@ import {
 } from '../fixtures/practice';
 
 /**
- * French word forms (`.context/plans/language-french.md`). Slice 4: the noun and the adjective.
+ * French word forms (`.context/features/french.md`). Slice 4: the noun and the adjective.
  * Slice 5: the verb. Slice 6: the adverb, the conjunction and the preposition.
  *
  *  1. A French noun: gender (le / la), singular, plural. It saves and shows in the words table.

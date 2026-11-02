@@ -1,7 +1,7 @@
 /**
  * Regression test: the config-driven field lists must equal the old
  * `NounForm{EN,ES,DE,EE}` field lists transcribed verbatim in
- * `.context/.frontend/snapshot/forms-nouns.md`. This is the one place old
+ * `.context/features/word-forms/forms-nouns.md`. This is the one place old
  * and new are diffed mechanically — it stays as the engine's guard when
  * Phase 3 adds Verb / Adjective / Adverb configs.
  */

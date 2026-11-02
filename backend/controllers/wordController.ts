@@ -408,7 +408,7 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
   const tagIds = parseArrayParam(req.query.tag);
 
   // `?tag=` previewing a specific Public tag's words even before the caller
-  // follows it (`/tag/:id`'s Discover relation, phase-4-tags.md Slice 6) is
+  // follows it (`/tag/:id`'s Discover relation, .context/features/tags.md Slice 6) is
   // not a new exposure: a Public tag's word count is already shown to a
   // non-follower on `/tags`, so its words resolving to real rows here is
   // completing that same "Public means anyone can see it" contract, not
@@ -481,7 +481,7 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
     conditions.push(inArray(words.id, tagWordIds));
   } else if (req.query.owner !== "others") {
     // No Tags filter and not the "Not mine" owner filter: a followed word is left out when the
-    // user has their own copy of it (plans/words-clone-followed.md, Slice 4). With a Tags filter
+    // user has their own copy of it (.context/features/words-list.md, Slice 4). With a Tags filter
     // (also `/tag/:id`) or `owner=others` it stays: the first shows the tag's real content, the
     // second the real followed words. The total and the pages count the same rows.
     conditions.push(notHiddenByOwnCopy(req.user.id));
@@ -713,7 +713,7 @@ const setWord = asyncHandler(async (req: any, res: any) => {
   // German noun forms are saved with a capital first letter (a rule of the language).
   req.body.translations = capitalizeGermanNouns(req.body.partOfSpeech, req.body.translations);
 
-  // Tags are assigned by id at create time (phase-4-tags.md D4) — the
+  // Tags are assigned by id at create time (.context/features/tags.md D4) — the
   // caller must own every tag it asks to attach, checked up front so a bad
   // id 403s the whole request rather than creating the word regardless.
   // Deduplicated so a repeated id can't both inflate this count check and
@@ -984,7 +984,7 @@ const updateWord = asyncHandler(async (req: any, res: any) => {
   });
 
   // `PUT /api/words/:id` never touches tag associations, even if the caller
-  // sends a `tags` field — that field is ignored entirely (phase-4-tags.md,
+  // sends a `tags` field — that field is ignored entirely (.context/features/tags.md,
   // agent call under D5). A previous version of this endpoint diffed
   // `req.body.tags` against the stored associations, which is exactly the
   // kind of second code path that let a translations-only PUT (the only

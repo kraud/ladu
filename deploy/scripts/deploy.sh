@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# deploy.sh <staging|prod> <sha> — see .dev-context/deployment-strategy.md §3.
+# deploy.sh <staging|prod> <sha> — see .context/guides/infrastructure-guide/deployment-strategy.md §3.
 #
 # Copied to /opt/ladu/<env>/ on every deploy, alongside that environment's
 # app.yml (also copied fresh each deploy) and .env (written separately by

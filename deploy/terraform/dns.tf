@@ -161,7 +161,7 @@ resource "cloudflare_dns_record" "staging_aaaa" {
 }
 
 # --- Admin dashboard (admin. / admin-staging.) ---
-# The staff tool (.context/plans/admin-dashboard.md). Same VPS, same edge
+# The staff tool (.context/features/admin.md). Same VPS, same edge
 # Caddy; Caddy routes these hostnames to the admin containers. One subdomain
 # level with a hyphen for staging, because Cloudflare's free certificate covers
 # *.ladu.com.ar and nothing deeper.

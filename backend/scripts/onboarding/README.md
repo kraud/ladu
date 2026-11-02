@@ -1,7 +1,7 @@
 # Onboarding pool
 
 `pool.tsv` holds the concepts that the first-login onboarding can create as Words
-(`.context/plans/onboarding.md`, Slice 2). The backend reads it with `lib/onboardingPool.ts` and
+(`.context/features/onboarding.md`, Slice 2). The backend reads it with `lib/onboardingPool.ts` and
 uses **only the lines with status `keep`**.
 
 `backend/scripts/lexicon/onboarding-pool.ts` made the first version. The script does not change
@@ -28,7 +28,7 @@ always written to the git-ignored `word-lists/pool-candidates.tsv` for compariso
 ## How to review
 
 The 2026-10 refresh replaced the first pool with the reviewed one (583 concepts; the decisions are in
-`.context/onboarding-words-resolutions.md`). The topic `numbers_measures` now holds measures and
+`.context/research/onboarding-word-pool.md`). The topic `numbers_measures` now holds measures and
 quantities only (label "Measures & quantities"); numerals are not in the pool. Five English nouns
 exist only as a plural (`clothes`, `pants`, `news`, `data`, `stairs`): `onboarding-forms.ts` builds
 their English forms from the word (`lib/onboardingPool.ts` `PLURAL_ONLY_NOUNS_EN`).
@@ -48,14 +48,14 @@ French was added in 2026-10 (French slice 11) with `npx tsx scripts/lexicon/onbo
 (a one-time migration: it adds the `fr` and `fr_gender` columns, matching the reviewed sense by its `sense` label,
 and fills 558 of the 583 concepts) and `npx tsx scripts/lexicon/onboarding-forms.ts --language French` (adds only the
 French forms to `pool-forms.json`; it needs no Ekilex key). The French words are **not reviewed yet**: a teacher reads
-them (`.context/plans/language-french-review.md`, "Starter words"). The same two steps add any later language.
+them (`.context/backlog/language-french-review.md`, "Starter words"). The same two steps add any later language.
 
 Then, from `backend/`, run `npx tsx scripts/lexicon/onboarding-forms.ts` (it rebuilds
 `pool-forms.json`, the precomputed forms; it needs the dev database with the lexicon and the Ekilex
 key) and `npm test -- onboardingPool`: the test checks every line, names the id of a wrong one, and
 fails while `pool-forms.json` does not match `pool.tsv`.
 
-`first-review.md` lists the changes of the first review pass (2026-10-16), kept for reference.
+The first review pass (2026-10-16) is in git history: `git log -- backend/scripts/onboarding/first-review.md`.
 Delete it before the onboarding feature is merged.
 
 Spanish words are neutral where possible (used in Spain and Latin America); where no neutral word

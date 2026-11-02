@@ -2,7 +2,7 @@
 # Sourced by backup.sh and restore-test.sh (not run on its own). Defines
 # `record_event <kind> <true|false> <detail>`, which writes one row into the
 # `ops_events` table of ladu_prod. The admin dashboard's health page reads the
-# newest row of each kind (.context/plans/admin-dashboard.md, slice 6).
+# newest row of each kind (.context/features/admin.md, slice 6).
 #
 # It connects as the Postgres superuser, the same way backup.sh dumps, so the
 # app's own DB user needs no extra permission. The caller must have sourced

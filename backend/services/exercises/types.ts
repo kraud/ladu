@@ -3,7 +3,7 @@
  *
  * Nothing in `services/exercises/` reads the database or the clock directly:
  * callers pass in data, an `Rng` and (where time matters) a `now`.
- * Spec: .context/plans/phase-5-practice.md Part A.
+ * Spec: .context/features/practice.md Part A.
  */
 
 export type Language = import('../../lib/languages').LanguageName;

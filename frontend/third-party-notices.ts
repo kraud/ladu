@@ -9,7 +9,7 @@ import type { Plugin } from 'vite';
  * licence text to travel with every copy we hand out. The JavaScript goes to
  * every visitor's browser, and Vite strips comments, so the texts would be
  * lost. This plugin lists the packages that are really inside the bundle (not
- * every dependency) with their licence files. See `.context/licence-study.md`.
+ * every dependency) with their licence files. See `.context/research/licence-study.md`.
  *
  * It also fails the build when a bundled package is under a strong-copyleft
  * licence (GPL, AGPL, LGPL, SSPL, BUSL), so one cannot ship by accident.
@@ -165,7 +165,7 @@ export function thirdPartyNotices(options: NoticesOptions): Plugin {
             for (const entry of entries) {
                 if (isCopyleft(entry.licence)) {
                     this.error(
-                        `third-party-notices: ${entry.name}@${entry.version} is under ${entry.licence} (copyleft). Review .context/licence-study.md before shipping it.`,
+                        `third-party-notices: ${entry.name}@${entry.version} is under ${entry.licence} (copyleft). Review .context/research/licence-study.md before shipping it.`,
                     );
                 }
                 if (entry.licence === 'UNKNOWN') {

@@ -11,7 +11,7 @@
 .DS_Store
 
 # env files — real secrets never enter build context; envs are injected at
-# deploy time (see .dev-context/deployment-strategy.md §2 Secrets)
+# deploy time (see .context/guides/infrastructure-guide/deployment-strategy.md §2 Secrets)
 .env
 *.env
 !*.env.example

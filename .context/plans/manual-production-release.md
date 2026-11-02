@@ -4,15 +4,9 @@ Status: not started. Research done on 2026-10-12. No file has been changed yet.
 
 Goal: a merge to `main` still deploys to staging and runs the smoke test by itself. A change reaches **production** only when the user picks a tested commit, tags it, and approves the deploy in GitHub.
 
-## How to start (read this first in a new session)
-
-1. Read `CLAUDE.md` and `.context/README.md`. Follow the working rules: one small slice, an overview in plain language **before** any file changes (explain each GitHub concept the slice uses), ask before assuming, docs with the code. The user runs `git commit` and creates branches; you only draft messages and names.
-2. Read `.github/workflows/deploy.yml`, `deploy/scripts/deploy.sh`, and `.dev-context/infrastructure-guide/03-development-workflow.md`.
-3. Confirm the **Decisions to confirm** below before slice 1.
-
 ## Today
 
-`deploy.yml` runs on every push to `main`: `build-and-push` → `staging` → `smoke` → `production` (`needs: smoke`). No human step exists. `03-development-workflow.md` says this was a deliberate choice, so that doc and `.dev-context/deployment-strategy.md` must change at the end.
+`deploy.yml` runs on every push to `main`: `build-and-push` → `staging` → `smoke` → `production` (`needs: smoke`). No human step exists. `03-development-workflow.md` says this was a deliberate choice, so that doc and `.context/guides/infrastructure-guide/deployment-strategy.md` must change at the end.
 
 ## Target
 

@@ -443,7 +443,7 @@ function buildDeConfig(): TranslationFormConfig {
     // right after infinitive) so the two row's fields are each contiguous — `buildLayoutItems`
     // groups consecutive `layout`-bearing fields, and the distinct `block` ids below keep the
     // two rows from merging into one sparse 2x5 grid despite sitting back-to-back with nothing
-    // non-`layout` between them (D36 — see `.context/plans/phase-3-forms-autocomplete-review.md`).
+    // non-`layout` between them (D36 — see `.context/features/word-form-engine.md`).
     const fields: FieldConfig[] = [
         requiredTextField(
             VerbCases.infinitiveDE,

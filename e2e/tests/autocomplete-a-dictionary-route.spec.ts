@@ -6,7 +6,7 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
 
 /**
  * Autocomplete through the one dictionary route — `GET /api/dictionary/:language/:pos/:query`
- * (`.context/plans/autocomplete-data-source-strategy.md` Slice A, step A3 gate).
+ * (`.context/research/autocomplete-data-source-strategy.md` Slice A, step A3 gate).
  *
  * A signed-in user opens New word, picks a part of speech and one language, types the base
  * form, and uses the autocomplete values. Nothing is saved: the subject is the lookup.

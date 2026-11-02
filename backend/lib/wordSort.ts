@@ -22,7 +22,7 @@ const MAIN_CASE_NAMES: Record<import("./languages").LanguageName, string[]> = {
   Spanish: ["singularES", "adverbES", "conjunctionES", "prepositionES", "maleSingularES", "neutralSingularES", "infinitiveNonFiniteSimpleES"],
   German: ["singularNominativDE", "adverbDE", "conjunctionDE", "prepositionDE", "positiveDE", "infinitiveDE"],
   Estonian: ["singularNimetavEE", "algvorreEE", "adverbEE", "conjunctionEE", "prepositionEE", "infinitiveMaEE"],
-  // French (.context/plans/language-french.md): all six parts of speech have a headline name since slice 6. A list must never be empty: an empty IN () is an SQL error.
+  // French (.context/features/french.md): all six parts of speech have a headline name since slice 6. A list must never be empty: an empty IN () is an SQL error.
   French: ["singularFR", "maleSingularFR", "adverbFR", "conjunctionFR", "prepositionFR", "infinitiveFR"],
 };
 

@@ -1,6 +1,6 @@
 /**
  * Which concepts one onboarding creates (pure, no Express, no DB).
- * Spec: .context/plans/onboarding.md — D5, D9, D16, D18, D22 (Slice 3c).
+ * Spec: .context/features/onboarding.md — D5, D9, D16, D18, D22 (Slice 3c).
  *
  * - A concept counts for a language when the precomputed forms (pool-forms.json, D20) have a
  *   translation in it. It is used only with at least 2 of the user's languages (D9); its Word gets

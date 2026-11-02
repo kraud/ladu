@@ -4,7 +4,7 @@ import { closePool, deleteUsersByEmail } from '../fixtures/db';
 import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtures/practice';
 
 /**
- * Reflexive verbs (`.context/plans/autocomplete-data-source-strategy.md`, Slice H5 gate, decisions
+ * Reflexive verbs (`.context/research/autocomplete-data-source-strategy.md`, Slice H5 gate, decisions
  * D28–D33). The `lexemes` table holds the committed fixtures in CI, or the full lexicon locally; every
  * word below is in both.
  *

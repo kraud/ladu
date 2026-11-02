@@ -1,4 +1,4 @@
-// Access gates, PR 1: the registration gate. See .context/plans/access-gates.md.
+// Access gates, PR 1: the registration gate. See .context/features/access-control.md.
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 const sendMail = require('../utils/sendEmail');
 // Wraps the real function, so one test can make the token insert fail inside the transaction.

@@ -7,7 +7,7 @@ import type { BasicUserMetricsBE } from './types';
 
 /**
  * `GET /api/users/getUserMetrics` — note the path: it lives under `/users`,
- * not `/metrics` (`snapshot/ui/02-dashboard.md:39` names the wrong path; the
+ * not `/metrics` (the old UI blueprint `ui/02-dashboard:39` named the wrong path; the
  * real route is `backend/routes/userRoutes.js:18`).
  */
 export async function getUserMetrics(): Promise<BasicUserMetricsBE> {

@@ -4,7 +4,7 @@ import { closePool, deleteUsersByEmail, getUserTheme, getVerifyToken } from '../
 
 /**
  * Phase 3.9 — dark mode, against the real stack
- * (`.context/plans/phase-3-9-dark-mode.md` Slice 6 gate).
+ * (`.context/features/theme-and-language.md` Slice 6 gate).
  *
  *  1. The landing page's `?lng=&theme=` handoff: applied, saved, and removed
  *     from the address; other parameters stay.

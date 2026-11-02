@@ -7,7 +7,7 @@ import type { Theme } from '@/lib/theme';
  * `id` only. The `_id` MongoDB alias was stripped from every auth serializer
  * in this slice (`serializeLoginUser` / `publicUserResponse` / `serializeUser`
  * and `authMiddleware`), so nothing here reads or falls back to `_id`
- * (.context/plans/new-repo-build-plan.md §4).
+ * (.context/roadmap.md §4).
  */
 
 /** `POST /api/users/login` body. */

@@ -1,5 +1,5 @@
 /**
- * Local stub OIDC issuer — OAuth Phase 0 (.dev-context/oauth-login-strategy.md §4).
+ * Local stub OIDC issuer — OAuth Phase 0 (.context/features/oauth-login-strategy.md §4).
  *
  * Implements the same discovery/authorize/token/jwks contract a real OIDC
  * provider (Google) exposes, so the backend's OAuth client code (discovery,

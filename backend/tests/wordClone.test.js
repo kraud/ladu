@@ -1,7 +1,7 @@
 /**
  * Clone one word — Integration Tests
  *
- * `POST /api/words/:id/clone` (plans/words-clone-followed.md, Slice 2): a user
+ * `POST /api/words/:id/clone` (.context/features/words-list.md, Slice 2): a user
  * copies one word of someone else, reached through a tag they follow, into their
  * own account. The copy is private, has no tags, and stores where it came from
  * (`sourceWordId`, `isCloned`, `originalCreator`). Also covers `myCloneId` on
@@ -318,7 +318,7 @@ describe('GET /api/words/simple — no duplicate of a followed word and its copy
     });
 });
 
-describe('Words of a Public tag are readable without a follow (plans/words-clone-followed.md, Slice 6a)', () => {
+describe('Words of a Public tag are readable without a follow (.context/features/words-list.md, Slice 6a)', () => {
     const makeStranger = () => registerAndLogin('Stranger', 'stranger@test.com', 'stranger');
 
     it('a user who does not follow the Public tag can read the word, and sees no copy of it', async () => {

@@ -1,6 +1,6 @@
 /**
  * First-login onboarding routes: POST /api/onboarding/capacity, POST /api/onboarding,
- * POST /api/onboarding/skip. Plan: .context/plans/onboarding.md, Slice 3d (D6, D18, D21, D23, D25).
+ * POST /api/onboarding/skip. Plan: .context/features/onboarding.md, Slice 3d (D6, D18, D21, D23, D25).
  * Most tests use the committed pool; the capacity edge cases use a small synthetic pool.
  */
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());

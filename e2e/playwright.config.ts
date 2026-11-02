@@ -9,7 +9,7 @@ import { E2E_ADMIN_URL, E2E_API_URL, E2E_BASE_URL, EKI_STUB_URL, OIDC_STUB_URL, 
  * Boots the REAL backend + the frontend dev server (and the admin app and two stubs) together and
  * drives them through a browser. They run on their own ports and their own database (fixtures/env.ts),
  * so a running `npm run dev` does not get in the way. One `*.spec.ts` per phase's vertical slice —
- * see `.context/plans/new-repo-build-plan.md` §5 (phase gates) and §6.
+ * see `.context/roadmap.md` §5 (phase gates) and §6.
  *
  * Prerequisites (NOT managed here — same ones the backend Jest suite needs):
  *   1. `npm run docker:up`      — local Postgres (host :5433)

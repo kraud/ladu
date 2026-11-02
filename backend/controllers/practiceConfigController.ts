@@ -3,7 +3,7 @@
  *
  * Validation is pure (services/exercises/validateConfig.ts); the database work is
  * in services/practiceConfigService.ts.
- * Spec: .context/plans/phase-5-5-saved-practice.md §5.
+ * Spec: .context/features/saved-practice.md §5.
  *
  * Route usage is declared in ../routes/practiceRoutes.js (still CJS).
  */

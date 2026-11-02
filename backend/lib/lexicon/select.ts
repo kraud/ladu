@@ -1,6 +1,6 @@
 /**
  * Selector engine: picks the value of each app case field from one Wiktextract (kaikki)
- * entry. Plan: .context/plans/autocomplete-data-source-strategy.md §5.1 and Slice 0.
+ * entry. Plan: .context/research/autocomplete-data-source-strategy.md §5.1 and Slice 0.
  *
  * A case field is filled in one of two ways:
  * - a FORM selector finds a row in `entry.forms[]` by its tags ("the form whose tags

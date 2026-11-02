@@ -1,5 +1,5 @@
 // Demo access, Slice 1: what a demo account may not do (D10 a, c) and the silent password reset.
-// See .context/plans/demo-access.md. `jest.mock` must come before `require('../app')`.
+// See .context/features/demo.md. `jest.mock` must come before `require('../app')`.
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 const sendMail = require('../utils/sendEmail');
 

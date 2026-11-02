@@ -1,7 +1,7 @@
 /**
  * Numbered-page helpers shared by the two word tables (`/words` and
  * `/tag/$tagId`): the page-size choices, the remembered size, and the page
- * number window. Plan: `.context/plans/words-pagination.md`.
+ * number window. Plan: `.context/features/words-list.md`.
  */
 
 /** A page size: a row count, or `'all'` for the whole list on one page. */

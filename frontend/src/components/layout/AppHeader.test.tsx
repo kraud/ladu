@@ -1,5 +1,5 @@
 /**
- * Header nav gating (`pages-auth-shell.md:205`): Add Word and Review need ≥2
+ * Header nav gating (`pages-auth-shell (removed snapshot):205`): Add Word and Review need ≥2
  * configured languages; Practice never does. Walked through the real shell on
  * `/` via `renderApp`.
  */

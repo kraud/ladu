@@ -183,7 +183,7 @@ export async function expirePracticeSessions(email: string): Promise<number> {
 }
 
 // ---------------------------------------------------------------------------
-// Admin dashboard (.context/plans/admin-dashboard.md) — rows the admin specs
+// Admin dashboard (.context/features/admin.md) — rows the admin specs
 // need that no UI creates: a staff account (the first `owner` comes from a
 // server-side script, never the UI) and users with a known history.
 // ---------------------------------------------------------------------------

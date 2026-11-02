@@ -5,7 +5,7 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
 
 /**
  * Adjectives and adverbs in English, Spanish and German
- * (`.context/plans/autocomplete-data-source-strategy.md`, Slice H3 gate). The `lexemes` table holds
+ * (`.context/research/autocomplete-data-source-strategy.md`, Slice H3 gate). The `lexemes` table holds
  * the committed fixtures in CI, or the full lexicon locally; every word below is in both.
  *
  *  1. German adjective "gut": comparative "besser", superlative "besten" (stored without "am"; the

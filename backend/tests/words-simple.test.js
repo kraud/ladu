@@ -12,7 +12,7 @@
  * one filter set (see the pagination block below for what "constant" means
  * across a sequence of requests where a row is inserted mid-page).
  *
- * Words pagination Slice 1 (.context/plans/words-pagination.md) added offset
+ * Words pagination Slice 1 (.context/features/words-list.md) added offset
  * mode: `?page=N&limit=1..200|all` returns `{ items, total, page, pageSize }`
  * (`pageSize` null for `all`; no `nextCursor`; `page` + `cursor` is a 400), and
  * the `owner=me` filter (own words only, in both modes).
@@ -552,7 +552,7 @@ describe('GET /api/words/simple - filters', () => {
         expect(res.body.items).toEqual([]);
     });
 
-    // D15 (phase-4-tags.md, corrected 2026-09-28): selecting several tags is
+    // D15 (.context/features/tags.md, corrected 2026-09-28): selecting several tags is
     // additive (OR/union) — a word matching ANY of them qualifies. Regression
     // guard against "fixing" this `inArray` into an AND/`count(distinct
     // tag_id)` form, which the UI deliberately does not want (see D15).
@@ -814,7 +814,7 @@ describe('GET /api/words/simple - followed-tag access', () => {
         expect(ids).not.toContain(untaggedWord.body.id);
     });
 
-    // D9 (phase-4-tags.md): a follower loses access the moment the owner
+    // D9 (.context/features/tags.md): a follower loses access the moment the owner
     // turns the tag Private, without needing to unfollow — and regains it
     // automatically if the owner flips it back, since the follow row itself
     // was never touched.
@@ -844,7 +844,7 @@ describe('GET /api/words/simple - followed-tag access', () => {
     });
 
     // A follower must never see the owner's OTHER, unrelated Private tags
-    // just because a shared word happens to carry one too (phase-4-tags.md,
+    // just because a shared word happens to carry one too (.context/features/tags.md,
     // "Why the backend is being rebuilt").
     it("shows a follower only the owner's Public tags on a shared word, not their unrelated Private ones", async () => {
         const owner = await registerAndLogin('Owner5', 'owner5@test.com', 'owner5', 'pass123');

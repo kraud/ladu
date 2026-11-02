@@ -1,5 +1,5 @@
 /**
- * Access gates (.context/plans/access-gates.md): the owner switches registration
+ * Access gates (.context/features/access-control.md): the owner switches registration
  * and login between 'open', 'closed' and 'limited'. This file reads the settings row and
  * holds both gates: the two registration checks that `registerUser` and the Google
  * `signupComplete` share, and the login check that every sign-in path runs after the

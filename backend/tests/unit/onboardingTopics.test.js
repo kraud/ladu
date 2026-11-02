@@ -1,6 +1,6 @@
 /**
  * The onboarding topic map (scripts/lexicon/onboarding-topics.ts): topicFor() and the map's own rules.
- * Plan: .context/plans/onboarding.md, Slice 1 (decisions D2, D3).
+ * Plan: .context/features/onboarding.md, Slice 1 (decisions D2, D3).
  */
 const { TOPICS, PAGE_TOPICS, topicFor } = require('../../scripts/lexicon/onboarding-topics');
 
