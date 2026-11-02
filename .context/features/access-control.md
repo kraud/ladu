@@ -1,5 +1,9 @@
 # Access gates: who can register and who can sign in
 
+## Summary
+
+The owner can open, close or limit two doors of Ladu: who can register, and who can sign in. The owner does this in the admin panel, with no deploy. A closed or limited door shows a banner to learners. A panic button signs every learner out at once.
+
 Live spec. It replaces a finished plan (archive record: `.context/archive/2026-10-access-gates.md`). Built and merged on 2026-10-01 in two PRs, #63 (`admin-registration-gate`) and #64 (`admin-login-gate`), plus #65 (`admin-login-gate-e2e-docs`). Default for both gates is `open`, so a deploy changes nothing until the owner flips a switch.
 
 Follow-up in flight: `.context/plans/access-requests.md` ("Request access" for visitors who meet a limited or closed gate). When it is done, fold it into this file. The captcha plan (`plans/captcha.md`) protects the same public routes.

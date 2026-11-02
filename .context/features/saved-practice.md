@@ -1,5 +1,9 @@
 # Saved practice: configurations and sessions
 
+## Summary
+
+On the Practice page, a learner can save a named set of settings (with words or tags) and start it again with one tap. A learner can also leave a practice session and resume it later, from the same device or another one. Both are private to the learner.
+
 Live spec. It replaces a finished plan (archive record: `.context/archive/2026-09-saved-practice.md`). Built 2026-09-30, extended 2026-10-04 (tags on a configuration) and 2026-10-11 (change a saved configuration). All slices are done. Practice itself (parameters, exercise catalogue, answer checking) is in `.context/plans/phase-5-practice.md`.
 
 Goal: a user can **save a configuration** (named settings, with or without chosen words) and start it again in one tap, and can **save a session** (leave it, resume it later). Both are private to the owner. No sharing. The solo loop works without them (design commandment 2).

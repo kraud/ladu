@@ -1,5 +1,9 @@
 # Auth and app shell
 
+## Summary
+
+A person registers, verifies the email, signs in and resets a password. After sign-in, the app shell gives the header with the navigation, the language switch and the user menu. The Account page lets the person change name, username and languages. The home page started as a welcome banner; `/` is now the dashboard.
+
 Live spec. It replaces a finished plan (archive record: `.context/archive/2026-09-phase-1-auth-app-shell.md`). Built 2026-09-08 to 2026-09-10, merged as PR #1. Gate: `e2e/tests/phase-1-auth.spec.ts`. Later additions: OAuth sign-in (`features/oauth-login-strategy.md`), access gates (`features/access-control.md`), the theme switch (`features/theme-and-language.md`).
 
 Code map: `frontend/src/api/` (one axios client), `stores/` (Zustand session and UI state), `app/` (router, query client), `routes/` (`ProtectedRoute`, layouts, 404), `components/layout/` (`AppShell`, `AppHeader`, `LanguageSelector`, `UserMenu`), `features/auth/`, `features/account/`, `features/metrics/` (welcome banner), `styles/` (`tokens.css`, `globals.css`).

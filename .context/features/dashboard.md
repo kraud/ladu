@@ -1,5 +1,9 @@
 # Dashboard and user metrics
 
+## Summary
+
+The home page `/` shows how much the learner has: totals for words and translations, a meter of how many translations were practiced, and two charts (words by part of speech, and words by month or by language). The numbers update when the learner adds, changes or deletes a word.
+
 Live spec. It replaces a finished plan (archive record: `.context/archive/2026-09-phase-3-5-dashboard.md`). Built 2026-09-16, changed 2026-10-23 and 2026-10-24 (practice coverage). Gate: `e2e/tests/phase-3-5-dashboard.spec.ts`.
 
 Code map: backend `GET /api/users/getUserMetrics` (`backend/controllers/metricController.ts`; the old blueprint path `/api/metrics/...` is wrong); frontend `frontend/src/features/metrics/` (`api.ts`, `hooks.ts`, `selectors.ts`, `UserInfoPanel`, `StatCard`, `MetricsPanel`, `components/charts/`), `staleTime` 5 minutes, key `['metrics']`. Word create, update and delete invalidate `['metrics']`.

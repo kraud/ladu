@@ -1,5 +1,9 @@
 # Admin dashboard ("Ladu Admin")
 
+## Summary
+
+Ladu Admin is the staff tool at the `admin.` address. Staff see the registered users and can ban, delete, restore or purge an account, and send a verification or password-reset email. The tool also has a health page, staff accounts with roles, an audit log, overview statistics, and account badges such as "official". Learners see a badge next to the author of a public tag.
+
 Live spec. It replaces three finished plans (archive records: `.context/archive/2026-10-admin-dashboard.md`, `2026-10-admin-user-emails.md`, `2026-10-verified-badges.md`). Built 2026-09-30 to 2026-10-07. All parts are merged (PRs #56, #59, #60, #61, #62, #66, #67, #74) and rolled out. Operations (hosts, Access, secrets, cron): `.context/guides/infrastructure-guide/`.
 
 Code map: API `backend/controllers/admin/`, `backend/routes/admin/`; helpers `backend/lib/{adminPermissions,staffAccounts,accountAccess,accountEmails,userPurge,badges,reservedNames,adminLinks}.ts`; middleware `backend/middleware/staffAuth.ts`; scripts `backend/scripts/{create-staff,purge}.js`; UI `admin/` (own workspace, Vite, port 5174, `npm run dev:admin`); migrations `0010` to `0015` and `0020`.
@@ -97,7 +101,7 @@ Details that code does not show at a glance:
 ## 7. Open items
 
 1. Users cannot delete their own account (GDPR). The delete logic can be shared with the admin delete. Own slice.
-2. Review of the ES, DE and EE texts for the badge copy, the "Verified" checkbox, the empty state and the three reserved-name messages. The first translations are the assistant's.
+2. Closed 2026-11-02 (confirmed by the user): the review of the ES, DE and EE texts for the badge copy, the "Verified" checkbox, the empty state and the three reserved-name messages.
 3. A second badge type needs a backend value that means "any badge" (or a select again), a locale string and an icon. No migration.
 4. Later, not planned: popularity counts (follows and copies), self-service badge requests, badges on other content, showing the UptimeRobot status on the health page.
 5. Impersonation ("log in as the user") is out of scope on purpose.

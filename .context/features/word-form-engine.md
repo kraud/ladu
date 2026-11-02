@@ -1,5 +1,9 @@
 # Word form engine, word pages and the Review table
 
+## Summary
+
+A learner adds a word once and fills in its translations in several languages. Each part of speech has its own grammar fields (for example cases or conjugations), and one form draws them from configuration. The same form edits a word, and the word page shows it. This file also holds the decisions of the first version of the Review table.
+
 Live spec. It replaces two finished plans (archive records: `.context/archive/2026-09-phase-2-noun-crud.md`, `2026-09-phase-3-forms-review.md`). Built 2026-09-10 to 2026-09-15. Gates: `e2e/tests/phase-2-noun-crud.spec.ts`, `phase-3-review.spec.ts`. The word tables as they are today (pagination, selection, clone) are in `features/words-list.md`. Autocomplete is now the dictionary route of `plans/autocomplete-data-source-strategy.md`.
 
 Code map: `frontend/src/features/words/` (`form-engine/` with `configs/`, `buildYupSchema.ts`, `FieldRenderer.tsx`, `TranslationCard.tsx`, `useWordFormState.ts`, `WordForm.tsx`; `pages/` `AddWordPage`, `WordPage`; `review/`), `frontend/src/ts/` (`enums.ts`, `interfaces.ts`, `wordCasesDataByPoS.ts`, ported from the old app), `frontend/src/lib/`. Field lists and yup rules of the old forms: `.context/.frontend/snapshot/forms-*.md`.

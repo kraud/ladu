@@ -1,5 +1,9 @@
 # Word tables: `/words` and `/tag/$tagId`
 
+## Summary
+
+The word tables `/words` and `/tag/$tagId` list a learner's words in numbered pages, with filters, sorting and selection. From a selection, the learner can start practice, add tags or delete. Words that come from a followed tag are read-only; the learner can clone one word into an own copy.
+
 Live spec. It replaces three finished plans (archive records: `.context/archive/2026-10-words-pagination.md`, `2026-10-words-followed-selection.md`, `2026-10-words-clone-followed.md`). Built 2026-10-12 to 2026-10-14. All slices are done. All three plans were merged together in PR #87 (`words-pagination`).
 
 Code map: backend `backend/controllers/wordController.ts` (`getWordsSimplified`, `cloneWord`, `canReadOthersWord`), `backend/services/wordService.ts` (`notHiddenByOwnCopy`, `ownCopyIdsBySource`, `cloneWordsForUser`, paging helpers); frontend `frontend/src/features/words/` (`review/`, `hooks.ts`, `api.ts`), `frontend/src/features/tags/` (`TagViewPage`, `TagWordsTable`), `frontend/src/lib/pagination.ts`, `frontend/src/components/common/TablePagination.tsx`.

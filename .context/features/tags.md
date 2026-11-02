@@ -1,5 +1,9 @@
 # Tags
 
+## Summary
+
+A tag is a named group of words. A learner makes tags, puts words in them, and sets a tag to Public or Private. A learner can follow the public tags of other people (their words show as read-only) or clone one into an own copy. Tags are managed on `/tags` and `/tag/$tagId`, and they filter the word list.
+
 Live spec. It replaces a finished plan (archive record: `.context/archive/2026-09-phase-4-tags.md`). Built 2026-09-27 to 2026-09-28 (slices 0 to 9), extended later by account badges (`features/admin.md`), word-table rules (`features/words-list.md`) and sidebar rules (`design/04-layout.md`). Gate: `e2e/tests/phase-4-tags.spec.ts`. Tag **sharing** (share, accept, decline) is not built in the UI: see "Deferred" below.
 
 Code map: backend `backend/controllers/tagController.ts`, `routes/tagRoutes.js`, `services/wordService.ts`, migration `0006_tags_provenance_and_indexes.sql`; frontend `frontend/src/features/tags/` (`types`, `api`, `keys`, `hooks`, `errors`, `TagsPage`, `TagViewPage`, `TagWordsTable`, `TagFormDialog`, `CloneTagDialog`, `TagPickerDialog`, `TagCombobox`, `TagChip`, `TagBadge`, `WordPicker`, `AddWordsDialog`), `features/words/layout/SidebarFields.tsx` (tags section), `features/words/review/` (tags column, filter, bulk actions). Code comments that cite a "Slice N" of Phase 4 mean the slice order listed in the archive record.

@@ -1,5 +1,9 @@
 # OAuth Login Strategy — Ladu v2
 
+## Summary
+
+A person can sign in with a Google account as well as with email and password. A Google sign-in finds the account, or creates one after the person picks a username, or links to an existing password account after the person confirms the password. The Account page shows the connected sign-in methods.
+
 > Status: **Done 2026-09-24. Live spec.** Replaces the build plan of the same name; the phases in section 4 are kept because backend, frontend and e2e code cite them by number (for example "Phase 3", "§4 Phase 5"). Phases 0 to 5 were done 2026-09-23. Phase 6 was done 2026-09-24 (real-Google redirect check in the staging smoke, production confirmed by hand). Microsoft was dropped the same day: Azure sign-in returned `AADSTS16000` on every account tried, so it never got past registration (see Decisions). Archive record of the follow-up work: `.context/archive/2026-09-oauth-backlog.md`.
 > Goal: add "Sign in with Google" as an extra way in, alongside the existing
 > email+password flow — without disturbing it and without abandoning the

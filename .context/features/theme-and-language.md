@@ -1,5 +1,9 @@
 # Theme (light and dark) and the carried-over language
 
+## Summary
+
+A person chooses a light or a dark theme and a language. The choice follows the person from the landing page, to the sign-in screens, to the app. The app saves the theme on the account, so a new device starts with the same theme.
+
 Live spec. It replaces a finished plan (archive record: `.context/archive/2026-09-phase-3-9-dark-mode.md`). Built 2026-09-25 to 2026-09-26 (slices 0 to 6 for dark mode, slices 7 to 18 for small fixes). Gate: `e2e/tests/phase-3-9-theme.spec.ts`.
 
 The theme and the language carry over: landing page, then auth screens, then the logged-in app. Only **light** and **dark** are offered. There is no "system" option in the switch.
