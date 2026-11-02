@@ -129,6 +129,7 @@ migrates its own database `keelapp_e2e`. Details: [`e2e/README.md`](../e2e/READM
 | Path | What it is | Authority |
 |------|-----------|-----------|
 | `.context/plans/french-pronominal-type-ahead.md` | Fix plan V10: the French type-ahead does not offer "se laver". Written 2026-10-27, not built. | **Planned** |
+| `.context/plans/test-prune-pass.md` | Test prune pass (was idea I-10): remove detail tests and repeats that the testing policy would not have added, in 7 slices, with a coverage guard and your review of each list. Written 2026-11-02, not built. | **Planned** |
 | `.context/plans/manual-production-release.md` | Manual production releases (tags, GitHub Releases, approval gate). Research done 2026-10-12; not started. | **Working record** |
 
 ### Research (`research/`)
@@ -137,7 +138,7 @@ migrates its own database `keelapp_e2e`. Details: [`e2e/README.md`](../e2e/READM
 |------|-----------|-----------|
 | `.context/research/autocomplete-coverage-report.md` | Slice 0 research for autocomplete (2026-10-08): go for DE, ES and EN; go with an online fallback for EE. | **Done** (research report, kept whole: other docs quote its figures) |
 | `.context/research/french-lexicon-coverage.md` | Coverage research of the French lexicon (slice 8, 2026-10-26): fill rates per part of speech, the shape of a French entry, translations, size. | **Done** (research report) |
-| `.context/research/2026-11-test-inventory.md` | **Test inventory** (2026-11-02): test counts for each workspace and group, the largest files, and six findings (layout asserts, repeats across layers, component and page overlap, e2e API checks, meta tests, admin). Input of the policy and of the prune slice (I-10). | **Done** (snapshot; re-count before the prune slice) |
+| `.context/research/2026-11-test-inventory.md` | **Test inventory** (2026-11-02): test counts for each workspace and group, the largest files, and six findings (layout asserts, repeats across layers, component and page overlap, e2e API checks, meta tests, admin). Input of the policy and of the prune plan. | **Done** (snapshot; re-count before the prune slice) |
 | `.context/research/licence-study.md` | **Licence study** (2026-10-06): can Ladu go online, what changes with a paid tier, a table per dependency (licence, use, duty, risk), actions A1 to A6, questions for a lawyer, and how to re-run it (§8). Code, the landing Terms page and the build scripts cite it. | **Done** (research report; re-run when dependencies change) |
 | `.context/research/onboarding-word-pool.md` | **Onboarding word pool**: the analysis, the 32 questions with the user's answers, the German, Spanish and Estonian value decisions, the senses, and "Applied in code" (2026-10-19). Merged from three files. The applied pool is `backend/scripts/onboarding/pool.tsv`. | **Working record** (until the onboarding feature closes) |
 | `.context/research/practice-build-record.md` | The slices (with their "as built" notes), the file list and the verification of the Phase 5 plan. Code comments that cite "Slice 3" or "Slice 9" of practice mean this file. | **Done** (build record) |

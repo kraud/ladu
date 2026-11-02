@@ -1,23 +1,26 @@
 # Test inventory (2026-11-02)
 
-Evidence for `.context/guides/testing-policy.md`. It is the input of the prune slice (`.context/backlog/deferred-ideas.md`, I-10). Nothing here is a task.
+Evidence for `.context/guides/testing-policy.md`. It is the input of the prune plan (`.context/plans/test-prune-pass.md`). Nothing here is a task.
 
 ## Method
 
-- A "test" is one `it(` or `test(` call. A row of `it.each` counts as 1, so the real totals are a little higher.
-- Counts come from `grep` on `*.test.*` and `*.spec.*` files. Source lines are all `.ts`, `.tsx` and `.js` lines that are not tests (migrations excluded).
-- Titles were read, not run. No test was run for this inventory.
+- **Static count ("grep"):** one `it(` or `test(` call is 1 test. A row of `it.each`, or a test made in a loop, counts as 1. The groups, the largest files and the findings below use this count.
+- **Runner count:** the number that the test runner prints after a full run on 2026-11-02 (all suites green). It is higher than the static count because of generated tests. The totals table shows both. Use the runner count for "how many tests"; use the static count to compare files.
+- Source lines are all `.ts`, `.tsx` and `.js` lines that are not tests (migrations excluded).
+- Titles were read from the files. Only the runner counts and the run times come from a run.
 
 ## Totals
 
-| Workspace | Tool | Files | Tests | Test lines | Source lines | Test lines / source lines |
-|---|---|---|---|---|---|---|
-| frontend | Vitest + MSW | 144 | 1,820 | 26,888 | 33,306 | 0.81 |
-| backend | Jest + supertest + Postgres | 74 | 1,485 | 20,824 | 18,054 | 1.15 |
-| e2e | Playwright | 48 | 199 | 8,854 | 1,613 (helpers) | — |
-| admin | Vitest | 26 | 310 | 4,708 | 6,374 | 0.74 |
-| landing | node scripts | 5 | 40 | 442 | — | — |
-| **Total** | | **297** | **3,854** | **61,716** | | |
+| Workspace | Tool | Files | Tests (static) | Tests (runner) | Run time | Test lines | Source lines | Test lines / source lines |
+|---|---|---|---|---|---|---|---|---|
+| frontend | Vitest + MSW | 144 | 1,820 | **2,086** | 51 s | 26,888 | 33,306 | 0.81 |
+| backend | Jest + supertest + Postgres | 74 | 1,485 | **2,947** | 328 s | 20,824 | 18,054 | 1.15 |
+| e2e | Playwright | 47 | 199 | **196** | 173 s | 8,854 | 1,613 (helpers) | — |
+| admin | Vitest | 26 | 310 | **329** | 14 s | 4,708 | 6,374 | 0.74 |
+| landing | node scripts | 5 | 40 | not run | — | 442 | — | — |
+| **Total** | | **296** | 3,854 | **about 5,600** | | 61,716 | | |
+
+The backend runner count is about twice the static count (1,462 more). The source of the extra tests is not checked yet. Files with `it.each` are `exercisesCatalogue` (11), `adminUserEmails` (5), `onboardingPool`, `reservedNames` and `reservedNamesApi` (3 each); loops over word lists exist too (for example in `lexiconSelectorsDE`). Slice 0 of the prune plan counts the tests of each file from the runner. The e2e runner count is 196 in 47 files (`playwright test --list`); `deployed-smoke.spec.ts` has its own config and is not in the list.
 
 ## Groups
 

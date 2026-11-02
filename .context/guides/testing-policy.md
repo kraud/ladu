@@ -10,7 +10,7 @@ Use this guide before you add a test to a feature. It says which tests to write 
 - **e2e:** one spec for each feature, with the headline journey. No API-only checks. No repeat for each language.
 - **On demand:** all other detail tests. Write them when the user asks, or when a bug comes back.
 
-Decided on 2026-11-02, after the inventory in `.context/research/2026-11-test-inventory.md`. This policy is for new work. The old tests are pruned in a separate slice (`.context/backlog/deferred-ideas.md`, I-10).
+Decided on 2026-11-02, after the inventory in `.context/research/2026-11-test-inventory.md`. This policy is for new work. The old tests are pruned by a separate plan (`.context/plans/test-prune-pass.md`).
 
 ## 1. The test types
 
