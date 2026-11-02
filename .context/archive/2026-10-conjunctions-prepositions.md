@@ -14,6 +14,6 @@
 
 **Removed with this record:** the review sheet `conjunctions-prepositions-strings` (a generated table of the ES, DE and EE strings; the locale files are the truth).
 
-**Deferred idea:** modal verbs (`research/deferred-ideas.md` I-1).
+**Deferred idea:** modal verbs (`backlog/deferred-ideas.md` I-1).
 
 **Old text:** `git log -- .context/plans/conjunctions-prepositions.md`

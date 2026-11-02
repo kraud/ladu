@@ -7,7 +7,7 @@
 **Plan versus built:**
 - Slices 3 to 5 were added before the merge: a language choice on `/demo`, a start transition screen, and the admin table and usage banner (the `demo_starts` and `demo_refusals` tables).
 - `/demo` became two steps (description, then languages and Start).
-- The per-IP start limit is in memory (the plan allowed this; a database version is an idea, `research/deferred-ideas.md` I-4).
+- The per-IP start limit is in memory (the plan allowed this; a database version is an idea, `backlog/deferred-ideas.md` I-4).
 - The seed is still the placeholder set (D5).
 
 **Traps:** the demo copies must be the demo's own words (no source fields) or the "own copy" logic hides them; `protect` skips the activity writes for demos; the template has a NULL expiry so the purge keeps it; the e2e template needs `--reset` after a data change.

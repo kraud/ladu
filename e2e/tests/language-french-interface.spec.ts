@@ -11,7 +11,7 @@ import { createdEmails, registerAndVerify, signIn } from '../fixtures/practice';
  *     is kept after a reload.
  *
  * The French strings are a first draft for a native speaker to review
- * (`.context/research/language-french-strings.md`).
+ * (`.context/backlog/language-french-strings.md`).
  */
 
 test.afterAll(async () => {

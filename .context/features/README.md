@@ -5,7 +5,7 @@ One live spec for each finished feature area. Code, tests and other documents ci
 ## What belongs here
 
 - The lasting rules of a feature that is built: invariants, API and schema contracts, numbered decisions (with the reason and the rejected option), known defects, open items.
-- Not here: unfinished work (`../plans/`), the history of a finished plan (`../archive/`, 30 lines), procedures (`../guides/`), look and feel (`../design/`), long evidence (`../research/`).
+- Not here: unfinished work (`../plans/`), the history of a finished plan (`../archive/`, 30 lines), procedures (`../guides/`), look and feel (`../design/`), long evidence (`../research/`), ideas and tasks that are not approved (`../backlog/`).
 
 ## Rules for a new feature document
 

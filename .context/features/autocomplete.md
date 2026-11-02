@@ -46,4 +46,4 @@ The server steps (the Ekilex key, the backup script, loading each language file,
 
 ## 5. Open items
 
-None. Closed 2026-11-02 (confirmed by the user): the VPS checklist (section 14 of the research record). The idea "Browse all words" (Slice I) is idea I-2 in `research/deferred-ideas.md`.
+None. Closed 2026-11-02 (confirmed by the user): the VPS checklist (section 14 of the research record). The idea "Browse all words" (Slice I) is idea I-2 in `backlog/deferred-ideas.md`.

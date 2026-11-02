@@ -41,4 +41,4 @@ Code map: `landing/` (`index.html`, `privacy.html`, `terms.html`, `impressum.htm
 
 ## 4. Open items
 
-Closed 2026-11-02 (confirmed by the user): the full postal address (ignored for now, Q9). Moved to `research/deferred-ideas.md`: the one-time lawyer check of the liability wording (I-3), which does not block anything. The `LAWYER-CHECK` marker in `landing/terms.html` stays until then.
+Closed 2026-11-02 (confirmed by the user): the full postal address (ignored for now, Q9). Moved to `backlog/deferred-ideas.md`: the one-time lawyer check of the liability wording (I-3), which does not block anything. The `LAWYER-CHECK` marker in `landing/terms.html` stays until then.

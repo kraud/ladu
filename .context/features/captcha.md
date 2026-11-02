@@ -43,4 +43,4 @@ Code map: backend `backend/lib/captcha.ts` (`assertCaptcha`, `verifyCaptcha`, `c
 
 Closed 2026-11-02 (confirmed by the user): the review of the ES, DE and EE texts, and the rollout (real widgets, secrets, deploy, switch on). The Estonian widget text is a limit of the service and needs no action.
 
-Not planned (kept as ideas in `.context/research/deferred-ideas.md` if wanted): moving the demo per-IP limit from memory to the database; a rate limit on `POST /api/users`.
+Not planned (kept as ideas in `.context/backlog/deferred-ideas.md` if wanted): moving the demo per-IP limit from memory to the database; a rate limit on `POST /api/users`.

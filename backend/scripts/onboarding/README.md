@@ -48,7 +48,7 @@ French was added in 2026-10 (French slice 11) with `npx tsx scripts/lexicon/onbo
 (a one-time migration: it adds the `fr` and `fr_gender` columns, matching the reviewed sense by its `sense` label,
 and fills 558 of the 583 concepts) and `npx tsx scripts/lexicon/onboarding-forms.ts --language French` (adds only the
 French forms to `pool-forms.json`; it needs no Ekilex key). The French words are **not reviewed yet**: a teacher reads
-them (`.context/research/language-french-review.md`, "Starter words"). The same two steps add any later language.
+them (`.context/backlog/language-french-review.md`, "Starter words"). The same two steps add any later language.
 
 Then, from `backend/`, run `npx tsx scripts/lexicon/onboarding-forms.ts` (it rebuilds
 `pool-forms.json`, the precomputed forms; it needs the dev database with the lexicon and the Ekilex

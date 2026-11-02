@@ -14,7 +14,8 @@ A piece of work starts in `plans/`. When it is done, its lasting rules go into `
 | `features/` | One live spec for each finished feature area: invariants, API and schema contracts, numbered decisions (with the rejected option), known defects, open items. Code cites these files. The word forms (`word-forms/`) are a sub-folder. The format is in `features/README.md`. | A feature is built and its plan is folded in. | The feature is removed. A spec changes together with the code. |
 | `plans/` | Work that is **not finished**: in progress, or planned and approved. Only this. | Work is agreed. | It is done: fold into `features/`, write a record, delete the plan. |
 | `archive/` | The history of finished plans, 30 lines or fewer each: status, PRs, decisions kept, plan versus built, traps, and the `git log` line. Not a source of current truth. See `archive/README.md`. | A plan is finished and folded. | Never edited after that. |
-| `research/` | Long evidence kept **whole**: measurements, studies, decision Q&A, build records, review sheets. Other documents or code cite them. `social-old-app/` holds the old social behaviour for the deferred phases. `deferred-ideas.md` holds ideas that are not plans yet. | A document is mostly analysis, and a 30-line record would lose data. | Its inputs change (re-run it), or its feature closes. |
+| `research/` | Information, kept **whole**: measurements, studies, decision Q&A, build records. Other documents or code cite them. Nothing in it is a task. | A document is mostly analysis, and a 30-line record would lose data. | Its inputs change (re-run it), or its feature closes. |
+| `backlog/` | Work left to do later, or that needs investigation before it can become a plan: `deferred-ideas.md` (each idea with "investigate first"), the review sheets that wait for an outside reviewer, and the old social behaviour that the deferred social phases need. | It is not approved work, or it waits for outside input. | It becomes a plan (move it to `plans/`), or it is done or dropped (write the line in its history). |
 | `guides/` | Procedures and rules to follow: add a language, add a part of speech, the layout rules of `frontend/src/`, and the operator manual (`infrastructure-guide/`) with the deployment build log. | It is a checklist or a how-to, not the spec of one feature. | The process changes. |
 | `design/` | The design system: principles, colour, type, layout, components, icons, motion, plus the mood board and screenshots. The authority for how the UI looks (the code wins on a conflict). | It describes look and feel. | The design changes. |
 
@@ -23,10 +24,9 @@ A piece of work starts in `plans/`. When it is done, its lasting rules go into `
 1. Is the work still open? → `plans/`.
 2. Is it the lasting rules of something built? → `features/` (or `design/` if it is about look).
 3. Is it a procedure? → `guides/`.
-4. Is it evidence or analysis that is too long for a record? → `research/`.
-5. Is it the history of a finished plan? → `archive/`, 30 lines.
-
-An idea that is not approved work goes into `research/deferred-ideas.md`, not into `plans/`.
+4. Is it information (evidence or analysis) that is too long for a record? → `research/`.
+5. Is it an idea or a task that is not approved yet, or one that waits for outside input? → `backlog/`.
+6. Is it the history of a finished plan? → `archive/`, 30 lines.
 
 ---
 
@@ -93,7 +93,7 @@ migrates its own database `keelapp_e2e`. Details: [`e2e/README.md`](../e2e/READM
 | `.context/features/conjunctions-prepositions.md` | **Conjunctions and prepositions**: forms in EN, ES, DE and EE (type, pairs, position, governed case), the Estonian Ekilex adapter, the lexicon data, 13 findings. Built 2026-10-24 to 2026-10-25 (PR #109). The checklist is `guides/add-part-of-speech.md`. | **Authoritative for conjunctions and prepositions** |
 | `.context/features/dashboard.md` | **Dashboard and user metrics**: stat cards, hand-rolled charts, unpracticed-words coverage. Built 2026-09-16, changed 2026-10-23. | **Authoritative for the dashboard** |
 | `.context/features/demo.md` | **Demo access**: "Try the demo" makes a throw-away account with sample data, limited in time, words and tags, deleted on expiry; the admin Demo tab, statistics and the template. Built 2026-10-15 (PR #89). The template is still a placeholder set. | **Authoritative for the demo** |
-| `.context/features/french.md` | **French, the fifth language**: interface and learnable language, forms for all six parts of speech, Wiktionary autocomplete, onboarding pool and demo. Built 2026-10-25 to 2026-10-26 (PR #110). The review sheets for the French teacher are in `research/language-french-review.md` and `research/language-french-strings.md`. Open: V10 (`plans/french-pronominal-type-ahead.md`). | **Authoritative for French** |
+| `.context/features/french.md` | **French, the fifth language**: interface and learnable language, forms for all six parts of speech, Wiktionary autocomplete, onboarding pool and demo. Built 2026-10-25 to 2026-10-26 (PR #110). The review sheets for the French teacher are in `backlog/language-french-review.md` and `backlog/language-french-strings.md`. Open: V10 (`plans/french-pronominal-type-ahead.md`). | **Authoritative for French** |
 | `.context/features/landing-and-legal.md` | **Landing site and legal pages**: Terms, Privacy, Impressum, Credits, the Markdown blog, the registration consent note, third-party notices. Built 2026-10-06. The licence study is in `research/licence-study.md`. | **Authoritative for the landing site** |
 | `.context/features/oauth-login-strategy.md` | **Sign in with Google** (OIDC with PKCE, state tokens, linking, the stub issuer for tests). Done 2026-09-24. Code cites its phases and section names. | **Authoritative for OAuth sign-in** |
 | `.context/features/onboarding.md` | **First-login onboarding**: a full-screen flow (levels, at least 4 topics, 50 to 150 words) that creates tagged words with their forms; the admin switch; the API; the pool rules. Built 2026-10-16 to 2026-10-19 (PR #94). The pool decisions are in `research/onboarding-word-pool.md`. | **Authoritative for onboarding** |
@@ -135,13 +135,18 @@ migrates its own database `keelapp_e2e`. Details: [`e2e/README.md`](../e2e/READM
 | Path | What it is | Authority |
 |------|-----------|-----------|
 | `.context/research/autocomplete-coverage-report.md` | Slice 0 research for autocomplete (2026-10-08): go for DE, ES and EN; go with an online fallback for EE. | **Done** (research report, kept whole: other docs quote its figures) |
-| `.context/research/deferred-ideas.md` | **Deferred ideas**: ideas that are not plans yet, each with why and what to investigate first (modal verbs, browse all words, lawyer check, header search, placement test, and more). Add an idea here; move it to `plans/` when it is ready. | **Working record** |
-| `.context/research/social-old-app/pages-social-account.md`, `social-endpoints.md`, `social-screens.md` | Old Account, notification, friend and tag-share behaviour; the social routes (today and in the old app); the redesigned social screens. Input for Phases 6 and 7. | **Reference for the deferred social phases. Stop date:** when the social phases ship |
 | `.context/research/french-lexicon-coverage.md` | Coverage research of the French lexicon (slice 8, 2026-10-26): fill rates per part of speech, the shape of a French entry, translations, size. | **Done** (research report) |
-| `.context/research/language-french-review.md`, `language-french-strings.md` | The two review sheets for the French teacher (word forms and practice; interface strings). The teacher reviews them later; each answer is a small follow-up. | **Working record** (until the review) |
 | `.context/research/licence-study.md` | **Licence study** (2026-10-06): can Ladu go online, what changes with a paid tier, a table per dependency (licence, use, duty, risk), actions A1 to A6, questions for a lawyer, and how to re-run it (§8). Code, the landing Terms page and the build scripts cite it. | **Done** (research report; re-run when dependencies change) |
 | `.context/research/onboarding-word-pool.md` | **Onboarding word pool**: the analysis, the 32 questions with the user's answers, the German, Spanish and Estonian value decisions, the senses, and "Applied in code" (2026-10-19). Merged from three files. The applied pool is `backend/scripts/onboarding/pool.tsv`. | **Working record** (until the onboarding feature closes) |
 | `.context/research/practice-build-record.md` | The slices (with their "as built" notes), the file list and the verification of the Phase 5 plan. Code comments that cite "Slice 3" or "Slice 9" of practice mean this file. | **Done** (build record) |
+
+### Backlog (`backlog/`)
+
+| Path | What it is | Authority |
+|------|-----------|-----------|
+| `.context/backlog/deferred-ideas.md` | **Deferred ideas**: ideas that are not plans yet, each with why and what to investigate first (modal verbs, browse all words, lawyer check, header search, placement test, and more). Add an idea here; move it to `plans/` when it is ready. | **Working record** |
+| `.context/backlog/language-french-review.md`, `language-french-strings.md` | The two review sheets for the French teacher (word forms and practice; interface strings). The teacher reviews them later; each answer is a small follow-up. | **Working record** (until the review) |
+| `.context/backlog/social-old-app/pages-social-account.md`, `social-endpoints.md`, `social-screens.md` | Old Account, notification, friend and tag-share behaviour; the social routes (today and in the old app); the redesigned social screens. Input for Phases 6 and 7. | **Reference for the deferred social phases. Stop date:** when the social phases ship |
 
 ### Outside `.context/` (git-ignored, local only)
 

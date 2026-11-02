@@ -11,6 +11,6 @@
 
 **Traps:** a new landing page needs a `COPY` line in `landing/Dockerfile` and the theme script; legal pages are English with `lang="en"` on the article; the blog build runs at image-build time.
 
-**Not done, on purpose:** a full postal address (ignored for now, 2026-11-02); the one-time lawyer check (`research/deferred-ideas.md` I-3).
+**Not done, on purpose:** a full postal address (ignored for now, 2026-11-02); the one-time lawyer check (`backlog/deferred-ideas.md` I-3).
 
 **Old text:** `git log -- .context/plans/landing-terms-licences-blog.md`

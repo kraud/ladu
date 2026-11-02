@@ -2,16 +2,16 @@
 
 **Status:** done 2026-11-02 on branch `docs-consolidation` (tasks 0 to 7, with 3b, 3c, 5b and 5c). Docs only: no code, config or test change. The one exception (C1) was path text inside code comments, plus a few strings (the admin `package.json` description, two Jest test titles, two build-script error messages). The rules that remain are in `.context/README.md` ("Folders of `.context/`") and `.context/features/README.md`.
 
-**Result:** 84 files and 22,973 lines before. 92 files and 11,818 lines after. 11,255 lines are live; 563 lines are in the archive (28 records and the README). Live specs: 19 in `features/` plus 6 in `features/word-forms/`, 9 in `research/` plus 3 in `research/social-old-app/`, the guides, 8 in `design/`, 3 at the root, 2 plans in flight.
+**Result:** 84 files and 22,973 lines before. 92 files and 11,818 lines after. 11,255 lines are live; 563 lines are in the archive (28 records and the README). Live specs: 19 in `features/` plus 6 in `features/word-forms/`, 9 in `research/` plus 3 in `backlog/social-old-app/`, the guides, 8 in `design/`, 3 at the root, 2 plans in flight.
 
 **Decisions kept:**
 - C1: edit comments only. C4: finished work is folded into `features/` first, then archived.
-- C13, C15: long evidence reports go whole into `research/`. Ideas that are not approved work go into `research/deferred-ideas.md` (I-1 to I-8).
+- C13, C15: long evidence reports go whole into `research/`. Later the user split out `backlog/` (ideas, review sheets that wait for an outside reviewer, the old social reference; I-1 to I-9).
 - C16: every document in `features/` starts with `## Summary`.
 - C3, C11: the infrastructure guide and `deployment-strategy.md` live in `guides/infrastructure-guide/`.
 - C8: `MOCKUPS/` and `word-lists/` stay git-ignored and local. `MOCKUPS/DESIGN-HANDOFF.md` has a banner (local only).
 - C20: the build plan became `.context/roadmap.md`.
-- Task 7 (user choice, 2026-11-02): the hidden `.context/.frontend/` folder was dissolved. `frontend-structure.md` went to `guides/` (its 4 stale points fixed), the 6 word-form files to `features/word-forms/` (each with a `## Summary`), the 3 social files to `research/social-old-app/`. The old word-flow inventory and the old global UI blueprint were removed: they described old React and Redux code, and their rules are in the code, the specs and the roadmap annex.
+- Task 7 (user choice, 2026-11-02): the hidden `.context/.frontend/` folder was dissolved. `frontend-structure.md` went to `guides/` (its 4 stale points fixed), the 6 word-form files to `features/word-forms/` (each with a `## Summary`), the 3 social files to `backlog/social-old-app/`. The old word-flow inventory and the old global UI blueprint were removed: they described old React and Redux code, and their rules are in the code, the specs and the roadmap annex.
 - `plans/` holds only unfinished work. Decision IDs that code comments cite (D36, G-f, Q9, §A.8, §B.3, §C.3) were kept in the specs.
 
 **Plan versus built:**

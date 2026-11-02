@@ -14,6 +14,6 @@
 
 **Traps:** the ranking SQL must agree with the JS math (a unit test compares both); migration `0007` deletes orphans and duplicates (counts are logged); the session says "N of M exercises could be created" and never drops cards silently.
 
-**Not built (idea I-8, `research/deferred-ideas.md`):** a bigger catalogue, mastery statistics, a knowledge badge, practise-wrong-answers-again, finish early, the clue as a hint, answer time.
+**Not built (idea I-8, `backlog/deferred-ideas.md`):** a bigger catalogue, mastery statistics, a knowledge badge, practise-wrong-answers-again, finish early, the clue as a hint, answer time.
 
 **Old text:** `git log -- .context/plans/phase-5-practice.md`

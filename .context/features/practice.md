@@ -4,7 +4,7 @@
 
 Practice turns the words a learner has stored into exercises, checks the answers, and keeps a knowledge score for every translation and case. The score fades with time (a forgetting curve), so the next sessions show the weakest items first. The learner sets the languages, parts of speech, order (adaptive or random), multiple-choice difficulty (0 to 3) and text-input strictness, answers cards, and sees a results screen. A learner can mark a word "Mastered" or "Revise" by hand. Saved configurations and sessions are a separate feature (`features/saved-practice.md`).
 
-Live spec. It replaces a finished plan (archive record: `.context/archive/2026-09-phase-5-practice.md`). Built 2026-09-29 to 2026-09-30 (slices 0 to 9). Gate: `e2e/tests/phase-5-practice.spec.ts`. **Section numbers are kept** (A.1 to A.12, B.1 to B.3, B.7, C.1 to C.7, and the decision IDs D1 to D7 and C4), because backend and frontend code cite them (for example `§A.8`, `§B.3`, `Part C §C.3`). The slices (B.4), the file list (B.5) and the verification (B.6) are in `.context/research/practice-build-record.md`. Ideas that were deferred are idea I-8 in `.context/research/deferred-ideas.md`.
+Live spec. It replaces a finished plan (archive record: `.context/archive/2026-09-phase-5-practice.md`). Built 2026-09-29 to 2026-09-30 (slices 0 to 9). Gate: `e2e/tests/phase-5-practice.spec.ts`. **Section numbers are kept** (A.1 to A.12, B.1 to B.3, B.7, C.1 to C.7, and the decision IDs D1 to D7 and C4), because backend and frontend code cite them (for example `§A.8`, `§B.3`, `Part C §C.3`). The slices (B.4), the file list (B.5) and the verification (B.6) are in `.context/research/practice-build-record.md`. Ideas that were deferred are idea I-8 in `.context/backlog/deferred-ideas.md`.
 
 Code map: backend `backend/services/exercises/` (`catalogue.ts`, `generate.ts`, `select.ts`, `knowledge.ts`, `distractors.ts`, `present.ts`, `validate.ts`, `types.ts`), `services/exerciseService.ts`, `controllers/exerciseController.ts`, `routes/exerciseRoutes.js`, migration `0007_exercise_performance_integrity.sql`; frontend `frontend/src/features/practice/` (`params.ts`, `preselection.ts`, `session.ts`, `evaluate.ts`, `api.ts`); `backend/scripts/bench-exercises.ts`.
 
@@ -592,4 +592,4 @@ toggles, buttons, the app header.
 
 ## Open items
 
-None. Practice extensions that were deferred are listed as idea I-8 (`research/deferred-ideas.md`).
+None. Practice extensions that were deferred are listed as idea I-8 (`backlog/deferred-ideas.md`).

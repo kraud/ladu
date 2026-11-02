@@ -1,7 +1,7 @@
 # Autocomplete & lexical data sources — research record
 
 *Status (2026-10-10, branch `autocomplete-improvements`): Slices 0, A–F done (parity reached; type-ahead;
-translation table and route). Slice H done (H1–H5). Slice G done 2026-10-11 (contract: section "Slice G" below; record: `.context/archive/2026-10-autocomplete-slice-g.md`). All slices are done. Slice I (browse all words) is now idea I-2 in `research/deferred-ideas.md`. The server steps of §14 were done on 2026-11-02.
+translation table and route). Slice H done (H1–H5). Slice G done 2026-10-11 (contract: section "Slice G" below; record: `.context/archive/2026-10-autocomplete-slice-g.md`). All slices are done. Slice I (browse all words) is now idea I-2 in `backlog/deferred-ideas.md`. The server steps of §14 were done on 2026-11-02.
 History: research 2026-09-25, per-slice plan 2026-10-08 (sections 9 to 12).*
 
 *Scope: which free or very cheap source can supply the word-form autocomplete data, and
@@ -542,7 +542,7 @@ app's own enum values (`/api/dictionary/German/Noun/Haus`), decided 2026-10-08.
   OAuth stub.
 
 **Docs.** The route in the backend API docs and the spec index (`.context/README.md`). The
-frozen snapshot files under `.context/.frontend/snapshot/` (dissolved 2026-11-02; now `features/word-forms/` and `research/social-old-app/`) are not changed.
+frozen snapshot files under `.context/.frontend/snapshot/` (dissolved 2026-11-02; now `features/word-forms/` and `backlog/social-old-app/`) are not changed.
 
 ### Slice B1 — Lexicon tables, ingest and load (no user-visible change)
 
@@ -843,7 +843,7 @@ present and past ("wasche mich"), before it after the auxiliary in perfect and f
 non-reflexive German verb never fills the pronoun-case radio). Bug fixed on the way: the Spanish infinitive check rejected "quejarse"
 and "oír" (it accepts "-se" and "-ír" now). Gate spec: `e2e/tests/autocomplete-h-reflexive.spec.ts`. Server step
 (§14): the DE and ES files changed again.
-**Follow-up (research, not started):** the German object cases (dative, genitive, prepositional) and the
+**Follow-up (not started; now idea I-9 in `backlog/deferred-ideas.md`):** the German object cases (dative, genitive, prepositional) and the
 preposition itself are NOT in our source: 64% of German verbs have no valency tag, "helfen" has none, genitive has
 0 tags and prepositional none. Later: look for another source (for example German Wiktionary or an open valency
 lexicon) and judge its licence and coverage before use. Until then the user fills those boxes by hand.
@@ -855,7 +855,7 @@ number, EN comparative and superlative), so adjectives come first. The "reflexiv
 
 ### Slice I — Browse all words (out of scope)
 
-Reads the same tables. No plan yet; it is idea I-2 in `research/deferred-ideas.md`.
+Reads the same tables. No plan yet; it is idea I-2 in `backlog/deferred-ideas.md`.
 
 ---
 
@@ -926,7 +926,7 @@ The review checked sections 2 to 8 against the code.
 | 4 | 88 of 105 cases (84%) can be filled. | That compares kaikki to the registry. Today's routes fill fewer: ES 26 of 42, DE 25 of 28. | Compared with today, the change is a gain. |
 | 5 | Keep the 8 old routes as wrappers (old Slice A). | Only the v2 frontend calls them. | Delete them in Slice A. |
 | 6 | The licence question is open (§8). | `licence-study.md` closed most of it. | §8 is updated. |
-| 7 | Paths `snapshot/...`. | The files are under `.context/.frontend/snapshot/` (dissolved 2026-11-02; now `features/word-forms/` and `research/social-old-app/`). | Header is corrected. |
+| 7 | Paths `snapshot/...`. | The files are under `.context/.frontend/snapshot/` (dissolved 2026-11-02; now `features/word-forms/` and `backlog/social-old-app/`). | Header is corrected. |
 | 8 | (not mentioned) | No e2e spec covers autocomplete. The e2e backend calls the real Estonian service. | Slice A adds a spec and a stub. |
 | 9 | (not mentioned) | Both options need VPS disk. The nightly backup dumps all of `ladu_prod` to B2 (10 GB cap). No retention rule was found in the repo. | Exclude the lexicon from the backup (D4). Check the B2 retention setting in the B2 UI. |
 

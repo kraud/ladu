@@ -51,7 +51,7 @@ Technically the demo is not account-less. It is an anonymous, short-lived `users
 - The template and the demos are hidden everywhere; a new feature that lists users must exclude `is_demo`.
 - The e2e database keeps an older template ("already there"). A French demo e2e needs a reseed with `--reset` first. The local dev template needs the same.
 - The gate specs change global state and run chained, last.
-- The per-IP limit is in memory: a restart clears it. Moving it to the database is an idea (`research/deferred-ideas.md`, I-4).
+- The per-IP limit is in memory: a restart clears it. Moving it to the database is an idea (`backlog/deferred-ideas.md`, I-4).
 
 ## 4. Open items
 
