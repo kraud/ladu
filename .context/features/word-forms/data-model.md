@@ -1,5 +1,9 @@
 # Data Model — verbatim enum + interface transcription
 
+## Summary
+
+This file lists the enums and interfaces behind every word in Ladu: the five languages, the parts of speech, the case names of each form, and the shape of a word and its translations. It is a transcription of `frontend/src/ts/enums.ts` and `interfaces.ts`, with notes for each form. A developer edits it when a language, a part of speech or a field is added. If a value differs from the code, check the code.
+
 *2026-09-05. Verbatim transcription of `frontend/src/ts/enums.ts` (602 lines) and `frontend/src/ts/interfaces.ts` (162 lines). Both are pure TypeScript with no runtime behavior and no imports beyond each other — **port verbatim** into the new repo. This is the single source of truth for every case name, part-of-speech, language key, and data shape in the app.*
 
 ---

@@ -6,7 +6,7 @@ A learner adds a word once and fills in its translations in several languages. E
 
 Live spec. It replaces two finished plans (archive records: `.context/archive/2026-09-phase-2-noun-crud.md`, `2026-09-phase-3-forms-review.md`). Built 2026-09-10 to 2026-09-15. Gates: `e2e/tests/phase-2-noun-crud.spec.ts`, `phase-3-review.spec.ts`. The word tables as they are today (pagination, selection, clone) are in `features/words-list.md`. Autocomplete is now the dictionary route of `.context/research/autocomplete-data-source-strategy.md`.
 
-Code map: `frontend/src/features/words/` (`form-engine/` with `configs/`, `buildYupSchema.ts`, `FieldRenderer.tsx`, `TranslationCard.tsx`, `useWordFormState.ts`, `WordForm.tsx`; `pages/` `AddWordPage`, `WordPage`; `review/`), `frontend/src/ts/` (`enums.ts`, `interfaces.ts`, `wordCasesDataByPoS.ts`, ported from the old app), `frontend/src/lib/`. Field lists and yup rules of the old forms: `.context/.frontend/snapshot/forms-*.md`.
+Code map: `frontend/src/features/words/` (`form-engine/` with `configs/`, `buildYupSchema.ts`, `FieldRenderer.tsx`, `TranslationCard.tsx`, `useWordFormState.ts`, `WordForm.tsx`; `pages/` `AddWordPage`, `WordPage`; `review/`), `frontend/src/ts/` (`enums.ts`, `interfaces.ts`, `wordCasesDataByPoS.ts`, ported from the old app), `frontend/src/lib/`. Field lists and yup rules of the old forms: `.context/features/word-forms/forms-*.md`.
 
 ## 1. The form engine
 
@@ -19,7 +19,7 @@ One subsystem replaces about 8,700 lines of copy-paste forms. Config is data; on
 - Labels are composed, not enumerated (D7): conjugation labels come from a pronoun table and group headings from a tense table, both keyed by the registry row's `person`, `plurality` and `tense`. Noun labels are keyed by `caseName` under `wordRelated:wordForm.noun.fields.*` (F-4).
 - `useWordFormState` holds the cards, the part of speech and the clue. State is **derived**: no `recently*` flag machine. Save needs at least 2 slots, all present translations complete, and something dirty.
 - **Observable contract:** create success morphs the "Saving…" toast into a success toast with a "See details" action, goes to `/word/:id`, then resets the form and stays on `/addWord`. Update success shows a toast, locks the fields, stays on the word. Delete success shows a toast and goes to `/`. Errors show a toast and keep the form. Blank case values are dropped on save (never stored as empty rows). On edit hydration, translations whose language is not in `user.languages` are dropped.
-- **Regression guard:** `getFormConfig(pos, lang)` yup field lists must equal the old forms' lists and order (`snapshot/forms-*.md`). This is the one place old and new are diffed mechanically.
+- **Regression guard:** `getFormConfig(pos, lang)` yup field lists must equal the old forms' lists and order (`word-forms/forms-*.md`). This is the one place old and new are diffed mechanically.
 - Autocomplete rules that stay: filling writes only **empty** fields, never typed values; the debounce is per instance (`lib/useDebouncedCallback.ts`); the Estonian and Spanish-verb sanitizers are query transforms.
 - Invalidation: `createWord`, `updateWord`, `deleteWord` invalidate `['words']`, `['words', id]` and `['metrics']`.
 

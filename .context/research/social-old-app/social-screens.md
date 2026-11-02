@@ -1,6 +1,6 @@
 # UI Spec 06 — Account, Notifications, Tag view, modals
 
-*Grounded in `snapshot/pages-social-account.md`. NOTE: this file describes the REDESIGNED flows (§8.1/§8.2/§8.3 intentional deltas) — decline actions exist, notifications are a display-only inbox, tag shares have explicit state.*
+*Grounded in `pages-social-account.md` (same folder). NOTE: this file describes the REDESIGNED flows (§8.1/§8.2/§8.3 intentional deltas) — decline actions exist, notifications are a display-only inbox, tag shares have explicit state.*
 
 ---
 

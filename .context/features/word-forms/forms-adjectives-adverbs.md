@@ -1,5 +1,9 @@
 # Ladu Word Forms — Adjectives & Adverbs (Field Spec)
 
+## Summary
+
+This file lists the fields, the yup rules and the field order of the adjective and adverb forms. It transcribes the old forms and marks where v2 differs, for example the required "Gradable / Non-gradable" question on every adverb. The tests `adjectives.test.ts` and `adverbs.test.ts` cite it. The decisions are in `../adverb-gradability.md`.
+
 Transcribed verbatim from the old React form components. Every form hydrates via `currentTranslationData.cases` (effect push-up), has a `currentCases` effect mapping field state → `WordItem[]` (each `.word` lowercased with `.toLowerCase()`), and renders through `TextInputFormWithHook` / `RadioGroupFormHook`. Each schema is resolved via `yupResolver(schema)` with `mode: "all"` (validates on every change, no submit).
 
 > **v2 differences (2026-10-24, plan `.context/features/adverb-gradability.md`).** This file transcribes the **old** app. In v2:

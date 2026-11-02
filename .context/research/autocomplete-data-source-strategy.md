@@ -542,7 +542,7 @@ app's own enum values (`/api/dictionary/German/Noun/Haus`), decided 2026-10-08.
   OAuth stub.
 
 **Docs.** The route in the backend API docs and the spec index (`.context/README.md`). The
-frozen snapshot files under `.context/.frontend/snapshot/` are not changed.
+frozen snapshot files under `.context/.frontend/snapshot/` (dissolved 2026-11-02; now `features/word-forms/` and `research/social-old-app/`) are not changed.
 
 ### Slice B1 — Lexicon tables, ingest and load (no user-visible change)
 
@@ -926,7 +926,7 @@ The review checked sections 2 to 8 against the code.
 | 4 | 88 of 105 cases (84%) can be filled. | That compares kaikki to the registry. Today's routes fill fewer: ES 26 of 42, DE 25 of 28. | Compared with today, the change is a gain. |
 | 5 | Keep the 8 old routes as wrappers (old Slice A). | Only the v2 frontend calls them. | Delete them in Slice A. |
 | 6 | The licence question is open (§8). | `licence-study.md` closed most of it. | §8 is updated. |
-| 7 | Paths `snapshot/...`. | The files are under `.context/.frontend/snapshot/`. | Header is corrected. |
+| 7 | Paths `snapshot/...`. | The files are under `.context/.frontend/snapshot/` (dissolved 2026-11-02; now `features/word-forms/` and `research/social-old-app/`). | Header is corrected. |
 | 8 | (not mentioned) | No e2e spec covers autocomplete. The e2e backend calls the real Estonian service. | Slice A adds a spec and a stub. |
 | 9 | (not mentioned) | Both options need VPS disk. The nightly backup dumps all of `ladu_prod` to B2 (10 GB cap). No retention rule was found in the repo. | Exclude the lexicon from the backup (D4). Check the B2 retention setting in the B2 UI. |
 

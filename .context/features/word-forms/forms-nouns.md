@@ -1,5 +1,9 @@
 # Ladu Word Forms — Nouns (field specification)
 
+## Summary
+
+This file lists the fields, the yup rules and the field order of the noun forms of the old app (English, Spanish, German and Estonian). A developer does not read it for new work. `nouns.test.ts` compares the new noun forms with it, so it is the oracle for old behaviour until the Phase 8 cutover.
+
 > Transcribed verbatim from `frontend/src/components/forms/nouns/*.tsx`.
 > Shared scaffolding (not re-transcribed): every noun form hydrates via `currentTranslationData.cases` on a first-render effect (`setValuesInForm` / per-field `setValue`), pushes `props.updateFormData({ language, cases, completionState: isValid, isDirty })` in a state-change effect, and renders through `RadioGroupWithHook` (regularity, gender) and `TextInputFormWithHook` (text cases). Every text case (except the `singular`/`singularNominativ`/`singularNimetav` required field) is wrapped in `getDisabledInputFieldDisplayLogic(props.displayOnly!, <value>)`, which hides the field in display-only mode when its value is empty.
 > Regularity options in every language come from `VerbRegularity` (`regular` = `'regular'`, `irregular` = `'irregular'`) — `frontend/src/ts/enums.ts:398-401`.

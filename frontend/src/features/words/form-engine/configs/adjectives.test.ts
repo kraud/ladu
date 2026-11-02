@@ -1,7 +1,7 @@
 /**
  * Regression test: the config-driven field lists must equal the old
  * `AdjectiveForm{EN,ES,DE,EE}` field lists transcribed verbatim in
- * `.context/.frontend/snapshot/forms-adjectives-adverbs.md`.
+ * `.context/features/word-forms/forms-adjectives-adverbs.md`.
  */
 import { describe, expect, it } from 'vitest';
 import { AdjectiveCases, Lang, PartOfSpeech } from '@/ts/enums';

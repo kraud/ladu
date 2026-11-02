@@ -11,13 +11,12 @@ A piece of work starts in `plans/`. When it is done, its lasting rules go into `
 | Folder | Purpose | A file enters when… | A file leaves when… |
 |---|---|---|---|
 | root (`README.md`, `overview.md`, `roadmap.md`) | The index (commands, conventions, one table of every live file), the product and domain spec, and the roadmap of the rebuild. | It is the map, the product spec or the roadmap. | Never. The README changes whenever a file moves. |
-| `features/` | One live spec for each finished feature area: invariants, API and schema contracts, numbered decisions (with the rejected option), known defects, open items. Code cites these files. The format is in `features/README.md`. | A feature is built and its plan is folded in. | The feature is removed. A spec changes together with the code. |
+| `features/` | One live spec for each finished feature area: invariants, API and schema contracts, numbered decisions (with the rejected option), known defects, open items. Code cites these files. The word forms (`word-forms/`) are a sub-folder. The format is in `features/README.md`. | A feature is built and its plan is folded in. | The feature is removed. A spec changes together with the code. |
 | `plans/` | Work that is **not finished**: in progress, or planned and approved. Only this. | Work is agreed. | It is done: fold into `features/`, write a record, delete the plan. |
 | `archive/` | The history of finished plans, 30 lines or fewer each: status, PRs, decisions kept, plan versus built, traps, and the `git log` line. Not a source of current truth. See `archive/README.md`. | A plan is finished and folded. | Never edited after that. |
-| `research/` | Long evidence kept **whole**: measurements, studies, decision Q&A, build records, review sheets. Other documents or code cite them. `deferred-ideas.md` holds ideas that are not plans yet. | A document is mostly analysis, and a 30-line record would lose data. | Its inputs change (re-run it), or its feature closes. |
-| `guides/` | Procedures to follow: add a language, add a part of speech, and the operator manual (`infrastructure-guide/`) with the deployment build log. | It is a checklist or a how-to, not the spec of one feature. | The process changes. |
+| `research/` | Long evidence kept **whole**: measurements, studies, decision Q&A, build records, review sheets. Other documents or code cite them. `social-old-app/` holds the old social behaviour for the deferred phases. `deferred-ideas.md` holds ideas that are not plans yet. | A document is mostly analysis, and a 30-line record would lose data. | Its inputs change (re-run it), or its feature closes. |
+| `guides/` | Procedures and rules to follow: add a language, add a part of speech, the layout rules of `frontend/src/`, and the operator manual (`infrastructure-guide/`) with the deployment build log. | It is a checklist or a how-to, not the spec of one feature. | The process changes. |
 | `design/` | The design system: principles, colour, type, layout, components, icons, motion, plus the mood board and screenshots. The authority for how the UI looks (the code wins on a conflict). | It describes look and feel. | The design changes. |
-| `.frontend/` | `frontend-structure.md` (the layout rules of `frontend/src/`) and `snapshot/`, the description of the **old app**, kept only where the new app must still be checked against it. Each snapshot file has a stop date in the table below. | `snapshot/` takes **no new files**. | Its stop date comes (the social phases ship, or the Phase 8 cutover). |
 
 **Where does a new file go?**
 
@@ -71,7 +70,7 @@ migrates its own database `keelapp_e2e`. Details: [`e2e/README.md`](../e2e/READM
 
 ## Where the specs live
 
-> **How to read the specs:** `features/` and `design/` describe what is built, `plans/` what is still open, and `.frontend/snapshot/` what the old app did (kept only where the new app must still be checked against it, each file with a stop date).
+> **How to read the specs:** `features/` and `design/` describe what is built, `plans/` what is still open, and `research/` holds evidence and the old-app reference for the deferred social phases.
 
 ### Product and roadmap
 
@@ -103,6 +102,10 @@ migrates its own database `keelapp_e2e`. Details: [`e2e/README.md`](../e2e/READM
 | `.context/features/tags.md` | **Tags**: the resource API, follow, clone, link and unlink, `TagSummary`, the `/tags` and `/tag/$tagId` pages, the word-editor tags section. Built 2026-09-27 to 2026-09-28. Tag sharing UI is deferred. | **Authoritative for tags** |
 | `.context/features/theme-and-language.md` | **Light and dark theme**, the `?lng=&theme=` handoff from the landing page, the login carry-over. Built 2026-09-25 to 2026-09-26. | **Authoritative for the theme** |
 | `.context/features/word-form-engine.md` | **Word form engine, word pages and the Review table**: configs, `FieldConfig`, the observable contract, the decisions D1 to D44 with their status. Built 2026-09-10 to 2026-09-15. | **Authoritative for the form engine** |
+| `.context/features/word-forms/data-model.md` | Enums and interfaces (a transcription of `ts/enums.ts` and `ts/interfaces.ts`) with per-form notes. Still edited when a language or field is added. | **Live spec** |
+| `.context/features/word-forms/forms-adjectives-adverbs.md`, `forms-conjunctions-prepositions.md`, `forms-french.md` | Field lists, yup rules and field order of those forms. The last two describe v2 only. Form tests and the add-language guide cite them. | **Live spec** |
+| `.context/features/word-forms/forms-nouns.md`, `forms-verbs.md` | Field lists and yup rules of the old noun and verb forms. `nouns.test.ts` and `verbs.test.ts` use them as the oracle for old behaviour. | **Test oracle. Stop date:** the Phase 8 cutover |
+| `.context/.frontend/` (removed 2026-11-02) | The folder was dissolved. `frontend-structure.md` went to `guides/`, the word-form files to `features/word-forms/`, the social files to `research/social-old-app/`. `pages-word-flow.md` and `ui/00-global.md` were removed (old React and Redux code; their rules are in the code, `features/` and the annex of the roadmap). Earlier removals: `ui/01` to `ui/05`, `pages-auth-shell`, `pages-review-practice`, `exercise-flow`, `review-table`, `general-use-functions`, `word-cases-data`, `autocomplete`. Read the old text with `git log -- <path>`. | **Removed** |
 | `.context/features/words-list.md` | **The word tables `/words` and `/tag/$tagId`**: numbered pagination (offset mode on `GET /api/words/simple`), selection across pages, the Owner filter, action bar rules, row click, view-only words of followed tags, single-word clone, the no-duplicates rule, and saved practice lists. Built 2026-10-12 to 2026-10-14 (PR #87). | **Authoritative for the word tables** |
 
 ### Guides (`guides/`)
@@ -111,6 +114,7 @@ migrates its own database `keelapp_e2e`. Details: [`e2e/README.md`](../e2e/READM
 |------|-----------|-----------|
 | `.context/guides/add-language.md` | **Checklist for adding a language** to Ladu: decisions to take, research template per part of speech, naming rules, every file to touch by tier (backend, frontend, forms, lexicon, onboarding, landing page), what needs no change, rollout. Built slice by slice while French is added; items marked `(unverified)` are not confirmed yet. Read it before any new-language plan. | **Authoritative for the process** |
 | `.context/guides/add-part-of-speech.md` | **Checklist for adding a part of speech** (or a new field group) to Ladu: research template, field rules, naming rules, every file to touch, what needs no change, rollout reminders. Read it before any new-PoS plan. | **Authoritative for the process** |
+| `.context/guides/frontend-structure.md` | The rules for the layout of `frontend/src/`: decisions D1 to D5, the principles, the shape of a feature folder, the conventions. The directory tree of the first proposal was removed (the code is the truth). | **Authoritative for FE file structure** |
 | `.context/guides/infrastructure-guide/` | Operator's manual (9 files): architecture, environments and databases, development workflow, dashboards, troubleshooting, secrets, glossary, and the build log `deployment-strategy.md` (Phases 0 to E, all done). Moved here from `.dev-context/` on 2026-11-01. | **Authoritative for operations** |
 
 ### Design (`design/`)
@@ -118,19 +122,6 @@ migrates its own database `keelapp_e2e`. Details: [`e2e/README.md`](../e2e/READM
 | Path | What it is | Authority |
 |------|-----------|-----------|
 | `.context/design/README.md` | **Design system and mood board** (2026-10-29): principles, colour tokens, typography, layout, component patterns, icons, motion and states, an agent checklist, and `mood-board.html` with real screenshots in `assets/`. Read it before you build or change any UI. | **Authoritative for UI look** (the code wins on a conflict; then fix the document) |
-
-### Frontend structure and the old-app snapshot (`.frontend/`)
-
-| Path | What it is | Authority |
-|------|-----------|-----------|
-| `.context/.frontend/frontend-structure.md` | The rules for the layout of `frontend/src/`: decisions D1 to D5, the principles, the shape of a feature folder, the conventions. The directory tree of the first proposal was removed (the code is the truth). | **Authoritative for FE file structure** |
-| `.context/.frontend/snapshot/` (removed 2026-11-02) | `ui/01` to `ui/05`, `pages-auth-shell`, `pages-review-practice`, `exercise-flow`, `review-table`, `general-use-functions`, `word-cases-data`, `autocomplete`. The features are built and the code is the truth. Their intentional deltas are in the annex of the build plan (Phase 8). Read the old text with `git log -- <path>`. | **Removed** |
-| `.context/.frontend/snapshot/data-model.md` | Enums and interfaces (verbatim transcription of `ts/enums.ts` and `ts/interfaces.ts`) with per-form notes. Still edited when a language or field is added. | **Live spec** |
-| `.context/.frontend/snapshot/forms-adjectives-adverbs.md`, `forms-conjunctions-prepositions.md`, `forms-french.md` | Field lists, yup rules and field order of those forms. The last two describe v2 only. Form tests and the add-language guide cite them. | **Live spec** |
-| `.context/.frontend/snapshot/forms-nouns.md`, `forms-verbs.md` | Field lists and yup rules of the old noun and verb forms. `nouns.test.ts` and `verbs.test.ts` use them as the oracle for old behaviour. | **Test oracle. Stop date:** the Phase 8 cutover |
-| `.context/.frontend/snapshot/pages-social-account.md`, `endpoints.md`, `ui/06-social.md` | Old Account, notification, friend and tag-share behaviour; the social routes (today and in the old app); the redesigned social screens. | **Reference for the deferred social phases. Stop date:** when the social phases ship |
-| `.context/.frontend/snapshot/pages-word-flow.md` | Use cases of Add Word, the word page and `WordForm` in the old app. Edited 2026-10-24; several plans and guides cite it. | **Live spec** (still edited) |
-| `.context/.frontend/snapshot/ui/00-global.md` | Shell, navigation, shared patterns and states of the old UI. | **Reference. Stop date:** the Phase 8 cutover |
 
 ### Plans in flight (`plans/`)
 
@@ -145,6 +136,7 @@ migrates its own database `keelapp_e2e`. Details: [`e2e/README.md`](../e2e/READM
 |------|-----------|-----------|
 | `.context/research/autocomplete-coverage-report.md` | Slice 0 research for autocomplete (2026-10-08): go for DE, ES and EN; go with an online fallback for EE. | **Done** (research report, kept whole: other docs quote its figures) |
 | `.context/research/deferred-ideas.md` | **Deferred ideas**: ideas that are not plans yet, each with why and what to investigate first (modal verbs, browse all words, lawyer check, header search, placement test, and more). Add an idea here; move it to `plans/` when it is ready. | **Working record** |
+| `.context/research/social-old-app/pages-social-account.md`, `social-endpoints.md`, `social-screens.md` | Old Account, notification, friend and tag-share behaviour; the social routes (today and in the old app); the redesigned social screens. Input for Phases 6 and 7. | **Reference for the deferred social phases. Stop date:** when the social phases ship |
 | `.context/research/french-lexicon-coverage.md` | Coverage research of the French lexicon (slice 8, 2026-10-26): fill rates per part of speech, the shape of a French entry, translations, size. | **Done** (research report) |
 | `.context/research/language-french-review.md`, `language-french-strings.md` | The two review sheets for the French teacher (word forms and practice; interface strings). The teacher reviews them later; each answer is a small follow-up. | **Working record** (until the review) |
 | `.context/research/licence-study.md` | **Licence study** (2026-10-06): can Ladu go online, what changes with a paid tier, a table per dependency (licence, use, duty, risk), actions A1 to A6, questions for a lawyer, and how to re-run it (§8). Code, the landing Terms page and the build scripts cite it. | **Done** (research report; re-run when dependencies change) |
@@ -179,7 +171,7 @@ Third npm workspace (alongside `backend/`, `frontend/`). **Playwright** (`@playw
 
 1. **No server state outside TanStack Query.** No loading/success/error status booleans anywhere — mutations expose `isPending / isError / data` + `onSuccess / onError`. Every cross-cutting flow becomes mutation callbacks + cache-invalidation edges, never chained `useEffect` flag machines.
 2. **One invalidation graph**, declared in `frontend/src/app/query-client.ts` and extended per phase.
-3. **Config-driven form engine.** One renderer + per-PoS/language configs. Noun & Verb configs derive from the `WordCasesData` registry (`frontend/src/ts/wordCasesDataByPoS.ts`); Adjective & Adverb are enum-driven fixed schemas (`AdjectiveCases`/`AdverbCases` in `snapshot/data-model.md`). Field lists + yup rules + order per form: `snapshot/forms-{nouns,verbs,adjectives-adverbs}.md`. `ts/enums.ts` + `ts/interfaces.ts` are ported verbatim. The 15 hand-rolled forms of the old app (about 8,700 lines) became configs of about 2,000 lines.
+3. **Config-driven form engine.** One renderer + per-PoS/language configs. Noun & Verb configs derive from the `WordCasesData` registry (`frontend/src/ts/wordCasesDataByPoS.ts`); Adjective & Adverb are enum-driven fixed schemas (`AdjectiveCases`/`AdverbCases` in `features/word-forms/data-model.md`). Field lists + yup rules + order per form: `features/word-forms/forms-{nouns,verbs,adjectives-adverbs}.md`. `ts/enums.ts` + `ts/interfaces.ts` are ported verbatim. The 15 hand-rolled forms of the old app (about 8,700 lines) became configs of about 2,000 lines.
 4. **`<ProtectedRoute>` from the first commit.** The old app leaves Practice, Account, NotificationHub, DisplayTag unguarded — fix that immediately, don't reproduce it.
 5. **URL is state** (Review filters live in `searchParams`), **stable-id row selection** (never index), stable React keys everywhere, session persisted via Zustand `persist` with a guarded parse (no raw `JSON.parse(localStorage['user'])`).
 6. Strict TS; zero non-null assertions (lint rule); `react-error-boundary` per route.
@@ -219,7 +211,7 @@ Word (partOfSpeech: Noun | Verb | Adjective | Adverb | Conjunction | Preposition
 - **Word rules:** ≥2 language translations always; `partOfSpeech` is immutable after creation; users edit/delete only words they authored; words from *followed* tags are read-only (a single word can be cloned into an own copy).
 - **Tags:** `label` + `description` + `visibility` (`Private` / `Friends-Only` / `Public`; the UI offers Private and Public). **Follow** = words appear read-only in your list/practice. **Clone** = independent editable copies.
 - **Exercises:** two entry modes (pre-selected words from the table, or random/automated). Card types: Text Input, Multiple Choice, Mixed. Multi-language (prompt in A → answer in B) or single-language (grammatical prompt → answer in same language). Options: target languages, PoS filter, exclude native language, adaptive (forgetting-curve) vs random ordering, MC distractor levels 0–3, text-input strictness levels. Per-answer feedback + last-4-attempts indicator; manual `master` / `revise` overrides. Performance stored per translation-case.
-- Full details: `snapshot/data-model.md`, `frontend/src/ts/wordCasesDataByPoS.ts`, `features/practice.md` Part A, `features/word-form-engine.md`, `features/autocomplete.md`.
+- Full details: `features/word-forms/data-model.md`, `frontend/src/ts/wordCasesDataByPoS.ts`, `features/practice.md` Part A, `features/word-form-engine.md`, `features/autocomplete.md`.
 
 ---
 

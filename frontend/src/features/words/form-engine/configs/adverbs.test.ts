@@ -1,7 +1,7 @@
 /**
  * Regression test: the config-driven field lists must equal the old
  * `AdverbForm{EN,ES,DE}` field lists transcribed verbatim in
- * `.context/.frontend/snapshot/forms-adjectives-adverbs.md`, plus the gradable radio and the
+ * `.context/features/word-forms/forms-adjectives-adverbs.md`, plus the gradable radio and the
  * periphrastic checkboxes added later. The Estonian adverb form is new (Slice H4) and is pinned here directly.
  */
 import { describe, expect, it } from 'vitest';

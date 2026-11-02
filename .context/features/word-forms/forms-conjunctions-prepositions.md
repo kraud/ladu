@@ -1,5 +1,9 @@
 # Ladu Word Forms — Conjunctions & Prepositions (Field Spec, v2 only)
 
+## Summary
+
+This file is the field spec of the conjunction and preposition forms. Neither form exists in the old app. A user fills the word, and optionally a type, a position or the cases a preposition governs. These extra values are saved as properties of the word.
+
 Neither form exists in the old app. This file is the spec of the v2 forms (plan `.context/features/conjunctions-prepositions.md`, built 2026-10-25). Code: `frontend/src/features/words/form-engine/configs/conjunctions.ts` and `prepositions.ts`; tests next to them. The research behind the fields (EKI, Universal Dependencies, Wiktionary) is in the plan.
 
 Rules for every field: only the word is required (conjunction: and the second part while "Paired" is on). The type, the position, the cases and the boxes are **properties**: they are saved, but search and exercises never read them as written forms.

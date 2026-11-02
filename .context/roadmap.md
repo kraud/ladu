@@ -51,9 +51,9 @@ The snapshot was produced and frozen on 2026-09-05 from the old code (about 4,10
 **Backend copy rules** (one-time, Phase 0): copy TS controllers/routes/Drizzle schema/Jest tests; **drop every legacy Mongoose `.js` controller/model** (the dead code path — confirmed: routes require the `.ts` controllers); apply §8.5 hygiene (CORS allowlist or same-origin, stable error codes instead of `err.stack` leakage); apply the §8 schema/controller redesigns *in the phase that consumes them* (§8.2 in Phase 6, §8.3 in Phase 7, pagination in Phase 3) — not all up front, so every phase stays small and testable.
 
 **`id` only — `_id` is a MongoDB artifact (standing rule).** The Drizzle/Postgres schema has no `_id` column; every `_id` in a backend response is a hand-written alias of `id` added so a still-Mongo-shaped frontend keeps working. The **old frontend runs against its own separate backend/Docker stack** (`../keelapp`), not this copied backend — so the alias has no consumer here and is dead weight, *not* something to "keep until cutover".
-- **New frontend** code and types use `id` exclusively: no `_id` field, no `raw.id ?? raw._id` fallback, no "TODO: should it be `_id`?". Any part of this plan or the snapshot docs that says otherwise is superseded by this rule.
+- **New frontend** code and types use `id` exclusively: no `_id` field, no `raw.id ?? raw._id` fallback, no "TODO: should it be `_id`?". Any part of this plan or the old-app inventory files that says otherwise is superseded by this rule.
 - **Backend** `_id` aliases are removed **per-slice, by the slice that touches the controller/serializer** — strip it from the responses that slice consumes plus the affected test assertions, as part of that slice's work. No standalone backend `_id` refactor pass.
-- **Docs** are corrected in the same slice: fix this file and the affected `snapshot/*.md` sections when their `_id` claims are made stale.
+- **Docs** are corrected in the same slice: fix this file and the affected `features/word-forms/*.md` sections when their `_id` claims are made stale.
 
 ## 5. Phased roadmap
 
@@ -93,7 +93,7 @@ Each phase: scope → gate. Order chosen so every phase ends with a runnable app
 
 ### Phase 2 — Noun create/view with ≥3 translations *(second vertical slice)*
 - Backend: `getWordsSimplified` gains cursor pagination (§8.4 #2); `GET /api/words/:id` gains ownership check.
-- Frontend: `TranslationItem` model; **form engine v1 — nouns only**: one renderer + 4 noun configs (EN/ES/DE/EE) generated from `NounCasesData`; `AddWord` page (PoS selector; route param typed via TanStack Router); `DisplayWord` read-only; `WordForm` orchestration re-modeled: create/update/delete as mutations whose `onSuccess` chains navigate + toast + reset (the `recently*` flags and chained effects are *not ported* — snapshot `pages-word-flow.md` documents the behavior to reproduce, not the mechanism); tags + clue fields; `filterAvailableTranslationsBySelectedLanguages` logic ported as a pure function with tests (`WordForm.tsx:157-169`).
+- Frontend: `TranslationItem` model; **form engine v1 — nouns only**: one renderer + 4 noun configs (EN/ES/DE/EE) generated from `NounCasesData`; `AddWord` page (PoS selector; route param typed via TanStack Router); `DisplayWord` read-only; `WordForm` orchestration re-modeled: create/update/delete as mutations whose `onSuccess` chains navigate + toast + reset (the `recently*` flags and chained effects are *not ported* — the old app shows the behaviour to reproduce, not the mechanism); tags + clue fields; `filterAvailableTranslationsBySelectedLanguages` logic ported as a pure function with tests (`WordForm.tsx:157-169`).
 - i18n: `wordRelated` + `caseDescription` namespaces wired.
 - **Gate**: create a noun with EN+ES+DE+EE translations, save, reload it in DisplayWord — all four translations render with correct case fields; edit + save round-trips; MSW tests for the CRUD flow; `wordCasesDataByPoS` config produces byte-identical yup field lists for nouns vs the old `NounForm*` components (verified by a one-off generation test, then kept as the engine's regression test).
 - **e2e** (`phase-2-noun-crud.spec.ts`): logged-in user adds a noun with ≥3 language translations through the real form, saves, reloads DisplayWord and sees all translations + case fields; edits one and the change persists after reload; `GET /api/words/:id` for another user's word is refused.
@@ -211,7 +211,7 @@ Slices (each one ends with something runnable):
 
 ### Phase 8 — Parity + cutover
 - Deployment moved forward (2026-09-16): `app.` and `staging.` subdomains of the real domain run v2 from the pipeline in [`.context/guides/infrastructure-guide/deployment-strategy.md`](./guides/infrastructure-guide/deployment-strategy.md), and every phase after 3.5 ships through it. Phase 8 no longer deploys; it verifies parity and switches the apex.
-- **Route-parity checklist**: per route (12 + catch-all), walk every use case against the new build (run the old app; the remaining snapshot files in `.context/.frontend/snapshot/` help); **intentional-deltas annex** lists every §8-driven behavior change with its own verification (decline action, visibility-aware polling, clone preserving translations, server-side authz + notifications, 401→logout, guards on the 4 pages, URL-persisted filters, pagination).
+- **Route-parity checklist**: per route (12 + catch-all), walk every use case against the new build (run the old app; the removed old-app files stay readable with `git log -- .context/.frontend/`); **intentional-deltas annex** lists every §8-driven behavior change with its own verification (decline action, visibility-aware polling, clone preserving translations, server-side authz + notifications, 401→logout, guards on the 4 pages, URL-persisted filters, pagination).
 
 **Intentional-deltas annex (folded 2026-11-02 from the old UI blueprint files `ui/00-global` §4, `ui/04-review` and `ui/05-practice`; the last two were removed).** Each row is a place where the new app is meant to differ from the old one. The three source files list 14 items; 3 of them (stable id, URL filters, pagination) appear in two files, so the table has 11 rows. Phase 8 checks each row against the running app and maps it to a passing assertion. The column "State" says what the specs show today; it is not a Phase 8 verification.
 
@@ -237,7 +237,7 @@ Also part of the annex, kept where they are: the form validation fixes (`feature
 ## 6. Testing strategy
 
 - **No characterization tests of old timing behavior** (study §7). MSW integration tests written against the NEW code per flow — deterministic by construction.
-- Contract types derived from the live backend (Drizzle schema as source of truth); the `endpoints.md` shapes section is the seed for the typed API layer.
+- Contract types derived from the live backend (Drizzle schema as source of truth); the shapes section of the old endpoint catalog seeded the typed API layer (cut down to the social routes: `research/social-old-app/social-endpoints.md`).
 - The form engine gets a generation test: config → yup field list must equal the old form's field list (the one place old/new are diffed mechanically).
 - Per-phase gates above are grep- or test-verifiable — no "looks done".
 - **Playwright e2e, one spec per phase** (`e2e/` workspace — a third workspace beside `backend/`/`frontend/`). Where MSW/Vitest mock the network, the e2e spec runs the *real* stack: `playwright.config.ts` → `webServer` boots `npm run dev -w backend` (real Postgres, migrations applied) + the Vite dev server, and Chromium walks the phase's headline user journey. A green `npm run test:e2e` is a required gate for every phase, written alongside the feature — not batched into Phase 8. Deps and browser binaries stay in `e2e/` so they never enter the `frontend` `tsc -b` / Vite build or its dependency tree. Interactive browser driving mid-session (exploring a flow, drafting selectors, screenshots) comes from the `@playwright/mcp` server in `.mcp.json`; it and the suite are independent. **CI**: the deployment pipeline's Phase A adds the `e2e` job (Postgres service + both servers + `playwright install`, `--workers=1`); a separate `deployed-smoke.spec.ts` runs against staging on each deploy. See [`e2e/README.md`](../e2e/README.md).
@@ -258,7 +258,7 @@ Also part of the annex, kept where they are: the form validation fixes (`feature
 Performed 2026-09-05, before this plan was written:
 
 1. **Route cross-check** — `glob frontend/src/pages/**/*.tsx` (14 files) vs snapshot coverage: 0 missing; route table re-read from `RoutesWithAnimation.tsx:54-138`.
-2. **Endpoint cross-check** — `grep -c "router.(get|post|put|delete)" backend/routes/*.js` = 57 total (autocomplete 8, exercise 3, friendship 6, notification 5, tag 15, user 10, word 10) — matches `endpoints.md` (57 exposed / 54 FE-called / 3 backend-only).
+2. **Endpoint cross-check** — `grep -c "router.(get|post|put|delete)" backend/routes/*.js` = 57 total (autocomplete 8, exercise 3, friendship 6, notification 5, tag 15, user 10, word 10) — matches the old endpoint catalog (57 exposed / 54 FE-called / 3 backend-only).
 3. **Spot-checks** (file:line resolved in source): `Review.tsx:228-254` ✓ · `WordForm.tsx:64-67,114-149` ✓ · `MainView.tsx:67-75` ✓ · `tagSlice.ts:541-562` ✓ · `RoutesWithAnimation.tsx:122-129` ✓ · `AuthVerify.tsx:19-29` ✓.
 
 ## 9. Progress — quick reference

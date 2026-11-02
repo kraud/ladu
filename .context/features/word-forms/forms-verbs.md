@@ -1,5 +1,9 @@
 # Verb Form Field Specifications
 
+## Summary
+
+This file lists the fields, the yup rules and the field order of the verb forms of the old app (English, Spanish, German and Estonian). `verbs.test.ts` compares the new verb forms with it, so it is the oracle for old behaviour until the Phase 8 cutover. The French verb form has no old source; see `forms-french.md`.
+
 Transcribed verbatim from the old form components under `frontend/src/components/forms/verbs/`.
 Shared scaffolding (NOT re-transcribed here): every form hydrates via `currentTranslationData.cases` (effect push-up), has a `currentCases` effect, and renders through `TextInputFormWithHook` / `SelectFormHook` / `RadioGroupFormHook` / `CheckboxGroupFormHook`.
 

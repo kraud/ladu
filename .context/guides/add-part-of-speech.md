@@ -91,7 +91,7 @@ Tick each item in the plan. The file paths are from 2026-10-24. Check them again
 
 ### Docs and e2e
 
-- [ ] `.context/.frontend/snapshot/data-model.md` (case names) and a `forms-<pos>.md` snapshot file.
+- [ ] `.context/features/word-forms/data-model.md` (case names) and a `forms-<pos>.md` snapshot file.
 - [ ] One e2e spec in `e2e/tests/`. `npm run test:e2e` must be green.
 - [ ] The user reviews the new ES, DE and EE strings.
 
