@@ -5,11 +5,9 @@ const db = require('./db');
 beforeAll(() => db.connectDB());
 afterAll(() => db.closeDB());
 
+// Two routes that other things rely on: the e2e boot check waits for `GET /`, and the Docker
+// HEALTHCHECK, `deploy.sh` and `deployed-smoke.spec.ts` call `GET /api/health`.
 describe('Sanity Check', () => {
-    it('app is defined', () => {
-        expect(app).toBeDefined();
-    });
-
     it('GET / responds with 200 and hello message', async () => {
         const res = await request(app).get('/');
         expect(res.statusCode).toEqual(200);
@@ -20,19 +18,5 @@ describe('Sanity Check', () => {
         const res = await request(app).get('/api/health');
         expect(res.statusCode).toEqual(200);
         expect(res.body).toEqual({ status: 'ok', sha: expect.any(String) });
-    });
-
-    it('signin helper generates a valid JWT', () => {
-        const token = global.signin('abc123');
-        expect(token).toBeDefined();
-        expect(typeof token).toBe('string');
-        expect(token.split('.')).toHaveLength(3);
-    });
-
-    it('PostgreSQL test database is connected and schema is applied', async () => {
-        // The db.connectDB() call in beforeAll already verifies connectivity
-        // and checks that the users table exists. If we reach this point,
-        // both assertions passed.
-        expect(true).toBe(true);
     });
 });

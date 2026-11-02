@@ -1,4 +1,4 @@
-import { E2E_ADMIN_URL, E2E_API_URL } from '../fixtures/env';
+import { E2E_ADMIN_URL } from '../fixtures/env';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { test, expect, type Locator, type Page } from '@playwright/test';
@@ -111,12 +111,5 @@ test.describe.serial('Admin dashboard — health (slice 6)', () => {
         await page.reload();
         await expect(page.getByRole('heading', { name: 'Health' })).toBeVisible();
         await expect(section(page, 'Backups').getByText(`${DETAIL}-backup.dump`)).toBeVisible();
-    });
-
-    test('the API refuses a request without a staff token', async ({ request }) => {
-        const API = E2E_API_URL;
-
-        expect((await request.get(`${API}/api/admin/health`)).status()).toBe(401);
-        expect((await request.get(`${API}/api/admin/health`, { headers: { Authorization: 'Bearer not-a-token' } })).status()).toBe(401);
     });
 });

@@ -9,16 +9,15 @@ import { API, authHeader, createdEmails, loginForToken, registerAndVerify, signI
  * tables hold the committed fixtures in CI, or the full data locally; every word below is in both. The
  * Estonian words come from the Ekilex stub (`fixtures/eki-stub/server.ts`).
  *
- *  1. German conjunctions: "und" is marked coordinating; "weil" has no type (Wiktionary marks it both);
- *     "sowohl ... als auch" and "weder … noch" fill the first part, the "Paired" box and the second part.
- *  2. Spanish "para que" is subordinating and shows the verb mood, which can be picked and cleared again.
- *  3. English "because" is subordinating; "neither … nor" is a pair.
- *  4. German prepositions: "nach" is before or after the noun with the dative; "wegen" has the dative and the
+ *  1. German prepositions: "nach" is before or after the noun with the dative; "wegen" has the dative and the
  *     genitive; the contractions box shows three forms on ONE row, on a desktop and on a phone.
- *  5. Estonian: a conjunction ("kuigi") fills the word; "pärast" fills the position and a case for each position;
+ *  2. Estonian: a conjunction ("kuigi") fills the word; "pärast" fills the position and a case for each position;
  *     the position hides the case that does not apply; the series box shows two forms in a 50-50 row; the word
  *     saves, and the property values are not searchable while the written forms are.
- *  6. "Start from a word": the Conjunction type, "because", one meaning, a draft with a filled card per language.
+ *
+ * Removed in the test prune pass (`.context/plans/test-prune-pass.md`): the German, Spanish
+ * and English conjunctions and the "Start from a word" conjunction draft.
+ * `backend/tests/dictionary.test.js` and `conjunctions.test.ts` own them.
  */
 
 test.afterAll(async () => {
@@ -70,68 +69,6 @@ test.describe.serial('Autocomplete — conjunctions and prepositions (conjunctio
 
     test.beforeEach(async ({ page }) => {
         await signIn(page, user);
-    });
-
-    test('German conjunctions: a marked type, no type for "weil", and pairs split into their two parts', async ({ page }) => {
-        await openCard(page, /Conjunction/, 'Deutsch');
-        await typeAndFill(page, 'Conjunction', 'und');
-        await expect(page.getByRole('radio', { name: 'Coordinating', exact: true })).toBeChecked();
-
-        // "weil" is marked both coordinating and subordinating, so the data decides nothing: both radios stay empty.
-        await openCard(page, /Conjunction/, 'Deutsch');
-        await typeWordOnly(page, 'Conjunction', 'weil');
-        await expect(page.getByRole('radio', { name: 'Coordinating', exact: true })).not.toBeChecked();
-        await expect(page.getByRole('radio', { name: 'Subordinating', exact: true })).not.toBeChecked();
-        await expect(page.getByLabel('Second part', { exact: true })).toHaveCount(0);
-
-        await openCard(page, /Conjunction/, 'Deutsch');
-        await typeAndFill(page, 'Conjunction', 'sowohl ... als auch');
-        await expect(page.getByLabel('Conjunction', { exact: true })).toHaveValue('sowohl');
-        await expect(page.getByRole('checkbox', { name: /Paired/ })).toBeChecked();
-        await expect(page.getByLabel('Second part', { exact: true })).toHaveValue('als auch');
-        await expect(page.getByRole('radio', { name: 'Coordinating', exact: true })).toBeChecked();
-
-        // The translation table writes a pair with "…"; the lexicon has no such entry, so the pair is split by rule.
-        await openCard(page, /Conjunction/, 'Deutsch');
-        await typeAndFill(page, 'Conjunction', 'weder … noch');
-        await expect(page.getByLabel('Conjunction', { exact: true })).toHaveValue('weder');
-        await expect(page.getByRole('checkbox', { name: /Paired/ })).toBeChecked();
-        await expect(page.getByLabel('Second part', { exact: true })).toHaveValue('noch');
-    });
-
-    test('Spanish "para que" is subordinating and shows the verb mood, which can be picked and cleared', async ({ page }) => {
-        await openCard(page, /Conjunction/, 'Español');
-        // The page has selects of its own ("Start from a word"); the card's selects come after them.
-        const pageSelects = await page.getByRole('combobox').count();
-        await typeAndFill(page, 'Conjunction', 'para que');
-        await expect(page.getByRole('radio', { name: 'Subordinating', exact: true })).toBeChecked();
-
-        await expect(page.getByRole('combobox')).toHaveCount(pageSelects + 1); // the mood shows for a subordinating conjunction
-        const mood = page.getByRole('combobox').nth(pageSelects);
-        await expect(mood).toContainText('—');
-        await mood.click();
-        await page.getByRole('option', { name: 'Subjunctive' }).click();
-        await expect(mood).toContainText('Subjunctive');
-        await mood.click();
-        await page.getByRole('option', { name: '—' }).click();
-        await expect(mood).toContainText('—');
-
-        // A re-click clears an optional radio.
-        await page.getByRole('radio', { name: 'Subordinating', exact: true }).click();
-        await expect(page.getByRole('radio', { name: 'Subordinating', exact: true })).not.toBeChecked();
-        await expect(page.getByRole('combobox')).toHaveCount(pageSelects);
-    });
-
-    test('English "because" is subordinating, and "neither … nor" is a pair', async ({ page }) => {
-        await openCard(page, /Conjunction/, 'English');
-        await typeAndFill(page, 'Conjunction', 'because');
-        await expect(page.getByRole('radio', { name: 'Subordinating', exact: true })).toBeChecked();
-
-        await openCard(page, /Conjunction/, 'English');
-        await typeAndFill(page, 'Conjunction', 'neither … nor');
-        await expect(page.getByLabel('Conjunction', { exact: true })).toHaveValue('neither');
-        await expect(page.getByRole('checkbox', { name: /Paired/ })).toBeChecked();
-        await expect(page.getByLabel('Second part', { exact: true })).toHaveValue('nor');
     });
 
     test('German prepositions: the position and the cases fill, and the contractions share one row', async ({ page }) => {
@@ -242,31 +179,4 @@ test.describe.serial('Start from a word — conjunctions (conjunctions plan, sli
         await signIn(page, startUser);
     });
 
-    test('a conjunction, "because", fills one card per language', async ({ page }) => {
-        await page.goto('/addWord');
-        await expect(page.getByTestId('start-from-word')).toBeVisible();
-        await page.getByTestId('start-language').click();
-        await page.getByRole('option', { name: 'EN', exact: true }).click();
-        await page.getByTestId('start-pos').click();
-        await page.getByRole('option', { name: 'Conjunction' }).click();
-
-        await page.getByTestId('start-word-input').pressSequentially('becau');
-        await expect(page.getByTestId('sense-list')).toBeVisible();
-        await page.getByTestId('sense-list').getByRole('option').filter({ hasText: 'because' }).filter({ hasText: 'for the reason that' }).first().click();
-        await expect(page.getByTestId('sense-preview')).toBeVisible();
-        await expect(page.getByTestId('preview-card-German')).toContainText('weil');
-        await expect(page.getByTestId('preview-card-Spanish')).toContainText('porque');
-        await expect(page.getByTestId('preview-card-Estonian')).toHaveCount(0); // not an account language
-
-        await page.getByRole('button', { name: 'Create draft' }).click();
-        await expect(page.getByRole('heading', { name: 'New Conjunction' })).toBeVisible();
-        await expect(page.getByLabel('Conjunction', { exact: true }).first()).toHaveValue('because');
-        await expect(page.getByLabel('Conjunction', { exact: true }).nth(1)).toHaveValue('porque');
-        await expect(page.getByLabel('Conjunction', { exact: true }).nth(2)).toHaveValue('weil');
-        // "because" is marked subordinating in the English lexicon.
-        await expect(page.getByRole('radio', { name: 'Subordinating', exact: true }).first()).toBeChecked();
-
-        await page.getByRole('button', { name: 'Save word' }).click();
-        await expect(page.getByText('Word was created successfully')).toBeVisible();
-    });
 });

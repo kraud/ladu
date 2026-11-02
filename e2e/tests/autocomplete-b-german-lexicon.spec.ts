@@ -10,9 +10,9 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
  * Every word below is in both.
  *
  *  1. A noun today's library cannot decline ("Polizei") fills from the lexicon.
- *  2. A "sein" verb ("gehen") gets the right auxiliary and its regularity.
- *  3. A homograph ("See": der See / die See) gets its main sense (decision D15).
- *  4. A verb the lexicon does not have ("abkleben") falls back to the library, marked as a guess.
+ *
+ * Removed in the test prune pass (`.context/plans/test-prune-pass.md`): the "sein" verb,
+ * the homograph and the library fallback. `backend/tests/dictionary.test.js` owns them.
  *
  * Nothing is saved: the subject is the lookup.
  */
@@ -53,32 +53,4 @@ test.describe.serial('Autocomplete — German from the lexicon (Slice B2)', () =
         await expect(guessNotice(page)).toHaveCount(0);
     });
 
-    test('a "sein" verb gets its auxiliary and regularity', async ({ page }) => {
-        await openGerman(page, /Verb/);
-        await page.getByLabel('Infinitive').fill('gehen');
-
-        await clickUseValues(page);
-        await expect(page.getByRole('radiogroup', { name: 'Auxiliary verb' }).getByRole('radio', { name: 'sein' })).toBeChecked();
-        await expect(page.getByRole('radio', { name: 'irregular', exact: true })).toBeChecked();
-        await expect(guessNotice(page)).toHaveCount(0);
-    });
-
-    test('a homograph gets its main sense: der See', async ({ page }) => {
-        await openGerman(page, /Noun/);
-        await page.getByLabel('Singular nominative').fill('See');
-
-        await clickUseValues(page);
-        await expect(page.getByRole('radio', { name: 'der', exact: true })).toBeChecked();
-        await expect(page.getByLabel('Plural nominative')).toHaveValue('Seen');
-    });
-
-    test('a verb not in the lexicon falls back to the library, marked as a guess', async ({ page }) => {
-        await openGerman(page, /Verb/);
-        await page.getByLabel('Infinitive').fill('abkleben');
-
-        await expect(guessNotice(page)).toBeVisible();
-        await clickUseValues(page);
-        await expect(page.getByText('Autocomplete values applied')).toBeVisible();
-        await expect(guessNotice(page)).toBeVisible();
-    });
 });

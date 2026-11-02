@@ -1,5 +1,4 @@
 import { test, expect, type Locator, type Page } from '@playwright/test';
-import { clickUseValues } from '../fixtures/autocomplete';
 import { closePool, deleteUsersByEmail } from '../fixtures/db';
 import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtures/practice';
 
@@ -11,11 +10,10 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
  *
  *  1. A prefix lists the homograph "See" once per meaning; a click on "die See" fills the card
  *     with that meaning (not the main sense der See), and the footer shows it as applied.
- *  2. Arrow keys + Enter pick too ("der See": genitive "Sees", where die See has "See").
- *  3. A Spanish verb: a pick fills the conjugation.
- *  4. A whole word typed without a pick, also when it is the only match: the list stays open (it does
- *     not close by itself), and a click on the word fills the card. A click outside closes the list
- *     and frees the "Use autocomplete values" button.
+ *
+ * Removed in the test prune pass (`.context/plans/test-prune-pass.md`): arrow keys and
+ * Enter, the Spanish pick, the whole-word list and the click outside. `TranslationCard.test.tsx`
+ * owns them.
  *
  * Nothing is saved: the subject is the list and the fill.
  */
@@ -70,59 +68,4 @@ test.describe.serial('Autocomplete — type-ahead list (Slice E)', () => {
         await expect(useValues(page)).toHaveCount(0);
     });
 
-    test('arrow keys and Enter pick a suggestion too', async ({ page }) => {
-        await openCard(page, /Noun/, 'Deutsch');
-        const field = page.getByLabel('Singular nominative');
-        await typeAndOpenList(page, field, 'see');
-
-        const derSee = page.getByRole('listbox').getByRole('option', { name: 'der See', exact: true });
-        await expect(derSee).toBeVisible();
-        // Down until "der See" is highlighted (its place depends on the lexicon loaded).
-        for (let step = 0; step < 10 && (await derSee.getAttribute('data-highlighted')) === null; step++) {
-            await field.press('ArrowDown');
-        }
-        await field.press('Enter');
-
-        await expect(page.getByRole('radio', { name: 'der', exact: true })).toBeChecked();
-        await expect(page.getByLabel('Singular genitive')).toHaveValue('Sees');
-        await expect(applied(page)).toBeVisible();
-    });
-
-    test('a Spanish verb picked from the list is conjugated', async ({ page }) => {
-        await openCard(page, /Verb/, 'Español');
-        await page.getByLabel('Infinitive non-finite simple').pressSequentially('bail');
-        await page.getByRole('listbox').getByRole('option', { name: 'bailar', exact: true }).click();
-
-        await expect(page.getByLabel('Infinitive non-finite simple')).toHaveValue('bailar');
-        // The first "Yo" field is the present tense.
-        await expect(page.getByLabel('Yo').first()).toHaveValue('bailo');
-        await expect(page.getByLabel('Gerund non-finite simple')).toHaveValue('bailando');
-    });
-
-    test('a whole word that is the only match: the list stays open, and a click on it fills the card', async ({ page }) => {
-        await openCard(page, /Noun/, 'Deutsch');
-        await page.getByLabel('Singular nominative').pressSequentially('Polizei');
-
-        const option = page.getByRole('listbox').getByRole('option', { name: 'die Polizei', exact: true });
-        await expect(option).toBeVisible();
-        // Longer than the lookup pause: the list used to close by itself here.
-        await page.waitForTimeout(1200);
-        await expect(option).toBeVisible();
-
-        await option.click();
-        await expect(page.getByRole('radio', { name: 'die', exact: true })).toBeChecked();
-        await expect(page.getByLabel('Plural nominative')).toHaveValue('Polizeien');
-        await expect(applied(page)).toBeVisible();
-    });
-
-    test('a click outside closes the list and frees the button', async ({ page }) => {
-        await openCard(page, /Noun/, 'Deutsch');
-        await page.getByLabel('Singular nominative').pressSequentially('Polizei');
-        await expect(page.getByRole('listbox')).toBeVisible();
-
-        await clickUseValues(page);
-        await expect(page.getByRole('listbox')).toHaveCount(0);
-        await expect(page.getByRole('radio', { name: 'die', exact: true })).toBeChecked();
-        await expect(page.getByLabel('Plural nominative')).toHaveValue('Polizeien');
-    });
 });

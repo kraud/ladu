@@ -234,9 +234,11 @@ one-shotting the whole feature.
   implements the actual OIDC discovery/token/JWKS contract exercises the
   real client code path (discovery, JWKS caching, code exchange, ID-token
   verification) rather than mocking it away.
-- **e2e** (`oauth-0-harness.spec.ts`): the stub's discovery document and
-  JWKS endpoint are reachable, and the backend starts successfully with
-  `OAUTH_ISSUER_GOOGLE` pointed at it.
+- **e2e** (`oauth-0-harness.spec.ts`, **removed 2026-11-02** in the test prune
+  pass): it checked that the stub's discovery document and JWKS endpoint are
+  reachable and that the backend starts with `OAUTH_ISSUER_GOOGLE` pointed at
+  it. Now the `webServer` entry for the stub waits for the discovery
+  document, and the specs of Phases 2 to 5 use the stub in real sign-in flows.
 - **Gate:** stub issuer up, backend boots against it, no real Google account
   required to run the suite. **✅ done 2026-09-23** — 5/5 new tests green,
   full `test:e2e` suite (17/17) unaffected; Google Cloud OAuth client

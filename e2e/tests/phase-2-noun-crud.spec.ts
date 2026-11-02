@@ -141,7 +141,7 @@ test.describe.serial('Phase 2 — noun create / view', () => {
         await expect(page.getByRole('heading', { level: 1, name: 'cottage' })).toBeVisible();
     });
 
-    test("GET /api/words/:id for another user's word is refused", async ({ page, request }) => {
+    test("another user's word page shows a notice and returns to the dashboard", async ({ page, request }) => {
         const other = await registerAndVerify(request, ['English', 'Spanish']);
 
         await page.goto('/login');

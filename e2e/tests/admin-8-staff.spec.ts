@@ -235,19 +235,15 @@ test.describe('Admin dashboard — staff and audit (slice 8)', () => {
         await expect(page.getByText('No entries match these filters.')).toHaveCount(0);
     });
 
-    test('an admin has no staff page, the API refuses it, but the admin can read the audit log', async ({ page }) => {
+    // The 403 on the staff routes and the audit access of an admin are owned by `backend/tests/adminStaff.test.js`
+    // and `backend/tests/adminAudit.test.js`.
+    test('an admin has no staff page, but can read the audit log', async ({ page }) => {
         await signIn(page, ADMIN, PASSWORD);
         await expect(page.getByRole('link', { name: 'Audit' })).toBeVisible();
         await expect(page.getByRole('link', { name: 'Staff' })).toHaveCount(0);
 
         await page.goto(`${ADMIN_URL}/staff`);
         await expect(page).toHaveURL(`${ADMIN_URL}/`);
-
-        const token = JSON.parse((await page.evaluate(() => localStorage.getItem('ladu-admin.session'))) as string).state.token as string;
-        const headers = { Authorization: `Bearer ${token}` };
-        expect((await page.request.get(`${API}/api/admin/staff`, { headers })).status()).toBe(403);
-        expect((await page.request.post(`${API}/api/admin/staff`, { headers, data: { email: 'x@ladu.test', name: 'X', role: 'owner', password: 'twelve-chars-ok' } })).status()).toBe(403);
-        expect((await page.request.get(`${API}/api/admin/audit`, { headers })).status()).toBe(200);
 
         await page.goto(`${ADMIN_URL}/audit`);
         await expect(page.getByRole('heading', { name: 'Audit log' })).toBeVisible();
