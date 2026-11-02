@@ -200,6 +200,9 @@ export const users = pgTable('users', {
     // (.context/features/theme-and-language.md D1/D7).
     theme:          varchar('theme', { length: 10 }),
     nativeLanguage: varchar('native_language', { length: 50 }),
+    // Pairs of the user's own languages that Practice never combines (plans/mastered-language-pairs).
+    // Each pair is two language labels, sorted, e.g. [["English","Spanish"]]. Validated in userController.
+    masteredLanguagePairs: jsonb('mastered_language_pairs').$type<string[][]>().notNull().default([]),
     verified:       boolean('verified').default(false),
     // --- Admin dashboard, slice 1 (.context/features/admin.md §4) ---
     // Login capture. Country only (CF-IPCountry header) — IP addresses are

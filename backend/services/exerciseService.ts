@@ -57,6 +57,8 @@ interface Viewer {
     id: string;
     languages: string[];
     nativeLanguage?: string | null;
+    /** Pairs of languages the user does not want to practise together (users.mastered_language_pairs). */
+    masteredLanguagePairs?: string[][];
 }
 
 // ---------------------------------------------------------------------------
@@ -246,6 +248,7 @@ export async function generateExercises(
         difficultyMC: request.difficultyMC,
         nativeLanguage: request.excludeNative ? viewer.nativeLanguage ?? undefined : undefined,
         hintLanguage: viewer.nativeLanguage ?? undefined,
+        masteredPairs: viewer.masteredLanguagePairs,
     };
 
     const ranked = await rankCandidateWords(viewer, request, now);

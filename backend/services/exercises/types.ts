@@ -98,4 +98,6 @@ export interface ExerciseParams {
     nativeLanguage?: string;
     /** The user's native language, for the hint. Unlike `nativeLanguage` it is set even when native is not excluded. */
     hintLanguage?: string;
+    /** Pairs of languages the user does not want to practise together. Multi-language exercises skip them. */
+    masteredPairs?: string[][];
 }

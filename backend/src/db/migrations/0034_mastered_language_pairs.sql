@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "mastered_language_pairs" jsonb DEFAULT '[]'::jsonb NOT NULL;

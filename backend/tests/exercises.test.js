@@ -273,6 +273,17 @@ describe('POST /api/exercises/generate', () => {
         expect(res.body.exercises).toHaveLength(1);
     });
 
+    it('gives no multi-language exercise between the languages of a mastered pair of the account', async () => {
+        const polyglot = await register('Poly', 'poly@test.com', 'polyuser', ['English', 'Spanish', 'German']);
+        await postNoun(polyglot, 'house', 'casa');
+        const params = { languages: ['English', 'Spanish', 'German'], amount: 1 };
+
+        expect((await generate(polyglot, params)).body.exercises).toHaveLength(1);
+
+        await db.update(users).set({ masteredLanguagePairs: [['English', 'Spanish']] }).where(eq(users.id, polyglot.id));
+        expect((await generate(polyglot, params)).body.exercises).toHaveLength(0);
+    });
+
     it('filters by part of speech (adjectives have no exercises)', async () => {
         await postNoun(user, 'house', 'casa');
         const res = await generate(user, { partsOfSpeech: ['Adjective'] });

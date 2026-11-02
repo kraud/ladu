@@ -48,6 +48,7 @@ const userColumnsWithoutPassword = {
   uiLanguage: users.uiLanguage,
   theme: users.theme,
   nativeLanguage: users.nativeLanguage,
+  masteredLanguagePairs: users.masteredLanguagePairs,
   verified: users.verified,
   createdAt: users.createdAt,
   updatedAt: users.updatedAt,
@@ -64,6 +65,9 @@ const isUuid = (value: unknown) =>
 
 // The languages the app supports (the `Lang` enum values): the table in lib/languages.ts.
 const { LANGUAGE_NAMES }: typeof import("../lib/languages") = require("../lib/languages");
+
+const { resolveMasteredPairs, keepPairsWithin }: typeof import("../lib/masteredPairs") =
+  require("../lib/masteredPairs");
 
 const isSupportedLanguage = (value: unknown): value is string =>
   typeof value === "string" && (LANGUAGE_NAMES as string[]).includes(value);
@@ -136,6 +140,7 @@ const serializeUser = (user: Partial<UserRow>) => ({
   uiLanguage: user.uiLanguage,
   theme: user.theme,
   nativeLanguage: user.nativeLanguage,
+  masteredLanguagePairs: user.masteredLanguagePairs,
   verified: user.verified,
   createdAt: user.createdAt,
   updatedAt: user.updatedAt,
@@ -164,6 +169,7 @@ const serializeLoginUser = (user: UserRow) => ({
   theme: user.theme,
   nativeLanguage:
     user.nativeLanguage === null ? undefined : user.nativeLanguage,
+  masteredLanguagePairs: user.masteredLanguagePairs,
   token: generateToken(user),
   verified: user.verified,
   // onboarding.md D21: 'pending' makes the app open /onboarding after this login.
@@ -407,7 +413,7 @@ const loginUser = asyncHandler(async (req: any, res: any) => {
 });
 
 const updateUser = asyncHandler(async (req: any, res: any) => {
-  const { email, name, username, languages, uiLanguage, theme, nativeLanguage } =
+  const { email, name, username, languages, uiLanguage, theme, nativeLanguage, masteredLanguagePairs } =
     req.body;
 
   // The route is protected, so req.user identifies the account allowed to edit itself.
@@ -513,6 +519,20 @@ const updateUser = asyncHandler(async (req: any, res: any) => {
     resolvedNativeLanguage = null;
   }
 
+  // Mastered language pairs (plans/mastered-language-pairs): absent -> keep the stored pairs
+  // that still use only the user's languages; present -> replace them. Either way the final
+  // set must leave at least one pair open, so Practice always has a multi-language pair.
+  const pairsResult = resolveMasteredPairs(
+    masteredLanguagePairs === undefined
+      ? keepPairsWithin(userData.masteredLanguagePairs, resolvedLanguages)
+      : masteredLanguagePairs,
+    resolvedLanguages,
+  );
+  if (!pairsResult.ok) {
+    res.status(400);
+    throw new Error(pairsResult.message);
+  }
+
   // Only update profile fields owned by this endpoint; email and password stay unchanged.
   const [updatedUser] = await db
     .update(users)
@@ -523,6 +543,7 @@ const updateUser = asyncHandler(async (req: any, res: any) => {
       uiLanguage: uiLanguage ?? userData.uiLanguage,
       theme: themeResult.theme ?? userData.theme,
       nativeLanguage: resolvedNativeLanguage,
+      masteredLanguagePairs: pairsResult.pairs,
       updatedAt: new Date(),
     })
     .where(eq(users.id, userData.id))
