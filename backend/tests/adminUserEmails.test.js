@@ -1,5 +1,5 @@
 // Admin user emails — "Resend verification email" and "Send password reset".
-// See .context/plans/admin-user-emails.md.
+// See .context/features/admin.md.
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 const sendMail = require('../utils/sendEmail');
 

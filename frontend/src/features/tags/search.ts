@@ -1,6 +1,6 @@
 /**
  * The tag page's search-param contract (`/tag/$tagId?q=&pos=&gender=&lang=&page=&size=&sort=&dir=`): the same numbered pages
- * as `/words` (`.context/plans/words-pagination.md`, Slice 4). The parsing helpers are the Review page's own,
+ * as `/words` (`.context/features/words-list.md`, Slice 4). The parsing helpers are the Review page's own,
  * so a value means the same on both pages.
  */
 import { parsePageSize, type PageSize } from '@/lib/pagination';

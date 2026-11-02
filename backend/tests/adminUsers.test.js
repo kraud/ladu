@@ -1,5 +1,5 @@
 // Admin dashboard slice 4 — read-only user list and detail.
-// See .context/plans/admin-dashboard.md §3.
+// See .context/features/admin.md §3.
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 
 const request = require('./request');

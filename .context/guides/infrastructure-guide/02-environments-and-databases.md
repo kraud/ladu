@@ -36,7 +36,7 @@ npm run db:studio   # opens Drizzle Studio in the browser
 ### The seed account and the pagination test tag (local dev only)
 
 A test account owns 200 popular words in one Public tag. It exists to test the word
-tables with several pages (`.context/plans/words-pagination.md`): follow the tag from your
+tables with several pages (`.context/features/words-list.md`): follow the tag from your
 own account and `/tag/<id>` shows all 200 words, while `/words` shows them too (they come
 from a followed tag, so they are read-only there).
 

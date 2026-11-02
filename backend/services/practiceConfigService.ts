@@ -1,6 +1,6 @@
 /**
  * Practice Config Service — the database side of saved practice configurations.
- * Spec: .context/plans/phase-5-5-saved-practice.md.
+ * Spec: .context/features/saved-practice.md.
  *
  * Security rule: every query filters by the user id from the token. A row of
  * another user looks the same as a missing row (`null`), so the API answers 404.
@@ -32,7 +32,7 @@ type ConfigRow = typeof practiceConfigs.$inferSelect;
 
 /**
  * The saved ids with each followed original that the user has a copy of swapped for the copy, in the
- * saved order (plans/words-clone-followed.md, Slice 7). If the copy is already in the list, the word
+ * saved order (.context/features/words-list.md, Slice 7). If the copy is already in the list, the word
  * is kept once.
  */
 function swapForCopies(ids: readonly string[], copyIdBySource: Map<string, string>): string[] {

@@ -1,5 +1,5 @@
 // Account badges, slice 1 — the user_badges table and lib/badges.ts.
-// See .context/plans/verified-badges.md.
+// See .context/features/admin.md.
 const { eq } = require('drizzle-orm');
 const testDb = require('./db');
 const { db, pool } = require('../src/db');

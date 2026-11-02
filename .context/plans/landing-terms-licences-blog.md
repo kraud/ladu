@@ -104,7 +104,7 @@ Use a **note only**, no checkbox (Q2). Text under the submit button: "By creatin
 
 - Unit: the form test shows the note with its two links on step 2 (and in the OAuth signup form).
 - Backend: a new account has `terms_accepted_at` and `terms_version` filled.
-- e2e: `phase-1-auth` checks that the note shows. No helper change is needed, because there is no checkbox. **The phase gate is a green Playwright run.** Run specs one at a time (see `sidebar-layout.md` notes).
+- e2e: `phase-1-auth` checks that the note shows. No helper change is needed, because there is no checkbox. **The phase gate is a green Playwright run.** Run specs one at a time (see `.context/design/04-layout.md` notes).
 - Known: the `oauth-2` to `oauth-5` specs already fail at the Google stub. They are not caused by this work. Do not count them against this slice.
 
 ### 2.5 Age note (Q4 — decided: keep 13, add the "under 16" sentence)

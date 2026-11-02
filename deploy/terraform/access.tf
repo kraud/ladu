@@ -1,4 +1,4 @@
-# Cloudflare Access in front of the admin dashboard (.context/plans/admin-dashboard.md, slice 7).
+# Cloudflare Access in front of the admin dashboard (.context/features/admin.md, slice 7).
 #
 # What Access is: a login page that Cloudflare shows BEFORE a request reaches the
 # VPS. Every request to admin. and admin-staging. already passes through

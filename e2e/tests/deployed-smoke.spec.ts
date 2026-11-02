@@ -63,7 +63,7 @@ test.describe.serial('Post-deploy smoke', () => {
         expect(body.sha).toBe(EXPECTED_SHA);
     });
 
-    // The login gate (`.context/plans/access-gates.md`) can stop the smoke account
+    // The login gate (`.context/features/access-control.md`) can stop the smoke account
     // before the flow below starts: the account is a learner, and the server refuses a
     // learner's sign-in while login is `closed` (nobody) or `limited` (only the accounts
     // on its list). Staff are exempt, so the admin panel keeps working and a closed gate

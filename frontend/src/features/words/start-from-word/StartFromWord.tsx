@@ -6,7 +6,7 @@
  * "Create draft" hands the looked-up words to `onDraft`.
  *
  * The language select says which language the typed text is in; the other languages are the targets,
- * filled from the picked sense (decisions G-a to G-j in autocomplete-slice-g-one-term-to-word.md).
+ * filled from the picked sense (decisions G-a to G-j in autocomplete-data-source-strategy.md, section "Slice G").
  *
  * The heading has the sparkle icon (accent colour) in a left column and the title and hint in the right one,
  * as the dashboard's greeting has its hand-waving icon: 32 px on a desktop, as tall as the text beside it on a phone.

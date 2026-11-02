@@ -12,7 +12,7 @@ import {
 
 /**
  * Admin dashboard, slice 9 — the overview statistics, against the real backend + Postgres +
- * the `admin/` UI (`.context/plans/admin-dashboard.md`).
+ * the `admin/` UI (`.context/features/admin.md`).
  *
  * Other specs create and delete users at the same time, so the totals of the whole database
  * cannot be asserted exactly. This spec reads the API BEFORE it seeds anything, then seeds rows

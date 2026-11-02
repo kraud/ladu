@@ -99,7 +99,7 @@ export async function rankCandidateWords(
 
     const conditions = [
         await visibleWordCondition(viewer.id),
-        // A followed word is left out when the viewer has an own copy of it (plans/words-clone-followed.md,
+        // A followed word is left out when the viewer has an own copy of it (.context/features/words-list.md,
         // Slice 5): the same rule as the word list, with no exception here. Not applied to `visibleWordCondition`
         // itself: saving an answer for a word that is already in an exercise must still work.
         notHiddenByOwnCopy(viewer.id),

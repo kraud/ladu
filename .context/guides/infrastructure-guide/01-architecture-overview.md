@@ -66,7 +66,7 @@ postgres (one server, two databases: ladu_prod, ladu_staging)
 ### The admin dashboard has two locks
 
 `admin.` and `admin-staging.` are the staff tool (`admin/` in the repo; the
-plan is `.context/plans/admin-dashboard.md`). A request passes two checks:
+plan is `.context/features/admin.md`). A request passes two checks:
 
 1. **Cloudflare Access** (`deploy/terraform/access.tf`): Cloudflare shows its own
    login page first (a one-time code sent to an allowed email address). Only

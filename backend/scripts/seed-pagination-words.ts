@@ -1,6 +1,6 @@
 /**
  * Seeds the LOCAL dev database with a test account that owns 200 popular words in one Public tag,
- * so a second account can follow that tag and test pagination (`.context/plans/words-pagination.md`).
+ * so a second account can follow that tag and test pagination (`.context/features/words-list.md`).
  *
  * Every word goes through the same autocomplete routes the app uses:
  *   1. The English words come from the lexicon, most frequent first (`lexemes.frequency_rank`).

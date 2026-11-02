@@ -470,7 +470,7 @@ const notHiddenByOwnCopy = (userId: string) =>
  * same word (a word clone and a tag clone), the oldest copy is used, so the answer is stable.
  *
  * Used by saved practice lists: a list that holds a followed original practises the copy instead
- * (plans/words-clone-followed.md, Slice 7). Nothing is stored: when the copy is deleted, the map no
+ * (.context/features/words-list.md, Slice 7). Nothing is stored: when the copy is deleted, the map no
  * longer has it and the list uses the original again.
  */
 const ownCopyIdsBySource = async (userId: string, sourceIds: string[]): Promise<Map<string, string>> => {

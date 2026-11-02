@@ -1,5 +1,5 @@
 // Admin dashboard slice 5 — ban, unban, force logout, delete, restore, purge now.
-// See .context/plans/admin-dashboard.md §3.
+// See .context/features/admin.md §3.
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 
 const request = require('./request');

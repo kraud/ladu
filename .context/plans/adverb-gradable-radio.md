@@ -94,7 +94,7 @@ Effect of Q9 on the Estonian form: today the Estonian derived superlative ("kõi
 
 German before this change: a comparative in the lexicon gave "Gradable"; no comparative gave "Non-gradable" (D24).
 
-For the other languages, a missing comparative does **not** prove "Non-gradable". The lexicon has degree forms for about 53% of EN adverbs, 1.5% of ES adverbs, and EE has none (`autocomplete-coverage-report.md`).
+For the other languages, a missing comparative does **not** prove "Non-gradable". The lexicon has degree forms for about 53% of EN adverbs, 1.5% of ES adverbs, and EE has none (`research/autocomplete-coverage-report.md`).
 
 Proposed rule (recommended): if the lexicon returns a comparative or a superlative, set "Gradable". If it returns none, leave the radio empty and let the user choose. **Changed by the user on 2026-10-24: German follows the same rule.** No language fills "Non-gradable" automatically.
 

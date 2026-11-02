@@ -328,7 +328,7 @@ describe('POST /api/exercises/generate', () => {
             expect(res.body.exercises).toHaveLength(0);
         });
 
-        it('leaves out a followed word once the caller has an own copy of it, and brings it back when the copy is deleted (plans/words-clone-followed.md, Slice 5)', async () => {
+        it('leaves out a followed word once the caller has an own copy of it, and brings it back when the copy is deleted (.context/features/words-list.md, Slice 5)', async () => {
             const tag = await request(app)
                 .post('/api/tags').set(auth(other))
                 .send({ label: 'Shared', visibility: 'Public', description: '', wordIds: [theirs.id] });

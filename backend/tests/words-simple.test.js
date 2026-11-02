@@ -12,7 +12,7 @@
  * one filter set (see the pagination block below for what "constant" means
  * across a sequence of requests where a row is inserted mid-page).
  *
- * Words pagination Slice 1 (.context/plans/words-pagination.md) added offset
+ * Words pagination Slice 1 (.context/features/words-list.md) added offset
  * mode: `?page=N&limit=1..200|all` returns `{ items, total, page, pageSize }`
  * (`pageSize` null for `all`; no `nextCursor`; `page` + `cursor` is a 400), and
  * the `owner=me` filter (own words only, in both modes).

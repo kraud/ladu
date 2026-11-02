@@ -54,7 +54,7 @@ const timestamps = {
 
 // ===========================================================================
 // STAFF_ACCOUNTS
-// Admin-dashboard staff logins (.context/plans/admin-dashboard.md §2). A
+// Admin-dashboard staff logins (.context/features/admin.md §2). A
 // separate table from `users` on purpose: a learner token can never open an
 // admin route, and a staff account needs no vocabulary data. Staff are
 // disabled (`disabledAt`), never deleted, so `audit_log` rows keep a valid FK.
@@ -109,7 +109,7 @@ export const auditLog = pgTable(
 );
 
 // ---------------------------------------------------------------------------
-// Access gates (.context/plans/access-gates.md): the owner switches registration
+// Access gates (.context/features/access-control.md): the owner switches registration
 // and login between 'open', 'closed' and 'limited' with no deploy. ONE row
 // (id fixed to 1); the migration inserts it with both modes 'open'. Read on
 // each request that needs it — no cache, so a change works at once.
@@ -201,7 +201,7 @@ export const users = pgTable('users', {
     theme:          varchar('theme', { length: 10 }),
     nativeLanguage: varchar('native_language', { length: 50 }),
     verified:       boolean('verified').default(false),
-    // --- Admin dashboard, slice 1 (.context/plans/admin-dashboard.md §4) ---
+    // --- Admin dashboard, slice 1 (.context/features/admin.md §4) ---
     // Login capture. Country only (CF-IPCountry header) — IP addresses are
     // never stored. All NULL for accounts that have not logged in since this
     // column set was added.
@@ -245,7 +245,7 @@ export const users = pgTable('users', {
 
 // ---------------------------------------------------------------------------
 // USER_BADGES
-// Account badges such as 'official' (.context/plans/verified-badges.md). Only
+// Account badges such as 'official' (.context/features/admin.md). Only
 // staff grant them (admin API, permission `badge.manage`); no learner route
 // writes this table. A revoke sets `revokedAt` and keeps the row. The partial
 // unique index allows many revoked rows of one type per user, but only one

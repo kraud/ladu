@@ -47,7 +47,7 @@ export interface AutocompleteResult {
     cases: Map<CaseName, string>;
 }
 
-// --- Slice G: start from a word (autocomplete-slice-g-one-term-to-word.md) ---
+// --- Slice G: start from a word (autocomplete-data-source-strategy.md, section "Slice G") ---
 
 /** Which sense of an English entry (the `key` of a sense suggestion). */
 export interface SenseKey {

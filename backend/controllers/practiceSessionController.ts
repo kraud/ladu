@@ -3,7 +3,7 @@
  *
  * Validation and the summary are pure (services/exercises/validateSession.ts); the
  * database work, the limit and the expiry are in services/practiceSessionService.ts.
- * Spec: .context/plans/phase-5-5-saved-practice.md §5.
+ * Spec: .context/features/saved-practice.md §5.
  *
  * Route usage is declared in ../routes/practiceRoutes.js (still CJS).
  */

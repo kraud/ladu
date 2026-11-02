@@ -4,7 +4,7 @@ Status: **planned on 2026-10-19. All four slices built on 2026-10-19** (see "wha
 
 ## Context
 
-The access gates (`.context/plans/access-gates.md`) let the owner set registration and login to `open`, `closed` or `limited`. A visitor who meets a limited or closed gate has no way to ask for access. Today the owner must hear about that person by some other route.
+The access gates (`.context/features/access-control.md`) let the owner set registration and login to `open`, `closed` or `limited`. A visitor who meets a limited or closed gate has no way to ask for access. Today the owner must hear about that person by some other route.
 
 This plan adds a **request-access** flow:
 
@@ -130,7 +130,7 @@ Each slice ends with something runnable, and starts with a plain-language overvi
 1. **Backend**: migration, schema, public route, admin email template and env variable, admin API (approve, remove, send), clean-up hooks, Jest.
 2. **Learner app**: `/request` page, buttons on `/login` and `/register`, strings in 4 languages, Vitest.
 3. **Admin app**: the two request cards, the send button, Vitest.
-4. **e2e and docs**: the Playwright spec, the operator guide (`ACCESS_REQUEST_EMAIL` and where the requests show), this plan's notes, a pointer in `access-gates.md`.
+4. **e2e and docs**: the Playwright spec, the operator guide (`ACCESS_REQUEST_EMAIL` and where the requests show), this plan's notes, a pointer in `features/access-control.md`.
 
 ### Slice 1 — what was built
 
@@ -167,7 +167,7 @@ Each slice ends with something runnable, and starts with a plain-language overvi
 
 - `e2e/tests/access-request-gate.spec.ts` (6 tests, serial, its own Playwright project like the other `-gate` specs): (1) registration limited: the button on `/register`, `/request` with the box empty, a request, the row and the audit row; (2) a repeat request, a bad email, and the useless cases answer the same 202 or a clear 400, with no extra rows; (3) the owner approves in the admin panel with a confirm, the email is on the invite list, and a real sign-up works; (4) registration closed: the button stays, the request is saved, and Remove drops it with no list change; (5) login limited: `/request?account=true` with the box ticked, approve, the account signs in, and "Send email" works; (6) with both gates open the route answers 409 `access_not_needed` and the buttons are gone.
 - `e2e/fixtures/db.ts`: `getAccessRequestKinds`, and the teardown also deletes `access_requests` and `access.request_create` audit rows. `playwright.config.ts`: `ACCESS_REQUEST_EMAIL` is empty for the backend.
-- Docs: infrastructure guide `05` (the requests table, Approve and Remove, audit rows), `06` (`ACCESS_REQUEST_EMAIL`), `07` (glossary); `access-gates.md` and `captcha.md` have a pointer; `e2e/README.md`.
+- Docs: infrastructure guide `05` (the requests table, Approve and Remove, audit rows), `06` (`ACCESS_REQUEST_EMAIL`), `07` (glossary); `features/access-control.md` and `captcha.md` have a pointer; `e2e/README.md`.
 - The captcha on `/request` is covered by Jest and Vitest. The e2e keeps the captcha switch off.
 
 ## Open items

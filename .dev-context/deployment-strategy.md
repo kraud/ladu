@@ -1,6 +1,6 @@
 # Deployment Strategy — Ladu v2
 
-> Status: **Phases 0, A, B, C, D done** (2026-09-19). Staging live at `staging.ladu.com.ar`, production live at `app.ladu.com.ar` — automated CI/CD, proven rollback, real transactional email on both. Phase E (backups and monitoring) is next. Last revised 2026-10-27.
+> Status: **Phases 0, A, B, C, D, E done** (A to D on 2026-09-19; E on 2026-11-01). Staging live at `staging.ladu.com.ar`, production live at `app.ladu.com.ar` — automated CI/CD, proven rollback, real transactional email on both. Last revised 2026-11-01.
 > Update 2026-10-27 — **staging is no longer public.** `staging.ladu.com.ar` now sits behind Cloudflare Access (`deploy/terraform/access.tf`), the same first lock as the admin dashboards; the CI smoke job authenticates with a service token (`CF_ACCESS_CLIENT_ID`/`CF_ACCESS_CLIENT_SECRET` on the `staging` Environment). `/api/health` is exempt (a path-scoped bypass app), so `deploy.sh`'s SHA poll and UptimeRobot still work. The app gates on staging are also closed (registration `closed`, login `limited` to the smoke account), and the leaked smoke-account password was rotated out of this repo. The `staging.` Caddy block sends `X-Robots-Tag: noindex`.
 > Goal: run v2 on the real domain **now**, and ship each later feature phase
 > through a real CI/CD pipeline (staging → production).
@@ -346,7 +346,7 @@ Verified each fix live against staging before touching the GitHub secrets (faste
 
 **Phase D is now complete.** Every sub-slice (D-a through D-g) done and gate-verified for real against the live VPS: automated build/scan on every PR, automated publish + deploy to staging and production on every merge to `main`, a smoke e2e gate between them, a proven rollback path, and real transactional email delivery on both environments.
 
-### Phase E — Backups and monitoring (½ day)
+### Phase E — Backups and monitoring (½ day) — ✅ done
 
 Broken into sub-slices, same pattern as Phase D's D-a–D-g:
 
@@ -378,11 +378,11 @@ Three real bugs surfaced by the first live run, each fixed and re-verified rathe
 
 **Gate:** ✅ Verified 2026-09-20 -- `ansible-playbook site.yml` ran clean against the real VPS (idempotent re-runs confirmed along the way while fixing the above). `backup.sh` produced a real dump, confirmed present in the B2 console. `restore-test.sh` restored that dump into a throwaway container and printed `Restore test passed: ladu_prod_20260919T225757Z.dump restored, 0 rows in 'words'` (an empty `words` table is expected at this stage -- the check proves the restore is queryable, not that it's non-empty) and pinged Healthchecks.io, which reported the check green.
 
-#### E-c — UptimeRobot HTTP monitors — configured, alert-firing not yet verified
+#### E-c — UptimeRobot HTTP monitors — ✅ done
 
 Four HTTP(s) monitors created by hand in the UptimeRobot dashboard (no Terraform provider for this -- Terraform here is Cloudflare-only, per the Decisions table), 5-minute interval: `https://app.ladu.com.ar`, `https://staging.ladu.com.ar`, `https://ladu.com.ar` (apex -- the legacy Vercel landing page when these were created; it serves this repo's `landing/` after the switch), and `https://app.ladu.com.ar/api/health` specifically. That last one is production-only, not duplicated for staging -- staging's health is already exercised on every deploy by the CI/CD pipeline's own health check and the smoke e2e gate, so a dedicated monitor adds the least value there.
 
-**Gate:** not yet verified. Monitors are live and showing green, but the phase's actual stated gate -- "a stopped backend causes an UptimeRobot alert within 5 minutes" -- hasn't been tested yet (stop `backend-staging` for ~5-6 minutes, confirm an alert email arrives, start it back up). Deferred, not forgotten.
+**Gate: verified by the user on 2026-11-01** -- a stopped backend causes an UptimeRobot alert within 5 minutes (the details of the test were not recorded). The gate had been deferred since 2026-09-20.
 
 #### E-d — Sentry (backend + frontend) — ✅ done
 

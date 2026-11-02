@@ -1,7 +1,7 @@
 # Phase 5 — Practice (exercises + performance tracking)
 
 *2026-09-29 (plan). **Status 2026-09-30: all slices 0–9 done and gated** — see "Slice 9 — as built" in B.4. Saved configurations and
-sessions, which this plan did not cover, are in [`phase-5-5-saved-practice.md`](./phase-5-5-saved-practice.md).*
+sessions, which this plan did not cover, are in [`features/saved-practice.md`](../features/saved-practice.md).*
 
 This file has four parts:
 

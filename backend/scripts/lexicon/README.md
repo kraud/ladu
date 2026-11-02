@@ -75,7 +75,7 @@ once per quarter (decision D14): download → extract → sample → ingest → 
 header line): the words the tests use, common nouns, and the 20 most frequent verbs.
 
 Slice 0 measurements (each writes a Markdown file into `.data/`; the results are copied into
-`.context/plans/autocomplete-coverage-report.md`):
+`.context/research/autocomplete-coverage-report.md`):
 
 ```sh
 npx tsx scripts/lexicon/measure.ts                # EN/ES/DE: kaikki selectors vs today's controllers (~5 s)

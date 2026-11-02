@@ -1,7 +1,7 @@
 # Autocomplete & lexical data sources — research record
 
 *Status (2026-10-10, branch `autocomplete-improvements`): Slices 0, A–F done (parity reached; type-ahead;
-translation table and route). Slice H done (H1–H5). Slice G done 2026-10-11 (own plan: `autocomplete-slice-g-one-term-to-word.md`). Next: Slice I (own branch, no plan yet). Server steps for everything done so far: §14 (do once the plan is complete).
+translation table and route). Slice H done (H1–H5). Slice G done 2026-10-11 (contract: section "Slice G" below; record: `.context/archive/2026-10-autocomplete-slice-g.md`). Next: Slice I (own branch, no plan yet). Server steps for everything done so far: §14 (do once the plan is complete).
 History: research 2026-09-25, per-slice plan 2026-10-08 (sections 9 to 12).*
 
 *Scope: which free or very cheap source can supply the word-form autocomplete data, and
@@ -458,7 +458,7 @@ checkpoint is met (decision D6 in section 10).
 
 ### Slice 0 — Measure coverage (no app change) — DONE 2026-10-08
 
-**Result: `autocomplete-coverage-report.md`.** Go for EN, ES and DE; go with an online fallback
+**Result: `research/autocomplete-coverage-report.md`.** Go for EN, ES and DE; go with an online fallback
 for Estonian. The findings for later slices are in its section 8 and are added below to
 Slices A, C1, D and F.
 
@@ -487,7 +487,7 @@ closes Caveat B.
    `translations[]` entry for `es`, `de` and `et` (section 13).
 8. Count the rows of the full filtered data set and estimate the database size (section 12).
 
-**Output.** `.context/plans/autocomplete-coverage-report.md`: fill rate per case and per
+**Output.** `.context/research/autocomplete-coverage-report.md`: fill rate per case and per
 language, the comparison with today, a go/no-go per language, the size estimate, and the
 translation coverage. Scripts stay in `backend/scripts/lexicon/`.
 
@@ -754,28 +754,44 @@ waits for Slice G. Server step: §14, "Translations".
   so Estonian translation needs a second source (for example Ekilex `api/meaning/search`) or
   must show that it is incomplete.
 
-### Slice G — "One term → whole Word" (own plan) — DONE 2026-10-11
+### Slice G — "One term → whole Word" — DONE 2026-10-11
 
-The user types one word in any language. Ladu shows the senses, then builds a draft Word with
-every translation and its forms in one step. The user confirms. This needs Slices E and F.
-It gets its own plan document: **`autocomplete-slice-g-one-term-to-word.md`** (draft 2026-10-11).
-**Progress:** G1 done 2026-10-11 (sense type-ahead `GET /api/dictionary/translate/:fromLanguage?prefix=`, migration 0026; no server step, the deploy runs the migration). G2 done 2026-10-11 (`GET /api/dictionary/translate/sense/:partOfSpeech`). G3 done 2026-10-11 (`POST /api/dictionary/draft`). G4 done 2026-10-11 (start section and preview). G5 done 2026-10-11 (the cards fill from the draft). G6 done 2026-10-11 (e2e gate `autocomplete-slice-g-start-from-word.spec.ts`, docs). No server step beyond migration 0026, which the normal deploy runs.
+Record of the plan: `.context/archive/2026-10-autocomplete-slice-g.md`. Server step: none beyond migration 0026, which the normal deploy runs. E2E gate: `e2e/tests/autocomplete-slice-g-start-from-word.spec.ts`.
 
-**Ready for it (hand-off, 2026-10-09):**
-- `GET /api/dictionary/translate/:fromLanguage/:partOfSpeech/:query` (F2): the senses of a word
-  in any of the 4 languages, each with the words of all 4 languages and the noun gender; an
-  `ekilex` part with Estonian words when no sense has one. `backend/services/dictionary/translate.ts`.
-- `GET /api/dictionary/:language/:partOfSpeech?prefix=` (E1): the type-ahead list, with `entryId`;
-  the lookup `GET /api/dictionary/:language/:partOfSpeech/:query?entry=<entryId>` fills one exact
-  entry (der See vs die See).
-- The form fill: `applyLookup` (frontend `AutocompleteRow.tsx`), and `TranslationCard`'s
-  `pickSuggestion` (a pick → lemma + exact entry → fill).
-- Data: `lexeme_translations` (nouns, verbs, adjectives, adverbs; German 148k, Spanish 133k,
-  Estonian 18k rows). The lookup (forms) exists for nouns and verbs in all 4 languages and for
-  Estonian adjectives only, until Slice H.
-- Open points for that plan: how a translation word is matched to a lexicon entry (a word can
-  have several entries: use the gender from the translation to pick der See / die See), what the
-  draft shows when a language has no word or no forms, and the Estonian thinness (D22).
+**What the user sees.** On `/addWord`, above the part-of-speech list, a section "Start from a word", then the line "or create manually". Controls: a language select (only the account languages; the last choice is kept in `localStorage` key `ladu.startFromWord.language`; fallback is the UI language), a part-of-speech select ("Any type", Noun, Verb, Adjective, Adverb; not remembered) and a text field with a type-ahead of **senses** (from 2 characters, 150 ms pause). A line shows the article, the word, "english — sense" and up to 4 flags of the account languages that have a word in the sense (then "+N"). With "Any type" the lines are grouped by part of speech. A pick opens a preview with its own title and back arrow (back returns to the start section): one collapsed card per account language, the start language first, two to a row on a desktop. The card header shows the flag, the preselected word and a hint ("N other options", "No other options", "from Ekilex · …", "No word found"). Expanded, it lists the words as radio buttons plus "No translation". "Create draft" works with one language. The draft opens in the normal form with one filled card per language. The normal Save rules apply (2 languages at least). Nothing is saved or cached by the draft.
+
+**Routes** (`backend/services/dictionary/translate.ts` and `draft.ts`):
+- **Sense type-ahead:** `GET /api/dictionary/translate/:fromLanguage?prefix=&partOfSpeech=Any|Noun|Verb|Adjective|Adverb&limit=` returns `{ suggestions: [{ word, partOfSpeech, gender?, english, sense, key, languages }] }`. `key` is `{ englishLemma, entryOrder, senseOrder }`. Order: word frequency rank (`lexemes`, unranked last), shorter word, alphabetical, `wordOrder`, Wiktionary sense order. At most 4 senses per word; `limit` default 10, maximum 20; prefix 2 to 100 characters (400 otherwise). The prefix is matched only in the start language. Register it **before** `/:language/:partOfSpeech`, which would match `translate/English`. Migration 0026 adds `(language, search_key text_pattern_ops)` and `(english_search_key text_pattern_ops)`: the database collation `en_US` cannot serve `LIKE 'co%'` with a plain B-tree (same trap as migration 0023). Measured on the full local table (DE 148k, ES 133k, ET 18k rows): 10 to 25 ms for 2-letter prefixes.
+- **One sense:** `GET /api/dictionary/translate/sense/:partOfSpeech?english=&entry=&sense=&languages=` returns `{ sense, ekilex? }`. `languages` is a comma list (default all four). `sense.words` holds only the asked languages: a missing key means "not asked", an empty list means "no word". Ekilex runs only when Estonian is asked and the sense has no Estonian word (`ekilexEstonian`, shared with `translate()`). 404 when the key matches no row; 400 for bad input. Register it **above** `/:language/:partOfSpeech/:query`.
+- **Draft:** `POST /api/dictionary/draft` with `{ partOfSpeech, picks: [{ language, word, gender? }] }` (1 to 4 picks) returns `{ translations: [{ language, word, gender, status, cases }] }`, `status` being `found`, `partial`, `not-found` or `error`. It is a POST only because of the body; it reads and changes nothing. Each pick runs in parallel through the normal `findAdapter` chain. The option `gender` narrows the D15 choice for German and Spanish nouns (`genderDE`, `genderES`), so "die See" and "der See" pick the right entry. One throwing language gives `error` for that language only. 400 for a bad part of speech or language, a repeated language, an empty or too long word or gender, or not 1 to 4 picks.
+
+**Frontend.** `features/autocomplete` (api, hooks, types), `features/words/start-from-word/` (`StartFromWord`, `SenseTypeAhead`, `SensePreview`, `coveredLanguages.ts`). `AddWordPage` keeps `draft` and passes it as `WordForm initialDraft`. `useWordFormState` seeds the cards in draft order. `TranslationCard` takes a `draft` prop: on mount (once, also under StrictMode) `found` and `partial` run `applyLookup`; `not-found` and `error` write only the word, and for a German or Spanish noun the gender. The draft answer is put into the lookup cache (`staleTime` 60 s), so the footer says "applied" and does not offer to overwrite "die See" with "der See". The test fake `test/msw/startFromWordHandlers.ts` must be registered before `makeAutocompleteHandlers`, whose wildcard routes also match `translate/English`.
+
+**Decisions.**
+
+| ID | Decision |
+|---|---|
+| G-a | The entry is a section above the part-of-speech list, with an "or" line. |
+| G-b | The type-ahead list chooses the **sense**. The preview chooses words and languages. |
+| G-c | A preview comes before the cards. The draft opens in the normal form; there is no save without the form. |
+| G-d | The part-of-speech select has `Any`, which lists the four shipped parts of speech. |
+| G-e | The sense list comes from the translation table, not from `lexemes`. A word without a lexicon entry can still start a draft; its card shows only the word. |
+| G-f | The draft is one server call (not four client calls), so gender can choose the entry and one failure stays local. |
+| G-g | The draft saves nothing. The existing save route creates the Word. |
+| G-h | A sense with a word in only one account language stays in the list. The user adds the rest by hand. |
+| G-i | The language select and the preview show only the languages of the account. |
+| G-j | No English hub line in the preview. |
+
+**Known limits.**
+- Right after the draft opens, the card footers say "Autocomplete support" for about half a second (the 500 ms lookup pause).
+- The preview has its own back arrow next to the page's: it can look like two arrows.
+- English noun cards in a draft leave "Regularity" empty (the lexicon has no value).
+- Sense labels are English Wiktionary text and are not translated.
+- Estonian is thin (D22). Ekilex words come from meanings, not from the sense, and are marked "from Ekilex" so the user checks them.
+- A translation gender that the lexicon lacks: D15 picks the entry and the card shows the lexicon's article.
+- The two new indexes cost an estimated 15 to 20 MB per environment (not measured).
+- The "Estonian gap" e2e test needs the Ekilex stub. It fails when `npm run dev` runs a backend on `:5001`, because Playwright reuses it. Stop the dev servers before `npm run test:e2e`.
+- Related form change (2026-10-11): a text field with a prefix or suffix (German "am", "habe", "werde", a reflexive pronoun) draws one box with the affix inside the input's own border (`FieldRenderer`). The affix is not editable and not part of the stored value.
 
 ### Slice H — Adjectives and adverbs in all 4 languages (+ reflexive verb field)
 
