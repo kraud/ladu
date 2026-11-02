@@ -4,6 +4,7 @@ Context for working in this monorepo. Read this first every session. It applies 
 
 - **Product/domain spec:** `.context/overview.md`
 - **Commands, conventions & spec index:** `.context/README.md`
+- **Roadmap and phase status:** `.context/roadmap.md`
 
 ---
 
@@ -53,5 +54,5 @@ This is a **from-scratch re-implementation**, not the live app.
   - **Give a suggestion for each issue**, and mark the recommended one.
   - **Ask the user how to direct the effort** on each issue that needs a decision (use the question tool, with the recommended option first). Do not ask about issues that have one obvious fix: apply the suggestion and say so.
   - Only after the user answers, apply the changes. Record each issue and its resolution where the work is tracked (for a plan: a "Review log" table with #, severity, finding and resolution).
-- **Friendships, notifications, tags and tag-sharing are explicitly deferred until after Phases 1–3.** Prior agents started the backend social redesign (§8.2/§8.3): keep its **schema changes**, but its controllers/tests are not to be reconciled now. Backend tests tied to friendship/tag_shares may be removed or left failing for now — "no test there yet" is acceptable until we return to it.
-- The user commits the working tree once **Phase 0 is agreed done** — there is one baseline commit to make, not per-change commits yet.
+- **Friendships, notifications and tag sharing are deferred** (Phases 6 and 7 of `.context/roadmap.md`). The backend social redesign (§8.2/§8.3) was started earlier: its schema and routes exist, but its controllers and tests are not reconciled. Backend tests tied to friendships or `tag_shares` may be removed or left failing until we return to it — "no test there yet" is acceptable.
+- **Documentation follows the folder map in `.context/README.md`.** Open work is in `plans/`; when it is done, its lasting rules go into `features/` (a document there starts with a `## Summary`; see `.context/features/README.md`) and a short record goes into `archive/`. Long evidence goes into `research/`; ideas that are not approved work go into `research/deferred-ideas.md`. Do not leave a finished plan in `plans/`.
