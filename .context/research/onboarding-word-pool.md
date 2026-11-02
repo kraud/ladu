@@ -1,6 +1,6 @@
 # Onboarding word pool: analysis, questions and decisions
 
-Research record, kept whole. It merges three files of 2026-10-19 (the questionnaire, its resolutions, and a temporary audit of the old pool). The decisions are applied in code (see "Applied in code"). Live plan of the feature: `.context/plans/onboarding.md`. Code that cites this file: `backend/lib/onboardingPool.ts`, `backend/scripts/lexicon/onboarding-pool.ts`, `backend/scripts/onboarding/README.md`. The applied pool, with the chosen sense of every concept, is `backend/scripts/onboarding/pool.tsv`.
+Research record, kept whole. It merges three files of 2026-10-19 (the questionnaire, its resolutions, and a temporary audit of the old pool). The decisions are applied in code (see "Applied in code"). Live plan of the feature: `.context/features/onboarding.md`. Code that cites this file: `backend/lib/onboardingPool.ts`, `backend/scripts/lexicon/onboarding-pool.ts`, `backend/scripts/onboarding/README.md`. The applied pool, with the chosen sense of every concept, is `backend/scripts/onboarding/pool.tsv`.
 
 ## Starting point
 
@@ -230,7 +230,7 @@ The data slice is now the runtime pool. Facts that differ from, or add to, the t
   still needs its singular.
 - Topic limits: minimum 4, no maximum, in the backend and the app. The locale folder for Estonian is
   `ee`, not `et`. New strings (`topics.countLow`, `countOk_one/_other`, the label "Measures &
-  quantities" in 4 languages) need the ES/DE/EE review of open item 8 in `plans/onboarding.md`.
+  quantities" in 4 languages) need the ES/DE/EE review of open item 8 in `.context/features/onboarding.md`.
 - Tags: a concept gets a tag link for every topic in `topics` whose tag exists. A concept whose
   `topics` has `core` counts as core in the 20 % share (for example `run`, `go`, `work`), even when it
   was taken through its other topic. The tag word counts count a concept in each of its topics, so

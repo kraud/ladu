@@ -1,6 +1,6 @@
 # Licence study: can Ladu go online, and what changes with a paid tier?
 
-Written 2026-10-06 (slice 1 of `.context/plans/landing-terms-licences-blog.md`). This is research. It is not legal advice. One lawyer check is still advised (see section 7).
+Written 2026-10-06 (slice 1 of `.context/features/landing-and-legal.md`). This is research. It is not legal advice. One lawyer check is still advised (see section 7).
 
 ## 1. Answer
 

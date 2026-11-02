@@ -1,6 +1,6 @@
 /**
  * The autocomplete query field with its type-ahead list (Slice E,
- * `.context/plans/autocomplete-data-source-strategy.md`, decision D21).
+ * `.context/research/autocomplete-data-source-strategy.md`, decision D21).
  *
  * Typing works as before: the text goes into the form, and the lookup in the card footer
  * (`AutocompleteRow`) runs as before. In addition, from 2 characters on, a list under the field

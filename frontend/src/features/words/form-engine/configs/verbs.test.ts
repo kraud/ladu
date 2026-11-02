@@ -2,7 +2,7 @@
  * Regression test: the config-driven field lists must equal the old
  * `VerbForm{EN,ES,DE,EE}` field lists transcribed verbatim in
  * `.context/.frontend/snapshot/forms-verbs.md`. French has no old form: its tests follow
- * `.context/.frontend/snapshot/forms-french.md` (plan `language-french.md`, slice 5).
+ * `.context/.frontend/snapshot/forms-french.md` (plan `features/french.md`, slice 5).
  */
 import { describe, expect, it } from 'vitest';
 import { Lang, PartOfSpeech } from '@/ts/enums';

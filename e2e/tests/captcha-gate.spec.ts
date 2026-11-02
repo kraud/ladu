@@ -14,7 +14,7 @@ import {
 
 /**
  * The Turnstile captcha, Slice 3 — the three protected forms against the real backend + Postgres + the
- * learner app (.context/plans/captcha.md).
+ * learner app (.context/features/captcha.md).
  *
  * The backend runs with Cloudflare's TEST keys (`playwright.config.ts`): the widget always passes, and so
  * does the server check. So the spec needs internet (the widget script and `siteverify` are Cloudflare's).

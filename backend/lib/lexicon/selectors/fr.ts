@@ -1,7 +1,7 @@
 /**
  * French selector table: app case field → where its value is in a kaikki entry.
  * Case names: frontend/src/ts/enums.ts (NounCases, AdjectiveCases, AdverbCases …). Engine: ../select.ts.
- * Research and decisions: .context/plans/language-french.md, "Slice 8 results".
+ * Research and decisions: .context/features/french.md, "Slice 8 results".
  *
  * Slice 9a: nouns, adjectives, adverbs, conjunctions and prepositions. Slice 9b: verbs.
  *

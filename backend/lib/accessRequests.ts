@@ -1,5 +1,5 @@
 /**
- * Access requests (.context/plans/access-requests.md): people who asked for access from the
+ * Access requests (.context/features/access-control.md): people who asked for access from the
  * public /request page while a gate was limited or closed. A request is not a permission; the
  * owner approves it in the admin panel, and only then does the email reach the invite list
  * (kind `registration`) or the allowed accounts (kind `login`).

@@ -1,6 +1,6 @@
 # Endpoint contract: social routes (friendships, notifications, tag sharing)
 
-Cut down on 2026-11-02. The old catalog listed all 57 routes of the old app. Its sections for words, users and auth, tags, autocomplete and exercises were removed: those APIs were rebuilt, and `backend/routes/` is the truth for them (`git log -- .context/.frontend/snapshot/endpoints.md` shows the old text). This file keeps the social routes, because those features are not built in the new frontend yet (Phases 6 and 7 of `plans/new-repo-build-plan.md`, section "Design for the deferred social phases"). **Stop date:** remove this file when the social phases ship.
+Cut down on 2026-11-02. The old catalog listed all 57 routes of the old app. Its sections for words, users and auth, tags, autocomplete and exercises were removed: those APIs were rebuilt, and `backend/routes/` is the truth for them (`git log -- .context/.frontend/snapshot/endpoints.md` shows the old text). This file keeps the social routes, because those features are not built in the new frontend yet (Phases 6 and 7 of `.context/roadmap.md`, section "Design for the deferred social phases"). **Stop date:** remove this file when the social phases ship.
 
 ## Routes in the backend today (checked 2026-11-02)
 

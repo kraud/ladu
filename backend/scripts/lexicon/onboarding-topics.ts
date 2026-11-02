@@ -1,5 +1,5 @@
 /**
- * The onboarding topic map (.context/plans/onboarding.md, Slice 1; decisions D2, D3).
+ * The onboarding topic map (.context/features/onboarding.md, Slice 1; decisions D2, D3).
  * word-lists.ts applies it to every ranked English lemma and writes the `topic` column.
  *
  * Nouns and verbs: only the first WordNet sense decides (a second sense let "person" become

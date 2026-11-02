@@ -1,4 +1,4 @@
-# New-Repo Reimplementation Build Plan
+# Roadmap of the rebuild (formerly "New-Repo Reimplementation Build Plan")
 
 *2026-09-05. Planning only — no code was changed. Executing the verdict of the frontend re-implementation study (archive record: `archive/2026-09-frontend-reimplementation-study.md`) §11: a **new repository** (npm-workspaces monorepo: copied backend + clean-slate frontend), built in small vertical slices, deployed to a temporary domain, cutover by manual domain switch. Companion document: the study (§7 target shape, §8 deficiency catalog, §9 flow catalog, §11 verdict).*
 
@@ -34,7 +34,7 @@ On 2026-09-05 three ways to know "what to build" were compared: **A** a use-case
 
 ## 3. Documentation snapshot (closed)
 
-The snapshot was produced and frozen on 2026-09-05 from the old code (about 4,100 lines under `.context/.frontend/snapshot/`, every claim with `file:line`). It served the rebuild. Files that are still useful stay in `.context/.frontend/snapshot/`, and the README table gives each one a reason and a stop date. The rest was removed in the consolidation; read any removed file with `git log -- .context/.frontend/snapshot/<file>`. The full text of the old sections 2 and 3 (file table, coverage checks, key snapshot facts) is in `git log -- .context/plans/new-repo-build-plan.md`.
+The snapshot was produced and frozen on 2026-09-05 from the old code (about 4,100 lines under `.context/.frontend/snapshot/`, every claim with `file:line`). It served the rebuild. Files that are still useful stay in `.context/.frontend/snapshot/`, and the README table gives each one a reason and a stop date. The rest was removed in the consolidation; read any removed file with `git log -- .context/.frontend/snapshot/<file>`. The full text of the old sections 2 and 3 (file table, coverage checks, key snapshot facts) is in `git log --follow -- .context/roadmap.md`.
 
 
 ## 4. New-repo architecture (decisions inherited + final)
@@ -73,8 +73,8 @@ Each phase: scope → gate. Order chosen so every phase ends with a runnable app
 | 5 | Exercises + performance | 3 |
 | 6 | Social: friendships + notifications + users (redesigned models) | 1 |
 | 7 | Tag shares/clone + Account + polish | 4, 6 |
-| D | **Deployment pipeline** (staging + production on the real domain) — see [`.context/guides/infrastructure-guide/deployment-strategy.md`](../../.context/guides/infrastructure-guide/deployment-strategy.md) | 3.5 |
-| O | **OAuth login** (Sign in with Google/Microsoft, alongside email+password) — see [`.context/features/oauth-login-strategy.md`](../../.context/features/oauth-login-strategy.md) | 1 |
+| D | **Deployment pipeline** (staging + production on the real domain) — see [`.context/guides/infrastructure-guide/deployment-strategy.md`](./guides/infrastructure-guide/deployment-strategy.md) | 3.5 |
+| O | **OAuth login** (Sign in with Google/Microsoft, alongside email+password) — see [`.context/features/oauth-login-strategy.md`](./features/oauth-login-strategy.md) | 1 |
 | 8 | Parity checklist + apex cutover | all |
 
 ### Phase 0 — Scaffold + backend copy
@@ -165,7 +165,7 @@ Slices (each one ends with something runnable):
 
 ### Phase 5 — Exercises + performance
 
-> **Detailed plan (2026-09-29): [`phase-5-practice.md`](./phase-5-practice.md)** — supersedes the bullets below. It changes the API (three new endpoints, old routes removed), the backend security and data integrity, and the e2e spec name (`phase-5-practice.spec.ts`). The bullets are kept as the original outline.
+> **Detailed plan (2026-09-29): [`.context/features/practice.md`](./features/practice.md)** — supersedes the bullets below. It changes the API (three new endpoints, old routes removed), the backend security and data integrity, and the e2e spec name (`phase-5-practice.spec.ts`). The bullets are kept as the original outline.
 
 - `ExerciseParameterSelector` → params in typed route searchParams; `getUserExercises` query; `ExerciseCard` re-modeled per flow #4 (answer state in component state; `saveTranslationPerformance`/`savePerformanceAction` as mutations with `setQueryData` splice — no `currentCardIndex` slice splicing); `EndScreen`/`ResultRow`.
 - The word-derived Dashboard charts are **Phase 3.5**, not here. `getUserMetrics` aggregates `words` + `translations` only and never reads `exercise_performances`, so a practice session does not change it. Any mastery/forgetting-curve visualization Phase 5 wants is its own scope and needs a **new** backend aggregation endpoint.
@@ -210,7 +210,7 @@ Slices (each one ends with something runnable):
 **Flows to re-encode on purpose (study §9).** Friend request send, cancel, accept, delete; tag share and accept-and-clone; notification polling. Each becomes mutation callbacks and invalidation edges, never chained effects.
 
 ### Phase 8 — Parity + cutover
-- Deployment moved forward (2026-09-16): `app.` and `staging.` subdomains of the real domain run v2 from the pipeline in [`.context/guides/infrastructure-guide/deployment-strategy.md`](../../.context/guides/infrastructure-guide/deployment-strategy.md), and every phase after 3.5 ships through it. Phase 8 no longer deploys; it verifies parity and switches the apex.
+- Deployment moved forward (2026-09-16): `app.` and `staging.` subdomains of the real domain run v2 from the pipeline in [`.context/guides/infrastructure-guide/deployment-strategy.md`](./guides/infrastructure-guide/deployment-strategy.md), and every phase after 3.5 ships through it. Phase 8 no longer deploys; it verifies parity and switches the apex.
 - **Route-parity checklist**: per route (12 + catch-all), walk every use case against the new build (run the old app; the remaining snapshot files in `.context/.frontend/snapshot/` help); **intentional-deltas annex** lists every §8-driven behavior change with its own verification (decline action, visibility-aware polling, clone preserving translations, server-side authz + notifications, 401→logout, guards on the 4 pages, URL-persisted filters, pagination).
 
 **Intentional-deltas annex (folded 2026-11-02 from the old UI blueprint files `ui/00-global` §4, `ui/04-review` and `ui/05-practice`; the last two were removed).** Each row is a place where the new app is meant to differ from the old one. The three source files list 14 items; 3 of them (stable id, URL filters, pagination) appear in two files, so the table has 11 rows. Phase 8 checks each row against the running app and maps it to a passing assertion. The column "State" says what the specs show today; it is not a Phase 8 verification.
@@ -226,10 +226,10 @@ Slices (each one ends with something runnable):
 | 7 | One mutation per action. No multi-wait flag machines. Toasts fire from `onSuccess` and `onError`. | Built: invariant of the frontend (`.context/README.md`, invariant 1). | `ui/00` §4.7 |
 | 8 | The language order is user preference data (`users.languages` order). The ordering UI writes it. Everything else (table columns, exercise generation) reads it. | Reading is built. The Review column order lives in the URL and does not write the preference (`word-form-engine.md` D6). Editing the languages on `/user` writes it (`auth-and-shell.md` P1-9); drag and drop belongs to Phase 7. | `ui/00` §4.8 |
 | 9 | The Review row type follows the real simplified response (`dataXX` accessors), not the stale `TableWordData` type. | Built (`word-form-engine.md` §3). | `ui/04` |
-| 10 | A failed performance save is shown with a toast. Old: an unhandled error left the card state out of step. | Phase 5 rebuilt the flow (`plans/phase-5-practice.md`); not yet checked against this delta. | `ui/05` |
-| 11 | The amount validator accepts only true positive integers. Old: it accepted `+1`. | Phase 5 rebuilt the validators (`plans/phase-5-practice.md`); not yet checked against this delta. | `ui/05` |
+| 10 | A failed performance save is shown with a toast. Old: an unhandled error left the card state out of step. | Phase 5 rebuilt the flow (`.context/features/practice.md`); not yet checked against this delta. | `ui/05` |
+| 11 | The amount validator accepts only true positive integers. Old: it accepted `+1`. | Phase 5 rebuilt the validators (`.context/features/practice.md`); not yet checked against this delta. | `ui/05` |
 
-Also part of the annex, kept where they are: the form validation fixes (`features/word-form-engine.md` §3), the practice deltas (`plans/phase-5-practice.md` Part A, "known defects"), and the social items of the study (decline, visibility-aware polling, a clone that keeps translations, server-side authorisation; `Design for the deferred social phases`).
+Also part of the annex, kept where they are: the form validation fixes (`features/word-form-engine.md` §3), the practice deltas (`.context/features/practice.md` Part A, "known defects"), and the social items of the study (decline, visibility-aware polling, a clone that keeps translations, server-side authorisation; `Design for the deferred social phases`).
 - User points the apex domain at the VPS (Terraform) once `landing/` is ready. Old repo becomes greppable reference; archive when satisfied.
 - **Gate**: checklist + annex fully green; zero unexplained parity failures.
 - **e2e**: the full `e2e/tests/` suite (Phases 1–7 specs, incl. 3.5) green in CI and the deployed smoke spec green against `app.`; the intentional-deltas annex items each map to a passing assertion.
@@ -240,7 +240,7 @@ Also part of the annex, kept where they are: the form validation fixes (`feature
 - Contract types derived from the live backend (Drizzle schema as source of truth); the `endpoints.md` shapes section is the seed for the typed API layer.
 - The form engine gets a generation test: config → yup field list must equal the old form's field list (the one place old/new are diffed mechanically).
 - Per-phase gates above are grep- or test-verifiable — no "looks done".
-- **Playwright e2e, one spec per phase** (`e2e/` workspace — a third workspace beside `backend/`/`frontend/`). Where MSW/Vitest mock the network, the e2e spec runs the *real* stack: `playwright.config.ts` → `webServer` boots `npm run dev -w backend` (real Postgres, migrations applied) + the Vite dev server, and Chromium walks the phase's headline user journey. A green `npm run test:e2e` is a required gate for every phase, written alongside the feature — not batched into Phase 8. Deps and browser binaries stay in `e2e/` so they never enter the `frontend` `tsc -b` / Vite build or its dependency tree. Interactive browser driving mid-session (exploring a flow, drafting selectors, screenshots) comes from the `@playwright/mcp` server in `.mcp.json`; it and the suite are independent. **CI**: the deployment pipeline's Phase A adds the `e2e` job (Postgres service + both servers + `playwright install`, `--workers=1`); a separate `deployed-smoke.spec.ts` runs against staging on each deploy. See [`e2e/README.md`](../../e2e/README.md).
+- **Playwright e2e, one spec per phase** (`e2e/` workspace — a third workspace beside `backend/`/`frontend/`). Where MSW/Vitest mock the network, the e2e spec runs the *real* stack: `playwright.config.ts` → `webServer` boots `npm run dev -w backend` (real Postgres, migrations applied) + the Vite dev server, and Chromium walks the phase's headline user journey. A green `npm run test:e2e` is a required gate for every phase, written alongside the feature — not batched into Phase 8. Deps and browser binaries stay in `e2e/` so they never enter the `frontend` `tsc -b` / Vite build or its dependency tree. Interactive browser driving mid-session (exploring a flow, drafting selectors, screenshots) comes from the `@playwright/mcp` server in `.mcp.json`; it and the suite are independent. **CI**: the deployment pipeline's Phase A adds the `e2e` job (Postgres service + both servers + `playwright install`, `--workers=1`); a separate `deployed-smoke.spec.ts` runs against staging on each deploy. See [`e2e/README.md`](../e2e/README.md).
 
 ## 7. Risks
 
@@ -268,16 +268,16 @@ Performed 2026-09-05, before this plan was written:
 | Phase | Status | Live spec | Archive record |
 |---|---|---|---|
 | 0 — Scaffold + backend copy | ✅ done (`c030b68`) | — | — |
-| 1 — Auth + app shell | ✅ 2026-09-10, PR #1 | [`features/auth-and-shell.md`](../features/auth-and-shell.md) | `archive/2026-09-phase-1-auth-app-shell.md` |
-| 2 — Noun create/view (form engine v1) | ✅ 2026-09-12, PR #2 | [`features/word-form-engine.md`](../features/word-form-engine.md) | `archive/2026-09-phase-2-noun-crud.md` |
-| 3 — Form engine completion + autocomplete + Review | ✅ 2026-09-15, PR #3 | [`features/word-form-engine.md`](../features/word-form-engine.md), [`features/words-list.md`](../features/words-list.md) | `archive/2026-09-phase-3-forms-review.md` |
-| 3.5 — Dashboard + user metrics | ✅ 2026-09-16, PR #4 | [`features/dashboard.md`](../features/dashboard.md) | `archive/2026-09-phase-3-5-dashboard.md` |
-| 3.9 — Dark mode + small fixes | ✅ 2026-09-26, PR #52 | [`features/theme-and-language.md`](../features/theme-and-language.md) | `archive/2026-09-phase-3-9-dark-mode.md` |
-| 4 — Tags | ✅ 2026-09-28, PR #53 | [`features/tags.md`](../features/tags.md) | `archive/2026-09-phase-4-tags.md` |
-| 5 — Practice (exercises + performance) | ✅ 2026-09-30 | [`phase-5-practice.md`](./phase-5-practice.md) (live: Part A is the practice knowledge base) | — |
-| 5.5 — Saved practice configs + sessions | ✅ 2026-09-30 | [`features/saved-practice.md`](../features/saved-practice.md) | `archive/2026-09-saved-practice.md` |
-| D — Deployment pipeline | ✅ phases 0, A to E, 2026-09-19 to 2026-11-01 | [`guides/infrastructure-guide/deployment-strategy.md`](../guides/infrastructure-guide/deployment-strategy.md) and the guide | — |
-| O — OAuth login (Google) | ✅ 2026-09-24 | [`features/oauth-login-strategy.md`](../features/oauth-login-strategy.md) | `archive/2026-09-oauth-backlog.md` |
+| 1 — Auth + app shell | ✅ 2026-09-10, PR #1 | [`features/auth-and-shell.md`](./features/auth-and-shell.md) | `archive/2026-09-phase-1-auth-app-shell.md` |
+| 2 — Noun create/view (form engine v1) | ✅ 2026-09-12, PR #2 | [`features/word-form-engine.md`](./features/word-form-engine.md) | `archive/2026-09-phase-2-noun-crud.md` |
+| 3 — Form engine completion + autocomplete + Review | ✅ 2026-09-15, PR #3 | [`features/word-form-engine.md`](./features/word-form-engine.md), [`features/words-list.md`](./features/words-list.md) | `archive/2026-09-phase-3-forms-review.md` |
+| 3.5 — Dashboard + user metrics | ✅ 2026-09-16, PR #4 | [`features/dashboard.md`](./features/dashboard.md) | `archive/2026-09-phase-3-5-dashboard.md` |
+| 3.9 — Dark mode + small fixes | ✅ 2026-09-26, PR #52 | [`features/theme-and-language.md`](./features/theme-and-language.md) | `archive/2026-09-phase-3-9-dark-mode.md` |
+| 4 — Tags | ✅ 2026-09-28, PR #53 | [`features/tags.md`](./features/tags.md) | `archive/2026-09-phase-4-tags.md` |
+| 5 — Practice (exercises + performance) | ✅ 2026-09-30 | [`.context/features/practice.md`](./features/practice.md) (live: Part A is the practice knowledge base) | — |
+| 5.5 — Saved practice configs + sessions | ✅ 2026-09-30 | [`features/saved-practice.md`](./features/saved-practice.md) | `archive/2026-09-saved-practice.md` |
+| D — Deployment pipeline | ✅ phases 0, A to E, 2026-09-19 to 2026-11-01 | [`guides/infrastructure-guide/deployment-strategy.md`](./guides/infrastructure-guide/deployment-strategy.md) and the guide | — |
+| O — OAuth login (Google) | ✅ 2026-09-24 | [`features/oauth-login-strategy.md`](./features/oauth-login-strategy.md) | `archive/2026-09-oauth-backlog.md` |
 | 6 — Social: friendships + notifications | not started | design in "Design for the deferred social phases" (§5, after Phase 7) | — |
 | 7 — Tag shares + Account + polish | not started | same | — |
 | 8 — Parity + cutover | not started | the intentional-deltas annex is in the Phase 8 section (§5) | — |

@@ -5,7 +5,7 @@ import { API, authHeader, createdEmails, loginForToken, registerAndVerify, signI
 
 /**
  * Conjunctions and prepositions in English, Spanish, German and Estonian
- * (`.context/plans/conjunctions-prepositions.md`, Slice 4 gate). The `lexemes` and `lexeme_translations`
+ * (`.context/features/conjunctions-prepositions.md`, Slice 4 gate). The `lexemes` and `lexeme_translations`
  * tables hold the committed fixtures in CI, or the full data locally; every word below is in both. The
  * Estonian words come from the Ekilex stub (`fixtures/eki-stub/server.ts`).
  *

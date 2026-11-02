@@ -1,6 +1,6 @@
 # Ladu Word Forms — French (Field Spec, v2 only)
 
-French has no form in the old app. This file is the spec of the v2 French forms (plan `plans/language-french.md`). Code: the French builder in each file of `frontend/src/features/words/form-engine/configs/`; tests next to them. The first design is by the assistant. A French teacher reviews it (the questions are in the plan, review log). Case names end in `FR`.
+French has no form in the old app. This file is the spec of the v2 French forms (plan `.context/features/french.md`). Code: the French builder in each file of `frontend/src/features/words/form-engine/configs/`; tests next to them. The first design is by the assistant. A French teacher reviews it (the questions are in the plan, review log). Case names end in `FR`.
 
 Added so far: the noun and the adjective (slice 4), the verb (slice 5) and the adverb, conjunction and preposition (slice 6). All six parts of speech have a French form.
 

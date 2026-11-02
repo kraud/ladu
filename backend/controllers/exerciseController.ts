@@ -3,7 +3,7 @@
  *
  * Validation is pure (services/exercises/validate.ts), the database work is in
  * services/exerciseService.ts, and the knowledge math is in services/exercises.
- * Spec: .context/plans/phase-5-practice.md §B.3.
+ * Spec: .context/features/practice.md §B.3.
  *
  * Route usage is declared in ../routes/exerciseRoutes.js (still CJS).
  */

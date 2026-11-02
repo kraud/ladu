@@ -1,5 +1,5 @@
 /**
- * Builds the onboarding pool (.context/plans/onboarding.md, Slice 2; decisions D9, D16, D17).
+ * Builds the onboarding pool (.context/features/onboarding.md, Slice 2; decisions D9, D16, D17).
  * Input: the word lists (word-lists.ts → word-lists/en/<pos>.tsv), the newest translation file
  * (.data/out/translations-en-<date>.jsonl.gz) and the ES/DE/ET/FR lexicon files (for a flag only).
  *
@@ -36,7 +36,7 @@
  * and writes the new layout over pool.tsv. A French word is kept only when it is a grammar-tag word (no
  * regional tag) and is in the French lexicon; else the cell stays empty and the concept is listed in
  * the report. A `manual` line gets the first sense with a French word. Nobody reviewed these words yet
- * (decision M1 of .context/plans/language-french.md: the teacher reads them later).
+ * (decision M1 of .context/features/french.md: the teacher reads them later).
  *
  *   cd backend && npx tsx scripts/lexicon/onboarding-pool.ts [--force] [--entries <file>] [--add-french]
  */

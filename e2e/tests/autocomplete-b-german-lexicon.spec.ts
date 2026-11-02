@@ -4,7 +4,7 @@ import { closePool, deleteUsersByEmail } from '../fixtures/db';
 import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtures/practice';
 
 /**
- * German autocomplete from the local lexicon (`.context/plans/autocomplete-data-source-strategy.md`
+ * German autocomplete from the local lexicon (`.context/research/autocomplete-data-source-strategy.md`
  * Slice B2 gate). The `lexemes` table holds the committed 44-word German fixture in CI (loaded by
  * the e2e backend command in playwright.config.ts, `--if-empty`), or the full lexicon locally.
  * Every word below is in both.

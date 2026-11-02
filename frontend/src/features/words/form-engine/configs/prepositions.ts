@@ -1,6 +1,6 @@
 /**
  * Preposition form configs — slice 2 of the conjunctions-and-prepositions plan
- * (`.context/plans/conjunctions-prepositions.md`). The word is required; everything else is optional
+ * (`.context/features/conjunctions-prepositions.md`). The word is required; everything else is optional
  * (decision Q6: learners often do not know the position or the case).
  *
  * - All languages: a position radio ("Before the noun" / "After the noun" / "Before or after the noun").

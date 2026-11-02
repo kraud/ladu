@@ -17,7 +17,7 @@ import {
 } from '../fixtures/db';
 
 /**
- * Access requests (`.context/plans/access-requests.md`, Slice 4) — the whole flow against the real backend +
+ * Access requests (`.context/features/access-control.md`, Slice 4) — the whole flow against the real backend +
  * Postgres + the `admin/` UI + the learner app.
  *
  * A visitor asks for access on `/request` (from the button on `/register` or `/login`), the owner approves in

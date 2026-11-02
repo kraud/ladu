@@ -1,5 +1,5 @@
 // Access requests, Slice 1: the owner's admin API (list, approve, remove, send the login-allowed
-// email) and the clean-up when someone gets access by another path. See .context/plans/access-requests.md.
+// email) and the clean-up when someone gets access by another path. See .context/features/access-control.md.
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 
 const request = require('./request');

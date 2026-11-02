@@ -1,5 +1,5 @@
 /**
- * Knowledge math and scores. Spec: .context/plans/phase-5-practice.md §A.8 and §A.9.
+ * Knowledge math and scores. Spec: .context/features/practice.md §A.8 and §A.9.
  * By design (decision D2a) the /4 window and the double aging stay exactly as in the old app.
  */
 

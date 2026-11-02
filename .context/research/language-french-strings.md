@@ -1,6 +1,6 @@
 # French interface strings: review sheet for a native speaker
 
-Made 2026-10-26 (slice 3 of `language-french.md`). The French text is a first draft by the assistant. A native speaker must read it before the French interface goes live (review-log item M1 in the plan).
+Made 2026-10-26 (slice 3 of `features/french.md`). The French text is a first draft by the assistant. A native speaker must read it before the French interface goes live (review-log item M1 in the plan).
 
 ## How to review
 

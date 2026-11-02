@@ -5,7 +5,7 @@
  * Which data source answers a pair is the backend's business (`services/dictionary/registry.ts`);
  * every pair answers the same `{ status, cases }` shape, so one transform covers all of them.
  * The Estonian response transforms moved to the backend in Slice A
- * (`.context/plans/autocomplete-data-source-strategy.md`).
+ * (`.context/research/autocomplete-data-source-strategy.md`).
  */
 import type { AutocompleteResult, DictionaryResponse } from './types';
 import { matchesVisibility, type CaseName, type FieldConfig } from '@/features/words/form-engine/configs/types';

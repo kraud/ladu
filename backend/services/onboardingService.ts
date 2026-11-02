@@ -1,5 +1,5 @@
 /**
- * The database side of the first-login onboarding (.context/plans/onboarding.md, Slice 3d).
+ * The database side of the first-login onboarding (.context/features/onboarding.md, Slice 3d).
  * The choice of concepts is pure (services/onboarding); this file reads the account and writes
  * the Words, translations, cases, tags and the onboarding status.
  */

@@ -8,7 +8,7 @@ build or its dependency tree.
 ## What it's for
 
 **Every phase ends with a green e2e run covering that phase's vertical slice** —
-this is a required gate in `.context/plans/new-repo-build-plan.md` §5, not
+this is a required gate in `.context/roadmap.md` §5, not
 optional polish. MSW/Vitest tests prove units and flows in isolation; this suite
 proves the real backend + real Postgres + real browser actually work together.
 
@@ -18,11 +18,11 @@ One spec file per phase: `tests/phase-1-auth.spec.ts`, `tests/phase-2-noun-crud.
 `tests/phase-5-practice.spec.ts`, `tests/phase-5-5-saved-practice.spec.ts`, …
 `tests/smoke.spec.ts` is the Phase 0 harness check. The two practice specs share helpers in `fixtures/practice.ts`
 (register + verify through the API, seed nouns, sign in, answer cards).
-`tests/onboarding-gate.spec.ts` is the first-login onboarding gate (`.context/plans/onboarding.md`, Slice 4e): it turns the
+`tests/onboarding-gate.spec.ts` is the first-login onboarding gate (`.context/features/onboarding.md`, Slice 4e): it turns the
 onboarding switch on, walks the flow, and checks Skip.
-`tests/access-request-gate.spec.ts` is the access-requests spec (`.context/plans/access-requests.md`, Slice 4): `/request`, the admin approve and remove, and the real sign-up and sign-in that follow. It is a `-gate` spec, so it runs alone, after the other specs. `playwright.config.ts` sets `ACCESS_REQUEST_EMAIL` to empty, so no team email goes out; a value in the repo-root `.env` wins over it.
+`tests/access-request-gate.spec.ts` is the access-requests spec (`.context/features/access-control.md`, Slice 4): `/request`, the admin approve and remove, and the real sign-up and sign-in that follow. It is a `-gate` spec, so it runs alone, after the other specs. `playwright.config.ts` sets `ACCESS_REQUEST_EMAIL` to empty, so no team email goes out; a value in the repo-root `.env` wins over it.
 `tests/autocomplete-a-dictionary-route.spec.ts` is the autocomplete Slice A gate
-(`.context/plans/autocomplete-data-source-strategy.md`).
+(`.context/research/autocomplete-data-source-strategy.md`).
 
 ## Prerequisites
 

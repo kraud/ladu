@@ -1,6 +1,6 @@
 /**
  * English Wiktionary translations → lexeme_translations rows (lib/lexicon/translations.ts).
- * Plan: .context/plans/autocomplete-data-source-strategy.md, Slice F (decision D22).
+ * Plan: .context/research/autocomplete-data-source-strategy.md, Slice F (decision D22).
  */
 const { translationGender, translationRows } = require('../../lib/lexicon/translations');
 

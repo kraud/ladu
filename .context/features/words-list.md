@@ -20,7 +20,7 @@ Code map: backend `backend/controllers/wordController.ts` (`getWordsSimplified`,
 | W-6 | An Owner filter (Mine / Not mine) is the way back to "my words" before Select all. | None. |
 | W-7 | A row click opens the word only after a confirm dialog ("Open this word?"). The View button is gone. | Direct navigation. |
 | W-8 | A word of someone else is view only on `/word/$wordId`: no Edit, no Delete. "Clone" replaces Edit. | Edit allowed. |
-| W-9 | A clone is one word, private, no tags, `source_word_id` set, `is_cloned = true`, `original_creator_id` kept. The practice history is copied (D7 of `phase-5-practice.md`). A confirm dialog says what happens. After the clone, the app opens the new word. | A clone with tags. |
+| W-9 | A clone is one word, private, no tags, `source_word_id` set, `is_cloned = true`, `original_creator_id` kept. The practice history is copied (D7 of `.context/features/practice.md`). A confirm dialog says what happens. After the clone, the app opens the new word. | A clone with tags. |
 | W-10 | No duplicates: a followed word is hidden when the user has a clone of it. It is a query rule; nothing is stored, so deleting the clone brings the original back. | Storing a hidden flag. |
 | W-11 | The Practice word pool follows W-10 with no exception (user's choice). | Show both. |
 | W-12 | A saved practice list swaps a followed original for the user's copy, in the same place (once if both are listed). Nothing is stored: the saved ids stay. | Rewriting saved ids. |

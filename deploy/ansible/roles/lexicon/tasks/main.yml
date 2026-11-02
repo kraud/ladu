@@ -1,5 +1,5 @@
 ---
-# Autocomplete Slice B1 (.context/plans/autocomplete-data-source-strategy.md, decisions D12/D14):
+# Autocomplete Slice B1 (.context/research/autocomplete-data-source-strategy.md, decisions D12/D14):
 # copy one versioned lexicon file from this machine to the VPS, then load it into each
 # environment's database with backend/scripts/lexicon/load.js inside that environment's
 # backend container, the same way the `purge` role runs purge.js. The container already has

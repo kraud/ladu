@@ -2,11 +2,11 @@
 
 ## Summary
 
-The owner can open, close or limit two doors of Ladu: who can register, and who can sign in. The owner does this in the admin panel, with no deploy. A closed or limited door shows a banner to learners. A panic button signs every learner out at once.
+The owner can open, close or limit two doors of Ladu: who can register, and who can sign in. The owner does this in the admin panel, with no deploy. A closed or limited door shows a banner to learners. A panic button signs every learner out at once. A visitor who meets a closed or limited door can ask for access, and the owner approves the request.
 
 Live spec. It replaces a finished plan (archive record: `.context/archive/2026-10-access-gates.md`). Built and merged on 2026-10-01 in two PRs, #63 (`admin-registration-gate`) and #64 (`admin-login-gate`), plus #65 (`admin-login-gate-e2e-docs`). Default for both gates is `open`, so a deploy changes nothing until the owner flips a switch.
 
-Follow-up in flight: `.context/plans/access-requests.md` ("Request access" for visitors who meet a limited or closed gate). When it is done, fold it into this file. The captcha plan (`plans/captcha.md`) protects the same public routes.
+The request-access flow (section 6) is part of this feature. The captcha (`features/captcha.md`) protects the same public routes.
 
 Code map: `backend/lib/accessGate.ts` (`getLoginBlock`, `enforceLoginGate`, invite handling), `backend/controllers/admin/accessController.ts`, `backend/lib/adminRequest.ts` (shared helpers), public `GET /api/access`; learner app `frontend/src/features/access/` (`useAccess`, `AccessBanner`), `features/auth/errors.ts`; admin app `admin/src/features/access/` (page `/access`, owner only); migrations `0016`, `0017`.
 
@@ -65,6 +65,30 @@ Plus a **panic button** that signs every learner out.
 - Playwright gate specs (`*-gate.spec.ts`) change global state: each is its own project, chained after every other spec. A failure earlier skips them. Run one by hand with `npx playwright test --no-deps --project=<name>`. `admin-12` expects the login allowed list to be empty.
 - Key rules were mutation-checked (break the rule on purpose, watch the right test fail).
 
-## 6. Open items
+## 6. Request access
 
-None. Two review items were closed on 2026-11-02 (confirmed by the user): the privacy wording for invites (invites hold emails of people who are not users yet; the allowed list holds ids of existing users, which is nothing new), and the review of the ES, DE and EE banner and error texts.
+Built 2026-10-19 (four slices), merged in PR #95. It replaces a finished plan (archive record: `.context/archive/2026-10-access-requests.md`). A visitor who meets a `limited` or `closed` gate can ask for access. A request goes on its own list, and the owner approves it into the invite list or the allowed accounts. Gate spec: `e2e/tests/access-request-gate.spec.ts`. Migration `0033_access_requests.sql`.
+
+| ID | Decision |
+|---|---|
+| R1 | A public page `/request`. A "Request access" button shows under the banner on `/register` and `/login` only when that gate is `limited` or `closed`. The button is outside the disabled `<fieldset>`, so it works when the gate is closed. |
+| R2 | The checkbox "I have an account" sets the kind (`login` or `registration`). `/request?account=true` opens with the box ticked (the `/login` button). The visitor can change it. |
+| R3 | The button is off until the email format is valid (and the captcha has a token, when it is on). |
+| R4 | The captcha action is `access_request`. This route **refuses** when Cloudflare is down (503 `captcha_unavailable`), because it sends email (`features/captcha.md` C6). |
+| R5 | One email to the team for each **new** request, to `ACCESS_REQUEST_EMAIL` (GitHub Environment secret, then `.env`). English only, with no link (the backend does not know the admin hostname). If the variable is empty, the request is saved, nothing is sent, and one warning is logged per start. |
+| R6 | Approve and Remove buttons on each row of the request cards: registration requests in the Registration tab under the invite list, login requests in the Login tab under the allowed accounts. Each opens a confirm dialog with an optional reason. |
+| R7 | The invite email is unchanged: the existing "send" button on the invite list stays the only way to send an invite. |
+| R8 | A new "Send email" button on each allowed account tells the owner of the account that sign-in is open for them. It is sent in the account's `ui_language` (English when empty). |
+
+- **Data:** `access_requests` (`id`, lowercase `email`, `kind` `registration|login` with a check, `created_at`), unique on `(email, kind)`. No staff column. `tests/db.js` truncates it.
+- **Route** `POST /api/access/request` `{ email, hasAccount, captchaToken? }`, no login. Order: input check (400); captcha; read the gate for the kind (**409 `access_not_needed`** when it is `open`, which is public knowledge); then the **silent skips**; otherwise insert the row, write the audit row `access.request_create` (`staffId` null), commit, send the team email (a failed send is logged and does not change the answer).
+- **Silent skips** answer the same `202 { received: true }`, so the route never says whether an email has an account or is on a list: registration kind and the email has an account or is already invited; login kind and no account, or a deleted or banned one, or already allowed; the request already exists; the pending list is full (cap 1,000 rows per kind, with a Sentry warning).
+- **Admin API** (`access.manage`): `GET /api/admin/access` gains `requests: { registration, login }` and counts (a login row also has `account: { userId, name, status } | null`); `POST /api/admin/access/requests/:id/approve` (one transaction, row locked; registration adds the invite, 409 `has_account`; login adds the allowed account, 409 when none or deleted; works when the gate is `closed`, and takes effect when it becomes `limited`); `DELETE /api/admin/access/requests/:id` (remove without approving); `POST /api/admin/access/login-allowed/:userId/send` (404 when not on the list or deleted or banned). Audit: `access.request_create`, `access.request_approve`, `access.request_remove`, `access.login_allowed_send`.
+- **Clean-up:** when someone registers (`registerUser`, `signupComplete`), the `registration` request for that email is deleted. When an account is allowed by any path (`allowLogin`), the `login` request goes too. A request never stays after access was given.
+- **Learner app:** the page shows "Request received" in every silent-skip case (the server answers the same). If the gate for the chosen kind is `open`, it shows "Access is open for this" with a link to `/register` or `/login`. The error code `access_not_needed` is mapped in `features/auth/errors.ts`.
+- **Admin app:** on a `closed` gate each card says "Approved emails take effect when the gate is limited." A login row with no account shows "No account found" and Approve is off.
+- **Traps:** the gate spec changes global state, so it runs alone and chained. The spec keeps the captcha off; the widget on `/request` is covered by Jest, Vitest and one case in `captcha-gate.spec.ts`. Each Jest file uses `require('./request')`.
+
+## 7. Open items
+
+None. The four open items of the request-access flow were closed on 2026-11-02 (confirmed by the user): the `ACCESS_REQUEST_EMAIL` secret, the ES, DE and EE review of the request texts, the privacy wording for requests, and the staging try. Two review items were closed on 2026-11-02 (confirmed by the user): the privacy wording for invites (invites hold emails of people who are not users yet; the allowed list holds ids of existing users, which is nothing new), and the review of the ES, DE and EE banner and error texts.

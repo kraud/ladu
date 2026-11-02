@@ -1,6 +1,6 @@
 # French word forms: review sheet for a native speaker
 
-Made 2026-10-26 (slice 7 of `language-french.md`). The forms are a first draft by the assistant. A French teacher checks them. This sheet is about the **word forms** (what a learner types for a noun, a verb, an adjective, an adverb, a conjunction and a preposition) and about **practice**. The interface texts have their own sheet: `language-french-strings.md`.
+Made 2026-10-26 (slice 7 of `features/french.md`). The forms are a first draft by the assistant. A French teacher checks them. This sheet is about the **word forms** (what a learner types for a noun, a verb, an adjective, an adverb, a conjunction and a preposition) and about **practice**. The interface texts have their own sheet: `language-french-strings.md`.
 
 ## How to review
 

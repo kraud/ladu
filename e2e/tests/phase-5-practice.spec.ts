@@ -22,7 +22,7 @@ import {
 
 /**
  * Phase 5 — practice (exercises + performance), against the real stack
- * (`.context/plans/phase-5-practice.md` Slice 9 gate).
+ * (`.context/features/practice.md` Slice 9 gate).
  *
  * One account with six English/German nouns, driven in the real UI. A session gives one
  * exercise per word in a random direction, so a "form" is a prompt (word + direction):

@@ -8,7 +8,7 @@
 - The filter bar above the table (D5) became the shared sidebar (`design/04-layout.md`).
 - No sorting at first (D11); `?sort=&dir=` came later.
 - The language control was first two-container drag and drop, then a flat row with an eye button (D13, D19, D20).
-- The eight autocomplete endpoints were replaced by one dictionary route (`plans/autocomplete-data-source-strategy.md`).
+- The eight autocomplete endpoints were replaced by one dictionary route (`.context/research/autocomplete-data-source-strategy.md`).
 - The 444 verb label keys became about 56 composed keys (D7).
 
 **Traps:** the `pg` `Pool` in `e2e/fixtures/db.ts` is per worker (keep it lazy); the Estonian endpoints of the old app could hang; the registry lacks DE and EE `regularity` rows and has no Adjective or Adverb key.

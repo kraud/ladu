@@ -1,5 +1,5 @@
 // "Someone asked for access" — sent to the Ladu team (ACCESS_REQUEST_EMAIL) when a visitor
-// uses the /request page (.context/plans/access-requests.md). Staff mail: English only,
+// uses the /request page (.context/features/access-control.md). Staff mail: English only,
 // plain layout, no logo. The email comes from a visitor, so it is always escaped.
 "use strict";
 

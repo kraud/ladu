@@ -1,6 +1,6 @@
 # Frontend `src/` Structure & Component Breakdown
 
-*2026-09-07, trimmed 2026-11-02. The rules for the layout of `frontend/src/`: decisions D1 to D5, the principles, the shape of a feature folder and the conventions. The directory tree and the screen-to-module map of the first proposal were removed (the code is the truth). Pairs with the frontend invariants in [`.context/README.md`](../README.md) and [`.context/plans/new-repo-build-plan.md`](../plans/new-repo-build-plan.md) §5 (phases).*
+*2026-09-07, trimmed 2026-11-02. The rules for the layout of `frontend/src/`: decisions D1 to D5, the principles, the shape of a feature folder and the conventions. The directory tree and the screen-to-module map of the first proposal were removed (the code is the truth). Pairs with the frontend invariants in [`.context/README.md`](../README.md) and [`.context/roadmap.md`](../roadmap.md) §5 (phases).*
 
 ---
 
@@ -66,7 +66,7 @@ pages/       — route-level compositions; imported by routes/*.
 
 Shared, one per app (not per feature): `app/query-client.ts` holds the **staleTime policy table** and `app/` also carries the **invalidation graph** as a doc comment / typed map, seeded from `frontend-migration-plan.md` §5.2 and extended each phase.
 
-> Per-phase scope (what each phase actually creates) lives in [`.context/plans/new-repo-build-plan.md`](../plans/new-repo-build-plan.md) §5 and the per-phase files in [`.context/plans/`](../plans/) — this document stays scope-agnostic so it does not drift as the roadmap changes.
+> Per-phase scope (what each phase actually creates) lives in [`.context/roadmap.md`](../roadmap.md) §5 and the per-phase files in [`.context/plans/`](../plans/) — this document stays scope-agnostic so it does not drift as the roadmap changes.
 
 ---
 

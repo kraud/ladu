@@ -4,7 +4,7 @@
  * The pure logic (catalogue, knowledge math, generation, selection, distractors,
  * validation, response shapes) lives in ./exercises. This file only loads data,
  * ranks the word pool in SQL, and saves answers.
- * Spec: .context/plans/phase-5-practice.md §B.3.
+ * Spec: .context/features/practice.md §B.3.
  *
  * Security rule: performance rows are ALWAYS found by (user id from the token,
  * translation id). A client never sends a performance id.

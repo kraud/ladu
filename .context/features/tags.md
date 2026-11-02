@@ -77,7 +77,7 @@ Word-side rules:
 
 ## 5. Deferred and open
 
-- Friends-Only visibility in the UI, tag-sharing UI (share, accept, decline from the inbox), notification-driven acceptance, and `GET /api/tags?authorId=` (the list shape allows it): wait for the social phases (`plans/new-repo-build-plan.md`, social design section).
+- Friends-Only visibility in the UI, tag-sharing UI (share, accept, decline from the inbox), notification-driven acceptance, and `GET /api/tags?authorId=` (the list shape allows it): wait for the social phases (`.context/roadmap.md`, social design section).
 - Tag statistics on the dashboard (words per tag, followed versus owned): needs a new aggregation.
 - Tag colour: out of scope on purpose. The mockups use semantic tokens, not a per-tag colour.
 - Closed 2026-11-02 (confirmed by the user): the review of the ES, DE and EE texts of the tag screens.

@@ -4,7 +4,7 @@ import { closePool, deleteUsersByEmail } from '../fixtures/db';
 import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtures/practice';
 
 /**
- * "Start from a word" on /addWord (`.context/plans/autocomplete-data-source-strategy.md (section "Slice G")`, Slice G
+ * "Start from a word" on /addWord (`.context/research/autocomplete-data-source-strategy.md (section "Slice G")`, Slice G
  * gate). The `lexemes` and `lexeme_translations` tables hold the committed fixtures in CI, or the full
  * data locally; every word below is in both. The sense lists differ between the two (the full data has
  * more senses), so a sense is found by its label, never by position.

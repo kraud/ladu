@@ -1,0 +1,28 @@
+# Deferred ideas
+
+Ideas that are **not plans yet**. Each one needs more investigation before it can become a plan in `../plans/`. This file keeps them in one place, so a finished plan does not stay open because of an idea.
+
+## Rules
+
+- Add an idea with: what it is, where it came from, why it is not a plan yet, and **what to investigate first**.
+- An idea becomes a plan when the "investigate first" list is answered and the user agrees. Then move it to `../plans/` and remove it here, with a line in the history table.
+- Do not put work here that is already approved. Approved work goes in `../plans/`.
+
+## Ideas
+
+| ID | Idea | Came from | Why not a plan yet | Investigate first |
+|---|---|---|---|---|
+| I-1 | **Modal verbs.** A "Modal verb" checkbox on the verb forms (a stored property, so it needs a `PROPERTY_PREFIXES` entry) and fields for what the forms cannot say today. Also: pre-add the modal verbs to the account of a user who uses German or English, like the onboarding pool does. | `conjunctions-prepositions` plan, agreed 2026-10-25 (archive record `2026-10-conjunctions-prepositions`) | Needs research per language and field decisions. The verb forms store modal verbs as ordinary verbs today (no marker). | German takes a bare infinitive and uses the double infinitive in the perfect ("ich habe gehen können"). English modals are defective (no infinitive, no "-s", missing tenses). Check Estonian (võima, tohtima, pidama, saama, tahtma) in the EKI grammar. Decide the fields, then the pool content. |
+| I-2 | **Browse all words** (the autocomplete lexicon as a browsable list, "Slice I"). | `autocomplete-data-source-strategy` plan, Slice I (`research/autocomplete-data-source-strategy.md`, section "Slice I") | The plan said "no plan yet". It reads the same tables, but the screen and its purpose are not defined. | Who uses it (learner or staff), what it shows, and how it relates to the type-ahead and "Start from a word". |
+| I-3 | **Lawyer check of the Terms.** One review of the liability wording by a lawyer. | `landing-terms-licences-blog` plan; `licence-study.md` §7; the marker `LAWYER-CHECK` in `landing/terms.html` | A one-time external task. It does not block anything. | Choose a lawyer; send them `landing/terms.html` and `research/licence-study.md` §7 (the open questions). |
+| I-4 | **Demo per-IP limit in the database, and a rate limit on `POST /api/users`.** | `captcha` plan, "out of scope" | The demo limit lives in memory (a restart clears it). The captcha already reduces the risk. | Measure real bot pressure (the demo statistics show `captcha_failed` counts) before building. |
+| I-5 | **A global word and tag search in the app header.** | `word-form-engine` D3 | The user wants it as part of a future A/B test (2026-11-02). | Define the test: what is compared, what counts as success. |
+| I-6 | **A placement test for the onboarding level** (instead of self-assessment). | `onboarding` D4 | It needs its own item bank and endpoint. The exercise engine works on the user's stored words only. | Source of test items per language and the scoring rule. |
+| I-7 | **Estonian governed cases adessive and ablative** in the preposition form. | `conjunctions-prepositions` review-log #8 (decision 2026-11-02: not added) | The checked case list of Estonian adpositions has none. Ekilex returns the values "millel" and "millelt" for some entries, and they fill nothing. | Find one real adposition that governs these cases. If it exists, add the two values to `CASE_OPTIONS_EE` and the mapping in `eki.ts` (one line each). |
+| I-8 | **Practice extensions** (Part D of the practice plan): a bigger exercise catalogue (adjective and adverb drills, single-language conjugation and declension drills, 2nd person plural verbs); mastery and activity statistics on the dashboard; a per-translation knowledge badge in Review and on the word page; "practice wrong answers again"; finish a session early with partial results; the word's clue as an optional hint on the card; answer time. | `phase-5-practice` Part D (archive record `2026-09-phase-5-practice`); decisions D1 and D4 | Each is a separate small feature. The catalogue is data (`catalogue.ts`), but each drill needs tests and a decision on what it teaches. Statistics need a new aggregation endpoint over `exercise_performances`. | Pick the one the learners ask for first. For statistics, decide which numbers answer a real question (mastered vs to review, practice over time). |
+
+## History
+
+| Date | ID | What happened |
+|---|---|---|
+| 2026-11-02 | I-1 to I-8 | File created from the open items of the built plans. The repo licence (the plan's Q8) was already decided: MIT. The postal address was closed as "ignore for now", so it is not an idea. |

@@ -1,6 +1,6 @@
 /**
  * The exercise catalogue: which grammatical forms can be practised.
- * Spec: .context/plans/phase-5-practice.md §A.5. Adjectives and adverbs have no entries.
+ * Spec: .context/features/practice.md §A.5. Adjectives and adverbs have no entries.
  *
  * Multi-language: a "group" maps one grammatical slot to the matching caseName per language.
  * Single-language: a "drill" asks for one case of a translation, given another case of the same translation.

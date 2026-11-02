@@ -45,4 +45,4 @@ Code map: backend `GET /api/users/getUserMetrics` (`backend/controllers/metricCo
 
 Closed 2026-11-02 (confirmed by the user): the review of the ES, DE and EE texts of `dashboard.json` `userInfoCards.*`.
 
-1. Not built, on purpose: tag statistics (needs a new aggregation), social statistics, and mastery or forgetting-curve metrics (their own endpoint, see `plans/phase-5-practice.md`).
+1. Not built, on purpose: tag statistics (needs a new aggregation), social statistics, and mastery or forgetting-curve metrics (their own endpoint, see `.context/features/practice.md`).

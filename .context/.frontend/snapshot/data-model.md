@@ -16,13 +16,13 @@ enum PartOfSpeech {
 ```
 The old app implements forms for 4 PoS: **noun, verb, adjective, adverb**. The other 6 values exist for display/filter completeness only.
 
-> **v2 (2026-10-25, plan `plans/conjunctions-prepositions.md`):** **conjunction** and **preposition** have forms too (`ConjunctionCases`, `PrepositionCases`, section 1.5b). Pronoun, interjection, proper noun and numerals are still display-only.
+> **v2 (2026-10-25, plan `.context/features/conjunctions-prepositions.md`):** **conjunction** and **preposition** have forms too (`ConjunctionCases`, `PrepositionCases`, section 1.5b). Pronoun, interjection, proper noun and numerals are still display-only.
 
 ### 1.2 Lang
 ```ts
 enum Lang { ES = "Spanish", EN = "English", DE = "German", EE = "Estonian", FR = "French" }
 ```
-`Lang` is the canonical language key throughout (stored on `TranslationItem.language`, `WordItem.caseName` suffix, filters). Values are the display names; **keys** (`ES/EN/DE/EE/FR`) are the wire values. French was added in 2026-10 (plan `plans/language-french.md`); its forms are in `forms-french.md`.
+`Lang` is the canonical language key throughout (stored on `TranslationItem.language`, `WordItem.caseName` suffix, filters). Values are the display names; **keys** (`ES/EN/DE/EE/FR`) are the wire values. French was added in 2026-10 (plan `.context/features/french.md`); its forms are in `forms-french.md`.
 
 ### 1.3 NounCases
 ```ts
@@ -85,13 +85,13 @@ enum AdverbCases {
 }
 ```
 
-> **v2 (2026-10-24, plan `plans/adverb-gradable-radio.md`):** the old app has the list above. In v2 the enum also holds
+> **v2 (2026-10-24, plan `.context/features/adverb-gradability.md`):** the old app has the list above. In v2 the enum also holds
 > `gradableEN`, `gradableES`, `gradableEE` (the required "Gradable / Non-gradable" radio, now in all four languages),
 > the stored checkboxes `periphrasticEN` ("more / most"), `periphrasticComparativeES` ("más") and
 > `periphrasticSuperlativeEE` ("kõige"), and the Estonian `adverbEE`, `comparativeEE`, `superlativeEE`.
 > The backend treats every case that starts with `gradable` or `periphrastic` as a property, not a written form.
 >
-> **French (2026-10-26, plan `plans/language-french.md` slice 6):** `adverbFR`, `comparativeFR`, `superlativeFR`,
+> **French (2026-10-26, plan `.context/features/french.md` slice 6):** `adverbFR`, `comparativeFR`, `superlativeFR`,
 > `gradableFR` (required radio) and the stored checkbox `periphrasticFR` (comparative = "plus " + adverb; the
 > superlative is locked: "le " + the comparative). Same property rule. Fields and layout: `forms-french.md`.
 
@@ -134,7 +134,7 @@ Verbatim, grouped:
 
 **German** (`*DE`): `infinitiveDE`, `auxVerbDE`, `caseTypeDE`, `prefixDE`, `regularityDE`; indicative present / perfect / simple-future / simple-past × `1s,2s,3s,1pl,2pl,3pl`.
 
-**French** (`*FR`, v2 only, plan `plans/language-french.md` slice 5): `infinitiveFR`, `verbGroupFR` (replaces regularity), `auxVerbFR`, `reflexivityFR`, `pastParticipleFR`, `presentParticipleFR`; indicative present / imperfect / perfect (passé composé) / simple-future × `1s,2s,3s,1pl,2pl,3pl` (24 forms). Fields and rules: `forms-french.md`.
+**French** (`*FR`, v2 only, plan `.context/features/french.md` slice 5): `infinitiveFR`, `verbGroupFR` (replaces regularity), `auxVerbFR`, `reflexivityFR`, `pastParticipleFR`, `presentParticipleFR`; indicative present / imperfect / perfect (passé composé) / simple-future × `1s,2s,3s,1pl,2pl,3pl` (24 forms). Fields and rules: `forms-french.md`.
 
 > Full enumeration is mechanical (language × tense × pronoun) and reproducible from the source file; the schema/pronoun inventory below and the registry `frontend/src/ts/wordCasesDataByPoS.ts` enumerate every concrete instance. Do **not** hand-retype — copy `enums.ts` verbatim.
 
@@ -191,7 +191,7 @@ Plus the fuller `PronounDE` (nominative/accusative/dative × 1s/2s/3s/1pl/2pl/3p
 
 ## 2. `interfaces.ts`
 
-> **`_id` → `id`.** This is a verbatim transcription of the old source, which carries `_id` (and a `// should it be _id?` TODO) on several types. `_id` is a MongoDB artifact — the Postgres/Drizzle schema has no such column. Per the standing rule in `new-repo-build-plan.md` §4, **new frontend types use `id` exclusively**. `frontend/src/ts/interfaces.ts` has already been corrected (`WordDataBE`, `UserData`, `NotificationData`, `FriendshipData`, `TagData`, `FilterItem`); read every `_id` below as `id`.
+> **`_id` → `id`.** This is a verbatim transcription of the old source, which carries `_id` (and a `// should it be _id?` TODO) on several types. `_id` is a MongoDB artifact — the Postgres/Drizzle schema has no such column. Per the standing rule in `.context/roadmap.md` §4, **new frontend types use `id` exclusively**. `frontend/src/ts/interfaces.ts` has already been corrected (`WordDataBE`, `UserData`, `NotificationData`, `FriendshipData`, `TagData`, `FilterItem`); read every `_id` below as `id`.
 
 ### 2.1 Word / translation core (the create/view model)
 
@@ -239,7 +239,7 @@ type FriendshipData = {
 }
 type PartnershipsData = { mentor: string, language: Lang }
 ```
-> NOTE: this is the **legacy** friendship shape (`userIds` array, no requester/addressee). The rewrite replaces it per §8.2 of the study — the new `friendships` table model is in `new-repo-build-plan.md` Phase 6, not this transcription.
+> NOTE: this is the **legacy** friendship shape (`userIds` array, no requester/addressee). The rewrite replaces it per §8.2 of the study — the new `friendships` table model is in `.context/roadmap.md` Phase 6, not this transcription.
 
 ### 2.4 Notification
 ```ts

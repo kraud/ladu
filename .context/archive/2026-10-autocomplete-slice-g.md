@@ -1,6 +1,6 @@
 # Autocomplete slice G: "One term → whole Word" (plan, 2026-10-11)
 
-**Status:** done 2026-10-11 (steps G1 to G6), polished the same day and on 2026-10-23. Shipped with `autocomplete-improvements` and later branches. The contract lives in `.context/plans/autocomplete-data-source-strategy.md`, section "Slice G".
+**Status:** done 2026-10-11 (steps G1 to G6), polished the same day and on 2026-10-23. Shipped with `autocomplete-improvements` and later branches. The contract lives in `.context/research/autocomplete-data-source-strategy.md`, section "Slice G".
 
 **Decisions kept:** G-a to G-j (entry section, the type-ahead chooses the sense, preview before cards, `Any` part of speech, senses from the translation table, one draft route, no save in the draft, one-language drafts allowed, account languages only, no English hub line).
 

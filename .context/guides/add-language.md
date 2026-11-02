@@ -1,10 +1,10 @@
 # Guide: Add a language to Ladu
 
-Use this guide when Ladu must support a new language. The first use is French (`.context/plans/language-french.md`). The guide is written while that plan runs.
+Use this guide when Ladu must support a new language. The first use is French (`.context/features/french.md`). The guide is written while that plan runs.
 
 **Status of this guide (2026-10-26, French slice 12): checked.** Every item was confirmed against the diff of the French branch (`git diff main`, 223 files). Check each path again with a search before you start: the code moves. The one open item is the native-speaker review.
 
-Write the plan file first. Copy the shape of `language-french.md`: user decisions, slices, review log, rollout runbook (and a Progress list while the work is open; remove it when the work is done).
+Write the plan file first. Write the plan with user decisions, slices, a review log (issue, severity, resolution; see `features/french.md` section 2 for a finished one) and a rollout runbook (and a Progress list while the work is open; remove it when the work is done).
 
 ## 0. Words used here
 
@@ -114,7 +114,7 @@ Verified in slice 1 (2026-10-26). The `Lang` enum **key** is the two-letter suff
 
 ### Lexicon and autocomplete (only when the plan includes autocomplete)
 
-- [x] Coverage research first (French slice 8): re-extract the language from the dump and measure each part of speech with draft selectors (template: `.context/research/autocomplete-coverage-report.md`; the French results are in `.context/plans/language-french.md`, "Slice 8 results"). Read a few real entries by hand: a high fill rate does not prove the values are right (the research found dual-auxiliary verbs that way).
+- [x] Coverage research first (French slice 8): re-extract the language from the dump and measure each part of speech with draft selectors (template: `.context/research/autocomplete-coverage-report.md`; the French results are in `.context/features/french.md`, "Slice 8 results"). Read a few real entries by hand: a high fill rate does not prove the values are right (the research found dual-auxiliary verbs that way).
 - [x] `backend/scripts/lexicon/common.ts`: add the code to `LANG_CODES`. `download.ts` then fetches the frequency list (`fr_50k` exists for French; check the URL for another language) and records it in the manifest. `extract.ts` needs no edit. Run the whole `extract.ts` again (about 10 minutes; it rewrites every `kaikki-<code>.jsonl`), then `sample.ts`.
 - [x] `backend/lib/lexicon/selectors/<code>.ts` (one table per part of speech; the conjunction and preposition tables are `conjunctionSelectors(SUFFIX)` and `prepositionSelectors(SUFFIX)` from `functionWords.ts`), its unit test (`tests/unit/lexiconSelectors<SUFFIX>.test.js`) and the fixture of real entries (`npx tsx scripts/lexicon/fixture.ts <code> 'word|pos' …` → `tests/unit/fixtures/lexicon-<code>.json`).
 - [x] `scripts/lexicon/ingest.ts`: the `LANGUAGES` row (a part of speech with no table is skipped) and `FIXTURE_WORDS`. Then `ingest.ts <code>`, `ingest.ts <code> --fixture` and `ingest-translations.ts [--fixture]` (the translation file has a fixed name per kaikki date: the rebuild overwrites the old file). `load.js` reads `lib/languages.ts`: no edit.

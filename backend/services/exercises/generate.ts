@@ -1,5 +1,5 @@
 /**
- * Builds every candidate exercise for one word. Spec: .context/plans/phase-5-practice.md §A.5.
+ * Builds every candidate exercise for one word. Spec: .context/features/practice.md §A.5.
  * No scoring and no distractors here (see select.ts and distractors.ts).
  */
 

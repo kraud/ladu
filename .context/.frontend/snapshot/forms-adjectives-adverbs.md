@@ -2,7 +2,7 @@
 
 Transcribed verbatim from the old React form components. Every form hydrates via `currentTranslationData.cases` (effect push-up), has a `currentCases` effect mapping field state → `WordItem[]` (each `.word` lowercased with `.toLowerCase()`), and renders through `TextInputFormWithHook` / `RadioGroupFormHook`. Each schema is resolved via `yupResolver(schema)` with `mode: "all"` (validates on every change, no submit).
 
-> **v2 differences (2026-10-24, plan `plans/adverb-gradable-radio.md`).** This file transcribes the **old** app. In v2:
+> **v2 differences (2026-10-24, plan `.context/features/adverb-gradability.md`).** This file transcribes the **old** app. In v2:
 > - All four adverb forms start with the required "Gradable / Non-gradable" radio (`gradableEN/ES/DE/EE`). "Non-gradable" hides the comparative, the superlative and the checkbox. An old word without a value must get one before it can be saved.
 > - EN has the box `Uses "more" / "most"` (`periphrasticEN`): the comparative shows "more " + adverb and the superlative "most " + adverb, read-only.
 > - ES has the box `Uses "más"` (`periphrasticComparativeES`): the comparative shows "más " + adverb. The superlative is always typed.

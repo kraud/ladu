@@ -1,4 +1,4 @@
-// Access requests, Slice 1: the public `POST /api/access/request`. See .context/plans/access-requests.md.
+// Access requests, Slice 1: the public `POST /api/access/request`. See .context/features/access-control.md.
 // Cloudflare is mocked at `global.fetch` (supertest uses `http`, so it is not affected).
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 const sendMail = require('../utils/sendEmail');

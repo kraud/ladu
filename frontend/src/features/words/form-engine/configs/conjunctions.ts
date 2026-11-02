@@ -1,5 +1,5 @@
 /**
- * Conjunction form configs — new in the conjunctions-and-prepositions plan (`.context/plans/conjunctions-prepositions.md`).
+ * Conjunction form configs — new in the conjunctions-and-prepositions plan (`.context/features/conjunctions-prepositions.md`).
  * Every language has the same four fields: the word, an optional "Coordinating / Subordinating" radio
  * (Q2, changed: learners often do not know the type), a "Paired" checkbox (Q1) and the second part of a
  * pair ("weder" + "noch"), required while the box is on. Spanish adds a verb-mood select for

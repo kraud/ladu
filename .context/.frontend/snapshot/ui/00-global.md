@@ -6,7 +6,7 @@ Files that remain (2026-11-02):
 1. `00-global.md` (this file) — shell, navigation, shared patterns, states. **Stop date:** the Phase 8 cutover.
 2. `06-social.md` — Account, Notifications, Tag view, modals. **Stop date:** when the social phases ship.
 
-The screens of auth, dashboard, word editor, Review and Practice are built. Their blueprint files (`01` to `05`) were removed; read them with `git log -- .context/.frontend/snapshot/ui/`. Their intentional deltas are in the annex of `plans/new-repo-build-plan.md` (Phase 8), and the look is in `.context/design/`.
+The screens of auth, dashboard, word editor, Review and Practice are built. Their blueprint files (`01` to `05`) were removed; read them with `git log -- .context/.frontend/snapshot/ui/`. Their intentional deltas are in the annex of `.context/roadmap.md` (Phase 8), and the look is in `.context/design/`.
 
 ---
 

@@ -1,7 +1,7 @@
 # Autocomplete & lexical data sources — research record
 
 *Status (2026-10-10, branch `autocomplete-improvements`): Slices 0, A–F done (parity reached; type-ahead;
-translation table and route). Slice H done (H1–H5). Slice G done 2026-10-11 (contract: section "Slice G" below; record: `.context/archive/2026-10-autocomplete-slice-g.md`). Next: Slice I (own branch, no plan yet). Server steps for everything done so far: §14 (do once the plan is complete).
+translation table and route). Slice H done (H1–H5). Slice G done 2026-10-11 (contract: section "Slice G" below; record: `.context/archive/2026-10-autocomplete-slice-g.md`). All slices are done. Slice I (browse all words) is now idea I-2 in `research/deferred-ideas.md`. The server steps of §14 were done on 2026-11-02.
 History: research 2026-09-25, per-slice plan 2026-10-08 (sections 9 to 12).*
 
 *Scope: which free or very cheap source can supply the word-form autocomplete data, and
@@ -9,7 +9,7 @@ whether one source can replace the current per-language set of libraries and API
 
 *Related: the removed snapshot `autocomplete` (the frozen 8-endpoint spec),
 `frontend/src/ts/wordCasesDataByPoS.ts` (the case registry),
-`.context/research/licence-study.md` (licence decisions, 2026-10-06), `new-repo-build-plan.md` §5 phase 3.*
+`.context/research/licence-study.md` (licence decisions, 2026-10-06), `.context/roadmap.md` §5 phase 3.*
 
 *Read section 11 first. It lists the claims in sections 2 to 8 that the 2026-10-08 review
 found wrong or incomplete.*
@@ -448,7 +448,7 @@ registry are licence-neutral. Only the *ingest* step depends on the answer.
 
 Do not start a slice without approval. Each slice starts with a plain-language overview
 before any file changes. Each slice ends with a runnable app, its own tests and docs, and a
-green `npm run test:e2e` (`new-repo-build-plan.md` §6). The known OAuth e2e failures
+green `npm run test:e2e` (`.context/roadmap.md` §6). The known OAuth e2e failures
 (oauth-2 to oauth-5, Google stub) are not caused by this work. Report them, but do not fix
 them here.
 
@@ -855,7 +855,7 @@ number, EN comparative and superlative), so adjectives come first. The "reflexiv
 
 ### Slice I — Browse all words (out of scope)
 
-Reads the same tables. No plan yet.
+Reads the same tables. No plan yet; it is idea I-2 in `research/deferred-ideas.md`.
 
 ---
 
@@ -986,6 +986,8 @@ their data. After a restore, the `load` script refills them from the versioned f
 
 ## 14. VPS checklist (do once the slices are deployed)
 
+
+**Closed 2026-11-02 (confirmed by the user): every step below is done on staging and production.**
 Code reaches staging and production through the normal deploy (merge to `main`): that creates
 the `lexemes` and `lexeme_translations` tables (migrations 0021–0025). The server-side steps below are manual. Until they
 run, autocomplete still works, but every lexicon language answers only from the old libraries,
@@ -997,23 +999,23 @@ marked "not fully sure". Commands run from `deploy/ansible/`. Details:
       `deploy.yml` writes it into each environment's `.env`. Without it, Estonian autocomplete
       answers 502 after the deploy. After a successful deploy, the old secret
       `URL_EESTI_LANG_API` can be deleted (nothing reads it any more).
-- [ ] **Backup script** (from Slice B1): `ansible-playbook site.yml` — puts the new `backup.sh`
+- [x] **Backup script** (from Slice B1): `ansible-playbook site.yml` — puts the new `backup.sh`
       (skips the `lexemes` rows) on the VPS. Safe to repeat; `--check` first for a dry run.
-- [ ] **German lexicon** (from Slice B): build the file if it is not on this machine
+- [x] **German lexicon** (from Slice B): build the file if it is not on this machine
       (`backend/scripts/lexicon/README.md`), then
       `ansible-playbook lexicon.yml -e lexicon_file=../../backend/scripts/lexicon/.data/out/lexicon-de-2026-10-03.jsonl.gz`
       (staging only first: add `-e '{"lexicon_environments": ["staging"]}'`).
-- [ ] **Each later language** (Slices C1, C2, D): the same playbook with that language's file. One
+- [x] **Each later language** (Slices C1, C2, D): the same playbook with that language's file. One
       run per file; a load replaces only its own language.
-- [ ] **Re-load DE, ES and EN** (Slice H1, H5): the files now hold adjectives and adverbs, and the DE and ES
+- [x] **Re-load DE, ES and EN** (Slice H1, H5): the files now hold adjectives and adverbs, and the DE and ES
       files also the reflexive flag. Build them again (`ingest.ts`), then run `lexicon.yml` once per file.
-- [ ] **Translations** (Slice F): the same playbook with
+- [x] **Translations** (Slice F): the same playbook with
       `translations-en-2026-10-03.jsonl.gz` (build: `ingest-translations.ts`). The backup step
       above also skips its rows (`lexeme_translations`).
-- [ ] **Check** on staging and prod:
+- [x] **Check** on staging and prod:
       `SELECT language, source_version, count(*) FROM lexemes GROUP BY 1, 2;` and
       `SELECT language, count(*) FROM lexeme_translations GROUP BY 1;`
-- [ ] **Try it** on staging: a German noun the old library could not decline (`Polizei`) fills
+- [x] **Try it** on staging: a German noun the old library could not decline (`Polizei`) fills
       without the "not fully sure" notice.
 
 ---

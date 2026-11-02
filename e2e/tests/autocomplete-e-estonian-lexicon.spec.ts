@@ -6,7 +6,7 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
 
 /**
  * Estonian autocomplete: the local lexicon (Eesthetic) first, then the Ekilex API
- * (`.context/plans/autocomplete-data-source-strategy.md` Slice D gate). The `lexemes` table holds
+ * (`.context/research/autocomplete-data-source-strategy.md` Slice D gate). The `lexemes` table holds
  * the committed Estonian fixture in CI (`--if-empty`), or the full Eesthetic data locally;
  * "maja" and "tantsima" are in both. Ekilex is the local stub (e2e/fixtures/eki-stub), whose
  * request log tells whether the backend asked it.

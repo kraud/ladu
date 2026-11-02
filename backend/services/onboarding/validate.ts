@@ -1,6 +1,6 @@
 /**
  * Request validation for the onboarding routes (pure, no Express, no DB).
- * Spec: .context/plans/onboarding.md — D4, D14, D15 (Slice 3c; topic limits changed 2026-10).
+ * Spec: .context/features/onboarding.md — D4, D14, D15 (Slice 3c; topic limits changed 2026-10).
  *
  * The languages are not part of the request: they are the account's (D8; the app changes them
  * through the profile route first). A level is needed for every learning language and nothing else.

@@ -11,7 +11,7 @@ import {
 
 /**
  * First-login onboarding, Slice 4e — the whole flow against the real backend + Postgres + the learner
- * app (.context/plans/onboarding.md).
+ * app (.context/features/onboarding.md).
  *
  * A `pending` account signs in and the app opens the full-screen `/onboarding`: Welcome, then the four
  * questions (languages, levels, interests, word count), then Create. The building screen shows for at

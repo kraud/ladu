@@ -1,7 +1,7 @@
 # Lexicon scripts
 
 Scripts that build and measure the autocomplete lexicon. Plan:
-`.context/plans/autocomplete-data-source-strategy.md` (Slice 0 and later).
+`.context/research/autocomplete-data-source-strategy.md` (Slice 0 and later).
 
 All data goes into `.data/` in this folder. Git ignores it. It needs about 5 GB of disk.
 The scripts run on a developer machine, never on the VPS.
@@ -47,7 +47,7 @@ The topic map is `onboarding-topics.ts` (supersenses, WordNet hypernym anchors, 
 page-topic allowlist, the restricted words, the level bands); its unit test is
 `tests/unit/onboardingTopics.test.js`. The script fails at once if an anchor id is not a sense of
 its label in the WordNet edition. It also writes `word-lists/topic-report.md`: words per topic and
-level band, with examples, for the review (`.context/plans/onboarding.md`).
+level band, with examples, for the review (`.context/features/onboarding.md`).
 
 ```sh
 npx tsx scripts/lexicon/onboarding-pool.ts [--force]   # ~2 s: word lists + translations → onboarding pool

@@ -1,5 +1,5 @@
 /**
- * First-login onboarding routes (.context/plans/onboarding.md, Slice 3d; D18, D21, D25).
+ * First-login onboarding routes (.context/features/onboarding.md, Slice 3d; D18, D21, D25).
  * Only an account with `onboarding_status = 'pending'` may use them, only while the admin switch is
  * on (D26: 403 `onboarding_disabled`), and never a demo account (403).
  */

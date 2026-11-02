@@ -208,7 +208,7 @@ enough for tests and e2e (`npm run lexicon:load:fixture -w backend`).
 ## First-login onboarding (`users.onboarding_status`)
 
 New accounts (email and Google signup) can get words automatically at their first login
-(`.context/plans/onboarding.md`). It is **off by default** in every environment. The owner turns
+(`.context/features/onboarding.md`). It is **off by default** in every environment. The owner turns
 it on in the admin panel: **Access → Onboarding** (`/access?tab=onboarding`). Nothing to deploy.
 
 - **The status:** `users.onboarding_status` is `pending` for every account created since migration
@@ -227,7 +227,7 @@ it on in the admin panel: **Access → Onboarding** (`/access?tab=onboarding`). 
 ## Captcha (Cloudflare Turnstile) {#captcha-turnstile}
 
 A human check protects the three forms that anybody on the internet can use: the demo start, the
-sign-up form and the password reset request (`.context/plans/captcha.md`). Cloudflare Turnstile
+sign-up form and the password reset request (`.context/features/captcha.md`). Cloudflare Turnstile
 runs the check. Most visitors see a short check and a "Success" mark. Cloudflare shows a checkbox
 only to visitors that it does not trust. It is **off by default** in every environment.
 
@@ -276,7 +276,7 @@ repo-root `.env`, so real keys there do no harm.
 
 ## Demo accounts (`users.is_demo`)
 
-The "Try the demo" button makes a throwaway account (`.context/plans/demo-access.md`). It is off
+The "Try the demo" button makes a throwaway account (`.context/features/demo.md`). It is off
 by default in every environment. The owner turns it on, and sets its duration and its caps, in the
 admin panel: **Access → Demo** (`/access?tab=demo`). Nothing to deploy.
 

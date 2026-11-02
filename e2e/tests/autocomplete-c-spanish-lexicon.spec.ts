@@ -4,7 +4,7 @@ import { closePool, deleteUsersByEmail } from '../fixtures/db';
 import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtures/practice';
 
 /**
- * Spanish autocomplete from the local lexicon (`.context/plans/autocomplete-data-source-strategy.md`
+ * Spanish autocomplete from the local lexicon (`.context/research/autocomplete-data-source-strategy.md`
  * Slice C1 gate). The `lexemes` table holds the committed Spanish fixture in CI (loaded by the e2e
  * backend command, `--if-empty`), or the full lexicon locally. Every word below is in both, except
  * "abarrancar", which is in neither.

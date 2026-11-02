@@ -14,7 +14,7 @@ import {
 
 /**
  * Demo access, Slice 1 — the whole demo loop against the real backend + Postgres + the learner app
- * (.context/plans/demo-access.md).
+ * (.context/features/demo.md).
  *
  * The visitor opens `/demo` (the landing page's "Try the demo" link points there; the landing page is
  * not served in e2e, so its link is checked by the landing node tests), starts a demo, sees the seed,

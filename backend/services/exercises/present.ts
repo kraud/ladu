@@ -1,6 +1,6 @@
 /**
  * Turns domain objects into the API response shapes (no `_id`, no Mongo legacy).
- * Spec: .context/plans/phase-5-practice.md §B.3 "Response shapes".
+ * Spec: .context/features/practice.md §B.3 "Response shapes".
  */
 
 import { shuffle } from './rng';

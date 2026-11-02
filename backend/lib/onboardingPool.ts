@@ -1,5 +1,5 @@
 /**
- * The onboarding pool (.context/plans/onboarding.md, Slice 2): the reviewed concepts that a
+ * The onboarding pool (.context/features/onboarding.md, Slice 2): the reviewed concepts that a
  * first-login onboarding can create as Words. Source of truth: `scripts/onboarding/pool.tsv`,
  * built by `scripts/lexicon/onboarding-pool.ts` and edited by hand. Only `keep` lines are used.
  *

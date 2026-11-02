@@ -162,7 +162,7 @@ export const registrationInvites = pgTable('registration_invites', {
 });
 
 // People who asked for access from the public /request page while a gate is limited or
-// closed (.context/plans/access-requests.md). `kind` says which list the owner would add
+// closed (.context/features/access-control.md). `kind` says which list the owner would add
 // them to: 'registration' (invite list) or 'login' (allowed accounts). Stored lowercase.
 // The row goes at approval, at removal, and when the person gets access by any other path.
 export const accessRequests = pgTable(
@@ -222,7 +222,7 @@ export const users = pgTable('users', {
     // (lib/terms.ts). NULL for accounts that existed before the Terms page.
     termsAcceptedAt:  timestamp('terms_accepted_at'),
     termsVersion:     varchar('terms_version', { length: 16 }),
-    // --- Demo access (.context/plans/demo-access.md) ---
+    // --- Demo access (.context/features/demo.md) ---
     // `isDemo` with `demoExpiresAt` NULL is the template (the clone source; it
     // never signs in and is never purged). With `demoExpiresAt` set, the row is
     // a live demo session: `protect` refuses it after that instant and the
@@ -232,7 +232,7 @@ export const users = pgTable('users', {
     demoExpiresAt:    timestamp('demo_expires_at'),
     demoWordLimit:    integer('demo_word_limit'),
     demoTagLimit:     integer('demo_tag_limit'),
-    // --- First-login onboarding (.context/plans/onboarding.md, D21) ---
+    // --- First-login onboarding (.context/features/onboarding.md, D21) ---
     // 'pending' for accounts created since the feature (email and Google signup): the app opens
     // /onboarding. 'done' / 'skipped' afterwards. NULL (older, demo and template accounts): never shown.
     onboardingStatus: varchar('onboarding_status', { length: 16 }),
