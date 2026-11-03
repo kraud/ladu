@@ -23,10 +23,18 @@ describe('validateConfigRequest', () => {
         expect(result.value.params).toMatchObject({
             wordSelection: 'Exercise-Performance',
             excludeNative: false,
+            excludeMasteredPairs: true,
             difficultyMC: 1,
             strictnessTI: 3,
         });
         expect(result.value.params).not.toHaveProperty('wordIds');
+    });
+
+    it('keeps the mastered-pairs choice of a configuration, and reads a missing one as exclude', () => {
+        const included = validateConfigRequest({ ...body(), params: { ...body().params, excludeMasteredPairs: false } });
+        expect(included.value.params.excludeMasteredPairs).toBe(false);
+        const { excludeMasteredPairs: _omitted, ...withoutField } = body().params;
+        expect(validateConfigRequest({ ...body(), params: withoutField }).value.params.excludeMasteredPairs).toBe(true);
     });
 
     it('defaults strictnessTI to 2', () => {

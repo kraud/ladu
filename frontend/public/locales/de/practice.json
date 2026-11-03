@@ -30,7 +30,8 @@
       "mcDifficulty": "Schwierigkeit der Auswahl",
       "tiStrictness": "Genauigkeit beim Tippen",
       "wordOrder": "Reihenfolge der Wörter",
-      "nativeLanguage": "Muttersprache"
+      "nativeLanguage": "Muttersprache",
+      "masteredPairs": "Beherrschte Sprachpaare"
     },
     "advanced": {
       "title": "Erweitert"
@@ -54,9 +55,17 @@
         "include": "Einbeziehen",
         "exclude": "Ausschließen"
       },
+      "pairs": {
+        "include": "Einbeziehen",
+        "exclude": "Ausschließen"
+      },
       "nativeDesc": {
         "include": "Übungen in einer Sprache können auf {{language}} erscheinen.",
         "exclude": "Keine Übungen in einer Sprache auf {{language}}."
+      },
+      "pairsDesc": {
+        "include": "Übungen können die zwei Sprachen eines beherrschten Paares kombinieren.",
+        "exclude": "Keine Übungen zwischen den zwei Sprachen eines beherrschten Paares."
       }
     },
     "levels": {
@@ -89,7 +98,8 @@
       "posPreselected": "Bei ausgewählten Wörtern sind nur deren Wortarten wählbar. Für Adjektive, Adverbien, Konjunktionen und Präpositionen gibt es noch keine Übungen.",
       "notInPreselection": "Nicht in den ausgewählten Wörtern",
       "preselectedNoExercises": "Keines der ausgewählten Wörter hat eine Wortart mit Übungen. Entfernen Sie die Vorauswahl, um Ihre anderen Wörter zu üben.",
-      "nativeLanguageNamed": "{{language}} · betrifft Übungen in einer Sprache"
+      "nativeLanguageNamed": "{{language}} · betrifft Übungen in einer Sprache",
+      "masteredPairsNamed": "{{pairs}} · betrifft Übungen in verschiedenen Sprachen"
     },
     "preselected": {
       "title_one": "Mit {{count}} ausgewähltem Wort üben",

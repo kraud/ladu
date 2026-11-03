@@ -2,7 +2,7 @@
 
 ## Summary
 
-Practice turns the words a learner has stored into exercises, checks the answers, and keeps a knowledge score for every translation and case. The score fades with time (a forgetting curve), so the next sessions show the weakest items first. The learner sets the languages, parts of speech, order (adaptive or random), multiple-choice difficulty (0 to 3) and text-input strictness, answers cards, and sees a results screen. A learner can mark a word "Mastered" or "Revise" by hand. A learner can also mark pairs of their own languages as mastered on the Account page: Practice then never combines the two languages of a pair in one multi-language exercise (D8). Saved configurations and sessions are a separate feature (`features/saved-practice.md`).
+Practice turns the words a learner has stored into exercises, checks the answers, and keeps a knowledge score for every translation and case. The score fades with time (a forgetting curve), so the next sessions show the weakest items first. The learner sets the languages, parts of speech, order (adaptive or random), multiple-choice difficulty (0 to 3) and text-input strictness, answers cards, and sees a results screen. A learner can mark a word "Mastered" or "Revise" by hand. A learner can also mark pairs of their own languages as mastered on the Account page: Practice then never combines the two languages of a pair in one multi-language exercise, unless the exercise set-up says "Include" (D8). Saved configurations and sessions are a separate feature (`features/saved-practice.md`).
 
 Live spec. It replaces a finished plan (archive record: `.context/archive/2026-09-phase-5-practice.md`). Built 2026-09-29 to 2026-09-30 (slices 0 to 9). Gate: `e2e/tests/phase-5-practice.spec.ts`. **Section numbers are kept** (A.1 to A.12, B.1 to B.3, B.7, C.1 to C.7, and the decision IDs D1 to D8 and C4), because backend and frontend code cite them (for example `§A.8`, `§B.3`, `Part C §C.3`). The slices (B.4), the file list (B.5) and the verification (B.6) are in `.context/research/practice-build-record.md`. Ideas that were deferred are idea I-8 in `.context/backlog/deferred-ideas.md`.
 
@@ -47,7 +47,7 @@ except where Part B lists a decision.
 | TI strictness | 1–3 | 2 | Frontend only (A.7). Hidden/disabled for MC-only. |
 | Word selection | `Exercise-Performance` / `Random` | Exercise-Performance | Adaptive vs random order (A.9). |
 | Native language | Include / Exclude | Include | Only shown when the user has a native language and mode ≠ Multi-Language. Exclude = no single-language drills in the native language. It never affects multi-language exercises (by design: the old tooltip says "in the case of single-language exercises"). |
-| Mastered language pairs | not a practice parameter: an account setting (Account → languages card) | none | Pairs of the user's own languages that are never combined in a multi-language exercise, in either direction (D8). Every other exercise, and every other language of the pair, stays in use. It is read from the account on every request, never from the request body. |
+| Mastered language pairs | Include / Exclude | Exclude | Only shown when the account has at least one mastered pair (Account → languages card) and the mode is not Single-Language. Exclude = no multi-language exercise between the two languages of a mastered pair, in either direction. Include = this session or configuration ignores the account's list. The list itself is edited on the Account page, never here. The server reads it from the account (`req.user`), and reads a missing `excludeMasteredPairs` as `true` (D8). |
 | Pre-selected words | word ids | none | Comes from Review's bulk action. Replaces the automatic word pool. |
 | Mode | `Single-Try` | Single-Try | `Multiple-Tries` exists in old types but is dead. Dropped. |
 
@@ -297,6 +297,13 @@ behaviour stays the same.
     user's final `languages`; the same pair is stored once; **at least one pair of the languages stays open**,
     because a user with every pair mastered would get no multi-language exercise. A change of `languages` drops
     the pairs that lose a language; if the pairs that remain still cover every pair, the request is refused.
+  - **Set-up option (added 2026-11-03):** `excludeMasteredPairs` (boolean) in the generate body, in a saved
+    configuration's params, in the URL (`pairs=include|exclude`) and in the remembered settings. The default is
+    `true` ("Exclude") and a missing value means `true`, so every older client, URL, remembered setting and saved
+    configuration keeps today's behaviour. `false` ("Include") makes `exerciseService.ts` pass no pairs to the
+    generator. The option is the second row after "Native language" in the Advanced block of the set-up and in
+    "Settings used" on the results screen. It shows only when it can do something (`relevantSettings`): the account
+    has a mastered pair and the mode is not Single-Language.
   - **Effect:** only on which multi-language exercises exist: `generate.ts` skips the pair in both directions.
     Single-language drills, the native-language hint, the native-language exclusion, multiple-choice distractors
     (difficulty 0 still takes values from any language), Words, Tags and Review do not change. The session
@@ -304,13 +311,16 @@ behaviour stays the same.
     give 12 exercises, and 8 with one pair mastered).
   - **Client:** the Account page edits the pairs (`features/auth-and-shell.md` P1-10). A session saved in the
     browser before the field existed reads as `[]` (`toSessionUser` on rehydrate).
-  - **Rejected:** a separate table (a join on every login for at most 10 pairs); a Practice parameter or saved
-    configuration (the user wants one account-wide setting, set once); allowing every pair to be mastered (an
-    empty Practice); skipping the pair for distractors too (not asked for; the options are not a combination
+  - **Rejected:** a separate table (a join on every login for at most 10 pairs); a Practice parameter that holds
+    the list itself (the list is one account-wide setting, set once; the set-up only switches it off, and "Include"
+    is a per-session choice); allowing every pair to be mastered (an empty Practice); skipping the pair for distractors too (not asked for; the options are not a combination
     of the two languages).
   - **Tests (one owner each, `guides/testing-policy.md`):** the rules in `backend/tests/auth.test.js`
     (`masteredLanguagePairs`); the generator in `backend/tests/unit/exercisesGenerate.test.js`; the account
-    wiring in `backend/tests/exercises.test.js`; the form in the Account page tests; the whole chain in
+    wiring and the `excludeMasteredPairs` field in `backend/tests/exercises.test.js` and
+    `tests/unit/exercisesApi.test.js`; the saved-configuration params in `tests/unit/exercisesConfigValidate.test.js`;
+    the form in the Account page tests; the set-up option in `PracticePage.test.tsx`, `params.test.ts`,
+    `search.test.ts` and `configs.test.ts`; the whole chain (Exclude, then Include) in
     `e2e/tests/mastered-language-pairs.spec.ts`.
 
 #### Calls made by the agent (reversible — the user can change them at review)
@@ -378,7 +388,7 @@ Rules:
   does not break the session. `answers`: the translation must belong to such a word and `caseName` must exist
   in it (else 404). Performance rows are always looked up by `(req.user.id, translationId)`, never by a
   client-sent performance id — this closes the IDOR.
-- `nativeLanguage` comes from `req.user`, not the request. Body only says `excludeNative: boolean`.
+- `nativeLanguage` comes from `req.user`, not the request. Body only says `excludeNative: boolean`. The same holds for the mastered pairs: the body only says `excludeMasteredPairs: boolean` (missing = `true`, D8); the pairs come from `req.user`.
 - **Ranking query (D2b):** candidate words (own ∪ visible followed, PoS filter, has translations in the
   needed languages) LEFT JOIN performances; compute the A.9 word score in SQL (`exp(-0.01 * floor(...))`,
   CASE on modifier, languages filter on `req.user.languages`); `ORDER BY score, random()`. Then batches of 50
@@ -618,6 +628,4 @@ toggles, buttons, the app header.
 
 ## Open items
 
-- The Practice set-up screen does not mention the mastered pairs: the user only sees fewer cards (D8). A short note on the set-up screen is a possible follow-up. It was not asked for.
-
-Practice extensions that were deferred are listed as idea I-8 (`backlog/deferred-ideas.md`).
+None. Practice extensions that were deferred are listed as idea I-8 (`backlog/deferred-ideas.md`).

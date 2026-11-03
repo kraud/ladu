@@ -248,7 +248,8 @@ export async function generateExercises(
         difficultyMC: request.difficultyMC,
         nativeLanguage: request.excludeNative ? viewer.nativeLanguage ?? undefined : undefined,
         hintLanguage: viewer.nativeLanguage ?? undefined,
-        masteredPairs: viewer.masteredLanguagePairs,
+        // "Include" in the set-up: this session ignores the pairs the user mastered (practice.md D8).
+        masteredPairs: request.excludeMasteredPairs ? viewer.masteredLanguagePairs : undefined,
     };
 
     const ranked = await rankCandidateWords(viewer, request, now);

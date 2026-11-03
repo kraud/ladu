@@ -31,6 +31,11 @@ export interface PracticeParams {
     strictnessTI: StrictnessTI;
     wordSelection: WordSelection;
     excludeNative: boolean;
+    /**
+     * Skip the pairs of languages the user mastered on the Account page (practice.md D8). `true` by
+     * default; `false` ("Include") ignores the account's list for this session or configuration.
+     */
+    excludeMasteredPairs: boolean;
 }
 
 /** Body of `POST /api/exercises/generate`. `strictnessTI` stays on the client. */
@@ -43,6 +48,7 @@ export interface GenerateBody {
     difficultyMC: DifficultyMC;
     wordSelection: WordSelection;
     excludeNative: boolean;
+    excludeMasteredPairs: boolean;
     /** Only when the user came from Review with words selected. */
     wordIds?: string[];
 }

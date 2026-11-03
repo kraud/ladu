@@ -10,7 +10,7 @@ describe('validatePracticeSearch', () => {
     it('returns nothing for an empty URL', () => {
         expect(validatePracticeSearch({})).toEqual({
             lang: undefined, pos: undefined, n: undefined, card: undefined, mode: undefined,
-            mc: undefined, ti: undefined, order: undefined, native: undefined,
+            mc: undefined, ti: undefined, order: undefined, native: undefined, pairs: undefined,
         });
     });
 
@@ -18,11 +18,11 @@ describe('validatePracticeSearch', () => {
         expect(
             validatePracticeSearch({
                 lang: 'EN,ES', pos: ['Noun', 'Verb'], n: 20, card: 'choice', mode: 'same',
-                mc: 3, ti: 1, order: 'random', native: 'exclude',
+                mc: 3, ti: 1, order: 'random', native: 'exclude', pairs: 'include',
             }),
         ).toEqual({
             lang: ['EN', 'ES'], pos: ['Noun', 'Verb'], n: 20, card: 'choice', mode: 'same',
-            mc: 3, ti: 1, order: 'random', native: 'exclude',
+            mc: 3, ti: 1, order: 'random', native: 'exclude', pairs: 'include',
         });
     });
 
@@ -40,11 +40,11 @@ describe('validatePracticeSearch', () => {
         expect(
             validatePracticeSearch({
                 lang: 'XX,EN', pos: ['Noun', 'Pronoun'], n: 0, card: 'drag', mode: 'both',
-                mc: 4, ti: 0, order: 'newest', native: 'maybe',
+                mc: 4, ti: 0, order: 'newest', native: 'maybe', pairs: 'maybe',
             }),
         ).toEqual({
             lang: ['EN'], pos: ['Noun'], n: undefined, card: undefined, mode: undefined,
-            mc: undefined, ti: undefined, order: undefined, native: undefined,
+            mc: undefined, ti: undefined, order: undefined, native: undefined, pairs: undefined,
         });
     });
 
@@ -66,7 +66,7 @@ describe('searchToParams', () => {
 
     it('overlays the URL on the base', () => {
         const result = searchToParams(
-            { lang: ['DE', 'EN'], pos: [PartOfSpeech.verb], n: 5, card: 'random', mode: 'different', mc: 2, ti: 3, order: 'random', native: 'exclude' },
+            { lang: ['DE', 'EN'], pos: [PartOfSpeech.verb], n: 5, card: 'random', mode: 'different', mc: 2, ti: 3, order: 'random', native: 'exclude', pairs: 'include' },
             base,
             account,
         );
@@ -80,6 +80,7 @@ describe('searchToParams', () => {
             strictnessTI: 3,
             wordSelection: 'Random',
             excludeNative: true,
+            excludeMasteredPairs: false,
         });
     });
 
@@ -90,6 +91,17 @@ describe('searchToParams', () => {
 
     it('native=include switches the exclusion off even if the base excluded', () => {
         expect(searchToParams({ native: 'include' }, { ...base, excludeNative: true }, account).excludeNative).toBe(false);
+    });
+});
+
+describe('searchToParams — mastered pairs', () => {
+    it('excludes the mastered pairs when the URL says nothing (an old URL or saved setting)', () => {
+        expect(searchToParams({}, base, account).excludeMasteredPairs).toBe(true);
+    });
+
+    it('pairs=include switches the exclusion off, and pairs=exclude switches it on again', () => {
+        expect(searchToParams({ pairs: 'include' }, base, account).excludeMasteredPairs).toBe(false);
+        expect(searchToParams({ pairs: 'exclude' }, { ...base, excludeMasteredPairs: false }, account).excludeMasteredPairs).toBe(true);
     });
 });
 
@@ -105,6 +117,7 @@ describe('paramsToSearch', () => {
             strictnessTI: 1 as const,
             wordSelection: 'Random' as const,
             excludeNative: true,
+            excludeMasteredPairs: false,
         };
         const url = validatePracticeSearch(paramsToSearch(params) as Record<string, unknown>);
         expect(searchToParams(url, defaultParams(account), account)).toEqual(params);

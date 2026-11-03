@@ -160,6 +160,7 @@ describe('exercise API — auth and validation', () => {
         ['difficulty 4', { difficultyMC: 4 }, 'invalid_difficulty'],
         ['unknown word selection', { wordSelection: 'Newest' }, 'invalid_word_selection'],
         ['excludeNative as string', { excludeNative: 'yes' }, 'invalid_exclude_native'],
+        ['excludeMasteredPairs as string', { excludeMasteredPairs: 'yes' }, 'invalid_exclude_mastered_pairs'],
         ['wordIds not uuids', { wordIds: ['abc'] }, 'invalid_word_ids'],
         ['too many wordIds', { wordIds: Array(501).fill('11111111-1111-4111-8111-111111111111') }, 'invalid_word_ids'],
     ])('generate: 400 for %s', async (_label, overrides, code) => {
@@ -282,6 +283,18 @@ describe('POST /api/exercises/generate', () => {
 
         await db.update(users).set({ masteredLanguagePairs: [['English', 'Spanish']] }).where(eq(users.id, polyglot.id));
         expect((await generate(polyglot, params)).body.exercises).toHaveLength(0);
+    });
+
+    // practice.md D8: the exercise set-up can include the mastered pairs again for one session or configuration.
+    it('uses the mastered pairs of the account only when excludeMasteredPairs is not false', async () => {
+        const polyglot = await register('Poly2', 'poly2@test.com', 'polyuser2', ['English', 'Spanish', 'German']);
+        await postNoun(polyglot, 'house', 'casa');
+        await db.update(users).set({ masteredLanguagePairs: [['English', 'Spanish']] }).where(eq(users.id, polyglot.id));
+        const params = { languages: ['English', 'Spanish', 'German'], amount: 1 };
+
+        expect((await generate(polyglot, params)).body.exercises).toHaveLength(0);
+        expect((await generate(polyglot, { ...params, excludeMasteredPairs: true })).body.exercises).toHaveLength(0);
+        expect((await generate(polyglot, { ...params, excludeMasteredPairs: false })).body.exercises).toHaveLength(1);
     });
 
     it('filters by part of speech (adjectives have no exercises)', async () => {

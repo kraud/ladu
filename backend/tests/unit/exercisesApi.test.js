@@ -27,9 +27,23 @@ describe('validateGenerateRequest', () => {
                 difficultyMC: 1,
                 wordSelection: 'Exercise-Performance',
                 excludeNative: false,
+                excludeMasteredPairs: true,
                 wordIds: undefined,
             },
         });
+    });
+
+    // Mastered language pairs (practice.md D8): a missing value means "exclude", which is what every
+    // client and every saved configuration did before the option existed.
+    it('excludes the mastered pairs unless the request says false', () => {
+        expect(V.validateGenerateRequest(validBody()).value.excludeMasteredPairs).toBe(true);
+        expect(V.validateGenerateRequest({ ...validBody(), excludeMasteredPairs: true }).value.excludeMasteredPairs).toBe(true);
+        expect(V.validateGenerateRequest({ ...validBody(), excludeMasteredPairs: false }).value.excludeMasteredPairs).toBe(false);
+    });
+
+    it.each(['yes', 0, 1, null, []])('rejects excludeMasteredPairs %p', (value) => {
+        expect(V.validateGenerateRequest({ ...validBody(), excludeMasteredPairs: value }))
+            .toMatchObject({ ok: false, code: 'invalid_exclude_mastered_pairs' });
     });
 
     it('treats an empty wordIds list as "no pre-selection"', () => {

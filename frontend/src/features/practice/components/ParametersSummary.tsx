@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { languageByLabel } from '@/lib/language';
 import { partOfSpeechLabelKey } from '@/lib/words';
 import { useAuthStore } from '@/stores/authStore';
-import { relevantSettings } from '../params';
+import { masteredPairsText, relevantSettings } from '../params';
 import type { Session } from '../session';
 
 /**
@@ -16,9 +16,10 @@ import type { Session } from '../session';
 export function ParametersSummary({ session }: { session: Session }) {
     const { t } = useTranslation();
     const nativeLanguage = useAuthStore((s) => s.user?.nativeLanguage ?? null);
+    const masteredPairs = useAuthStore((s) => s.user?.masteredLanguagePairs);
     const [open, setOpen] = useState(false);
     const { params } = session;
-    const relevant = relevantSettings(params, nativeLanguage);
+    const relevant = relevantSettings(params, nativeLanguage, (masteredPairs?.length ?? 0) > 0);
     const created = session.exercises.length;
     const level = (n: number, description: string) => `${t('practice:setup.levels.label', { level: n })} — ${description}`;
 
@@ -59,6 +60,14 @@ export function ParametersSummary({ session }: { session: Session }) {
         rows.push([
             t('practice:setup.labels.nativeLanguage'),
             `${t(`practice:setup.options.native.${choice}`)} — ${t(`practice:setup.options.nativeDesc.${choice}`, { language })}`,
+        ]);
+    }
+
+    if (relevant.masteredPairs && masteredPairs) {
+        const choice = params.excludeMasteredPairs ? 'exclude' : 'include';
+        rows.push([
+            t('practice:setup.labels.masteredPairs'),
+            `${t(`practice:setup.options.pairs.${choice}`)} — ${t(`practice:setup.options.pairsDesc.${choice}`)} (${masteredPairsText(masteredPairs)})`,
         ]);
     }
 

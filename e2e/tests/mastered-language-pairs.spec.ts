@@ -25,8 +25,10 @@ import {
  * A session takes every exercise of the pool once, so its length is words x open pairs: 4 x 3 = 12
  * without the mastered pair, 4 x 2 = 8 with it. The result is exact, not a matter of chance: 8
  * cards, 4 between English and German, 4 between German and Spanish, none between English and
- * Spanish. The save rules (2 different languages, only selected languages, at least one open pair)
- * are owned by the backend and frontend tests.
+ * Spanish. Then the user chooses "Include" under Advanced in the exercise set-up and starts a second
+ * session: this time all 12 exercises come, 4 of them between English and Spanish. The save rules
+ * (2 different languages, only selected languages, at least one open pair) are owned by the backend
+ * and frontend tests.
  *
  * Runs against `keelapp_e2e`; the account is deleted in `afterAll`.
  */
@@ -81,6 +83,25 @@ async function answerWrongAndRead(page: Page): Promise<{ prompt: string; solutio
     return { prompt, solution: shown.replace(/^Correct answer: /, '') };
 }
 
+/** Answers every card of the open session wrong, and returns both sides of each card. */
+async function playSession(page: Page): Promise<Array<{ prompt: string; solution: string }>> {
+    const cards: Array<{ prompt: string; solution: string }> = [];
+    for (;;) {
+        const { current, total } = await position(page);
+        cards.push(await answerWrongAndRead(page));
+        if (current === total) break;
+    }
+    await expect(page.getByRole('heading', { name: 'Session results' })).toBeVisible();
+    return cards;
+}
+
+/** "English & German" for a card, from the language of each side. */
+function pairOf({ prompt, solution }: { prompt: string; solution: string }): string {
+    const sides = [LANGUAGE_OF.get(prompt), LANGUAGE_OF.get(solution)];
+    expect(sides, `the card "${prompt}" -> "${solution}" has a known language on each side`).not.toContain(undefined);
+    return [...(sides as string[])].sort().join(' & ');
+}
+
 test('a mastered pair set on the Account page keeps its two languages apart in Practice', async ({ page, request }) => {
     const user = await registerAndVerify(request, 'Pairs User', ['English', 'German', 'Spanish']);
     await seedTrilingualNouns(request, await loginForToken(request, user));
@@ -107,30 +128,41 @@ test('a mastered pair set on the Account page keeps its two languages apart in P
         await expect(page.getByText('English & Español')).toBeVisible();
     });
 
-    const cards: Array<{ prompt: string; solution: string }> = [];
+    let cards: Array<{ prompt: string; solution: string }> = [];
     await test.step('Practice: 12 cards asked, the 8 exercises of the two open pairs given', async () => {
         await page.getByRole('link', { name: 'practice' }).click();
         await expect(page).toHaveURL(/\/practice/);
         await configure(page, { amount: 12, answer: 'Type the answer', languages: 'Different languages' });
+        // The mastered pairs are skipped by default: the option is "Exclude" under Advanced.
+        await page.getByRole('button', { name: 'Advanced' }).click();
+        await expect(
+            page.getByRole('radiogroup', { name: 'Mastered language pairs' }).getByRole('radio', { name: /Exclude/ }),
+        ).toBeChecked();
         await startSession(page);
-
-        for (;;) {
-            const { current, total } = await position(page);
-            cards.push(await answerWrongAndRead(page));
-            if (current === total) break;
-        }
-        await expect(page.getByRole('heading', { name: 'Session results' })).toBeVisible();
+        cards = await playSession(page);
     });
 
     await test.step('4 cards for each open pair, none between English and Spanish', async () => {
-        const pairs = cards.map(({ prompt, solution }) => {
-            const sides = [LANGUAGE_OF.get(prompt), LANGUAGE_OF.get(solution)];
-            expect(sides, `the card "${prompt}" -> "${solution}" has a known language on each side`).not.toContain(undefined);
-            return [...(sides as string[])].sort().join(' & ');
-        });
+        const pairs = cards.map(pairOf);
         expect(pairs.filter((pair) => pair === 'English & German')).toHaveLength(4);
         expect(pairs.filter((pair) => pair === 'German & Spanish')).toHaveLength(4);
         expect(pairs.filter((pair) => pair === 'English & Spanish')).toHaveLength(0);
         expect(cards).toHaveLength(8);
+    });
+
+    await test.step('Practice with "Include": all 12 exercises, 4 of them between English and Spanish', async () => {
+        // From the results of the first session back to the set-up.
+        await page.getByRole('button', { name: 'Back to set-up' }).click();
+        await configure(page, { amount: 12, answer: 'Type the answer', languages: 'Different languages' });
+        const pairsOption = page.getByRole('radiogroup', { name: 'Mastered language pairs' });
+        if (!(await pairsOption.isVisible())) await page.getByRole('button', { name: 'Advanced' }).click();
+        await pairsOption.getByRole('radio', { name: /Include/ }).click();
+        await startSession(page);
+
+        const all = (await playSession(page)).map(pairOf);
+        expect(all).toHaveLength(12);
+        expect(all.filter((pair) => pair === 'English & Spanish')).toHaveLength(4);
+        expect(all.filter((pair) => pair === 'English & German')).toHaveLength(4);
+        expect(all.filter((pair) => pair === 'German & Spanish')).toHaveLength(4);
     });
 });

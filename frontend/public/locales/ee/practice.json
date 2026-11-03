@@ -30,7 +30,8 @@
       "mcDifficulty": "Valikute raskus",
       "tiStrictness": "Kirjutamise täpsus",
       "wordOrder": "Sõnade järjekord",
-      "nativeLanguage": "Emakeel"
+      "nativeLanguage": "Emakeel",
+      "masteredPairs": "Selgeks õpitud keelepaarid"
     },
     "advanced": {
       "title": "Lisaseaded"
@@ -54,9 +55,17 @@
         "include": "Kaasa",
         "exclude": "Jäta välja"
       },
+      "pairs": {
+        "include": "Kaasa",
+        "exclude": "Jäta välja"
+      },
       "nativeDesc": {
         "include": "Ühe keele harjutusi keeles {{language}} võib tulla.",
         "exclude": "Ühe keele harjutusi keeles {{language}} ei tule."
+      },
+      "pairsDesc": {
+        "include": "Harjutused võivad ühendada selgeks õpitud paari kaht keelt.",
+        "exclude": "Selgeks õpitud paari kahe keele vahel harjutusi ei tule."
       }
     },
     "levels": {
@@ -89,7 +98,8 @@
       "posPreselected": "Valitud sõnade puhul saab valida ainult nende sõnaliike. Omadussõnade, määrsõnade, sidesõnade ja kaassõnade jaoks ei ole veel harjutusi.",
       "notInPreselection": "Ei ole valitud sõnade seas",
       "preselectedNoExercises": "Ühelgi valitud sõnal ei ole sõnaliiki, mille jaoks on harjutusi. Eemalda eelvalik, et harjutada teisi sõnu.",
-      "nativeLanguageNamed": "{{language}} · mõjutab ühe keele harjutusi"
+      "nativeLanguageNamed": "{{language}} · mõjutab ühe keele harjutusi",
+      "masteredPairsNamed": "{{pairs}} · mõjutab eri keelte harjutusi"
     },
     "preselected": {
       "title_one": "Harjuta {{count}} valitud sõnaga",

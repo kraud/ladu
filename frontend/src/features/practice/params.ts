@@ -3,6 +3,7 @@
  * settings matter for the current choices. Pure — no React, no storage.
  * Spec: phase-5-practice.md §A.3 and Part C §C.3.
  */
+import { languageByLabel } from '@/lib/language';
 import { Lang, PartOfSpeech } from '@/ts/enums';
 import type { GenerateBody, PracticeParams } from './types';
 
@@ -42,6 +43,7 @@ export function defaultParams(userLanguages: readonly string[]): PracticeParams 
         strictnessTI: 2,
         wordSelection: 'Exercise-Performance',
         excludeNative: false,
+        excludeMasteredPairs: true,
     };
 }
 
@@ -74,17 +76,27 @@ export function validateParams(params: Omit<PracticeParams, 'amount'> & { amount
     return errors;
 }
 
+/** The account's mastered pairs for a hint or a summary: `English & Español, Français & Deutsch`. */
+export function masteredPairsText(pairs: readonly (readonly string[])[]): string {
+    const name = (label: string) => languageByLabel(label)?.native ?? label;
+    return pairs.map(([a, b]) => `${name(a)} & ${name(b)}`).join(', ');
+}
+
 /** Which advanced settings do anything for these choices (irrelevant ones are hidden or disabled). */
 export function relevantSettings(
     params: Pick<PracticeParams, 'type' | 'multiLang'>,
     nativeLanguage: string | null,
-): { mcDifficulty: boolean; tiStrictness: boolean; nativeLanguage: boolean } {
+    hasMasteredPairs = false,
+): { mcDifficulty: boolean; tiStrictness: boolean; nativeLanguage: boolean; masteredPairs: boolean } {
     return {
         // Distractor levels only exist for multi-language choices.
         mcDifficulty: params.type !== 'Text-Input' && params.multiLang !== 'Single-Language',
         tiStrictness: params.type !== 'Multiple-Choice',
         // "Different languages" never uses the native-language switch (A.3).
         nativeLanguage: nativeLanguage !== null && params.multiLang !== 'Multi-Language',
+        // Mastered pairs only change exercises between two languages (D8): they need a pair on the account
+        // and a mode that has such exercises.
+        masteredPairs: hasMasteredPairs && params.multiLang !== 'Single-Language',
     };
 }
 
@@ -116,6 +128,7 @@ export function toGenerateBody(params: PracticeParams, wordIds?: readonly string
         difficultyMC: params.difficultyMC,
         wordSelection: params.wordSelection,
         excludeNative: params.excludeNative,
+        excludeMasteredPairs: params.excludeMasteredPairs,
     };
     if (wordIds && wordIds.length > 0) body.wordIds = [...wordIds];
     return body;

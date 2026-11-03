@@ -334,6 +334,7 @@ export function makeConfig(overrides: Partial<SavedConfig> = {}): SavedConfig {
             strictnessTI: 3,
             wordSelection: 'Random',
             excludeNative: false,
+            excludeMasteredPairs: true,
         },
         wordIds: null,
         tagIds: null,

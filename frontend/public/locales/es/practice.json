@@ -30,7 +30,8 @@
       "mcDifficulty": "Dificultad de las opciones",
       "tiStrictness": "Exigencia al escribir",
       "wordOrder": "Orden de las palabras",
-      "nativeLanguage": "Idioma nativo"
+      "nativeLanguage": "Idioma nativo",
+      "masteredPairs": "Pares de idiomas dominados"
     },
     "advanced": {
       "title": "Avanzado"
@@ -54,9 +55,17 @@
         "include": "Incluir",
         "exclude": "Excluir"
       },
+      "pairs": {
+        "include": "Incluir",
+        "exclude": "Excluir"
+      },
       "nativeDesc": {
         "include": "Pueden aparecer ejercicios del mismo idioma en {{language}}.",
         "exclude": "Sin ejercicios del mismo idioma en {{language}}."
+      },
+      "pairsDesc": {
+        "include": "Pueden aparecer ejercicios entre los dos idiomas de un par dominado.",
+        "exclude": "Sin ejercicios entre los dos idiomas de un par dominado."
       }
     },
     "levels": {
@@ -89,7 +98,8 @@
       "posPreselected": "Con palabras seleccionadas, solo se pueden elegir sus tipos de palabra. Los adjetivos, los adverbios, las conjunciones y las preposiciones aún no tienen ejercicios.",
       "notInPreselection": "No está en las palabras seleccionadas",
       "preselectedNoExercises": "Ninguna de las palabras seleccionadas tiene un tipo de palabra con ejercicios. Quita la preselección para practicar tus otras palabras.",
-      "nativeLanguageNamed": "{{language}} · afecta a los ejercicios del mismo idioma"
+      "nativeLanguageNamed": "{{language}} · afecta a los ejercicios del mismo idioma",
+      "masteredPairsNamed": "{{pairs}} · afecta a los ejercicios en idiomas distintos"
     },
     "preselected": {
       "title_one": "Practicar con {{count}} palabra seleccionada",

@@ -3,6 +3,7 @@ import { Lang, PartOfSpeech } from '@/ts/enums';
 import {
     defaultParams,
     knownLanguages,
+    masteredPairsText,
     narrowPartsOfSpeech,
     onlyPartsWithoutExercises,
     relevantSettings,
@@ -24,6 +25,8 @@ describe('defaultParams', () => {
             strictnessTI: 2,
             wordSelection: 'Exercise-Performance',
             excludeNative: false,
+            // Mastered language pairs are skipped by default (practice.md D8).
+            excludeMasteredPairs: true,
         });
     });
 
@@ -85,6 +88,15 @@ describe('relevantSettings', () => {
         expect(relevantSettings({ type: 'Text-Input', multiLang: 'Multi-Language' }, 'Spanish').nativeLanguage).toBe(false);
         expect(relevantSettings({ type: 'Text-Input', multiLang: 'Random' }, null).nativeLanguage).toBe(false);
     });
+
+    it('the mastered-pairs switch needs a mastered pair on the account and a mode with different languages', () => {
+        const text = { type: 'Text-Input' as const };
+        expect(relevantSettings({ ...text, multiLang: 'Random' }, null, true).masteredPairs).toBe(true);
+        expect(relevantSettings({ ...text, multiLang: 'Multi-Language' }, null, true).masteredPairs).toBe(true);
+        expect(relevantSettings({ ...text, multiLang: 'Single-Language' }, null, true).masteredPairs).toBe(false);
+        expect(relevantSettings({ ...text, multiLang: 'Random' }, null, false).masteredPairs).toBe(false);
+        expect(relevantSettings({ ...text, multiLang: 'Random' }, null).masteredPairs).toBe(false);
+    });
 });
 
 describe('onlyPartsWithoutExercises', () => {
@@ -116,7 +128,21 @@ describe('toGenerateBody', () => {
             difficultyMC: 3,
             wordSelection: 'Random',
             excludeNative: true,
+            excludeMasteredPairs: true,
         });
+    });
+
+    it('sends the mastered-pairs choice', () => {
+        expect(toGenerateBody({ ...base, excludeMasteredPairs: false }).excludeMasteredPairs).toBe(false);
+        expect(toGenerateBody({ ...base, excludeMasteredPairs: true }).excludeMasteredPairs).toBe(true);
+    });
+});
+
+describe('masteredPairsText', () => {
+    it('names each pair with the native names of its languages, joined by commas', () => {
+        expect(masteredPairsText([['English', 'Spanish']])).toBe('English & Español');
+        expect(masteredPairsText([['English', 'Spanish'], ['French', 'German']])).toBe('English & Español, Français & Deutsch');
+        expect(masteredPairsText([])).toBe('');
     });
 });
 

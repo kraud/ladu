@@ -30,7 +30,8 @@
       "mcDifficulty": "Difficulté des choix",
       "tiStrictness": "Rigueur de la saisie",
       "wordOrder": "Ordre des mots",
-      "nativeLanguage": "Langue maternelle"
+      "nativeLanguage": "Langue maternelle",
+      "masteredPairs": "Paires de langues maîtrisées"
     },
     "advanced": {
       "title": "Avancé"
@@ -54,9 +55,17 @@
         "include": "Inclure",
         "exclude": "Exclure"
       },
+      "pairs": {
+        "include": "Inclure",
+        "exclude": "Exclure"
+      },
       "nativeDesc": {
         "include": "Des exercices dans une seule langue ({{language}}) peuvent apparaître.",
         "exclude": "Aucun exercice dans une seule langue ({{language}})."
+      },
+      "pairsDesc": {
+        "include": "Des exercices entre les deux langues d’une paire maîtrisée peuvent apparaître.",
+        "exclude": "Aucun exercice entre les deux langues d’une paire maîtrisée."
       }
     },
     "levels": {
@@ -89,7 +98,8 @@
       "posPreselected": "Avec des mots sélectionnés, seuls leurs types de mots peuvent être choisis. Les adjectifs, adverbes, conjonctions et prépositions n’ont pas encore d’exercices.",
       "notInPreselection": "Pas dans les mots sélectionnés",
       "preselectedNoExercises": "Aucun des mots sélectionnés n’a encore de type de mot avec des exercices. Retire la présélection pour t’entraîner avec tes autres mots.",
-      "nativeLanguageNamed": "{{language}} · influence les exercices dans une seule langue"
+      "nativeLanguageNamed": "{{language}} · influence les exercices dans une seule langue",
+      "masteredPairsNamed": "{{pairs}} · influence les exercices en langues différentes"
     },
     "preselected": {
       "title_one": "S’entraîner avec {{count}} mot sélectionné",

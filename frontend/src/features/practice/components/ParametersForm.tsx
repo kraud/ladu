@@ -21,6 +21,7 @@ import { useGenerateExercises } from '../hooks';
 import { practiceErrorKey } from '../errors';
 import {
     knownLanguages,
+    masteredPairsText,
     PARTS_OF_SPEECH_WITH_EXERCISES,
     relevantSettings,
     SELECTABLE_PARTS_OF_SPEECH,
@@ -129,7 +130,7 @@ export function ParametersForm({
     const amount = amountText.trim() === '' ? Number.NaN : Number(amountText);
     const errors = validateParams({ ...params, amount });
     const valid = Object.keys(errors).length === 0;
-    const relevant = relevantSettings(params, user.nativeLanguage);
+    const relevant = relevantSettings(params, user.nativeLanguage, user.masteredLanguagePairs.length > 0);
     const nativeName = user.nativeLanguage
         ? (languageByLabel(user.nativeLanguage)?.native ?? user.nativeLanguage)
         : '';
@@ -427,6 +428,21 @@ export function ParametersForm({
                                             description: t(`practice:setup.options.nativeDesc.${value}`, {
                                                 language: nativeName,
                                             }),
+                                        }))}
+                                    />
+                                )}
+                                {relevant.masteredPairs && (
+                                    <OptionRow
+                                        label={t('practice:setup.labels.masteredPairs')}
+                                        hint={t('practice:setup.hints.masteredPairsNamed', {
+                                            pairs: masteredPairsText(user.masteredLanguagePairs),
+                                        })}
+                                        value={params.excludeMasteredPairs ? 'exclude' : 'include'}
+                                        onChange={(next) => change({ excludeMasteredPairs: next === 'exclude' })}
+                                        options={(['include', 'exclude'] as const).map((value) => ({
+                                            value,
+                                            label: t(`practice:setup.options.pairs.${value}`),
+                                            description: t(`practice:setup.options.pairsDesc.${value}`),
                                         }))}
                                     />
                                 )}
