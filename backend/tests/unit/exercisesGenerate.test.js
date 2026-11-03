@@ -129,6 +129,50 @@ describe('multi-language generation', () => {
     });
 });
 
+// Mastered language pairs (.context/features/practice.md D8): a pair the user no longer wants to
+// practise together gives no multi-language exercise, in either direction. Each language stays
+// in use with the others, and single-language drills do not change.
+describe('mastered language pairs', () => {
+    const trilingual = () =>
+        word('w3', 'Noun', {
+            English: { singularEN: 'house', pluralEN: 'houses' },
+            Spanish: { singularES: 'casa', pluralES: 'casas' },
+            German: { singularNominativDE: 'Haus' },
+        });
+    const languages = ['English', 'Spanish', 'German'];
+    const pairsOf = (out) =>
+        new Set(out.map((e) => [e.matchingTranslations.itemA.language, e.matchingTranslations.itemB.language].sort().join('+')));
+
+    it('gives every pair when no pair is mastered', () => {
+        expect(pairsOf(gen(trilingual(), { languages, masteredPairs: [] }))).toEqual(
+            new Set(['English+Spanish', 'English+German', 'German+Spanish']),
+        );
+    });
+
+    it('skips the mastered pair and keeps the other pairs', () => {
+        const out = gen(trilingual(), { languages, masteredPairs: [['English', 'Spanish']] });
+        expect(pairsOf(out)).toEqual(new Set(['English+German', 'German+Spanish']));
+    });
+
+    it('treats a pair the same in both orders', () => {
+        const out = gen(trilingual(), { languages, masteredPairs: [['Spanish', 'English']] });
+        expect(pairsOf(out)).toEqual(new Set(['English+German', 'German+Spanish']));
+    });
+
+    it('gives no multi-language exercise when the only pair is mastered', () => {
+        const out = gen(house(), { languages: ['English', 'Spanish'], masteredPairs: [['English', 'Spanish']] });
+        expect(out).toEqual([]);
+    });
+
+    it('does not change single-language drills', () => {
+        const o = { languages: ['English', 'Spanish'], multiLang: 'Single-Language', type: 'Multiple-Choice' };
+        const without = gen(house(), o);
+        const withPair = gen(house(), { ...o, masteredPairs: [['English', 'Spanish']] });
+        expect(without.length).toBeGreaterThan(0);
+        expect(withPair).toEqual(without);
+    });
+});
+
 describe('single-language generation', () => {
     const spanishNoun = () => word('n', 'Noun', { Spanish: { singularES: 'casa', genderES: 'la' } });
 

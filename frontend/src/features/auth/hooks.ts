@@ -139,8 +139,8 @@ export function useSetPassword() {
 /**
  * Persist a profile change (`PUT /api/users/updateUser`) and fold the fresh row
  * back into the session. The response carries no token — `setSession` keeps the
- * current one. Callers MUST send a complete `UpdateProfileRequest`: the endpoint
- * clears `nativeLanguage` whenever the key is absent (`types.ts`).
+ * current one. The endpoint keeps every field the body leaves out, so a caller sends only the
+ * fields it changes, plus `email` (`UpdateProfileRequest`, `types.ts`).
  */
 export function useUpdateProfile() {
     const { t } = useTranslation();

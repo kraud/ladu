@@ -304,7 +304,7 @@ describe('/demo/ended', () => {
 });
 
 describe('demo session helpers', () => {
-    const base = { id: 'd', name: 'Demo', email: 'd@x', username: 'd', languages: [], uiLanguage: 'English', nativeLanguage: null, verified: true };
+    const base = { id: 'd', name: 'Demo', email: 'd@x', username: 'd', languages: [], uiLanguage: 'English', nativeLanguage: null, masteredLanguagePairs: [], verified: true };
 
     it('demoMsLeft: the time left for a demo, null for anything else', () => {
         const now = Date.parse('2026-10-15T12:00:00.000Z');

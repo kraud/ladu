@@ -3,7 +3,7 @@
  * the URL, so a set-up can be shared or bookmarked, and a reload keeps it.
  * Same hand-rolled `validateSearch` pattern as `features/words/review/search.ts`.
  *
- *   ?lang=EN,ES&pos=Noun&pos=Verb&n=10&card=text&mode=mixed&mc=1&ti=2&order=weakest&native=include
+ *   ?lang=EN,ES&pos=Noun&pos=Verb&n=10&card=text&mode=mixed&mc=1&ti=2&order=weakest&native=include&pairs=exclude
  *
  * Short codes keep the URL readable. Every field is optional and every invalid
  * value is dropped (never an error): a stale or hand-typed URL falls back to
@@ -30,6 +30,7 @@ export type CardCode = 'text' | 'choice' | 'random';
 export type ModeCode = 'different' | 'same' | 'mixed';
 export type OrderCode = 'weakest' | 'random';
 export type NativeCode = 'include' | 'exclude';
+export type PairsCode = 'include' | 'exclude';
 
 export interface PracticeSearch {
     lang?: LangKey[];
@@ -41,6 +42,7 @@ export interface PracticeSearch {
     ti?: StrictnessTI;
     order?: OrderCode;
     native?: NativeCode;
+    pairs?: PairsCode;
 }
 
 const CARD_TO_PARAM: Record<CardCode, CardTypeParam> = {
@@ -114,6 +116,7 @@ export function validatePracticeSearch(search: Record<string, unknown>): Practic
         ti: ti !== undefined && ti >= 1 && ti <= 3 ? (ti as StrictnessTI) : undefined,
         order: oneOf(search.order, ['weakest', 'random']),
         native: oneOf(search.native, ['include', 'exclude']),
+        pairs: oneOf(search.pairs, ['include', 'exclude']),
     };
 }
 
@@ -143,6 +146,7 @@ export function searchToParams(
         strictnessTI: search.ti ?? base.strictnessTI,
         wordSelection: search.order ? ORDER_TO_PARAM[search.order] : base.wordSelection,
         excludeNative: search.native ? search.native === 'exclude' : base.excludeNative,
+        excludeMasteredPairs: search.pairs ? search.pairs === 'exclude' : base.excludeMasteredPairs,
     };
 }
 
@@ -162,5 +166,7 @@ export function paramsToSearch(params: PracticeParams): PracticeSearch {
         ti: params.strictnessTI,
         order: PARAM_TO_ORDER[params.wordSelection],
         native: params.excludeNative ? 'exclude' : 'include',
+        // Only an explicit `false` is "include": a stored setting from before the option existed has no field and keeps the default.
+        pairs: params.excludeMasteredPairs === false ? 'include' : 'exclude',
     };
 }

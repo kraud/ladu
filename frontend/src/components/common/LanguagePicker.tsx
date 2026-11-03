@@ -12,10 +12,13 @@ export function LanguagePicker({
     value,
     onChange,
     'aria-invalid': ariaInvalid,
+    'aria-label': ariaLabel,
 }: {
     value: string[];
     onChange: (next: string[]) => void;
     'aria-invalid'?: boolean;
+    /** accessible name of the group, when the page has more than one group of language buttons */
+    'aria-label'?: string;
 }) {
     function toggle(label: string) {
         onChange(
@@ -24,7 +27,7 @@ export function LanguagePicker({
     }
 
     return (
-        <div className="flex flex-wrap gap-2" role="group" aria-invalid={ariaInvalid || undefined}>
+        <div className="flex flex-wrap gap-2" role="group" aria-label={ariaLabel} aria-invalid={ariaInvalid || undefined}>
             {UI_LANGUAGES.map((lang) => (
                 <button
                     key={lang.key}

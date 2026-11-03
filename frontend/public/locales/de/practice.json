@@ -30,7 +30,8 @@
       "mcDifficulty": "Schwierigkeit der Auswahl",
       "tiStrictness": "Genauigkeit beim Tippen",
       "wordOrder": "Reihenfolge der Wörter",
-      "nativeLanguage": "Muttersprache"
+      "nativeLanguage": "Muttersprache",
+      "masteredPairs": "Beherrschte Sprachpaare"
     },
     "advanced": {
       "title": "Erweitert"
@@ -54,9 +55,17 @@
         "include": "Einbeziehen",
         "exclude": "Ausschließen"
       },
+      "pairs": {
+        "include": "Einbeziehen",
+        "exclude": "Ausschließen"
+      },
       "nativeDesc": {
         "include": "Übungen in einer Sprache können auf {{language}} erscheinen.",
         "exclude": "Keine Übungen in einer Sprache auf {{language}}."
+      },
+      "pairsDesc": {
+        "include": "Übungen können die zwei Sprachen eines beherrschten Paares kombinieren.",
+        "exclude": "Keine Übungen zwischen den zwei Sprachen eines beherrschten Paares."
       }
     },
     "levels": {

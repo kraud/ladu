@@ -50,6 +50,11 @@ export interface GenerateRequest {
     difficultyMC: number;
     wordSelection: WordSelection;
     excludeNative: boolean;
+    /**
+     * Skip the account's mastered language pairs (`users.mastered_language_pairs`, practice.md D8).
+     * A missing value means `true`: every client and saved configuration from before the option existed.
+     */
+    excludeMasteredPairs: boolean;
     /** Present only when the client pre-selected words. */
     wordIds?: string[];
 }
@@ -92,6 +97,9 @@ export function validateGenerateRequest(body: unknown): Validation<GenerateReque
     if (body.excludeNative !== undefined && typeof body.excludeNative !== 'boolean') {
         return fail('invalid_exclude_native', 'excludeNative must be true or false.');
     }
+    if (body.excludeMasteredPairs !== undefined && typeof body.excludeMasteredPairs !== 'boolean') {
+        return fail('invalid_exclude_mastered_pairs', 'excludeMasteredPairs must be true or false.');
+    }
 
     let wordIds: string[] | undefined;
     if (body.wordIds !== undefined) {
@@ -114,6 +122,7 @@ export function validateGenerateRequest(body: unknown): Validation<GenerateReque
             difficultyMC,
             wordSelection,
             excludeNative: body.excludeNative === true,
+            excludeMasteredPairs: body.excludeMasteredPairs !== false,
             wordIds,
         },
     };

@@ -30,7 +30,8 @@
       "mcDifficulty": "Choice difficulty",
       "tiStrictness": "Typing strictness",
       "wordOrder": "Word order",
-      "nativeLanguage": "Native language"
+      "nativeLanguage": "Native language",
+      "masteredPairs": "Mastered language pairs"
     },
     "advanced": {
       "title": "Advanced"
@@ -54,9 +55,17 @@
         "include": "Include",
         "exclude": "Exclude"
       },
+      "pairs": {
+        "include": "Include",
+        "exclude": "Exclude"
+      },
       "nativeDesc": {
         "include": "Same-language exercises in {{language}} can appear.",
         "exclude": "No same-language exercises in {{language}}."
+      },
+      "pairsDesc": {
+        "include": "Exercises can combine the two languages of a mastered pair.",
+        "exclude": "No exercises between the two languages of a mastered pair."
       }
     },
     "levels": {

@@ -20,6 +20,19 @@
     "emptyBody": "Wähle mindestens zwei Sprachen aus, damit dein Arbeitsbereich korrekt dargestellt wird.",
     "emptyCta": "Sprachen auswählen"
   },
+  "masteredPairs": {
+    "title": "Beherrschte Sprachpaare",
+    "hint": "Optional. Beim Üben werden die zwei Sprachen eines Paares nicht in einer Übung kombiniert. Du kannst jede Sprache weiter mit deinen anderen Sprachen üben. Lass mindestens ein Paar offen.",
+    "none": "Keine Paare",
+    "first": "Erste Sprache",
+    "second": "Zweite Sprache",
+    "add": "Paar hinzufügen",
+    "remove": "Paar {{first}} & {{second}} entfernen",
+    "needThird": "Wähle eine dritte Sprache, um ein Paar als beherrscht zu markieren.",
+    "errors": {
+      "allMastered": "Lass mindestens ein Paar offen. Wenn du jedes Paar beherrschst, hat das Üben keine Übung, die zwei Sprachen kombiniert."
+    }
+  },
   "toasts": {
     "discarded": "Änderungen verworfen"
   },

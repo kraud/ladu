@@ -30,7 +30,8 @@
       "mcDifficulty": "Dificultad de las opciones",
       "tiStrictness": "Exigencia al escribir",
       "wordOrder": "Orden de las palabras",
-      "nativeLanguage": "Idioma nativo"
+      "nativeLanguage": "Idioma nativo",
+      "masteredPairs": "Pares de idiomas dominados"
     },
     "advanced": {
       "title": "Avanzado"
@@ -54,9 +55,17 @@
         "include": "Incluir",
         "exclude": "Excluir"
       },
+      "pairs": {
+        "include": "Incluir",
+        "exclude": "Excluir"
+      },
       "nativeDesc": {
         "include": "Pueden aparecer ejercicios del mismo idioma en {{language}}.",
         "exclude": "Sin ejercicios del mismo idioma en {{language}}."
+      },
+      "pairsDesc": {
+        "include": "Pueden aparecer ejercicios entre los dos idiomas de un par dominado.",
+        "exclude": "Sin ejercicios entre los dos idiomas de un par dominado."
       }
     },
     "levels": {

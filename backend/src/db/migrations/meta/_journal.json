@@ -239,6 +239,13 @@
       "when": 1792420768172,
       "tag": "0033_access_requests",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1793645373063,
+      "tag": "0034_mastered_language_pairs",
+      "breakpoints": true
     }
   ]
 }

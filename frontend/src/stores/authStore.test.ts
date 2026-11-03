@@ -51,8 +51,26 @@ describe('toSessionUser — normalizes every backend shape', () => {
             uiLanguage: 'English',
             theme: null,
             nativeLanguage: null,
+            masteredLanguagePairs: [],
             verified: true,
         });
+    });
+
+    it('keeps the mastered language pairs and drops an entry that is not a pair of two strings', () => {
+        const raw: RawUser = {
+            id: 'u1',
+            email: 'ada@example.com',
+            masteredLanguagePairs: [['English', 'Spanish'], ['English'], 'German', [1, 2], ['German', 'French']],
+        };
+        expect(toSessionUser(raw).masteredLanguagePairs).toEqual([
+            ['English', 'Spanish'],
+            ['German', 'French'],
+        ]);
+    });
+
+    it('reads a missing or malformed mastered-pairs value as no pairs', () => {
+        expect(toSessionUser({ id: 'u1', email: 'a@b.c' }).masteredLanguagePairs).toEqual([]);
+        expect(toSessionUser({ id: 'u1', email: 'a@b.c', masteredLanguagePairs: 'English+Spanish' }).masteredLanguagePairs).toEqual([]);
     });
 
     it('keeps a saved theme and reads anything else (missing, null, "system") as null', () => {
@@ -164,6 +182,45 @@ describe('guarded rehydration', () => {
         await useAuthStore.persist.rehydrate();
         expect(useAuthStore.getState().user).toMatchObject({ id: 'u1', email: 'a@x.com' });
         expect(useAuthStore.getState().token).toBe(token);
+    });
+
+    // A browser keeps its session across a deploy. A session saved before a field existed must read
+    // as the field's empty value, not as `undefined`: `user.masteredLanguagePairs.length` crashed the
+    // Account page of every user who was signed in before the mastered language pairs shipped.
+    describe('a session saved before a field existed', () => {
+        const restore = async (user: Record<string, unknown>) => {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({ state: { user, token: futureToken() }, version: 0 }));
+            await useAuthStore.persist.rehydrate();
+            return useAuthStore.getState().user;
+        };
+        const old = { id: 'u1', email: 'a@x.com', name: 'Ada', username: 'ada', languages: ['English', 'Spanish'] };
+
+        it('reads missing mastered language pairs as an empty list', async () => {
+            expect((await restore(old))?.masteredLanguagePairs).toEqual([]);
+        });
+
+        it('reads malformed mastered language pairs as an empty list', async () => {
+            expect((await restore({ ...old, masteredLanguagePairs: 'English+Spanish' }))?.masteredLanguagePairs).toEqual([]);
+            expect((await restore({ ...old, masteredLanguagePairs: null }))?.masteredLanguagePairs).toEqual([]);
+        });
+
+        it('keeps the stored mastered language pairs, and the rest of the session', async () => {
+            const user = await restore({ ...old, masteredLanguagePairs: [['English', 'Spanish']], nativeLanguage: 'Spanish' });
+            expect(user).toMatchObject({
+                id: 'u1',
+                name: 'Ada',
+                languages: ['English', 'Spanish'],
+                nativeLanguage: 'Spanish',
+                masteredLanguagePairs: [['English', 'Spanish']],
+            });
+        });
+
+        it('keeps the token of the restored session', async () => {
+            const token = futureToken();
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({ state: { user: old, token }, version: 0 }));
+            await useAuthStore.persist.rehydrate();
+            expect(useAuthStore.getState().token).toBe(token);
+        });
     });
 });
 

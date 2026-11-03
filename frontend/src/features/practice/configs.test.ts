@@ -34,8 +34,15 @@ describe('configToParams', () => {
             strictnessTI: 3 as const,
             wordSelection: 'Random' as const,
             excludeNative: true,
+            excludeMasteredPairs: false,
         };
         expect(configToParams(stored, account, null)).toEqual(stored);
+    });
+
+    // A configuration saved before the option existed has no such field: it keeps skipping the pairs.
+    it('reads a configuration saved before the mastered-pairs option as exclude', () => {
+        const { excludeMasteredPairs: _missing, ...old } = defaultParams(account);
+        expect(configToParams(old as never, account, null).excludeMasteredPairs).toBe(true);
     });
 
     it('drops a language the account no longer has', () => {

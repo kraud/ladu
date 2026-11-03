@@ -761,6 +761,121 @@ describe('PUT /api/users/updateUser - Update Profile', () => {
             expect(row.nativeLanguage).toBe('English');
         });
     });
+
+    // masteredLanguagePairs (.context/features/practice.md D8): pairs of the user's own languages
+    // that Practice never combines. Absent keeps the stored value, [] clears it. Pairs are
+    // stored sorted and without repeats. The set can never cover every pair of the languages.
+    describe('masteredLanguagePairs', () => {
+        const update = (extra) =>
+            request(app)
+                .put('/api/users/updateUser')
+                .set('Authorization', `Bearer ${token}`)
+                .send({ email: 'test@example.com', name: 'Test User', username: 'testuser', ...extra });
+        const three = ['English', 'Spanish', 'German'];
+        const stored = async () => (await db.select().from(users).where(eq(users.id, userId)))[0].masteredLanguagePairs;
+
+        it('starts as an empty list', async () => {
+            const res = await request(app).get('/api/users/me').set('Authorization', `Bearer ${token}`);
+
+            expect(res.body.masteredLanguagePairs).toEqual([]);
+        });
+
+        it('stores a pair and returns it from the update, from GET /me and from login', async () => {
+            const res = await update({ languages: three, masteredLanguagePairs: [['Spanish', 'English']] });
+
+            expect(res.statusCode).toBe(200);
+            expect(res.body.masteredLanguagePairs).toEqual([['English', 'Spanish']]);
+            expect(await stored()).toEqual([['English', 'Spanish']]);
+            const me = await request(app).get('/api/users/me').set('Authorization', `Bearer ${token}`);
+            expect(me.body.masteredLanguagePairs).toEqual([['English', 'Spanish']]);
+            const login = await request(app)
+                .post('/api/users/login')
+                .send({ email: 'test@example.com', password: 'password123' });
+            expect(login.body.masteredLanguagePairs).toEqual([['English', 'Spanish']]);
+        });
+
+        it('stores the same pair once, whatever the order of its languages', async () => {
+            const res = await update({
+                languages: three,
+                masteredLanguagePairs: [['English', 'Spanish'], ['Spanish', 'English']],
+            });
+
+            expect(res.statusCode).toBe(200);
+            expect(res.body.masteredLanguagePairs).toEqual([['English', 'Spanish']]);
+        });
+
+        it('keeps the stored pairs when the key is omitted', async () => {
+            await update({ languages: three, masteredLanguagePairs: [['English', 'Spanish']] });
+
+            const res = await update({ name: 'Renamed' });
+
+            expect(res.statusCode).toBe(200);
+            expect(res.body.masteredLanguagePairs).toEqual([['English', 'Spanish']]);
+        });
+
+        it('clears the pairs when an empty list is sent', async () => {
+            await update({ languages: three, masteredLanguagePairs: [['English', 'Spanish']] });
+
+            const res = await update({ masteredLanguagePairs: [] });
+
+            expect(res.statusCode).toBe(200);
+            expect(res.body.masteredLanguagePairs).toEqual([]);
+        });
+
+        it('drops a stored pair when a new language selection no longer contains one of its languages, and keeps the others', async () => {
+            await update({
+                languages: [...three, 'French'],
+                masteredLanguagePairs: [['English', 'Spanish'], ['German', 'French']],
+            });
+
+            const res = await update({ languages: ['English', 'German', 'French'] });
+
+            expect(res.statusCode).toBe(200);
+            expect(res.body.masteredLanguagePairs).toEqual([['French', 'German']]);
+        });
+
+        it.each([
+            ['two equal languages', [['English', 'English']]],
+            ['an unsupported language', [['English', 'Klingon']]],
+            ['a language that is not one of the user\'s languages', [['English', 'German']]],
+            ['a pair with 3 languages', [['English', 'Spanish', 'German']]],
+            ['an entry that is not a list', ['English']],
+            ['a value that is not a list', 'English+Spanish'],
+            ['a null value', null],
+        ])('rejects %s with 400 and stores nothing', async (_label, value) => {
+            const res = await update({ masteredLanguagePairs: value });
+
+            expect(res.statusCode).toBe(400);
+            expect(await stored()).toEqual([]);
+        });
+
+        it('rejects a set that covers every pair of the user\'s languages', async () => {
+            const res = await update({ masteredLanguagePairs: [['English', 'Spanish']] });
+
+            expect(res.statusCode).toBe(400);
+            expect(res.body.message).toMatch(/at least one pair/i);
+            expect(await stored()).toEqual([]);
+        });
+
+        it('rejects a set that covers all 3 pairs of 3 languages, and accepts 2 of the 3', async () => {
+            const all = [['English', 'Spanish'], ['English', 'German'], ['Spanish', 'German']];
+
+            const blocked = await update({ languages: three, masteredLanguagePairs: all });
+            const allowed = await update({ languages: three, masteredLanguagePairs: all.slice(0, 2) });
+
+            expect(blocked.statusCode).toBe(400);
+            expect(allowed.statusCode).toBe(200);
+        });
+
+        it('rejects a language change that would leave a stored pair covering every pair', async () => {
+            await update({ languages: three, masteredLanguagePairs: [['English', 'Spanish']] });
+
+            const res = await update({ languages: ['English', 'Spanish'] });
+
+            expect(res.statusCode).toBe(400);
+            expect(await stored()).toEqual([['English', 'Spanish']]);
+        });
+    });
 });
 
 describe('GET /api/users/getUser/:id - Private lookup', () => {

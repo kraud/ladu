@@ -25,7 +25,7 @@ Supported languages: **EN, ES, DE, EE, FR** (English, Spanish, German, Estonian,
 ## 2. Domain Data Model & Conceptual Architecture
 To design an effective UI/UX, the agent must understand the underlying relationships between Entities in Ladu:
 
-* **User (`User`):** Stores account information, native language (`nativeLanguage`), UI language preference (`uiLanguage`), active learning languages (`languages`), and friend connections (`Friendship`).
+* **User (`User`):** Stores account information, native language (`nativeLanguage`), mastered language pairs (`masteredLanguagePairs`), UI language preference (`uiLanguage`), active learning languages (`languages`), and friend connections (`Friendship`).
 * **Word (`Word`):** The master logical concept for a single term (e.g., "to dance").
   * Belongs to a specific **Grammatical Category (`partOfSpeech`)**: `Noun`, `Verb`, `Adjective`, or `Adverb`.
   * Contains a collection of **Translations (`Translation`)**.
@@ -130,6 +130,7 @@ When starting a practice session, the UI must allow configuring:
   * **Multi-Language:** Prompt in Language A -> Answer in Language B.
   * **Single-Language:** Prompt is a grammatical description/case in Language A -> Answer in Language A (e.g., Conjugate *bailar* in 1st Person Present).
 * **Native Language Inclusion:** Option to exclude exercises testing into or from the user's native language.
+  * **Mastered Language Pairs:** An account setting (not a practice option). Pairs of the user's own languages that are never combined in a multi-language exercise. Each language stays in use with the others. See `features/practice.md` D8.
 * **Sorting & Spaced-Repetition Algorithms:**
   * **Exercise-Performance (Adaptive):** Prioritizes words/cases with lower knowledge scores or those due for review according to Ebbinghaus' spaced repetition memory decay curve.
   * **Random Selection:** Purely random word sampling.

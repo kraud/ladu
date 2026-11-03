@@ -30,7 +30,8 @@
       "mcDifficulty": "Valikute raskus",
       "tiStrictness": "Kirjutamise täpsus",
       "wordOrder": "Sõnade järjekord",
-      "nativeLanguage": "Emakeel"
+      "nativeLanguage": "Emakeel",
+      "masteredPairs": "Selgeks õpitud keelepaarid"
     },
     "advanced": {
       "title": "Lisaseaded"
@@ -54,9 +55,17 @@
         "include": "Kaasa",
         "exclude": "Jäta välja"
       },
+      "pairs": {
+        "include": "Kaasa",
+        "exclude": "Jäta välja"
+      },
       "nativeDesc": {
         "include": "Ühe keele harjutusi keeles {{language}} võib tulla.",
         "exclude": "Ühe keele harjutusi keeles {{language}} ei tule."
+      },
+      "pairsDesc": {
+        "include": "Harjutused võivad ühendada selgeks õpitud paari kaht keelt.",
+        "exclude": "Selgeks õpitud paari kahe keele vahel harjutusi ei tule."
       }
     },
     "levels": {

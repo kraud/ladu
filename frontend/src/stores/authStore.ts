@@ -32,6 +32,11 @@ export interface SessionUser {
      */
     theme?: Theme | null;
     nativeLanguage: string | null;
+    /**
+     * Pairs of language labels that Practice never combines in one exercise
+     * (.context/features/practice.md D8). Each pair is sorted. `[]` when none.
+     */
+    masteredLanguagePairs: string[][];
     verified: boolean;
     /**
      * Demo access (demo-access.md): true for a throwaway demo account. Optional, so a session
@@ -74,6 +79,7 @@ export interface RawUser {
     uiLanguage?: string | null;
     theme?: string | null;
     nativeLanguage?: string | null;
+    masteredLanguagePairs?: unknown;
     verified?: boolean | null;
     isDemo?: boolean | null;
     demoExpiresAt?: string | null;
@@ -105,6 +111,15 @@ function isOnboardingStatus(value: unknown): value is OnboardingStatus {
     return value === 'pending' || value === 'done' || value === 'skipped';
 }
 
+/** Keep only the entries that are a list of two strings; anything else (or a missing key) reads as no pairs. */
+function toLanguagePairs(value: unknown): string[][] {
+    if (!Array.isArray(value)) return [];
+    return value.filter(
+        (pair): pair is [string, string] =>
+            Array.isArray(pair) && pair.length === 2 && pair.every((l) => typeof l === 'string'),
+    );
+}
+
 /** Collapse any backend user shape into the one shape the app consumes. */
 export function toSessionUser(raw: RawUser): SessionUser {
     return {
@@ -116,6 +131,7 @@ export function toSessionUser(raw: RawUser): SessionUser {
         uiLanguage: raw.uiLanguage ?? 'English',
         theme: isTheme(raw.theme) ? raw.theme : null,
         nativeLanguage: raw.nativeLanguage ?? null,
+        masteredLanguagePairs: toLanguagePairs(raw.masteredLanguagePairs),
         // Only an account with a status carries the key, so an older account keeps its shape.
         ...(isOnboardingStatus(raw.onboardingStatus) ? { onboardingStatus: raw.onboardingStatus } : {}),
         // `users.verified` is nullable. A missing flag on a getMe refresh must
@@ -202,7 +218,12 @@ export const useAuthStore = create<AuthState>()(
                 if (error || !state) return;
                 if (isTokenExpired(state.token) || !isValidSessionUser(state.user)) {
                     state.clearSession();
+                    return;
                 }
+                // A browser keeps its session across a deploy, so the stored user can predate fields
+                // added since (`masteredLanguagePairs`). Run it through the same normalizer as every
+                // other way into the store: a missing field reads as its empty value, never `undefined`.
+                state.setSession(state.user);
             },
         },
     ),

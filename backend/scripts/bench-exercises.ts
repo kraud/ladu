@@ -125,6 +125,7 @@ async function main() {
             languages: LANGUAGES, partsOfSpeech: ['Noun'], amount: 10, type: 'Text-Input' as const,
             multiLang: 'Multi-Language' as const, difficultyMC: 1, wordSelection: 'Exercise-Performance' as const,
             excludeNative: false,
+            excludeMasteredPairs: true,
         };
         await time('warm-up', () => generateExercises(viewer, base), 1);
         await time('Text-Input, multi-language, weakest first, 10', () => generateExercises(viewer, base));

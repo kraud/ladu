@@ -264,6 +264,74 @@ describe('PracticePage — set-up', () => {
         expect(screen.queryByText('Native language')).not.toBeInTheDocument();
     });
 
+    // Mastered language pairs (practice.md D8): an account setting that Practice can ignore for one session.
+    describe('mastered language pairs switch', () => {
+        const WITH_PAIR = {
+            ...SESSION,
+            languages: ['English', 'Spanish', 'German'],
+            masteredLanguagePairs: [['English', 'Spanish'], ['English', 'German']],
+        };
+        const pairsGroup = () => screen.getByRole('radiogroup', { name: 'Mastered language pairs' });
+
+        it('is offered only with a mastered pair on the account, named, and not for "Same language"', async () => {
+            setUp();
+            const user = userEvent.setup();
+            await renderApp({ initialEntry: '/practice', session: WITH_PAIR });
+            await openNewConfigurationTab();
+
+            await user.click(await screen.findByRole('button', { name: 'Advanced' }));
+            // One pair per row under the title, with no clarification after the list.
+            const first = screen.getByText('English & Español');
+            const second = screen.getByText('English & Deutsch');
+            expect(first).not.toBe(second);
+            expect(first.parentElement).toBe(second.parentElement);
+            expect(screen.queryByText(/affects exercises in different languages/)).not.toBeInTheDocument();
+            // Excluding is the default.
+            expect(within(pairsGroup()).getByRole('radio', { name: /Exclude/, checked: true })).toBeInTheDocument();
+            expect(within(pairsGroup()).getByRole('radio', { name: /Include/, checked: false })).toBeInTheDocument();
+
+            await user.click(screen.getByRole('button', { name: 'Same language' }));
+            expect(screen.queryByText('Mastered language pairs')).not.toBeInTheDocument();
+        });
+
+        it('is not offered when the account has no mastered pair', async () => {
+            setUp();
+            const user = userEvent.setup();
+            await renderApp({ initialEntry: '/practice', session: { ...SESSION, languages: ['English', 'Spanish', 'German'] } });
+            await openNewConfigurationTab();
+
+            await user.click(await screen.findByRole('button', { name: 'Advanced' }));
+            expect(screen.getByText('Word order')).toBeInTheDocument();
+            expect(screen.queryByText('Mastered language pairs')).not.toBeInTheDocument();
+        });
+
+        it('sends excludeMasteredPairs true by default', async () => {
+            const fake = setUp();
+            const user = userEvent.setup();
+            await renderApp({ initialEntry: '/practice', session: WITH_PAIR });
+            await openNewConfigurationTab();
+
+            await user.click(await screen.findByRole('button', { name: 'Start session' }));
+            await waitFor(() => expect(fake.state.generateBodies).toHaveLength(1));
+            expect(fake.state.generateBodies[0]).toMatchObject({ excludeMasteredPairs: true });
+        });
+
+        it('sends false after choosing Include, and keeps the choice in the URL', async () => {
+            const fake = setUp();
+            const user = userEvent.setup();
+            const { router } = await renderApp({ initialEntry: '/practice', session: WITH_PAIR });
+            await openNewConfigurationTab();
+
+            await user.click(await screen.findByRole('button', { name: 'Advanced' }));
+            await user.click(within(pairsGroup()).getByRole('radio', { name: /Include/ }));
+            await waitFor(() => expect(router.state.location.search).toMatchObject({ pairs: 'include' }));
+
+            await user.click(screen.getByRole('button', { name: 'Start session' }));
+            await waitFor(() => expect(fake.state.generateBodies).toHaveLength(1));
+            expect(fake.state.generateBodies[0]).toMatchObject({ excludeMasteredPairs: false });
+        });
+    });
+
     it('starts from the remembered settings on the next visit', async () => {
         setUp();
         localStorage.setItem(REMEMBERED_KEY, JSON.stringify({ n: 7, card: 'choice' }));
@@ -470,6 +538,7 @@ describe('PracticePage — pre-selected words', () => {
                 strictnessTI: 2,
                 wordSelection: 'Exercise-Performance',
                 excludeNative: false,
+                excludeMasteredPairs: true,
             },
             wordIds: null,
             exercises: [makeExercise()],
@@ -498,6 +567,7 @@ describe('PracticePage — running session', () => {
                 strictnessTI: 2,
                 wordSelection: 'Exercise-Performance',
                 excludeNative: false,
+                excludeMasteredPairs: true,
             },
             wordIds: null,
             exercises: [makeExercise()],
@@ -526,6 +596,7 @@ describe('PracticePage — running session', () => {
                 strictnessTI: 2,
                 wordSelection: 'Exercise-Performance',
                 excludeNative: false,
+                excludeMasteredPairs: true,
             },
             wordIds: null,
             exercises: [makeExercise()],

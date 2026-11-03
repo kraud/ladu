@@ -4,6 +4,7 @@
  */
 
 import { MULTI_LANGUAGE, SINGLE_LANGUAGE } from './catalogue';
+import { pairKey } from '../../lib/masteredPairs';
 import { shuffle } from './rng';
 import type {
     CardType, CardTypeParam, ExerciseItem, ExerciseWord, Language, LanguageMode,
@@ -56,10 +57,13 @@ function multiLanguageExercises(
     type: CardTypeParam,
     rng: Rng,
     hintLanguage?: string,
+    masteredPairs: string[][] = [],
 ): RawExercise[] {
     const catalogue = MULTI_LANGUAGE[word.partOfSpeech as PartOfSpeech];
     if (!catalogue) return [];
-    const pairs = uniqueLanguagePairs(validLanguages);
+    // A mastered pair (.context/features/practice.md D8) gives no multi-language exercise.
+    const mastered = new Set(masteredPairs.map(([a, b]) => pairKey(a, b)));
+    const pairs = uniqueLanguagePairs(validLanguages).filter(([a, b]) => !mastered.has(pairKey(a, b)));
     const out: RawExercise[] = [];
 
     for (const slots of Object.values(catalogue)) {
@@ -135,7 +139,14 @@ function singleLanguageExercises(
  */
 export function generateExercisesForWord(
     word: ExerciseWord,
-    opts: { languages: string[]; type: CardTypeParam; multiLang: LanguageMode; nativeLanguage?: string; hintLanguage?: string },
+    opts: {
+        languages: string[];
+        type: CardTypeParam;
+        multiLang: LanguageMode;
+        nativeLanguage?: string;
+        hintLanguage?: string;
+        masteredPairs?: string[][];
+    },
     rng: Rng,
 ): RawExercise[] {
     const available = word.translations.map((t) => t.language);
@@ -144,12 +155,12 @@ export function generateExercisesForWord(
 
     switch (opts.multiLang) {
         case 'Multi-Language':
-            return multiLanguageExercises(valid, word, opts.type, rng, opts.hintLanguage);
+            return multiLanguageExercises(valid, word, opts.type, rng, opts.hintLanguage, opts.masteredPairs);
         case 'Single-Language':
             return singleLanguageExercises(valid, word, opts.type, native, opts.hintLanguage);
         case 'Random':
             return [
-                ...multiLanguageExercises(valid, word, opts.type, rng, opts.hintLanguage),
+                ...multiLanguageExercises(valid, word, opts.type, rng, opts.hintLanguage, opts.masteredPairs),
                 ...singleLanguageExercises(valid, word, opts.type, native, opts.hintLanguage),
             ];
         default:

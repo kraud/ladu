@@ -1,28 +1,25 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { WarningCircleIcon } from '@phosphor-icons/react';
-import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
-import { FlagIcon } from '@/components/common/FlagIcon';
-import { GoogleIcon } from '@/components/common/GoogleIcon';
 import { useAuthStore } from '@/stores/authStore';
-import { useLogout, useOAuthIdentities } from '@/features/auth/hooks';
-import { avatarColor, avatarInitials } from '@/lib/avatar';
-import { UI_LANGUAGES, languageByLabel } from '@/lib/language';
-import type { SessionUser } from '@/stores/authStore';
-import { ProfileForm } from '../components/ProfileForm';
+import { useLogout } from '@/features/auth/hooks';
 import { DemoAccountCard } from '@/features/demo/components/DemoAccountCard';
+import { AccountDetailsCard } from '../components/AccountDetailsCard';
+import { LanguagesCard } from '../components/LanguagesCard';
+
+/** The card in edit mode. Only one card is edited at a time. */
+type EditingCard = 'details' | 'languages' | null;
 
 /**
- * Account (`/user`). Phase 1 scope: view + edit the profile basics — name,
- * username, and the language selection (>= 2, order = preference). Email and
- * password are managed elsewhere. Tags, friends and drag-to-reorder languages
- * are Phase 7; this page grows into that.
+ * Account (`/user`): two cards. The account card (name, username, email, sign-in methods, Logout)
+ * and the languages card (selected languages, native language, mastered language pairs) take half
+ * of the row each on desktop. Below 920px, the app's one breakpoint, they stack in a column. Each card has its own edit button and form. While one card is in edit mode, the edit
+ * buttons of both cards are hidden. Tags, friends and drag-to-reorder languages are Phase 7.
  */
 export function AccountPage() {
     const { t } = useTranslation();
     const user = useAuthStore((s) => s.user);
-    const [editing, setEditing] = useState(false);
+    const [editing, setEditing] = useState<EditingCard>(null);
     const [confirmingLogout, setConfirmingLogout] = useState(false);
     const logout = useLogout();
 
@@ -37,41 +34,23 @@ export function AccountPage() {
 
             {user.isDemo && <DemoAccountCard />}
 
-            <section className="card max-w-2xl">
-                <div className="flex items-center gap-4 border-b border-border p-5">
-                    <span
-                        className="avatar h-14 w-14 text-lg"
-                        style={{ background: avatarColor(user.name), color: '#fff' }}
-                        aria-hidden
-                    >
-                        {avatarInitials(user.name)}
-                    </span>
-                    <div className="min-w-0">
-                        <div className="h2 text-lg">{user.name}</div>
-                        {/* A demo's username is synthetic (`demo-<uuid>`): say what the account is instead. */}
-                        <div className="meta">{user.isDemo ? t('demo:account.accountLabel') : `@${user.username}`}</div>
-                    </div>
-                    <span className="grow" />
-                    <div className="flex shrink-0 flex-col items-stretch gap-2">
-                        {!editing && (
-                            <Button onClick={() => setEditing(true)}>
-                                {t('common:buttons.editProfile')}
-                            </Button>
-                        )}
-                        <Button variant="outline" onClick={() => setConfirmingLogout(true)}>
-                            {t('common:header.settings.logout')}
-                        </Button>
-                    </div>
-                </div>
-
-                <div className="p-5">
-                    {editing ? (
-                        <ProfileForm user={user} onDone={() => setEditing(false)} />
-                    ) : (
-                        <ProfileView user={user} onEditLanguages={() => setEditing(true)} />
-                    )}
-                </div>
-            </section>
+            <div className="grid grid-cols-1 items-start gap-4 min-[921px]:grid-cols-2">
+                <AccountDetailsCard
+                    user={user}
+                    editing={editing === 'details'}
+                    canEdit={editing === null}
+                    onEdit={() => setEditing('details')}
+                    onDone={() => setEditing(null)}
+                    onLogout={() => setConfirmingLogout(true)}
+                />
+                <LanguagesCard
+                    user={user}
+                    editing={editing === 'languages'}
+                    canEdit={editing === null}
+                    onEdit={() => setEditing('languages')}
+                    onDone={() => setEditing(null)}
+                />
+            </div>
 
             <ConfirmDialog
                 open={confirmingLogout}
@@ -85,117 +64,6 @@ export function AccountPage() {
                     logout();
                 }}
             />
-        </div>
-    );
-}
-
-function ProfileView({
-    user,
-    onEditLanguages,
-}: {
-    user: SessionUser;
-    onEditLanguages: () => void;
-}) {
-    const { t } = useTranslation();
-    const total = UI_LANGUAGES.length;
-    const hasLanguages = user.languages.length > 0;
-    // A demo has no sign-in methods and no real username or email (demo-access.md D10).
-    const identities = useOAuthIdentities({ enabled: !user.isDemo });
-
-    return (
-        <div className="flex flex-col gap-5">
-            <div>
-                <p className="eyebrow mb-2">{t('account:sections.details')}</p>
-                <dl className="flex flex-col gap-1">
-                    <InfoRow label={t('loginRegister:formLabels.name')} value={user.name} />
-                    {!user.isDemo && (
-                        <>
-                            <InfoRow
-                                label={t('loginRegister:formLabels.username')}
-                                value={`@${user.username}`}
-                            />
-                            <InfoRow label={t('loginRegister:formLabels.email')} value={user.email} />
-                        </>
-                    )}
-                    <InfoRow
-                        label={t('account:fields.nativeLanguage')}
-                        value={
-                            user.nativeLanguage
-                                ? (languageByLabel(user.nativeLanguage)?.native ?? user.nativeLanguage)
-                                : t('account:fields.nativeLanguageNone')
-                        }
-                    />
-                    {identities.data && (
-                        <div className="grid grid-cols-[96px_1fr] items-baseline gap-3 py-1">
-                            <dt className="meta">{t('account:signInMethods.title')}</dt>
-                            <dd className="flex min-w-0 flex-wrap gap-1.5">
-                                {identities.data.hasPassword && (
-                                    <span className="chip">{t('account:signInMethods.passwordLabel')}</span>
-                                )}
-                                {identities.data.identities.some((i) => i.provider === 'google') && (
-                                    <span className="chip">
-                                        <GoogleIcon width={14} height={14} />
-                                        {t('account:signInMethods.googleLabel')}
-                                    </span>
-                                )}
-                            </dd>
-                        </div>
-                    )}
-                </dl>
-            </div>
-
-            <div>
-                <div className="mb-2 flex items-baseline justify-between gap-3">
-                    <p className="eyebrow">{t('account:sections.languages')}</p>
-                    <span className="hint">
-                        {hasLanguages
-                            ? t('account:languages.count', {
-                                  count: user.languages.length,
-                                  total,
-                              })
-                            : t('account:languages.none')}
-                    </span>
-                </div>
-
-                {hasLanguages ? (
-                    <ul className="flex flex-wrap gap-1.5">
-                        {user.languages.map((label) => {
-                            const entry = languageByLabel(label);
-                            return (
-                                <li key={label} className="chip">
-                                    {entry && <FlagIcon lang={entry.key} />}
-                                    {entry?.native ?? label}
-                                </li>
-                            );
-                        })}
-                    </ul>
-                ) : (
-                    <div className="banner warning items-start">
-                        <WarningCircleIcon className="mt-0.5 shrink-0" size={16} weight="bold" />
-                        <span>
-                            <b>{t('account:languages.emptyTitle')}</b>
-                            <br />
-                            {t('account:languages.emptyBody')}{' '}
-                            <button
-                                type="button"
-                                className="font-semibold underline underline-offset-2"
-                                onClick={onEditLanguages}
-                            >
-                                {t('account:languages.emptyCta')} →
-                            </button>
-                        </span>
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-}
-
-function InfoRow({ label, value }: { label: string; value: string }) {
-    return (
-        <div className="grid grid-cols-[96px_1fr] items-baseline gap-3 py-1">
-            <dt className="meta">{label}</dt>
-            <dd className="min-w-0 break-words text-sm font-medium">{value}</dd>
         </div>
     );
 }
