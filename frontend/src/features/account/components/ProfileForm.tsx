@@ -12,6 +12,8 @@ import { useUpdateProfile } from '@/features/auth/hooks';
 import { languageByLabel, UI_LANGUAGES } from '@/lib/language';
 import type { SessionUser } from '@/stores/authStore';
 import { buildProfileSchema, NO_NATIVE_LANGUAGE, type ProfileValues } from '../schemas';
+import { keepPairsWithin } from '../masteredPairs';
+import { MasteredPairsField } from './MasteredPairsField';
 import { SignInMethodsField } from './SignInMethodsField';
 
 /**
@@ -20,6 +22,9 @@ import { SignInMethodsField } from './SignInMethodsField';
  * payload unchanged. `nativeLanguage` is always sent (`updateUser` clears it when
  * the key is absent, `features/auth/types.ts`) — and only when it is still one of
  * the selected languages, because the backend rejects any other value.
+ *
+ * `masteredLanguagePairs` is sent in full too. A pair leaves the list when one of its languages is
+ * unselected, and the form is invalid while the pairs cover every pair of the selected languages.
  *
  * Save stays disabled until the form is valid — in particular until >= 2
  * languages are selected (the same gate the backend now enforces).
@@ -39,6 +44,7 @@ export function ProfileForm({ user, onDone }: { user: SessionUser; onDone: () =>
                 user.nativeLanguage && user.languages.includes(user.nativeLanguage)
                     ? user.nativeLanguage
                     : NO_NATIVE_LANGUAGE,
+            masteredLanguagePairs: keepPairsWithin(user.masteredLanguagePairs, user.languages),
         },
         mode: 'onChange',
     });
@@ -55,7 +61,7 @@ export function ProfileForm({ user, onDone }: { user: SessionUser; onDone: () =>
         <Form {...form}>
             <form
                 noValidate
-                onSubmit={form.handleSubmit(({ name, username, languages, nativeLanguage }) => {
+                onSubmit={form.handleSubmit(({ name, username, languages, nativeLanguage, masteredLanguagePairs }) => {
                     updateProfile.mutate(
                         {
                             email: user.email,
@@ -64,6 +70,7 @@ export function ProfileForm({ user, onDone }: { user: SessionUser; onDone: () =>
                             languages,
                             uiLanguage: user.uiLanguage,
                             nativeLanguage: languages.includes(nativeLanguage) ? nativeLanguage : null,
+                            masteredLanguagePairs: keepPairsWithin(masteredLanguagePairs, languages),
                         },
                         {
                             onSuccess: () => {
@@ -152,7 +159,15 @@ export function ProfileForm({ user, onDone }: { user: SessionUser; onDone: () =>
                                 </div>
                                 <LanguagePicker
                                     value={field.value}
-                                    onChange={field.onChange}
+                                    onChange={(next) => {
+                                        field.onChange(next);
+                                        // A pair cannot outlive one of its languages.
+                                        form.setValue(
+                                            'masteredLanguagePairs',
+                                            keepPairsWithin(form.getValues('masteredLanguagePairs'), next),
+                                            { shouldValidate: true },
+                                        );
+                                    }}
                                     aria-invalid={!!fieldState.error}
                                 />
                                 <p className="hint">{t('account:languages.orderHint')}</p>
@@ -191,6 +206,17 @@ export function ProfileForm({ user, onDone }: { user: SessionUser; onDone: () =>
                                 </FormItem>
                             );
                         }}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="masteredLanguagePairs"
+                        render={({ field }) => (
+                            <MasteredPairsField
+                                languages={form.watch('languages')}
+                                value={field.value}
+                                onChange={field.onChange}
+                            />
+                        )}
                     />
                 </div>
 

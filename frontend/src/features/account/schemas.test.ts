@@ -10,6 +10,7 @@ const valid = {
     username: 'kai',
     languages: ['English', 'Spanish'],
     nativeLanguage: NO_NATIVE_LANGUAGE,
+    masteredLanguagePairs: [] as string[][],
 };
 
 describe('buildProfileSchema', () => {
@@ -39,5 +40,24 @@ describe('buildProfileSchema', () => {
         await expect(schema.validate({ ...valid, languages: [] })).rejects.toThrow(
             'common:userData.errors.notEnoughLanguages',
         );
+    });
+
+    describe('masteredLanguagePairs', () => {
+        const three = ['English', 'Spanish', 'German'];
+
+        it('accepts a pair that leaves another pair open', async () => {
+            const profile = { ...valid, languages: three, masteredLanguagePairs: [['English', 'Spanish']] };
+            await expect(schema.validate(profile)).resolves.toEqual(profile);
+        });
+
+        it('rejects pairs that cover every pair of the selected languages', async () => {
+            const profile = { ...valid, masteredLanguagePairs: [['English', 'Spanish']] };
+            await expect(schema.validate(profile)).rejects.toThrow('account:masteredPairs.errors.allMastered');
+        });
+
+        it('ignores a pair that uses a language that is no longer selected', async () => {
+            const profile = { ...valid, masteredLanguagePairs: [['English', 'French']] };
+            await expect(schema.validate(profile)).resolves.toBeDefined();
+        });
     });
 });

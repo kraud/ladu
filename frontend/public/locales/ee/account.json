@@ -20,6 +20,19 @@
     "emptyBody": "Vali vähemalt kaks keelt, et sinu tööruum kuvataks õigesti.",
     "emptyCta": "Vali keeled"
   },
+  "masteredPairs": {
+    "title": "Selgeks õpitud keelepaarid",
+    "hint": "Valikuline. Harjutamisel ei ühendata paari kahte keelt ühes harjutuses. Saad ikka harjutada kumbagi keelt koos oma teiste keeltega. Jäta vähemalt üks paar lahti.",
+    "none": "Paare pole",
+    "first": "Esimene keel",
+    "second": "Teine keel",
+    "add": "Lisa paar",
+    "remove": "Eemalda paar {{first}} + {{second}}",
+    "needThird": "Vali kolmas keel, et paar selgeks õpituks märkida.",
+    "errors": {
+      "allMastered": "Jäta vähemalt üks paar lahti. Kui kõik paarid on selgeks õpitud, pole harjutamisel ühtegi harjutust, mis ühendab kaks keelt."
+    }
+  },
   "toasts": {
     "discarded": "Muudatused tühistatud"
   },

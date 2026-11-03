@@ -51,8 +51,26 @@ describe('toSessionUser — normalizes every backend shape', () => {
             uiLanguage: 'English',
             theme: null,
             nativeLanguage: null,
+            masteredLanguagePairs: [],
             verified: true,
         });
+    });
+
+    it('keeps the mastered language pairs and drops an entry that is not a pair of two strings', () => {
+        const raw: RawUser = {
+            id: 'u1',
+            email: 'ada@example.com',
+            masteredLanguagePairs: [['English', 'Spanish'], ['English'], 'German', [1, 2], ['German', 'French']],
+        };
+        expect(toSessionUser(raw).masteredLanguagePairs).toEqual([
+            ['English', 'Spanish'],
+            ['German', 'French'],
+        ]);
+    });
+
+    it('reads a missing or malformed mastered-pairs value as no pairs', () => {
+        expect(toSessionUser({ id: 'u1', email: 'a@b.c' }).masteredLanguagePairs).toEqual([]);
+        expect(toSessionUser({ id: 'u1', email: 'a@b.c', masteredLanguagePairs: 'English+Spanish' }).masteredLanguagePairs).toEqual([]);
     });
 
     it('keeps a saved theme and reads anything else (missing, null, "system") as null', () => {

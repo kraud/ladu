@@ -125,6 +125,26 @@ function ProfileView({
                                 : t('account:fields.nativeLanguageNone')
                         }
                     />
+                    <div className="grid grid-cols-[96px_1fr] items-baseline gap-3 py-1">
+                        <dt className="meta">{t('account:masteredPairs.title')}</dt>
+                        <dd className="min-w-0 text-sm font-medium">
+                            {user.masteredLanguagePairs.length > 0 ? (
+                                <ul className="flex flex-wrap gap-1.5">
+                                    {user.masteredLanguagePairs.map(([a, b]) => (
+                                        <li key={`${a}|${b}`} className="chip">
+                                            <FlagIcon lang={a} />
+                                            {languageByLabel(a)?.native ?? a}
+                                            {' + '}
+                                            <FlagIcon lang={b} />
+                                            {languageByLabel(b)?.native ?? b}
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                t('account:masteredPairs.none')
+                            )}
+                        </dd>
+                    </div>
                     {identities.data && (
                         <div className="grid grid-cols-[96px_1fr] items-baseline gap-3 py-1">
                             <dt className="meta">{t('account:signInMethods.title')}</dt>

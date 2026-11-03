@@ -4,11 +4,12 @@
  * schemas (`features/auth/schemas.ts`). Message keys are reused from
  * registration so the two forms fail identically.
  *
- * Scope: name, username, languages, native language. Email is read-only
+ * Scope: name, username, languages, native language, mastered language pairs. Email is read-only
  * (managed separately).
  */
 import * as yup from 'yup';
 import type { TranslateFn } from '@/features/auth/schemas';
+import { coversEveryPair } from './masteredPairs';
 
 /** The native-language select's "no native language" value. */
 export const NO_NATIVE_LANGUAGE = 'none';
@@ -20,6 +21,8 @@ export interface ProfileValues {
     languages: string[];
     /** a language *label* out of `languages`, or `NO_NATIVE_LANGUAGE` */
     nativeLanguage: string;
+    /** pairs of language *labels* Practice never combines; they can never cover every pair of `languages` */
+    masteredLanguagePairs: string[][];
 }
 
 export function buildProfileSchema(t: TranslateFn): yup.ObjectSchema<ProfileValues> {
@@ -31,5 +34,15 @@ export function buildProfileSchema(t: TranslateFn): yup.ObjectSchema<ProfileValu
             .min(2, t('common:userData.errors.notEnoughLanguages'))
             .required(t('common:userData.errors.notEnoughLanguages')),
         nativeLanguage: yup.string().required(),
+        masteredLanguagePairs: yup
+            .array(yup.array(yup.string().required()).length(2).required())
+            .required()
+            .test(
+                'leaves-a-pair-open',
+                t('account:masteredPairs.errors.allMastered'),
+                function (pairs) {
+                    return !coversEveryPair(pairs, this.parent.languages ?? []);
+                },
+            ),
     });
 }

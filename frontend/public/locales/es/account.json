@@ -20,6 +20,19 @@
     "emptyBody": "Selecciona al menos dos idiomas para que tu espacio de trabajo se muestre correctamente.",
     "emptyCta": "Seleccionar idiomas"
   },
+  "masteredPairs": {
+    "title": "Pares de idiomas dominados",
+    "hint": "Opcional. La práctica no combina los dos idiomas de un par en un mismo ejercicio. Puedes seguir practicando cada idioma con tus otros idiomas. Deja al menos un par abierto.",
+    "none": "Ningún par",
+    "first": "Primer idioma",
+    "second": "Segundo idioma",
+    "add": "Añadir par",
+    "remove": "Quitar el par {{first}} + {{second}}",
+    "needThird": "Selecciona un tercer idioma para dominar un par.",
+    "errors": {
+      "allMastered": "Deja al menos un par abierto. Si dominas todos los pares, la práctica no tiene ejercicios que combinen dos idiomas."
+    }
+  },
   "toasts": {
     "discarded": "Cambios descartados"
   },

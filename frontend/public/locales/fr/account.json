@@ -20,6 +20,19 @@
     "emptyBody": "Sélectionne au moins deux langues pour que ton espace soit correctement localisé.",
     "emptyCta": "Sélectionner des langues"
   },
+  "masteredPairs": {
+    "title": "Paires de langues maîtrisées",
+    "hint": "Facultatif. L’entraînement ne combine pas les deux langues d’une paire dans un même exercice. Tu peux toujours t’entraîner dans chaque langue avec tes autres langues. Laisse au moins une paire ouverte.",
+    "none": "Aucune paire",
+    "first": "Première langue",
+    "second": "Deuxième langue",
+    "add": "Ajouter la paire",
+    "remove": "Retirer la paire {{first}} + {{second}}",
+    "needThird": "Choisis une troisième langue pour maîtriser une paire.",
+    "errors": {
+      "allMastered": "Laisse au moins une paire ouverte. Si toutes les paires sont maîtrisées, l’entraînement n’a aucun exercice qui combine deux langues."
+    }
+  },
   "toasts": {
     "discarded": "Modifications annulées"
   },

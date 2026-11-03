@@ -20,6 +20,19 @@
     "emptyBody": "Select at least two languages so your workspace is localized correctly.",
     "emptyCta": "Select languages"
   },
+  "masteredPairs": {
+    "title": "Mastered language pairs",
+    "hint": "Optional. Practice does not combine the two languages of a pair in one exercise. You can still practice each language with your other languages. Keep at least one pair open.",
+    "none": "No pairs",
+    "first": "First language",
+    "second": "Second language",
+    "add": "Add pair",
+    "remove": "Remove the pair {{first}} + {{second}}",
+    "needThird": "Select a third language to master a pair.",
+    "errors": {
+      "allMastered": "Leave at least one pair open. If every pair is mastered, Practice has no exercise that combines two languages."
+    }
+  },
   "toasts": {
     "discarded": "Changes discarded"
   },

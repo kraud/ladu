@@ -83,6 +83,11 @@ export interface UpdateProfileRequest {
     nativeLanguage: string | null;
     /** Optional: an edit that omits it keeps the stored theme (unlike `nativeLanguage`). */
     theme?: Theme;
+    /**
+     * Pairs of the user's languages that Practice never combines. Optional: an edit that omits it keeps
+     * the stored pairs (those that still use selected languages). Present: replaces them.
+     */
+    masteredLanguagePairs?: string[][];
 }
 
 /**
@@ -100,6 +105,7 @@ export interface AuthUser {
     /** `null` until the user chooses a theme. */
     theme?: Theme | null;
     nativeLanguage?: string | null;
+    masteredLanguagePairs?: string[][];
     verified: boolean;
     /** First-login onboarding (onboarding.md D21): `pending` for a new account; null / absent for an older one. */
     onboardingStatus?: 'pending' | 'done' | 'skipped' | null;

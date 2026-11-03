@@ -110,6 +110,7 @@ describe('AccountPage', () => {
             languages: ['English', 'German', 'Spanish'],
             uiLanguage: 'English',
             nativeLanguage: null,
+            masteredLanguagePairs: [],
         });
 
         await waitFor(() => expect(useAuthStore.getState().user?.name).toBe('Kai Uus'));
@@ -189,5 +190,118 @@ describe('AccountPage', () => {
 
         await waitFor(() => expect(body).toBeDefined());
         expect(body).toMatchObject({ nativeLanguage: null, languages: ['English', 'Spanish'] });
+    });
+
+    // Mastered language pairs (plans/mastered-language-pairs): pairs of selected languages that
+    // Practice never combines. Added as a chip from two selects, removed with the chip's x.
+    describe('mastered language pairs', () => {
+        const THREE = ['English', 'Spanish', 'German'];
+        const WITH_PAIR = { ...SESSION, languages: THREE, masteredLanguagePairs: [['English', 'Spanish']] };
+        const REMOVE_EN_ES = 'Remove the pair English + Español';
+
+        function captureUpdate() {
+            const captured: { body?: Record<string, unknown> } = {};
+            server.use(
+                http.put('*/api/users/updateUser', async ({ request }) => {
+                    captured.body = (await request.json()) as Record<string, unknown>;
+                    return HttpResponse.json({ ...SESSION, token: undefined, ...captured.body });
+                }),
+            );
+            return captured;
+        }
+
+        async function pick(user: ReturnType<typeof userEvent.setup>, select: string, option: string) {
+            await user.click(screen.getByRole('combobox', { name: select }));
+            await user.click(await screen.findByRole('option', { name: option }));
+        }
+
+        it('shows the pairs read-only, or "No pairs"', () => {
+            const { unmount } = renderWithProviders(<AccountPage />, { session: SESSION });
+            expect(screen.getByText('Mastered language pairs')).toBeInTheDocument();
+            expect(screen.getByText('No pairs')).toBeInTheDocument();
+            unmount();
+
+            renderWithProviders(<AccountPage />, { session: WITH_PAIR });
+            expect(screen.queryByText('No pairs')).not.toBeInTheDocument();
+            expect(screen.getByText('English + Español')).toBeInTheDocument();
+        });
+
+        it('adds a pair from two selects and saves it', async () => {
+            const captured = captureUpdate();
+            const user = userEvent.setup();
+            renderWithProviders(<AccountPage />, { session: { ...SESSION, languages: THREE } });
+
+            await user.click(screen.getByRole('button', { name: /edit profile/i }));
+            const add = screen.getByRole('button', { name: 'Add pair' });
+            expect(add).toBeDisabled();
+            await pick(user, 'First language', 'Español');
+            await pick(user, 'Second language', 'English');
+            await user.click(add);
+
+            // The pair is stored with its languages sorted, whatever the order of the picks.
+            expect(screen.getByRole('button', { name: REMOVE_EN_ES })).toBeInTheDocument();
+            await user.click(screen.getByRole('button', { name: 'Save' }));
+
+            await waitFor(() => expect(captured.body).toBeDefined());
+            expect(captured.body).toMatchObject({ masteredLanguagePairs: [['English', 'Spanish']] });
+            await waitFor(() =>
+                expect(useAuthStore.getState().user?.masteredLanguagePairs).toEqual([['English', 'Spanish']]),
+            );
+        });
+
+        it('removes a pair and saves the shorter list', async () => {
+            const captured = captureUpdate();
+            const user = userEvent.setup();
+            renderWithProviders(<AccountPage />, { session: WITH_PAIR });
+
+            await user.click(screen.getByRole('button', { name: /edit profile/i }));
+            await user.click(screen.getByRole('button', { name: REMOVE_EN_ES }));
+            expect(screen.queryByRole('button', { name: REMOVE_EN_ES })).not.toBeInTheDocument();
+            await user.click(screen.getByRole('button', { name: 'Save' }));
+
+            await waitFor(() => expect(captured.body).toBeDefined());
+            expect(captured.body).toMatchObject({ masteredLanguagePairs: [] });
+        });
+
+        it('drops a pair when one of its languages is unselected', async () => {
+            const captured = captureUpdate();
+            const user = userEvent.setup();
+            renderWithProviders(<AccountPage />, { session: WITH_PAIR });
+
+            await user.click(screen.getByRole('button', { name: /edit profile/i }));
+            await user.click(screen.getByRole('button', { name: 'Español', pressed: true }));
+            expect(screen.queryByRole('button', { name: REMOVE_EN_ES })).not.toBeInTheDocument();
+            await user.click(screen.getByRole('button', { name: 'Save' }));
+
+            await waitFor(() => expect(captured.body).toBeDefined());
+            expect(captured.body).toMatchObject({ languages: ['English', 'German'], masteredLanguagePairs: [] });
+        });
+
+        it('asks for a third language when only 2 languages are selected', async () => {
+            const user = userEvent.setup();
+            renderWithProviders(<AccountPage />, { session: SESSION });
+
+            await user.click(screen.getByRole('button', { name: /edit profile/i }));
+
+            expect(screen.getByText('Select a third language to master a pair.')).toBeInTheDocument();
+            expect(screen.queryByRole('button', { name: 'Add pair' })).not.toBeInTheDocument();
+        });
+
+        it('blocks Save while the pairs cover every pair of the selected languages', async () => {
+            const user = userEvent.setup();
+            renderWithProviders(<AccountPage />, { session: WITH_PAIR });
+
+            await user.click(screen.getByRole('button', { name: /edit profile/i }));
+            const save = screen.getByRole('button', { name: 'Save' });
+            await waitFor(() => expect(save).toBeEnabled());
+
+            // Only English and Spanish stay: their one pair is mastered, so nothing is left to practise.
+            await user.click(screen.getByRole('button', { name: 'Deutsch', pressed: true }));
+            await waitFor(() => expect(save).toBeDisabled());
+            expect(screen.getByText(/Leave at least one pair open/)).toBeInTheDocument();
+
+            await user.click(screen.getByRole('button', { name: REMOVE_EN_ES }));
+            await waitFor(() => expect(save).toBeEnabled());
+        });
     });
 });
