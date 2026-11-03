@@ -269,7 +269,7 @@ describe('PracticePage — set-up', () => {
         const WITH_PAIR = {
             ...SESSION,
             languages: ['English', 'Spanish', 'German'],
-            masteredLanguagePairs: [['English', 'Spanish']],
+            masteredLanguagePairs: [['English', 'Spanish'], ['English', 'German']],
         };
         const pairsGroup = () => screen.getByRole('radiogroup', { name: 'Mastered language pairs' });
 
@@ -280,7 +280,12 @@ describe('PracticePage — set-up', () => {
             await openNewConfigurationTab();
 
             await user.click(await screen.findByRole('button', { name: 'Advanced' }));
-            expect(screen.getByText('English & Español · affects exercises in different languages')).toBeInTheDocument();
+            // One pair per row under the title, with no clarification after the list.
+            const first = screen.getByText('English & Español');
+            const second = screen.getByText('English & Deutsch');
+            expect(first).not.toBe(second);
+            expect(first.parentElement).toBe(second.parentElement);
+            expect(screen.queryByText(/affects exercises in different languages/)).not.toBeInTheDocument();
             // Excluding is the default.
             expect(within(pairsGroup()).getByRole('radio', { name: /Exclude/, checked: true })).toBeInTheDocument();
             expect(within(pairsGroup()).getByRole('radio', { name: /Include/, checked: false })).toBeInTheDocument();

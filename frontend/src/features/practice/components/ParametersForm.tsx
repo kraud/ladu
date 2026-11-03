@@ -4,6 +4,8 @@ import {
     BookmarkSimpleIcon,
     CaretDownIcon,
     FunnelIcon,
+    GraduationCapIcon,
+    HouseLineIcon,
     ListBulletsIcon,
     PencilSimpleLineIcon,
     PlayIcon,
@@ -21,7 +23,7 @@ import { useGenerateExercises } from '../hooks';
 import { practiceErrorKey } from '../errors';
 import {
     knownLanguages,
-    masteredPairsText,
+    masteredPairLabels,
     PARTS_OF_SPEECH_WITH_EXERCISES,
     relevantSettings,
     SELECTABLE_PARTS_OF_SPEECH,
@@ -419,6 +421,7 @@ export function ParametersForm({
                                 {relevant.nativeLanguage && (
                                     <OptionRow
                                         label={t('practice:setup.labels.nativeLanguage')}
+                                        icon={HouseLineIcon}
                                         hint={t('practice:setup.hints.nativeLanguageNamed', { language: nativeName })}
                                         value={params.excludeNative ? 'exclude' : 'include'}
                                         onChange={(next) => change({ excludeNative: next === 'exclude' })}
@@ -434,9 +437,13 @@ export function ParametersForm({
                                 {relevant.masteredPairs && (
                                     <OptionRow
                                         label={t('practice:setup.labels.masteredPairs')}
-                                        hint={t('practice:setup.hints.masteredPairsNamed', {
-                                            pairs: masteredPairsText(user.masteredLanguagePairs),
-                                        })}
+                                        icon={GraduationCapIcon}
+                                        // One pair per row under the title.
+                                        hint={masteredPairLabels(user.masteredLanguagePairs).map((pair) => (
+                                            <span key={pair} className="block">
+                                                {pair}
+                                            </span>
+                                        ))}
                                         value={params.excludeMasteredPairs ? 'exclude' : 'include'}
                                         onChange={(next) => change({ excludeMasteredPairs: next === 'exclude' })}
                                         options={(['include', 'exclude'] as const).map((value) => ({

@@ -76,10 +76,15 @@ export function validateParams(params: Omit<PracticeParams, 'amount'> & { amount
     return errors;
 }
 
-/** The account's mastered pairs for a hint or a summary: `English & Español, Français & Deutsch`. */
-export function masteredPairsText(pairs: readonly (readonly string[])[]): string {
+/** One label for each of the account's mastered pairs: `['English & Español', 'Français & Deutsch']`. */
+export function masteredPairLabels(pairs: readonly (readonly string[])[]): string[] {
     const name = (label: string) => languageByLabel(label)?.native ?? label;
-    return pairs.map(([a, b]) => `${name(a)} & ${name(b)}`).join(', ');
+    return pairs.map(([a, b]) => `${name(a)} & ${name(b)}`);
+}
+
+/** The same pairs on one line, for the results recap: `English & Español, Français & Deutsch`. */
+export function masteredPairsText(pairs: readonly (readonly string[])[]): string {
+    return masteredPairLabels(pairs).join(', ');
 }
 
 /** Which advanced settings do anything for these choices (irrelevant ones are hidden or disabled). */

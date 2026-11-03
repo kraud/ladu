@@ -98,8 +98,7 @@
       "posPreselected": "Valitud sõnade puhul saab valida ainult nende sõnaliike. Omadussõnade, määrsõnade, sidesõnade ja kaassõnade jaoks ei ole veel harjutusi.",
       "notInPreselection": "Ei ole valitud sõnade seas",
       "preselectedNoExercises": "Ühelgi valitud sõnal ei ole sõnaliiki, mille jaoks on harjutusi. Eemalda eelvalik, et harjutada teisi sõnu.",
-      "nativeLanguageNamed": "{{language}} · mõjutab ühe keele harjutusi",
-      "masteredPairsNamed": "{{pairs}} · mõjutab eri keelte harjutusi"
+      "nativeLanguageNamed": "{{language}} · mõjutab ühe keele harjutusi"
     },
     "preselected": {
       "title_one": "Harjuta {{count}} valitud sõnaga",

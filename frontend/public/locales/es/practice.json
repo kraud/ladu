@@ -98,8 +98,7 @@
       "posPreselected": "Con palabras seleccionadas, solo se pueden elegir sus tipos de palabra. Los adjetivos, los adverbios, las conjunciones y las preposiciones aún no tienen ejercicios.",
       "notInPreselection": "No está en las palabras seleccionadas",
       "preselectedNoExercises": "Ninguna de las palabras seleccionadas tiene un tipo de palabra con ejercicios. Quita la preselección para practicar tus otras palabras.",
-      "nativeLanguageNamed": "{{language}} · afecta a los ejercicios del mismo idioma",
-      "masteredPairsNamed": "{{pairs}} · afecta a los ejercicios en idiomas distintos"
+      "nativeLanguageNamed": "{{language}} · afecta a los ejercicios del mismo idioma"
     },
     "preselected": {
       "title_one": "Practicar con {{count}} palabra seleccionada",

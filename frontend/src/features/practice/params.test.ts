@@ -3,6 +3,7 @@ import { Lang, PartOfSpeech } from '@/ts/enums';
 import {
     defaultParams,
     knownLanguages,
+    masteredPairLabels,
     masteredPairsText,
     narrowPartsOfSpeech,
     onlyPartsWithoutExercises,
@@ -135,6 +136,13 @@ describe('toGenerateBody', () => {
     it('sends the mastered-pairs choice', () => {
         expect(toGenerateBody({ ...base, excludeMasteredPairs: false }).excludeMasteredPairs).toBe(false);
         expect(toGenerateBody({ ...base, excludeMasteredPairs: true }).excludeMasteredPairs).toBe(true);
+    });
+});
+
+describe('masteredPairLabels', () => {
+    it('gives one label for each pair, with the native names of its languages', () => {
+        expect(masteredPairLabels([['English', 'Spanish'], ['French', 'German']])).toEqual(['English & Español', 'Français & Deutsch']);
+        expect(masteredPairLabels([])).toEqual([]);
     });
 });
 

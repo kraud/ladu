@@ -98,8 +98,7 @@
       "posPreselected": "Bei ausgewählten Wörtern sind nur deren Wortarten wählbar. Für Adjektive, Adverbien, Konjunktionen und Präpositionen gibt es noch keine Übungen.",
       "notInPreselection": "Nicht in den ausgewählten Wörtern",
       "preselectedNoExercises": "Keines der ausgewählten Wörter hat eine Wortart mit Übungen. Entfernen Sie die Vorauswahl, um Ihre anderen Wörter zu üben.",
-      "nativeLanguageNamed": "{{language}} · betrifft Übungen in einer Sprache",
-      "masteredPairsNamed": "{{pairs}} · betrifft Übungen in verschiedenen Sprachen"
+      "nativeLanguageNamed": "{{language}} · betrifft Übungen in einer Sprache"
     },
     "preselected": {
       "title_one": "Mit {{count}} ausgewähltem Wort üben",
