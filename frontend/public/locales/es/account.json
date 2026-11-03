@@ -27,7 +27,7 @@
     "first": "Primer idioma",
     "second": "Segundo idioma",
     "add": "Añadir par",
-    "remove": "Quitar el par {{first}} + {{second}}",
+    "remove": "Quitar el par {{first}} & {{second}}",
     "needThird": "Selecciona un tercer idioma para dominar un par.",
     "errors": {
       "allMastered": "Deja al menos un par abierto. Si dominas todos los pares, la práctica no tiene ejercicios que combinen dos idiomas."

@@ -27,7 +27,7 @@
     "first": "Erste Sprache",
     "second": "Zweite Sprache",
     "add": "Paar hinzufügen",
-    "remove": "Paar {{first}} + {{second}} entfernen",
+    "remove": "Paar {{first}} & {{second}} entfernen",
     "needThird": "Wähle eine dritte Sprache, um ein Paar als beherrscht zu markieren.",
     "errors": {
       "allMastered": "Lass mindestens ein Paar offen. Wenn du jedes Paar beherrschst, hat das Üben keine Übung, die zwei Sprachen kombiniert."

@@ -69,23 +69,23 @@ export interface SetPasswordRequest {
 }
 
 /**
- * `PUT /api/users/updateUser` body. `email` is a self-confirmation field the
- * endpoint checks but never writes; `nativeLanguage` MUST be sent explicitly
- * on every call — the controller does `nativeLanguage === undefined ? null`,
- * so omitting the key silently clears it.
+ * `PUT /api/users/updateUser` body. `email` is a self-confirmation field the endpoint checks but
+ * never writes. Every other field is optional: the endpoint keeps the stored value of a field that
+ * is absent (`nativeLanguage` and `masteredLanguagePairs` too; `null` clears the native language).
+ * The two Account cards therefore send only their own fields.
  */
 export interface UpdateProfileRequest {
     email: string;
-    name: string;
-    username: string;
-    languages: string[];
-    uiLanguage: string;
-    nativeLanguage: string | null;
-    /** Optional: an edit that omits it keeps the stored theme (unlike `nativeLanguage`). */
+    name?: string;
+    username?: string;
+    languages?: string[];
+    uiLanguage?: string;
+    nativeLanguage?: string | null;
     theme?: Theme;
     /**
-     * Pairs of the user's languages that Practice never combines. Optional: an edit that omits it keeps
-     * the stored pairs (those that still use selected languages). Present: replaces them.
+     * Pairs of the user's languages that Practice never combines. Present: replaces the stored pairs.
+     * Absent with `languages` present: the server keeps the stored pairs that still use selected
+     * languages, and refuses (400) a set that would cover every pair.
      */
     masteredLanguagePairs?: string[][];
 }

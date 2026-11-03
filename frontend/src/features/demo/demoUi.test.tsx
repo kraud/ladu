@@ -107,13 +107,14 @@ describe('the Account page of a demo', () => {
         expect(identities).not.toHaveBeenCalled();
     });
 
-    it('in the edit form, replaces name, username, email and sign-in methods with one line', async () => {
+    it('replaces the editable name, username, email and sign-in methods with one line and no edit button', async () => {
         identitiesSpy();
-        const user = userEvent.setup();
         await renderApp({ initialEntry: '/user', session: demoSession() });
 
-        await user.click(await screen.findByRole('button', { name: 'Edit profile' }));
-        expect(screen.getByText('A demo account cannot change its name or username.')).toBeInTheDocument();
+        expect(await screen.findByText('A demo account cannot change its name or username.')).toBeInTheDocument();
+        // Nothing in the account card can change, so it has no edit button. The languages card still has one.
+        expect(screen.queryByRole('button', { name: 'Edit profile' })).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Edit languages' })).toBeInTheDocument();
         expect(screen.queryByLabelText(/^Name/)).not.toBeInTheDocument();
         expect(screen.queryByLabelText(/^Username/)).not.toBeInTheDocument();
         expect(screen.queryByLabelText('Email')).not.toBeInTheDocument();

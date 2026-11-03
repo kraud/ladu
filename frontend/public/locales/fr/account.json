@@ -27,7 +27,7 @@
     "first": "Première langue",
     "second": "Deuxième langue",
     "add": "Ajouter la paire",
-    "remove": "Retirer la paire {{first}} + {{second}}",
+    "remove": "Retirer la paire {{first}} & {{second}}",
     "needThird": "Choisis une troisième langue pour maîtriser une paire.",
     "errors": {
       "allMastered": "Laisse au moins une paire ouverte. Si toutes les paires sont maîtrisées, l’entraînement n’a aucun exercice qui combine deux langues."

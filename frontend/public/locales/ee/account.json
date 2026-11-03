@@ -27,7 +27,7 @@
     "first": "Esimene keel",
     "second": "Teine keel",
     "add": "Lisa paar",
-    "remove": "Eemalda paar {{first}} + {{second}}",
+    "remove": "Eemalda paar {{first}} & {{second}}",
     "needThird": "Vali kolmas keel, et paar selgeks õpituks märkida.",
     "errors": {
       "allMastered": "Jäta vähemalt üks paar lahti. Kui kõik paarid on selgeks õpitud, pole harjutamisel ühtegi harjutust, mis ühendab kaks keelt."

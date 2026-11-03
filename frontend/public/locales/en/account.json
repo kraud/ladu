@@ -27,7 +27,7 @@
     "first": "First language",
     "second": "Second language",
     "add": "Add pair",
-    "remove": "Remove the pair {{first}} + {{second}}",
+    "remove": "Remove the pair {{first}} & {{second}}",
     "needThird": "Select a third language to master a pair.",
     "errors": {
       "allMastered": "Leave at least one pair open. If every pair is mastered, Practice has no exercise that combines two languages."

@@ -47,7 +47,7 @@ export function MasteredPairsField({
 
     const picker = (label: string, current: string, set: (v: string) => void, options: string[]) => (
         <Select value={current} onValueChange={(v) => set(String(v))}>
-            <SelectTrigger aria-label={label} className="min-w-36">
+            <SelectTrigger aria-label={label} className="w-full">
                 <SelectValue>{(v: string) => (v ? nativeName(v) : label)}</SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -61,37 +61,20 @@ export function MasteredPairsField({
     );
 
     return (
-        <div className="field sm:col-span-2">
+        <div className="field">
             <span className="label">{t('account:masteredPairs.title')}</span>
-
-            {languages.length >= 3 ? (
-                <div className="flex flex-wrap items-center gap-2">
-                    {picker(t('account:masteredPairs.first'), first, setFirst, languages)}
-                    <span aria-hidden>+</span>
-                    {picker(
-                        t('account:masteredPairs.second'),
-                        second,
-                        setSecond,
-                        languages.filter((l) => l !== first),
-                    )}
-                    <Button type="button" variant="outline" disabled={!canAdd} onClick={add}>
-                        {t('account:masteredPairs.add')}
-                    </Button>
-                </div>
-            ) : (
-                <p className="hint">{t('account:masteredPairs.needThird')}</p>
-            )}
 
             {value.length > 0 && (
                 <ul className="flex flex-wrap gap-1.5">
                     {value.map(([a, b], index) => {
                         const names = { first: nativeName(a), second: nativeName(b) };
                         return (
-                            <li key={`${a}|${b}`} className="tagchip">
+                            // `.tagchip` stops at 140px: a pair with two flags and two names is wider.
+                            <li key={`${a}|${b}`} className="tagchip max-w-none!">
                                 <span className="inline-flex items-center gap-1">
                                     <FlagIcon lang={a} />
                                     {names.first}
-                                    {' + '}
+                                    {' & '}
                                     <FlagIcon lang={b} />
                                     {names.second}
                                 </span>
@@ -107,6 +90,27 @@ export function MasteredPairsField({
                         );
                     })}
                 </ul>
+            )}
+
+            {languages.length >= 3 ? (
+                <div className="flex flex-wrap items-center gap-2">
+                    <div className="min-w-0 flex-1 basis-36">
+                        {picker(t('account:masteredPairs.first'), first, setFirst, languages)}
+                    </div>
+                    <div className="min-w-0 flex-1 basis-36">
+                        {picker(
+                            t('account:masteredPairs.second'),
+                            second,
+                            setSecond,
+                            languages.filter((l) => l !== first),
+                        )}
+                    </div>
+                    <Button type="button" variant="outline" className="shrink-0" disabled={!canAdd} onClick={add}>
+                        {t('account:masteredPairs.add')}
+                    </Button>
+                </div>
+            ) : (
+                <p className="hint">{t('account:masteredPairs.needThird')}</p>
             )}
 
             {coversEveryPair(value, languages) ? (
