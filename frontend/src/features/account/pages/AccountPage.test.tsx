@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { screen, waitFor, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { renderApp, renderWithProviders } from '@/test/render';
@@ -504,5 +504,23 @@ describe('AccountPage', () => {
             expect(before(title, pair)).toBe(true);
             expect(before(pair, firstSelect)).toBe(true);
         });
+    });
+
+    // A browser that was signed in before the mastered language pairs shipped restores a session
+    // without the field. The Account page used to crash on it, and the user could not log out.
+    it('opens the Account page with a session saved before the mastered language pairs existed', async () => {
+        renderWithProviders(<AccountPage />, { session: SESSION });
+
+        const { masteredLanguagePairs: _removed, ...oldSession } = useAuthStore.getState().user as unknown as Record<string, unknown>;
+        await act(async () => {
+            localStorage.setItem(
+                'ladu.session',
+                JSON.stringify({ state: { user: oldSession, token: SESSION.token }, version: 0 }),
+            );
+            await useAuthStore.persist.rehydrate();
+        });
+
+        expect(screen.getByText('No pairs')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Logout' })).toBeInTheDocument();
     });
 });

@@ -218,7 +218,12 @@ export const useAuthStore = create<AuthState>()(
                 if (error || !state) return;
                 if (isTokenExpired(state.token) || !isValidSessionUser(state.user)) {
                     state.clearSession();
+                    return;
                 }
+                // A browser keeps its session across a deploy, so the stored user can predate fields
+                // added since (`masteredLanguagePairs`). Run it through the same normalizer as every
+                // other way into the store: a missing field reads as its empty value, never `undefined`.
+                state.setSession(state.user);
             },
         },
     ),

@@ -26,7 +26,7 @@ Code map: `frontend/src/api/` (one axios client), `stores/` (Zustand session and
 ## 2. Invariants
 
 - One `ProtectedRoute` gate on every guarded route. Practice, Account and every page after them are inside it.
-- One session shape in Zustand `persist`, with a guarded parse. Never write `JSON.parse(localStorage['user'])`.
+- One session shape in Zustand `persist`, with a guarded parse. Never write `JSON.parse(localStorage['user'])`. A session restored from storage runs through `toSessionUser` like every other way into the store, because a browser keeps its session across a deploy: a field added later (for example `masteredLanguagePairs`) must read as its empty value for a user who was signed in before, never as `undefined`. When you add a field to `SessionUser`, give it its default in `toSessionUser`.
 - One axios client with a request interceptor. A 401 clears the session and redirects. No refresh endpoint exists.
 - All server state is in TanStack Query. A mutation uses `isPending`, `isError`, `onSuccess` and `onError`, never a status boolean.
 - Responses and types use `id` only. `_id` is a MongoDB artifact.
