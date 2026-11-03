@@ -519,7 +519,7 @@ const updateUser = asyncHandler(async (req: any, res: any) => {
     resolvedNativeLanguage = null;
   }
 
-  // Mastered language pairs (plans/mastered-language-pairs): absent -> keep the stored pairs
+  // Mastered language pairs (.context/features/practice.md D8): absent -> keep the stored pairs
   // that still use only the user's languages; present -> replace them. Either way the final
   // set must leave at least one pair open, so Practice always has a multi-language pair.
   const pairsResult = resolveMasteredPairs(

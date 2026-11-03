@@ -21,6 +21,7 @@ The harness check (the servers and the stubs boot) is the `webServer` list in `p
 `tests/onboarding-gate.spec.ts` is the first-login onboarding gate (`.context/features/onboarding.md`, Slice 4e): it turns the
 onboarding switch on, walks the flow, and checks Skip.
 `tests/access-request-gate.spec.ts` is the access-requests spec (`.context/features/access-control.md`, Slice 4): `/request`, the admin approve and remove, and the real sign-up and sign-in that follow. It is a `-gate` spec, so it runs alone, after the other specs. `playwright.config.ts` sets `ACCESS_REQUEST_EMAIL` to empty, so no team email goes out; a value in the repo-root `.env` wins over it.
+`tests/mastered-language-pairs.spec.ts` is the mastered-language-pairs journey (`.context/features/practice.md` D8): a pair set on the Account page, then a Practice session with none of its exercises.
 `tests/autocomplete-a-dictionary-route.spec.ts` is the autocomplete Slice A gate
 (`.context/research/autocomplete-data-source-strategy.md`).
 

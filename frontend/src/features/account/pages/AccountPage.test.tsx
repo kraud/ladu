@@ -224,7 +224,7 @@ describe('AccountPage', () => {
         expect(body).toMatchObject({ nativeLanguage: null, languages: ['English', 'Spanish'] });
     });
 
-    // Mastered language pairs (plans/mastered-language-pairs): pairs of selected languages that
+    // Mastered language pairs (.context/features/practice.md D8): pairs of selected languages that
     // Practice never combines. Added as a chip from two selects, removed with the chip's x.
     describe('mastered language pairs', () => {
         const THREE = ['English', 'Spanish', 'German'];

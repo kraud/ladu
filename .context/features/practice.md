@@ -2,11 +2,11 @@
 
 ## Summary
 
-Practice turns the words a learner has stored into exercises, checks the answers, and keeps a knowledge score for every translation and case. The score fades with time (a forgetting curve), so the next sessions show the weakest items first. The learner sets the languages, parts of speech, order (adaptive or random), multiple-choice difficulty (0 to 3) and text-input strictness, answers cards, and sees a results screen. A learner can mark a word "Mastered" or "Revise" by hand. Saved configurations and sessions are a separate feature (`features/saved-practice.md`).
+Practice turns the words a learner has stored into exercises, checks the answers, and keeps a knowledge score for every translation and case. The score fades with time (a forgetting curve), so the next sessions show the weakest items first. The learner sets the languages, parts of speech, order (adaptive or random), multiple-choice difficulty (0 to 3) and text-input strictness, answers cards, and sees a results screen. A learner can mark a word "Mastered" or "Revise" by hand. A learner can also mark pairs of their own languages as mastered on the Account page: Practice then never combines the two languages of a pair in one multi-language exercise (D8). Saved configurations and sessions are a separate feature (`features/saved-practice.md`).
 
-Live spec. It replaces a finished plan (archive record: `.context/archive/2026-09-phase-5-practice.md`). Built 2026-09-29 to 2026-09-30 (slices 0 to 9). Gate: `e2e/tests/phase-5-practice.spec.ts`. **Section numbers are kept** (A.1 to A.12, B.1 to B.3, B.7, C.1 to C.7, and the decision IDs D1 to D7 and C4), because backend and frontend code cite them (for example `§A.8`, `§B.3`, `Part C §C.3`). The slices (B.4), the file list (B.5) and the verification (B.6) are in `.context/research/practice-build-record.md`. Ideas that were deferred are idea I-8 in `.context/backlog/deferred-ideas.md`.
+Live spec. It replaces a finished plan (archive record: `.context/archive/2026-09-phase-5-practice.md`). Built 2026-09-29 to 2026-09-30 (slices 0 to 9). Gate: `e2e/tests/phase-5-practice.spec.ts`. **Section numbers are kept** (A.1 to A.12, B.1 to B.3, B.7, C.1 to C.7, and the decision IDs D1 to D8 and C4), because backend and frontend code cite them (for example `§A.8`, `§B.3`, `Part C §C.3`). The slices (B.4), the file list (B.5) and the verification (B.6) are in `.context/research/practice-build-record.md`. Ideas that were deferred are idea I-8 in `.context/backlog/deferred-ideas.md`.
 
-Code map: backend `backend/services/exercises/` (`catalogue.ts`, `generate.ts`, `select.ts`, `knowledge.ts`, `distractors.ts`, `present.ts`, `validate.ts`, `types.ts`), `services/exerciseService.ts`, `controllers/exerciseController.ts`, `routes/exerciseRoutes.js`, migration `0007_exercise_performance_integrity.sql`; frontend `frontend/src/features/practice/` (`params.ts`, `preselection.ts`, `session.ts`, `evaluate.ts`, `api.ts`); `backend/scripts/bench-exercises.ts`.
+Code map: backend `backend/services/exercises/` (`catalogue.ts`, `generate.ts`, `select.ts`, `knowledge.ts`, `distractors.ts`, `present.ts`, `validate.ts`, `types.ts`), `services/exerciseService.ts`, `controllers/exerciseController.ts`, `routes/exerciseRoutes.js`, migration `0007_exercise_performance_integrity.sql`; frontend `frontend/src/features/practice/` (`params.ts`, `preselection.ts`, `session.ts`, `evaluate.ts`, `api.ts`); `backend/scripts/bench-exercises.ts`. Mastered language pairs (D8): `backend/lib/masteredPairs.ts`, migration `0034_mastered_language_pairs.sql`, frontend `features/account/masteredPairs.ts` and `MasteredPairsField.tsx`; gate `e2e/tests/mastered-language-pairs.spec.ts`.
 
 ---
 
@@ -47,6 +47,7 @@ except where Part B lists a decision.
 | TI strictness | 1–3 | 2 | Frontend only (A.7). Hidden/disabled for MC-only. |
 | Word selection | `Exercise-Performance` / `Random` | Exercise-Performance | Adaptive vs random order (A.9). |
 | Native language | Include / Exclude | Include | Only shown when the user has a native language and mode ≠ Multi-Language. Exclude = no single-language drills in the native language. It never affects multi-language exercises (by design: the old tooltip says "in the case of single-language exercises"). |
+| Mastered language pairs | not a practice parameter: an account setting (Account → languages card) | none | Pairs of the user's own languages that are never combined in a multi-language exercise, in either direction (D8). Every other exercise, and every other language of the pair, stays in use. It is read from the account on every request, never from the request body. |
 | Pre-selected words | word ids | none | Comes from Review's bulk action. Replaces the automatic word pool. |
 | Mode | `Single-Try` | Single-Try | `Multiple-Tries` exists in old types but is dead. Dropped. |
 
@@ -75,7 +76,7 @@ have **no** catalogue, so they produce zero exercises.
 
 **Multi-language groups** — a group maps one grammatical slot to the matching `caseName` per language. For
 each unordered language pair (A,B) from the valid languages (shuffled per word, so direction is random),
-where both languages have the slot and the word has both values: one exercise, prompt = A, answer = B.
+where both languages have the slot and the word has both values: one exercise, prompt = A, answer = B. A pair that the user has mastered (A.3, D8) is skipped.
 
 Nouns:
 
@@ -282,10 +283,35 @@ behaviour stays the same.
 - **D4 — Mastery/activity statistics: later phase.** Phase 5 = practice flow only.
 - **D5 — Stale data: delete for all users.** Removing a translation deletes every user's performance for it
   (FK cascade). Removing a case deletes every user's case stats for it. A migration cleans existing orphans.
-- **D6 — Native language: add an optional select to the Account profile form**, backend-validated. The
-  practice option shows only when it is set.
+- **D6 — Native language: add an optional field to the Account profile form**, backend-validated. The
+  practice option shows only when it is set. (The field is now one badge out of the selected languages: `features/auth-and-shell.md` P1-10.)
 - **D7 — Clone copies the cloner's own history** from the source translations to the new copies, in the
   clone transaction.
+- **D8 — Mastered language pairs (2026-11-02 to 2026-11-03).** A learner who knows several languages can mark
+  a pair (for example Spanish and English) that they do not want to practise together, and still use each
+  language with the others.
+  - **Data:** `users.mastered_language_pairs`, a `jsonb` list of pairs of language labels, each pair sorted,
+    default `[]`. `updateUser` takes `masteredLanguagePairs`: absent keeps the stored pairs that still use
+    selected languages, `[]` clears, a list replaces. Login, `GET /me` and the update answer carry it.
+  - **Rules (`backend/lib/masteredPairs.ts`, 400 on a breach):** a pair is 2 different languages, both in the
+    user's final `languages`; the same pair is stored once; **at least one pair of the languages stays open**,
+    because a user with every pair mastered would get no multi-language exercise. A change of `languages` drops
+    the pairs that lose a language; if the pairs that remain still cover every pair, the request is refused.
+  - **Effect:** only on which multi-language exercises exist: `generate.ts` skips the pair in both directions.
+    Single-language drills, the native-language hint, the native-language exclusion, multiple-choice distractors
+    (difficulty 0 still takes values from any language), Words, Tags and Review do not change. The session
+    takes every exercise of the pool once, so it is shorter by the skipped exercises (4 words and 3 languages
+    give 12 exercises, and 8 with one pair mastered).
+  - **Client:** the Account page edits the pairs (`features/auth-and-shell.md` P1-10). A session saved in the
+    browser before the field existed reads as `[]` (`toSessionUser` on rehydrate).
+  - **Rejected:** a separate table (a join on every login for at most 10 pairs); a Practice parameter or saved
+    configuration (the user wants one account-wide setting, set once); allowing every pair to be mastered (an
+    empty Practice); skipping the pair for distractors too (not asked for; the options are not a combination
+    of the two languages).
+  - **Tests (one owner each, `guides/testing-policy.md`):** the rules in `backend/tests/auth.test.js`
+    (`masteredLanguagePairs`); the generator in `backend/tests/unit/exercisesGenerate.test.js`; the account
+    wiring in `backend/tests/exercises.test.js`; the form in the Account page tests; the whole chain in
+    `e2e/tests/mastered-language-pairs.spec.ts`.
 
 #### Calls made by the agent (reversible — the user can change them at review)
 
@@ -592,4 +618,6 @@ toggles, buttons, the app header.
 
 ## Open items
 
-None. Practice extensions that were deferred are listed as idea I-8 (`backlog/deferred-ideas.md`).
+- The Practice set-up screen does not mention the mastered pairs: the user only sees fewer cards (D8). A short note on the set-up screen is a possible follow-up. It was not asked for.
+
+Practice extensions that were deferred are listed as idea I-8 (`backlog/deferred-ideas.md`).

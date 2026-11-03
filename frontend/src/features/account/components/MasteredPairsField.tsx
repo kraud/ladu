@@ -10,7 +10,7 @@ import { addPair, coversEveryPair } from '../masteredPairs';
 const nativeName = (label: string) => languageByLabel(label)?.native ?? label;
 
 /**
- * "Mastered language pairs" in the Account form (plans/mastered-language-pairs): pairs of the
+ * "Mastered language pairs" in the Account form (.context/features/practice.md D8): pairs of the
  * user's selected languages that Practice never combines in one exercise. The user picks two
  * languages and adds the pair as a removable chip. Nothing else in the app reads these pairs.
  *

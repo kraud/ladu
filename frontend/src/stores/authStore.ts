@@ -34,7 +34,7 @@ export interface SessionUser {
     nativeLanguage: string | null;
     /**
      * Pairs of language labels that Practice never combines in one exercise
-     * (plans/mastered-language-pairs). Each pair is sorted. `[]` when none.
+     * (.context/features/practice.md D8). Each pair is sorted. `[]` when none.
      */
     masteredLanguagePairs: string[][];
     verified: boolean;

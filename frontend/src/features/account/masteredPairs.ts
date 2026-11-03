@@ -1,5 +1,5 @@
 /**
- * Mastered language pairs (plans/mastered-language-pairs): pairs of the user's languages that
+ * Mastered language pairs (.context/features/practice.md D8): pairs of the user's languages that
  * Practice never combines. The server owns the final check (`backend/lib/masteredPairs.ts`);
  * these helpers keep the form in step with it. A pair is two language labels, sorted, so
  * `Spanish + English` and `English + Spanish` are the same pair.

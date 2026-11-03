@@ -1,5 +1,5 @@
 /**
- * Mastered language pairs (plans/mastered-language-pairs): pairs of the user's own languages that
+ * Mastered language pairs (.context/features/practice.md D8): pairs of the user's own languages that
  * Practice never combines in a multi-language exercise. Each language stays in use with the others.
  *
  * A pair is two different language names. It is stored sorted, so `["Spanish","English"]` and

@@ -61,7 +61,7 @@ function multiLanguageExercises(
 ): RawExercise[] {
     const catalogue = MULTI_LANGUAGE[word.partOfSpeech as PartOfSpeech];
     if (!catalogue) return [];
-    // A mastered pair (plans/mastered-language-pairs) gives no multi-language exercise.
+    // A mastered pair (.context/features/practice.md D8) gives no multi-language exercise.
     const mastered = new Set(masteredPairs.map(([a, b]) => pairKey(a, b)));
     const pairs = uniqueLanguagePairs(validLanguages).filter(([a, b]) => !mastered.has(pairKey(a, b)));
     const out: RawExercise[] = [];

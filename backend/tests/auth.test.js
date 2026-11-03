@@ -762,7 +762,7 @@ describe('PUT /api/users/updateUser - Update Profile', () => {
         });
     });
 
-    // masteredLanguagePairs (plans/mastered-language-pairs): pairs of the user's own languages
+    // masteredLanguagePairs (.context/features/practice.md D8): pairs of the user's own languages
     // that Practice never combines. Absent keeps the stored value, [] clears it. Pairs are
     // stored sorted and without repeats. The set can never cover every pair of the languages.
     describe('masteredLanguagePairs', () => {

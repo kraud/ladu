@@ -129,7 +129,7 @@ describe('multi-language generation', () => {
     });
 });
 
-// Mastered language pairs (plans/mastered-language-pairs): a pair the user no longer wants to
+// Mastered language pairs (.context/features/practice.md D8): a pair the user no longer wants to
 // practise together gives no multi-language exercise, in either direction. Each language stays
 // in use with the others, and single-language drills do not change.
 describe('mastered language pairs', () => {
