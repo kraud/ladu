@@ -39,7 +39,9 @@
     },
     "notImplemented": "Vabandust, see funktsioon pole veel valmis!",
     "goToAccount": "Ava konto",
-    "menu": "Menüü",
+    "home": "Avaleht",
+    "more": "Rohkem",
+    "mainNav": "Peamenüü",
     "quick": {
       "randomPractice": "Juhuslik harjutus",
       "newWord": "Uus sõna"

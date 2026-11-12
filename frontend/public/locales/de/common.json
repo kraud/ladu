@@ -39,7 +39,9 @@
     },
     "notImplemented": "Diese Funktion ist noch nicht bereit, es tut uns leid!",
     "goToAccount": "Zum Konto",
-    "menu": "Menü",
+    "home": "Start",
+    "more": "Mehr",
+    "mainNav": "Hauptnavigation",
     "quick": {
       "randomPractice": "Zufällig üben",
       "newWord": "Neues Wort"

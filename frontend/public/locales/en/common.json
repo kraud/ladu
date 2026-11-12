@@ -39,7 +39,9 @@
     },
     "notImplemented": "This function is not ready yet, we're sorry!",
     "goToAccount": "Go to Account",
-    "menu": "Menu",
+    "home": "Home",
+    "more": "More",
+    "mainNav": "Main navigation",
     "quick": {
       "randomPractice": "Random practice",
       "newWord": "New word"

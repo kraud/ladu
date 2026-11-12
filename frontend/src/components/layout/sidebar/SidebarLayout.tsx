@@ -17,7 +17,7 @@
  * content renders once — in the aside or in the menu, never both — so every
  * control keeps one accessible name.
  *
- * `footer` is a bar fixed to the bottom of the window, over the full width
+ * `footer` is a bar fixed to the bottom of the window (on a phone, just above the bottom nav), over the full width
  * (the word editor's save bar). The layout measures it and ends the panel
  * above it, and adds a spacer of the same height so the last content is never
  * hidden behind it.
@@ -359,7 +359,7 @@ export function SidebarLayout({
                     </aside>
                 )}
 
-                <div className={cn('min-w-0 flex-1', fill && 'h-[calc(100dvh-var(--app-header-h))]')}>
+                <div className={cn('min-w-0 flex-1', fill && 'h-[calc(100dvh-var(--app-header-h)-var(--bottom-nav-h))]')}>
                     <div
                         className={cn(
                             'px-6 pt-3 pb-8 transition-[margin-left] duration-150 max-[920px]:px-3 max-[920px]:pt-2',
@@ -418,7 +418,7 @@ export function SidebarLayout({
                     <div aria-hidden="true" style={{ height: footerHeight }} />
                     <div
                         ref={footerRef}
-                        className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-[color-mix(in_srgb,var(--bg)_88%,transparent)] backdrop-blur-md"
+                        className="fixed inset-x-0 bottom-(--bottom-nav-h) z-30 border-t border-border bg-[color-mix(in_srgb,var(--bg)_88%,transparent)] backdrop-blur-md"
                     >
                         {footerAligned ? (
                             <div className="flex">

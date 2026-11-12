@@ -158,7 +158,7 @@ describe('PracticePage — the bottom bar', () => {
         expect(screen.getByRole('button', { name: 'Save configuration' })).toBeInTheDocument();
         // Fixed to the window (the layout's footer), with a spacer the width of the panel in front of the column.
         const footer = start.closest('.fixed') as HTMLElement;
-        expect(footer).toHaveClass('bottom-0');
+        expect(footer).toHaveClass('bottom-(--bottom-nav-h)');
         const spacer = footer.querySelector('[aria-hidden="true"]') as HTMLElement;
         expect(spacer).toHaveClass('w-96');
 
