@@ -54,3 +54,6 @@ word-lists/
 # Python bytecode (the helper script in .context/guides/tools)
 __pycache__/
 *.pyc
+
+# Claude
+.claude
