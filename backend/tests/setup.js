@@ -1,3 +1,5 @@
+require('tsx/cjs');
+
 // Polyfill SlowBuffer for Node.js 24+ compatibility
 const buffer = require('buffer');
 if (!buffer.SlowBuffer) {
