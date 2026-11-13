@@ -1,29 +1,22 @@
-import { type MouseEvent, useCallback, useState } from 'react';
+import type { MouseEvent } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import {
     BrainIcon,
-    ListIcon,
-    ShuffleIcon,
     TagIcon,
     TranslateIcon,
 } from '@phosphor-icons/react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
 import { BrandLogo } from '@/components/common/BrandLogo';
 import { LanguageSelector } from '@/components/layout/LanguageSelector';
 import { ThemeSelector } from '@/components/layout/ThemeSelector';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { featureFlags } from '@/app/feature-flags';
-import { useRandomPractice } from '@/features/practice/useRandomPractice';
-import { useEdgeSwipeOpen, useSwipeCloseProps } from '@/lib/useSwipe';
-import { useIsMobile } from '@/lib/useMediaQuery';
 import { useAuthStore } from '@/stores/authStore';
 import { DemoBadge } from '@/features/demo/components/DemoBadge';
 
 /** Nav targets. `requiresLanguages` = the old "≥2 languages" gate on Words (Add word hangs off it). */
-const NAV_ITEMS = [
+export const NAV_ITEMS = [
     { to: '/words', labelKey: 'common:header.words', requiresLanguages: true, icon: TranslateIcon },
     // Phase 4 (D1) — feature-flagged, not language-gated: tags are useful
     // regardless of how many languages an account has configured.
@@ -36,7 +29,7 @@ const NAV_ITEMS = [
  * than two configured languages, raising a toast with a "Go to Account" action
  * (`pages-auth-shell (removed snapshot):205` — business rule kept, Redux string-compare dropped).
  */
-function useLanguageGate() {
+export function useLanguageGate() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const languageCount = useAuthStore((s) => s.user?.languages.length ?? 0);
@@ -62,13 +55,7 @@ function useLanguageGate() {
     };
 }
 
-function NavLinks({
-    onNavigate,
-    className,
-}: {
-    onNavigate?: () => void;
-    className?: string;
-}) {
+function NavLinks({ className }: { className?: string }) {
     const { t } = useTranslation();
     const gate = useLanguageGate();
     const visibleItems = NAV_ITEMS.filter((item) => !('flag' in item) || featureFlags[item.flag]);
@@ -80,49 +67,13 @@ function NavLinks({
                     key={item.to}
                     to={item.to}
                     activeProps={{ className: 'active' }}
-                    onClick={(event) => {
-                        if (gate(item.requiresLanguages)(event)) onNavigate?.();
-                    }}
+                    onClick={gate(item.requiresLanguages)}
                 >
                     <item.icon aria-hidden="true" className="size-[18px] shrink-0 text-(--accent) max-[920px]:size-[22px]" />
                     {t(item.labelKey)}
                 </Link>
             ))}
         </nav>
-    );
-}
-
-/** Phone menu only: random practice (default settings) and a new word, side by side with equal width. */
-function QuickActions({
-    onDone,
-    onRandom,
-    busy,
-}: {
-    onDone: () => void;
-    onRandom: () => void;
-    busy: boolean;
-}) {
-    const { t } = useTranslation();
-    const navigate = useNavigate();
-    return (
-        <div className="mt-auto grid grid-cols-2 gap-2 pb-4">
-            <Button type="button" variant="outline" className="h-11" disabled={busy} onClick={onRandom}>
-                <ShuffleIcon size={20} aria-hidden="true" />
-                {t('common:header.quick.randomPractice')}
-            </Button>
-            <Button
-                type="button"
-                variant="outline"
-                className="h-11"
-                onClick={() => {
-                    onDone();
-                    void navigate({ to: '/addWord/{-$partOfSpeech}' });
-                }}
-            >
-                <TranslateIcon size={20} aria-hidden="true" />
-                {t('common:header.quick.newWord')}
-            </Button>
-        </div>
     );
 }
 
@@ -134,7 +85,7 @@ function HeaderRight() {
                     <input placeholder="…" disabled />
                 </div>
             )}
-            {/* Below 920px these live at the bottom of the menu drawer; they stay mounted (the language one syncs i18next). */}
+            {/* Below 920px these live in the bottom bar's More drawer; they stay mounted (the language one syncs i18next). */}
             <div className="flex items-center gap-2 max-[920px]:hidden">
                 <LanguageSelector />
                 <ThemeSelector />
@@ -151,62 +102,15 @@ function HeaderRight() {
 
 /**
  * The sticky app header for every authenticated route. Below 920px the nav
- * collapses into a hamburger `Sheet` (the `.searchbox` is already hidden by the
- * `@media (max-width: 920px)` block in `globals.css`).
+ * moves to the fixed bottom bar (`MobileBottomNav`), so the header keeps only the logo and the
+ * right-hand controls (the `.searchbox` is hidden by the `@media (max-width: 920px)` block in `globals.css`).
  */
 export function AppHeader() {
     const { t } = useTranslation();
-    const [sheetOpen, setSheetOpen] = useState(false);
-    const isMobile = useIsMobile();
-    const openMenu = useCallback(() => setSheetOpen(true), []);
-    // On a phone, a swipe from the left edge opens the menu, and a swipe to the left closes it.
-    useEdgeSwipeOpen(isMobile && !sheetOpen, openMenu);
-    const swipeToClose = useSwipeCloseProps(() => setSheetOpen(false));
-    const randomPractice = useRandomPractice();
-    // Closes the menu first when a running session needs confirming: two modal layers would fight for focus.
-    const startRandomPractice = () =>
-        randomPractice.run({ onBeforeConfirm: () => setSheetOpen(false), onStarted: () => setSheetOpen(false) });
 
     return (
         <header className="app-header">
-            <div className="app-header-inner mx-auto max-w-5xl px-6 max-[920px]:pl-2">
-                <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-                    <SheetTrigger
-                        className="icon-btn hidden max-[920px]:grid max-[920px]:size-10"
-                        aria-label={t('common:header.menu')}
-                    >
-                        <ListIcon size={26} />
-                    </SheetTrigger>
-                    <SheetContent side="left" className="gap-0 p-4" {...swipeToClose}>
-                        <SheetHeader className="p-0 pb-8">
-                            <SheetTitle>
-                                {/* Same target as the header logo: the Dashboard. */}
-                                <Link
-                                    to="/"
-                                    aria-label={t('common:appTitle')}
-                                    className="inline-flex"
-                                    onClick={() => setSheetOpen(false)}
-                                >
-                                    <BrandLogo height={36} />
-                                </Link>
-                            </SheetTitle>
-                        </SheetHeader>
-                        <NavLinks
-                            className="app-nav flex-col gap-0 border-t border-border [&_a]:h-12 [&_a]:w-full [&_a]:rounded-none [&_a]:border-b [&_a]:border-border [&_a]:flex [&_a]:items-center [&_a]:gap-3 [&_a]:px-2 [&_a]:text-lg"
-                            onNavigate={() => setSheetOpen(false)}
-                        />
-                        <QuickActions
-                            onDone={() => setSheetOpen(false)}
-                            onRandom={startRandomPractice}
-                            busy={randomPractice.isPending}
-                        />
-                        <div className="flex items-center justify-between border-t border-border pt-4">
-                            <LanguageSelector />
-                            <ThemeSelector />
-                        </div>
-                    </SheetContent>
-                </Sheet>
-
+            <div className="app-header-inner mx-auto max-w-5xl px-6 max-[920px]:px-3">
                 <Link to="/" aria-label={t('common:appTitle')} className="flex items-center">
                     <BrandLogo height={26} className="max-[920px]:h-9 max-[920px]:w-auto" />
                 </Link>
@@ -217,7 +121,6 @@ export function AppHeader() {
 
                 <HeaderRight />
             </div>
-            {randomPractice.dialog}
         </header>
     );
 }

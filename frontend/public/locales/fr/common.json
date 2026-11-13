@@ -39,7 +39,9 @@
     },
     "notImplemented": "Cette fonction n’est pas encore prête, désolé !",
     "goToAccount": "Aller au compte",
-    "menu": "Menu",
+    "home": "Accueil",
+    "more": "Plus",
+    "mainNav": "Navigation principale",
     "quick": {
       "randomPractice": "Entraînement aléatoire",
       "newWord": "Nouveau mot"

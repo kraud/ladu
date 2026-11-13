@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { AppHeader } from '@/components/layout/AppHeader';
+import { MobileBottomNav } from '@/components/layout/MobileBottomNav';
+import { useIsMobile } from '@/lib/useMediaQuery';
 import { useSessionTheme } from '@/components/layout/useSessionTheme';
 
 /**
@@ -11,14 +13,17 @@ import { useSessionTheme } from '@/components/layout/useSessionTheme';
  * tense-column grid.
  * `sidebar` routes render a `SidebarLayout`, which docks to the window edge and
  * sets its own content column: `<main>` then has no max width and no padding.
+ * Below 920px the shell also shows the fixed bottom nav (`MobileBottomNav`) and reserves its height,
+ * so no content sits behind it.
  * The auth gate is not here — it is `_protected.beforeLoad` in `app/router.tsx`
  * (fixes the old render-then-redirect bug).
  */
 export function AppShell({ children, wide, sidebar }: { children: ReactNode; wide?: boolean; sidebar?: boolean }) {
     useSessionTheme();
+    const isMobile = useIsMobile();
 
     return (
-        <div className="min-h-dvh">
+        <div className="min-h-dvh pb-(--bottom-nav-h)">
             <AppHeader />
             <main
                 className={cn(
@@ -30,6 +35,7 @@ export function AppShell({ children, wide, sidebar }: { children: ReactNode; wid
             >
                 {children}
             </main>
+            {isMobile && <MobileBottomNav />}
         </div>
     );
 }

@@ -73,6 +73,8 @@
   /* 52px inner row + 1px border: the docked sidebar (`SidebarLayout`) sits right under it. */
   :root {
     --app-header-h: 53px;
+    /* The phone's bottom nav (`MobileBottomNav`); 0 on a desktop, where there is none. */
+    --bottom-nav-h: 0px;
   }
   .app-header {
     position: sticky;
@@ -984,7 +986,7 @@
   .tablewrap {
     overflow-x: auto;
     overflow-y: auto;
-    max-height: calc(100dvh - 296px);
+    max-height: calc(100dvh - 296px - var(--bottom-nav-h));
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     background: var(--surface);
@@ -2160,6 +2162,8 @@
   /* Taller phone header: room for the 36px wordmark (the menu drawer's size) and a 40px avatar. */
   :root {
     --app-header-h: 65px;
+    /* A fixed number on purpose: a height built on `env(safe-area-inset-bottom)` moves when the phone browser's toolbar collapses on scroll. */
+    --bottom-nav-h: 66px;
   }
   .app-header-inner {
     gap: 12px;
