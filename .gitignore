@@ -15,6 +15,9 @@ dist
 frontend/dist
 *.tsbuildinfo
 
+# test coverage reports (npm run test:coverage in any workspace)
+coverage
+
 # playwright / e2e
 e2e/test-results
 e2e/playwright-report
