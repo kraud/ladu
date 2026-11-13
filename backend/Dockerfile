@@ -35,7 +35,7 @@ RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack 
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./package.json
 
-# Only the source the running server needs — no tests/, jest.config.js,
+# Only the source the running server needs — no tests/, vitest.config.mts,
 # eslint.config.js, drizzle.config.ts, nodemon.json (dev/CI-only).
 COPY backend/package.json backend/package.json
 COPY backend/tsconfig.json backend/tsconfig.json

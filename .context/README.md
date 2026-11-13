@@ -39,7 +39,7 @@ npm run db:migrate:test      # apply to test DB
 npm run dev                  # backend (:5001) + frontend (Vite) concurrently
 npm run dev:admin            # backend (:5001) + admin UI (Vite, :5174) — staff tool, .context/features/admin.md
 npm test -w admin            # admin Vitest
-npm test                     # backend Jest suite (workspace: backend)
+npm test                     # backend Vitest suite (workspace: backend)
 npm test -w frontend         # frontend Vitest
 npm run build                # frontend production build
 npm run db:studio            # Drizzle Studio
@@ -165,7 +165,7 @@ migrates its own database `keelapp_e2e`. Details: [`e2e/README.md`](../e2e/READM
 Vite 5 · React 18 · **TypeScript 5 strict** (`noImplicitAny`, `noUnusedLocals/Parameters` already on; `@ts-ignore` and non-null assertions `!` are banned) · Tailwind v4 (`@tailwindcss/vite`) + shadcn/Base UI + Phosphor icons · **TanStack Query v5** (all server state) · **TanStack Router** (typed routes) · **Zustand** (session + `selectedPoS` + UI state only) · react-hook-form + yup · @tanstack/react-table · @dnd-kit · i18next (locale JSONs copied verbatim) · react-toastify · axios (one client, request interceptor, 401→logout — no refresh endpoint exists) · react-error-boundary per route · Vitest + MSW (unit + flow tests) · Dashboard charts are hand-rolled inline SVG, no chart library (`c3`/`d3` were installed unused and dropped in Phase 3.5).
 
 ### Backend (`backend/`) — copied + modified
-Node/Express (`.js` routes) → **TypeScript controllers loaded via `tsx`** · **Drizzle ORM on PostgreSQL** (`backend/src/db/schema.ts` is the source of truth) · JWT auth (`protect` middleware) · bcryptjs · Nodemailer · Jest + ts-jest + supertest (integration tests import `require('./request')`, never `supertest` directly: it keeps one server per test file — a server per request cycles macOS's ephemeral ports and causes random `socket hang up` failures in full runs) · drizzle-kit for migrations. Local DB via Docker Compose (Postgres 15: `keelapp_dev`, `keelapp_test`).
+Node/Express (`.js` routes) → **TypeScript controllers loaded via `tsx`** · **Drizzle ORM on PostgreSQL** (`backend/src/db/schema.ts` is the source of truth) · JWT auth (`protect` middleware) · bcryptjs · Nodemailer · Vitest + supertest (integration tests import `require('./request')`, never `supertest` directly: it keeps one server per test file — a server per request cycles macOS's ephemeral ports and causes random `socket hang up` failures in full runs) · drizzle-kit for migrations. Local DB via Docker Compose (Postgres 15: `keelapp_dev`, `keelapp_test`). Backend tests are CommonJS: `tests/setup.js` loads `tsx/cjs` so `require()` can read the TS sources, and mocks use `mockModule` / `mockModuleFactory` from `tests/mockModule.js` — `vi.mock` does not reach modules loaded with `require()`.
 
 ### e2e (`e2e/`) — full-stack tests
 Third npm workspace (alongside `backend/`, `frontend/`). **Playwright** (`@playwright/test`) drives Chromium against the *real* backend + frontend dev server on their own ports (:5101, :5273) and their own database (`keelapp_e2e`) — `webServer` in `e2e/playwright.config.ts` boots them (`e2e/fixtures/env.ts` holds the values). One spec per phase (`e2e/tests/phase-N-*.spec.ts`); green run is a required per-phase gate (build plan §5/§6). Kept out of the `frontend` workspace so Playwright's Node config + browser binaries never touch the Vite build or FE dep tree. Interactive browser driving during a session comes from the `@playwright/mcp` server registered in `.mcp.json`. CI job deferred — local gate for now.
@@ -189,7 +189,7 @@ Third npm workspace (alongside `backend/`, `frontend/`). **Playwright** (`@playw
 
 ## Backend copy rules and the §8 deficiency fixes
 
-**Copy rules:** keep TS controllers/routes/Drizzle schema/Jest tests; **drop every legacy Mongoose `.js` controller/model** (deleted). Apply §8.5 hygiene (CORS allowlist via `CORS_ORIGIN` — done in `app.js`; stable error codes instead of leaking `err.stack`).
+**Copy rules:** keep TS controllers/routes/Drizzle schema/backend tests; **drop every legacy Mongoose `.js` controller/model** (deleted). Apply §8.5 hygiene (CORS allowlist via `CORS_ORIGIN` — done in `app.js`; stable error codes instead of leaking `err.stack`).
 
 **`id` only — `_id` is a MongoDB artifact (standing rule; `.context/roadmap.md` §4).** The Drizzle/Postgres schema has no `_id` column; every `_id` in a response is a hand-written alias kept for the *old* frontend, which runs against its own separate backend — nothing here needs it. New FE code and types use `id` exclusively (no `_id`, no `raw.id ?? raw._id` fallback). Backend `_id` aliases are stripped **per-slice, by whatever slice touches that controller/serializer** (responses + test assertions), not in one refactor; the affected docs are corrected in the same slice.
 

@@ -1,13 +1,14 @@
-// `jest.mock` + the mocked module's own `require` MUST come before `require('../app')`
-// below. This file is plain CommonJS (not Babel/ts-jest transformed — only `.tsx?`
-// files go through the `transform` in jest.config.js), so Jest's automatic
-// `jest.mock` hoisting (which only rewrites `import` syntax) never applies here:
-// these lines run in the literal order they're written. `require('../app')` pulls
-// in `userController.ts`, which does its own top-level
+// `mockModule` + the mocked module's own `require` MUST come before `require('../app')`
+// below. Vitest's `vi.mock` only replaces modules loaded with `import`; the app code
+// loads its modules with `require()`, so `vi.mock` would silently do nothing here.
+// `mockModule` (tests/mockModule.js) puts the replacement into Node's require cache
+// instead, so these lines must run in the literal order they're written.
+// `require('../app')` pulls in `userController.ts`, which does its own top-level
 // `require("../utils/sendEmail")` — if that happened before this mock was
 // registered, the controller would capture the *real* nodemailer-backed module
 // (hitting live SMTP in every test run) instead of the mock.
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+const { mockModule } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 const sendMail = require('../utils/sendEmail');
 
 const crypto = require('crypto');

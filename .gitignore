@@ -15,6 +15,9 @@ dist
 frontend/dist
 *.tsbuildinfo
 
+# test coverage reports (npm run test:coverage in any workspace)
+coverage
+
 # playwright / e2e
 e2e/test-results
 e2e/playwright-report
@@ -54,3 +57,6 @@ word-lists/
 # Python bytecode (the helper script in .context/guides/tools)
 __pycache__/
 *.pyc
+
+# Claude
+.claude

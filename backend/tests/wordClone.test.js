@@ -8,7 +8,8 @@
  * `GET /api/words/:id`.
  */
 
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+const { mockModule } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 
 const request = require('./request');
 const { eq } = require('drizzle-orm');

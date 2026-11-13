@@ -6,8 +6,8 @@ const json = (value) => JSON.stringify(value);
 const link = (overrides = {}) => ({ label: 'Sentry', description: 'Errors', href: 'https://example.test/sentry', ...overrides });
 
 describe('loadAdminLinks', () => {
-    beforeEach(() => jest.spyOn(console, 'warn').mockImplementation(() => {}));
-    afterEach(() => jest.restoreAllMocks());
+    beforeEach(() => vi.spyOn(console, 'warn').mockImplementation(() => {}));
+    afterEach(() => vi.restoreAllMocks());
 
     it('is "not_set" for a missing, empty or blank value, with no warning', () => {
         for (const raw of [undefined, '', '   ']) {

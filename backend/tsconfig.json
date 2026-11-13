@@ -4,7 +4,7 @@
     "target": "ES2022",
 
     // Use CommonJS modules to stay compatible with the existing require() calls
-    // in the codebase and the Jest/ts-jest test runner
+    // in the codebase and the Vitest tests (which load the sources through tsx/cjs)
     "module": "CommonJS",
 
     // Use Node.js module resolution strategy

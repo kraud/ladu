@@ -1,15 +1,16 @@
 // Access gates, PR 2: the login gate. See .context/features/access-control.md.
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+const { mockModule, mockModuleFactory } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 // The Google callback talks to a provider. Replace the three pieces that reach the network.
-jest.mock('jose', () => ({ jwtVerify: jest.fn(), createRemoteJWKSet: jest.fn() }));
-jest.mock('../lib/oauth/discovery', () => ({
-    getDiscoveryDocument: jest.fn().mockResolvedValue({
+mockModuleFactory('jose', () => ({ jwtVerify: vi.fn(), createRemoteJWKSet: vi.fn() }));
+mockModuleFactory('../lib/oauth/discovery', () => ({
+    getDiscoveryDocument: vi.fn().mockResolvedValue({
         issuer: 'https://issuer.test',
         authorization_endpoint: 'https://issuer.test/authorize',
         token_endpoint: 'https://issuer.test/token',
         jwks_uri: 'https://issuer.test/jwks',
     }),
-    getJwks: jest.fn().mockReturnValue({}),
+    getJwks: vi.fn().mockReturnValue({}),
 }));
 const { jwtVerify } = require('jose');
 
@@ -324,9 +325,9 @@ describe('Google', () => {
         const callback = async (user) => {
             await db.insert(oauthIdentities).values({ userId: user.id, provider: 'google', providerUserId: 'linked-sub', emailAtLink: user.email });
             jwtVerify.mockResolvedValue({ payload: { sub: 'linked-sub', email: user.email, email_verified: true, name: user.name, nonce: 'n' } });
-            // This Jest sandbox has no global fetch, so there is nothing to spy on: set a fake, then restore.
+            // Set a fake global.fetch, then restore it.
             const originalFetch = global.fetch;
-            global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ id_token: 'x' }) });
+            global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ id_token: 'x' }) });
             const state = issueStateToken({ provider: 'google', verifier: 'v', nonce: 'n', jti: 'j' });
             const res = await request(app)
                 .get('/api/auth/google/callback?code=abc&state=j')

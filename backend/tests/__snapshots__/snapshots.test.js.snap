@@ -1,4 +1,99 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Data Snapshots - Migration Baseline > records the shape of a Tag with word associations 1`] = `
+{
+  "description": "Common adjectives",
+  "followerCount": 0,
+  "isAvailable": true,
+  "isFollowing": false,
+  "isOwner": true,
+  "label": "Adjectives Pack",
+  "languages": [
+    "DE",
+    "EN",
+  ],
+  "partsOfSpeech": [
+    "Adjective",
+  ],
+  "sourceTag": null,
+  "visibility": "Private",
+  "wordCount": 1,
+}
+`;
+
+exports[`Data Snapshots - Migration Baseline > records the shape of a full Word with 3 languages 1`] = `
+{
+  "clue": "move quickly on foot",
+  "isCloned": false,
+  "partOfSpeech": "Verb",
+  "tags": [
+    {
+      "label": "Core Verbs",
+      "visibility": "Private",
+    },
+  ],
+  "translations": [
+    {
+      "cases": [
+        {
+          "caseName": "infinitiveNonFiniteSimpleEN",
+        },
+        {
+          "caseName": "simplePresent1sEN",
+        },
+        {
+          "caseName": "simplePastEN",
+        },
+      ],
+      "language": "English",
+    },
+    {
+      "cases": [
+        {
+          "caseName": "infinitiveMaEE",
+        },
+        {
+          "caseName": "indicativePresent3sEE",
+        },
+        {
+          "caseName": "indicativePast1sEE",
+        },
+      ],
+      "language": "Estonian",
+    },
+    {
+      "cases": [
+        {
+          "caseName": "infinitiveDE",
+        },
+        {
+          "caseName": "present3sDE",
+        },
+        {
+          "caseName": "preterite1s3sDE",
+        },
+      ],
+      "language": "German",
+    },
+  ],
+}
+`;
+
+exports[`Data Snapshots - Migration Baseline > records the shape of an ExercisePerformance document 1`] = `
+{
+  "cases": [
+    {
+      "caseName": "singularNimetavEE",
+      "knowledge": 25,
+      "record": [
+        true,
+      ],
+    },
+  ],
+  "modifier": null,
+  "reviseCounter": 0,
+}
+`;
 
 exports[`Data Snapshots - Migration Baseline records the shape of a Tag with word associations 1`] = `
 Object {

@@ -1,7 +1,8 @@
 // Demo access, Slice 2 step 1: the word and tag caps on every create and clone path (D3, D11),
 // Private-only tags and no follow (D10 b, d), and no social action from a demo (Review log S2-1).
 // See .context/features/demo.md.
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+const { mockModule } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 
 const request = require('./request');
 const { eq } = require('drizzle-orm');
@@ -13,7 +14,7 @@ const { seedDemoTemplate } = require('../lib/demoTemplate');
 const { resetDemoStartLimiter } = require('../lib/demo');
 const { generateToken } = require('../controllers/userController');
 
-jest.setTimeout(20000);
+vi.setConfig({ testTimeout: 20000 });
 
 beforeAll(() => testDb.connectDB());
 beforeEach(async () => {

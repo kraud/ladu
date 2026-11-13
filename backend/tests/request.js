@@ -13,8 +13,8 @@
  * per 20,000 requests with a server per request, and 0 in 60,000 with one
  * shared server.
  *
- * So this helper starts ONE server per app (per test file — Jest gives each
- * file its own module registry) on first use, sends every request to it, and
+ * So this helper starts ONE server per app (per test file — Vitest runs each
+ * file in its own isolated process) on first use, sends every request to it, and
  * closes it in afterAll.
  */
 

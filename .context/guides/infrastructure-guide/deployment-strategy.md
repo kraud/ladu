@@ -80,8 +80,8 @@ Internet → Cloudflare (proxy, TLS) → VPS :443 (only Cloudflare IPs allowed)
 | Environment | Database | Purpose |
 |---|---|---|
 | Local dev | Docker Postgres `keelapp_v2_dev` (port 5433) | Daily work, local e2e |
-| Local test | `keelapp_test` (same container, from `init-test-db.sh`) | Jest |
-| CI | Temporary `postgres:15-alpine` service container | Jest + e2e on each PR |
+| Local test | `keelapp_test` (same container, from `init-test-db.sh`) | Vitest |
+| CI | Temporary `postgres:15-alpine` service container | Vitest + e2e on each PR |
 | Staging | `ladu_staging` on the VPS | Automatic deploy target, smoke e2e |
 | Production | `ladu_prod` on the VPS | Real users |
 
@@ -109,7 +109,7 @@ The DB user passwords are stored twice: in Ansible Vault (to create the users) a
 ## 3. Pipeline
 
 ```
-PR ──► ci.yml: lint · typecheck · Jest · Vitest · e2e · build · docker build (no push) · Trivy
+PR ──► ci.yml: lint · typecheck · Vitest · e2e · build · docker build (no push) · Trivy
          │  (a ruleset requires all of these checks to pass before merge)
          ▼
 merge to main ──► deploy.yml
@@ -124,7 +124,7 @@ merge to main ──► deploy.yml
 
 1. `lint`: ESLint in `backend` and `frontend` (new scripts)
 2. `typecheck`: `tsc --noEmit` / `tsc -b`
-3. `backend`: Jest with a Postgres service (exists)
+3. `backend`: Vitest with a Postgres service (exists)
 4. `frontend`: Vitest + `vite build` (exists)
 5. `e2e`: Postgres service + `playwright install --with-deps chromium` + `npm run test:e2e -- --workers=1`
 6. `images`: `docker build` for each Dockerfile (no push) + Trivy scan (fail on HIGH/CRITICAL that have a fix)
