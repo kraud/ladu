@@ -200,7 +200,7 @@ provider's email can change; its `sub` cannot.
 Do not forget: `backend/tests/db.js`'s `clearDB()` has a hardcoded TRUNCATE
 table list — `oauth_identities` must be added there, exactly as
 `password_reset_tokens` was when migration `0003` introduced it, or rows
-leak between Jest test files.
+leak between backend test files.
 
 ---
 
@@ -481,10 +481,11 @@ check.
 
 Layered the same way the rest of the repo already is:
 
-- **Backend (Jest)** — `backend/tests/oauth.test.js`. Follows the existing
-  `auth.test.js` conventions: `jest.mock('../utils/sendEmail', ...)` declared
-  *above* `require('../app')` (the file isn't transformed, so `jest.mock`
-  hoisting doesn't apply — same trap `auth.test.js:1-11` already documents),
+- **Backend (Vitest)** — `backend/tests/oauth.test.js`. Follows the existing
+  `auth.test.js` conventions: `mockModule('../utils/sendEmail', ...)` declared
+  *above* `require('../app')` (`vi.mock` does not reach modules loaded with
+  `require()`, so `tests/mockModule.js` replaces them in Node's require
+  cache — see `auth.test.js:1-9`),
   single-threaded against the shared test DB, `clearDB()` between tests. ID
   tokens for unit tests are either signed locally with `jose` against a
   throwaway key, or run against the Phase 0 stub issuer.

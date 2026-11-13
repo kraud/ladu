@@ -8,9 +8,9 @@ export default defineConfig({
         environment: 'node',
         include: ['tests/**/*.test.{js,ts}'],
 
-        // Loads tsx/cjs (so plain require() can load the TypeScript sources), then
-        // tests/setup.js: sets the test env vars and defines global.signin.
-        setupFiles: ['tests/vitest.setup.js'],
+        // Loads tsx/cjs (so plain require() can load the TypeScript sources),
+        // sets the test env vars and defines global.signin.
+        setupFiles: ['tests/setup.js'],
 
         // The suite uses ONE shared PostgreSQL test database, and clearDB()
         // truncates all tables between tests. Parallel files would truncate

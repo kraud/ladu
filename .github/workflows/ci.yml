@@ -43,7 +43,7 @@ jobs:
       - run: npm run typecheck -w admin
 
   backend:
-    name: Backend (Jest + PostgreSQL)
+    name: Backend (Vitest + PostgreSQL)
     runs-on: ubuntu-latest
 
     services:
