@@ -1,5 +1,6 @@
 // Admin dashboard slice 8 — the audit log viewer's API (read only, audit.read).
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+const { mockModule } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 
 const request = require('./request');
 const app = require('../app');

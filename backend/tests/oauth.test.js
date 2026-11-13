@@ -1,6 +1,7 @@
-// Same trap as auth.test.js:1-11 — `jest.mock` must come before `require('../app')`,
+// Same trap as auth.test.js:1-11 — `vi.mock` must come before `require('../app')`,
 // which pulls in userController.ts's own top-level `require("../utils/sendEmail")`.
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+const { mockModule } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 const sendMail = require('../utils/sendEmail');
 
 const crypto = require('crypto');
@@ -468,7 +469,7 @@ describe('POST /api/auth/:provider/link (protected start, Phase 5)', () => {
 
     // The 200 { url } success path needs a real discovery fetch (this
     // endpoint shares buildAuthorize with startAuth, whose own success path
-    // is Jest-untested for the same reason — see "GET /api/auth/:provider/start"
+    // is unit-test-untested for the same reason — see "GET /api/auth/:provider/start"
     // above) — covered end to end against the Phase 0 stub in
     // oauth-5-connected-methods.spec.ts instead.
 });

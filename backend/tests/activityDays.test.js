@@ -1,6 +1,7 @@
 // Admin dashboard slice 9 — `protect` records one active day for each user for each UTC day
 // (user_activity_days), next to the hourly `last_seen_at`.
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+const { mockModule } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 
 const request = require('./request');
 const bcrypt = require('bcryptjs');
@@ -14,7 +15,7 @@ beforeAll(() => testDb.connectDB());
 beforeEach(() => testDb.clearDB());
 afterEach(() => {
     global.Date = RealDate;
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
 });
 afterAll(async () => {
     await testDb.closeDB();
@@ -24,7 +25,7 @@ afterAll(async () => {
 const RealDate = Date;
 
 /**
- * Fixes the clock. Jest 27 can only fake every timer at once, which would stall the
+ * Fixes the clock. Faking every timer at once would stall the
  * database driver, so this replaces only `Date`: `new Date()` and `Date.now()` answer
  * `iso`, everything else behaves as before.
  */
@@ -187,10 +188,10 @@ describe('when recording fails', () => {
     it('does not fail the request, leaves last_seen_at alone, and tries again on the next request', async () => {
         setClock('2026-10-05T10:00:00Z');
         const user = await makeUser();
-        jest.spyOn(console, 'warn').mockImplementation(() => {});
+        vi.spyOn(console, 'warn').mockImplementation(() => {});
         const real = db.insert.bind(db);
         let failedOnce = false;
-        jest.spyOn(db, 'insert').mockImplementation((table) => {
+        vi.spyOn(db, 'insert').mockImplementation((table) => {
             if (table === userActivityDays && !failedOnce) {
                 failedOnce = true;
                 throw new Error('connection reset');

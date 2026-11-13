@@ -1,6 +1,7 @@
 // Admin dashboard slice 1 — login capture, and ban / delete / token-version
 // enforcement. See .context/features/admin.md §4.
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+const { mockModule } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 
 const request = require('./request');
 const bcrypt = require('bcryptjs');

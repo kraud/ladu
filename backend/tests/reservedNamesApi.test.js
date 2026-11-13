@@ -1,7 +1,8 @@
 // Reserved names, slice 7 — registration, Google signup and profile update.
 // See .context/features/admin.md. The word list itself is tested in
 // reservedNames.test.js; here we test the three flows around it.
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+const { mockModule } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 
 const request = require('./request');
 const { eq } = require('drizzle-orm');

@@ -2,7 +2,7 @@
  * GET /api/users/getUserMetrics — Integration Tests
  *
  * Phase 3.5 Slice 1: `calculateBasicUserMetrics` (metricController.ts) had zero
- * Jest coverage before this file — the handler itself is untouched here. Covers
+ * test coverage before this file — the handler itself is untouched here. Covers
  * the six `BasicUserMetrics` fields, fresh-account zeros, per-user isolation,
  * the practice coverage (`unpracticedWordsCount`, `translationsInPractice`, `practicedTranslations`:
  * own and followed words, a case counts as practiced with at least one answer),
@@ -10,9 +10,9 @@
  */
 
 // Must run before `require('../app')` below — see auth.test.js's comment on
-// this same pattern for why (this file isn't Babel/ts-jest transformed, so
-// jest.mock hoisting never applies to it).
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+// this same pattern for why (mockModule, not vi.mock).
+const { mockModule } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 
 const request = require('./request');
 const app = require('../app');

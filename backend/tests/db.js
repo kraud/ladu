@@ -4,7 +4,7 @@
  * Replaces the old mongodb-memory-server-based db.js.
  *
  * This module is imported by every integration test file and provides three
- * lifecycle helpers that Jest calls in beforeAll / beforeEach / afterAll:
+ * lifecycle helpers that Vitest calls in beforeAll / beforeEach / afterAll:
  *
  *   connectDB()  — verifies that the test database is reachable and that all
  *                  migrations have been applied.
@@ -41,7 +41,7 @@ let pool;
 
 /**
  * Applies pending migrations to the test database before tests run.
- * The advisory lock prevents parallel Jest workers from trying to migrate the
+ * The advisory lock prevents parallel test workers from trying to migrate the
  * same database at the same time.
  */
 const applyMigrations = async () => {
@@ -142,7 +142,7 @@ const clearDB = async () => {
 /**
  * closeDB
  * Called in `afterAll()` in each test file.
- * Drains and closes the connection pool to prevent Jest from hanging.
+ * Drains and closes the connection pool to prevent the test run from hanging.
  */
 const closeDB = async () => {
     if (pool) {

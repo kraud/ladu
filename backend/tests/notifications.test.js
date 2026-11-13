@@ -11,9 +11,9 @@
  */
 
 // Must run before `require('../app')` below — see auth.test.js's comment on
-// this same pattern for why (this file isn't Babel/ts-jest transformed, so
-// jest.mock hoisting never applies to it).
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+// this same pattern for why (mockModule, not vi.mock).
+const { mockModule } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 
 const request = require('./request');
 const { eq } = require('drizzle-orm');
@@ -22,7 +22,7 @@ const testDb = require('./db');
 const { db, pool } = require('../src/db');
 const { notifications } = require('../src/db/schema');
 
-jest.setTimeout(15000);
+vi.setConfig({ testTimeout: 15000 });
 
 beforeAll(() => testDb.connectDB());
 beforeEach(() => testDb.clearDB());

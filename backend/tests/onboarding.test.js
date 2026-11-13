@@ -3,7 +3,8 @@
  * POST /api/onboarding/skip. Plan: .context/features/onboarding.md, Slice 3d (D6, D18, D21, D23, D25).
  * Most tests use the committed pool; the capacity edge cases use a small synthetic pool.
  */
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+const { mockModule } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 
 const request = require('./request');
 const { eq, inArray } = require('drizzle-orm');

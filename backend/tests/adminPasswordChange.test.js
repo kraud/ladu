@@ -1,5 +1,6 @@
 // Admin dashboard slice 8 — a staff member changes their own password.
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+const { mockModule } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 
 const request = require('./request');
 const jwt = require('jsonwebtoken');

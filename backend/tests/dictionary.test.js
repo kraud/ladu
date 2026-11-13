@@ -1,8 +1,9 @@
 // GET /api/dictionary/:language/:partOfSpeech/:query (autocomplete-data-source-strategy.md, Slice A).
 // EN/ES/DE run the local lexicon (loaded from the committed fixtures) and the real libraries as the fallback.
-// jest.mock comes before require('../app'): this .js file is not transformed, so Jest does not hoist
-// it, and userController.ts must capture the mock, not the real nodemailer-backed module.
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+// mockModule comes before require('../app'): see auth.test.js. userController.ts must capture the
+// mock, not the real nodemailer-backed module.
+const { mockModule } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 
 const path = require('path');
 const request = require('./request');
@@ -196,7 +197,7 @@ describe('German (Slice B2: the lexicon first, the library as a partial fallback
 });
 
 describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
-    // This Jest sandbox has no global fetch (Node has it), so set a fake and restore it (as in accessGateLogin.test.js).
+    // Set a fake global.fetch and restore it (as in accessGateLogin.test.js).
     const originalFetch = global.fetch;
     const forms = (pairs) => pairs.map(([morphCode, value]) => ({ morphCode, value }));
     /** word → [word id, paradigm]; ids 1x are nouns/adjectives, 2x verbs. */
@@ -240,7 +241,7 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
     };
     /** A fake Ekilex: answers by path, like e2e/fixtures/eki-stub/server.ts. */
     function fakeEkilex({ ok = true } = {}) {
-        global.fetch = jest.fn(async (url) => {
+        global.fetch = vi.fn(async (url) => {
             const path = decodeURIComponent(new URL(url).pathname);
             const json = (body) => ({ ok, status: ok ? 200 : 503, json: async () => body });
             let match;
@@ -444,7 +445,7 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
     });
 
     it('answers 502 when the service is unreachable, answers an error, or no key is set', async () => {
-        global.fetch = jest.fn().mockRejectedValue(new Error('upstream unreachable'));
+        global.fetch = vi.fn().mockRejectedValue(new Error('upstream unreachable'));
         expect((await lookup('Estonian/Adjective/hea')).statusCode).toBe(502);
 
         fakeEkilex({ ok: false });
@@ -701,7 +702,7 @@ describe('translate (Slice F: GET /api/dictionary/translate/:fromLanguage/:partO
 
     /** A fake Ekilex meaning search: `meanings` per searched word, each a list of [lang, word]. */
     function fakeMeaningSearch(meanings, { ok = true } = {}) {
-        global.fetch = jest.fn(async (url) => {
+        global.fetch = vi.fn(async (url) => {
             const word = decodeURIComponent(new URL(url).pathname.replace('/api/meaning/search/', ''));
             const results = (meanings[word] ?? []).map((list) => ({ meaningWords: list.map(([lang, wordValue]) => ({ lang, wordValue })) }));
             return { ok, status: ok ? 200 : 503, json: async () => ({ results }) };
@@ -723,7 +724,7 @@ describe('translate (Slice F: GET /api/dictionary/translate/:fromLanguage/:partO
     beforeEach(async () => {
         await loadLexiconFile(pool, TRANSLATIONS);
         await loadLexiconFile(pool, EN_FIXTURE);
-        global.fetch = jest.fn(async () => { throw new Error('Ekilex must not be asked'); });
+        global.fetch = vi.fn(async () => { throw new Error('Ekilex must not be asked'); });
     });
     afterEach(() => { global.fetch = originalFetch; });
 
@@ -927,7 +928,7 @@ describe('one sense with its words (Slice G, G2: GET /api/dictionary/translate/s
 
     /** A fake Ekilex meaning search: `meanings` per searched word, each a list of [lang, word]. */
     function fakeMeaningSearch(meanings, { ok = true } = {}) {
-        global.fetch = jest.fn(async (url) => {
+        global.fetch = vi.fn(async (url) => {
             const word = decodeURIComponent(new URL(url).pathname.replace('/api/meaning/search/', ''));
             const results = (meanings[word] ?? []).map((list) => ({ meaningWords: list.map(([lang, wordValue]) => ({ lang, wordValue })) }));
             return { ok, status: ok ? 200 : 503, json: async () => ({ results }) };
@@ -948,7 +949,7 @@ describe('one sense with its words (Slice G, G2: GET /api/dictionary/translate/s
     });
     beforeEach(async () => {
         await loadLexiconFile(pool, TRANSLATIONS);
-        global.fetch = jest.fn(async () => { throw new Error('Ekilex must not be asked'); });
+        global.fetch = vi.fn(async () => { throw new Error('Ekilex must not be asked'); });
     });
     afterEach(() => { global.fetch = originalFetch; });
 
@@ -1032,7 +1033,7 @@ describe('draft (Slice G, G3: POST /api/dictionary/draft)', () => {
     });
     beforeEach(async () => {
         for (const file of [FIXTURE, ES_FIXTURE, EN_FIXTURE, ET_FIXTURE]) await loadLexiconFile(pool, file);
-        global.fetch = jest.fn(async () => { throw new Error('Ekilex must not be asked'); });
+        global.fetch = vi.fn(async () => { throw new Error('Ekilex must not be asked'); });
     });
     afterEach(() => { global.fetch = originalFetch; });
 
@@ -1076,7 +1077,7 @@ describe('draft (Slice G, G3: POST /api/dictionary/draft)', () => {
     });
 
     it('a lookup that fails comes back as "error"; the other languages still fill', async () => {
-        global.fetch = jest.fn(async () => ({ ok: false, status: 503, json: async () => ({}) }));
+        global.fetch = vi.fn(async () => ({ ok: false, status: 503, json: async () => ({}) }));
         const res = await draft({
             partOfSpeech: 'Noun',
             picks: [{ language: 'German', word: 'Haus', gender: 'das' }, { language: 'Estonian', word: 'tundmatu' }],
@@ -1090,7 +1091,7 @@ describe('draft (Slice G, G3: POST /api/dictionary/draft)', () => {
     describe('conjunctions and prepositions (slice 3c)', () => {
         /** A fake Ekilex that knows "sest" as a conjunction and "pärast" as a preposition and a postposition. */
         function fakeEkilex() {
-            global.fetch = jest.fn(async (url) => {
+            global.fetch = vi.fn(async (url) => {
                 const path = decodeURIComponent(new URL(url).pathname);
                 const json = (body) => ({ ok: true, status: 200, json: async () => body });
                 const known = { sest: [1, [{ code: 'konj' }], []], pärast: [2, [{ code: 'prep' }], [{ value: 'keda/mida' }]] };
