@@ -1,6 +1,7 @@
 // Admin user emails — "Resend verification email" and "Send password reset".
 // See .context/features/admin.md.
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+const { mockModule } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 const sendMail = require('../utils/sendEmail');
 
 const request = require('./request');
@@ -228,7 +229,7 @@ describe('transaction', () => {
         const token = await staffToken('support');
         const user = await makeUser();
         const original = db.transaction.bind(db);
-        const spy = jest.spyOn(db, 'transaction').mockImplementationOnce((callback) =>
+        const spy = vi.spyOn(db, 'transaction').mockImplementationOnce((callback) =>
             original(async (tx) => {
                 await callback(tx); // everything ran, the email is ready ...
                 throw new Error('forced failure'); // ... but the commit never happens

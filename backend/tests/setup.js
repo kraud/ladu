@@ -1,3 +1,8 @@
+// Lets plain require() load the TypeScript sources (controllers, db, schema...).
+// The test files load the app with require(), which runs in Node and cannot read
+// .ts on its own. The production server uses the same hook.
+require('tsx/cjs');
+
 // Polyfill SlowBuffer for Node.js 24+ compatibility
 const buffer = require('buffer');
 if (!buffer.SlowBuffer) {

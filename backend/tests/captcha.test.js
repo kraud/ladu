@@ -2,11 +2,12 @@
 // `POST /api/users/requestPasswordReset`, and the public site key in `GET /api/access`.
 // Cloudflare is mocked at `global.fetch` (supertest uses `http`, so it is not affected).
 // See .context/features/captcha.md.
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+const { mockModule, mockModuleFactory } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 const sendMail = require('../utils/sendEmail');
-jest.mock('@sentry/node', () => ({
-    ...jest.requireActual('@sentry/node'),
-    captureMessage: jest.fn(),
+mockModuleFactory('@sentry/node', () => ({
+    ...require('@sentry/node'),
+    captureMessage: vi.fn(),
 }));
 const Sentry = require('@sentry/node');
 
@@ -46,7 +47,7 @@ afterAll(async () => {
 
 /** Makes Cloudflare answer with this body (or fail with this error). Returns the mock to inspect. */
 const cloudflare = (answer) => {
-    global.fetch = jest.fn(async () => {
+    global.fetch = vi.fn(async () => {
         if (answer instanceof Error) throw answer;
         return { ok: answer.status === undefined || answer.status < 400, status: answer.status ?? 200, json: async () => answer.body };
     });

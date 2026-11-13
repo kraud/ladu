@@ -1,12 +1,11 @@
 // Access requests, Slice 1: the public `POST /api/access/request`. See .context/features/access-control.md.
 // Cloudflare is mocked at `global.fetch` (supertest uses `http`, so it is not affected).
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
-const sendMail = require('../utils/sendEmail');
-jest.mock('@sentry/node', () => ({
-    ...jest.requireActual('@sentry/node'),
-    captureMessage: jest.fn(),
-}));
-const Sentry = require('@sentry/node');
+const { mockModule } = require('./mockModule');
+const sendMail = mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
+const Sentry = mockModule('@sentry/node', {
+    ...require('@sentry/node'),
+    captureMessage: vi.fn(),
+});
 
 const request = require('./request');
 const bcrypt = require('bcryptjs');
@@ -202,7 +201,7 @@ describe('the cap', () => {
 
 describe('the captcha', () => {
     const cloudflare = (answer) => {
-        global.fetch = jest.fn(async () => {
+        global.fetch = vi.fn(async () => {
             if (answer instanceof Error) throw answer;
             return { ok: true, status: 200, json: async () => answer };
         });

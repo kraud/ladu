@@ -10,7 +10,8 @@
  * this file tests the HTTP contract, ownership, unique names and `missingCount`.
  */
 
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+const { mockModule } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 
 const request = require('./request');
 const app = require('../app');

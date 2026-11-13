@@ -1,10 +1,11 @@
 // Access gates, PR 1: the registration gate. See .context/features/access-control.md.
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+const { mockModule, mockModuleFactory } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 const sendMail = require('../utils/sendEmail');
 // Wraps the real function, so one test can make the token insert fail inside the transaction.
-jest.mock('../lib/accountEmails', () => {
-    const actual = jest.requireActual('../lib/accountEmails');
-    return { ...actual, issueVerificationEmail: jest.fn(actual.issueVerificationEmail) };
+mockModuleFactory('../lib/accountEmails', () => {
+    const actual = require('../lib/accountEmails');
+    return { ...actual, issueVerificationEmail: vi.fn(actual.issueVerificationEmail) };
 });
 const { issueVerificationEmail } = require('../lib/accountEmails');
 

@@ -1,5 +1,6 @@
 // Admin dashboard slice 8 — staff management (owner only).
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+const { mockModule } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 
 const request = require('./request');
 const bcrypt = require('bcryptjs');

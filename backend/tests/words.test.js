@@ -16,9 +16,9 @@
  */
 
 // Must run before `require('../app')` below — see auth.test.js's comment on
-// this same pattern for why (this file isn't Babel/ts-jest transformed, so
-// jest.mock hoisting never applies to it).
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+// this same pattern for why (mockModule, not vi.mock).
+const { mockModule } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 
 const crypto = require('crypto');
 const request = require('./request');

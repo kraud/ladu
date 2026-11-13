@@ -1,5 +1,6 @@
 // Admin dashboard slice 6 — GET /api/admin/health.
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+const { mockModule } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 
 const request = require('./request');
 const app = require('../app');
@@ -11,7 +12,7 @@ const journal = require('../src/db/migrations/meta/_journal.json');
 
 beforeAll(() => testDb.connectDB());
 beforeEach(() => testDb.clearDB());
-afterEach(() => jest.restoreAllMocks());
+afterEach(() => vi.restoreAllMocks());
 afterAll(async () => {
     await testDb.closeDB();
     await pool.end();
@@ -151,7 +152,7 @@ describe('links block (private addresses from ADMIN_LINKS)', () => {
         { label: 'Netcup', description: '', href: 'https://example.test/netcup' },
     ];
 
-    beforeEach(() => jest.spyOn(console, 'warn').mockImplementation(() => {}));
+    beforeEach(() => vi.spyOn(console, 'warn').mockImplementation(() => {}));
 
     it('sends the configured links, and says they are configured', async () => {
         const restore = setEnv({ ADMIN_LINKS: JSON.stringify(configured) });
@@ -209,7 +210,7 @@ describe('links block (private addresses from ADMIN_LINKS)', () => {
         try {
             const token = await staffToken();
             const original = pool.query.bind(pool);
-            jest.spyOn(pool, 'query').mockImplementation((text, ...rest) =>
+            vi.spyOn(pool, 'query').mockImplementation((text, ...rest) =>
                 text === 'SELECT 1' ? Promise.reject(new Error('connection refused')) : original(text, ...rest),
             );
 
@@ -227,7 +228,7 @@ describe('when the database does not answer', () => {
     it('still answers 200, with database "error" and no database or backup data', async () => {
         const token = await staffToken();
         const original = pool.query.bind(pool);
-        jest.spyOn(pool, 'query').mockImplementation((text, ...rest) =>
+        vi.spyOn(pool, 'query').mockImplementation((text, ...rest) =>
             text === 'SELECT 1' ? Promise.reject(new Error('connection refused')) : original(text, ...rest),
         );
 

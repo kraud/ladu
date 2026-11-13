@@ -11,7 +11,8 @@
  * this file tests the HTTP contract, ownership, the limit of 10, the 7-day expiry and the body size.
  */
 
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+const { mockModule } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 
 const request = require('./request');
 const app = require('../app');

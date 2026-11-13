@@ -1,6 +1,7 @@
 // Access gates, PR 2: the owner's admin API for the login gate, the allowed accounts and the
 // "sign everyone out" button. See .context/features/access-control.md.
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+const { mockModule } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 
 const request = require('./request');
 const bcrypt = require('bcryptjs');

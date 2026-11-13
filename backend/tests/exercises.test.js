@@ -9,7 +9,8 @@
  * HTTP contract, security (IDOR, visibility), full-pool ranking and batching.
  */
 
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+const { mockModule } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 
 const request = require('./request');
 const { and, eq } = require('drizzle-orm');

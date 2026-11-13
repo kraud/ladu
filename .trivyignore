@@ -1,36 +1,24 @@
 # Read by aquasecurity/trivy-action in the `images` CI job (.github/workflows/ci.yml).
 #
-# All entries below are Go-stdlib CVEs inside the Caddy binary bundled in the
-# upstream `caddy:alpine` base image (frontend/Dockerfile, landing/Dockerfile,
-# admin/Dockerfile). Trivy reports them as "fixed" because a fix exists in Go
-# itself, but caddy:alpine hasn't been rebuilt against a patched Go toolchain
-# yet. There is nothing to change on our side until upstream rebuilds; remove
-# entries here as each stops appearing in a scan (meaning caddy:alpine has
-# caught up).
+# Entries here are CVEs inside the Caddy binary bundled in the upstream
+# `caddy:alpine` base image (frontend/Dockerfile, landing/Dockerfile,
+# admin/Dockerfile). Trivy reports them as "fixed" because a fix exists in the
+# library, but caddy:alpine has not been rebuilt with it yet. There is nothing
+# to change on our side until upstream rebuilds. Remove each entry when a scan
+# stops reporting it.
 #
-# 2026-10-09: caddy:alpine is Caddy v2.11.7 built with go1.26.8 (pushed
-# 2026-10-06). The fix is in Go 1.26.9 / 1.27.2, released 2026-10-08. The 16
-# entries from 2026-09-18 (Caddy v2.11.4) no longer appear and were removed.
-# 2026-10-10: one more, CVE-2026-78669 (HIGH): net/http2 denial of service through
-# excessive HTTP/2 SETTINGS frames. Trivy lists it twice for the same Caddy binary:
-# golang.org/x/net v0.59.0 (fixed in 0.60.0) and Go stdlib 1.26.8 (fixed in 1.26.9 / 1.27.2).
-# caddy:alpine is still the 2026-10-06 build (Caddy v2.11.7, go1.26.8), so the fix is not
-# available to us yet. Remove this entry when a scan stops reporting it.
-# 2026-10-22: one more, CVE-2026-111943 (HIGH): crypto/x509 man-in-the-middle, in Go stdlib
-# 1.26.8 (fixed in 1.26.10 / 1.27.3). caddy:alpine was pushed again on 2026-10-21, but it is
-# still Caddy v2.11.7 with go1.26.8: those pushes only bring Alpine updates. Our Caddy only
-# serves static files on :80 behind the edge proxy, so we judge the risk low (not verified
-# in detail).
-# 2026-10-29: one more, CVE-2026-116587 (HIGH): Go JOSE denial of service when it parses
-# JWKs that contain RSA keys. It is a library inside Caddy (github.com/go-jose/go-jose/v4
-# v4.1.5, fixed in 4.1.6), not the Go stdlib. caddy:alpine is still Caddy v2.11.7 with
-# go1.26.8, so the fix is not available to us yet.
-# FOLLOW-UP: on or after 2026-11-03, check again (`docker run --rm caddy:alpine caddy
-# build-info | grep -E "^go|go-jose"`). If caddy:alpine still has go1.26.8, make a PR that
-# builds our own patched Caddy in frontend/, landing/ and admin/ Dockerfiles (for example
-# `xcaddy` in a Go build stage), and remove all the entries below.
-CVE-2026-78667
-CVE-2026-97031
-CVE-2026-78669
-CVE-2026-111943
-CVE-2026-116587
+# 2026-11-13: caddy:alpine is now Caddy v2.11.9 (go1.27.3, go-jose 4.1.6,
+# golang.org/x/net v0.60.0). It fixed all 5 older entries (CVE-2026-78667,
+# CVE-2026-97031, CVE-2026-78669, CVE-2026-111943, CVE-2026-116587), so they
+# were removed.
+#
+# CVE-2026-78661 (HIGH): golang.org/x/net/html denial of service through crafted
+# HTML input. Installed v0.60.0, fixed in 0.62.0. Caddy `master` already uses
+# x/net v0.62.0, but there is no Caddy release after v2.11.9 (2026-11-05) yet.
+# Our Caddy only serves static files behind the edge proxy and does not parse
+# HTML from users, so we judge the risk low (not verified in detail).
+# FOLLOW-UP: when a new Caddy release appears, check
+# `docker run --rm caddy:alpine caddy build-info | grep x/net`. If it shows
+# v0.62.0 or newer, remove this entry. If upstream is more than about 2 weeks
+# late again for a new CVE, plan a custom Caddy build (xcaddy) instead of more ignores.
+CVE-2026-78661

@@ -13,20 +13,19 @@ module.exports = tseslint.config(
       sourceType: "commonjs",
       globals: {
         ...globals.node,
-        ...globals.jest,
       },
     },
   },
   {
-    // jest-environment-node@27 (this project's Jest version, from 2022)
-    // builds its sandboxed global scope from an older Node global list that
-    // predates globalThis.crypto — unlike real Node 24 runtime code, test
-    // files genuinely don't have a global `crypto` and must require() it.
+    // Vitest runs with `globals: true` (vitest.config.mts), so the test files
+    // use describe / it / expect / vi / beforeAll ... without importing them.
+    // Some test files declare `const crypto = require('crypto')`, so the Node
+    // global `crypto` is switched off here to avoid a no-redeclare error.
     files: ["tests/**/*.{js,ts}"],
     languageOptions: {
       globals: {
         ...globals.node,
-        ...globals.jest,
+        ...globals.vitest,
         crypto: "off",
       },
     },

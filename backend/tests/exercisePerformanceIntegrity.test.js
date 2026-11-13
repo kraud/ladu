@@ -9,7 +9,8 @@
  * auth.test.js.
  */
 
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+const { mockModule } = require('./mockModule');
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
 
 const fs = require('fs');
 const path = require('path');

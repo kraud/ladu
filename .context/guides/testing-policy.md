@@ -9,6 +9,7 @@ Use this guide before you add a test to a feature. It says which tests to write 
 - **Responsive behaviour is tested** (what is present, stacked or scrolled on a phone). **Styling is not tested** (classes, pixels, colours, radius, alignment, spacing).
 - **e2e:** one spec for each feature, with the headline journey. No API-only checks. No repeat for each language.
 - **On demand:** all other detail tests. Write them when the user asks, or when a bug comes back.
+- **Backend mocks:** use `mockModule` from `backend/tests/mockModule.js`, never `vi.mock` (§8).
 
 Decided on 2026-11-02, after the inventory in `.context/research/2026-11-test-inventory.md`. This policy is for new work. The old tests were pruned once, on 2026-11-02 (`.context/archive/2026-11-test-prune-pass.md`); the rest is deferred idea I-12.
 
@@ -88,3 +89,40 @@ The first prune pass removed 53 tests of 5,598 (1%) and cut the run time by abou
 - **Line coverage does not measure e2e.** Before you remove an e2e test, name the lower test that owns each of its assertions. Match the assertions, not only the titles.
 - **The backend–frontend connection has no lower test.** Case names are strings on both sides. Keep the e2e exception in §3 until a contract test exists (deferred idea I-13).
 - **Prune for clarity, not for speed.** The large time cost is in the harness (deferred idea I-11), not in the number of tests.
+
+## 8. Backend test mechanics (Vitest, 2026-11)
+
+All three workspaces (`backend`, `frontend`, `admin`) use Vitest. The backend tests are different in two ways, because they are CommonJS files that load the app with `require()`.
+
+- **TypeScript sources.** `backend/tests/setup.js` loads `tsx/cjs`. This lets `require('../app')` read the `.ts` controllers. The production server uses the same hook.
+- **One file at a time.** All test files share one PostgreSQL database, and `clearDB()` empties its tables. `vitest.config.mts` sets `fileParallelism: false`. Do not turn it on.
+
+### How to mock a module
+
+`vi.mock` only replaces modules that are loaded with `import`. The app code loads its modules with `require()`. A `vi.mock` call in a backend test does **nothing**, and it gives no error. A test can then send real email.
+
+Use `mockModule` instead. It puts the replacement into the `require` cache of Node:
+
+```js
+const { mockModule, mockModuleFactory } = require('./mockModule');
+
+// 1. Replace a whole module.
+mockModule('../utils/sendEmail', vi.fn().mockResolvedValue());
+const sendMail = require('../utils/sendEmail'); // the same mock
+
+// 2. Keep part of a module: use a factory and require() the real one inside it.
+mockModuleFactory('@sentry/node', () => ({
+    ...require('@sentry/node'),
+    captureMessage: vi.fn(),
+}));
+
+// 3. Only now load the app.
+const app = require('../app');
+```
+
+Rules:
+
+1. Call `mockModule` **before** the first `require('../app')`. A controller keeps the module it gets at load time. If the app loads first, the controller keeps the real module.
+2. The path is relative to the test file, as it was with `jest.mock`.
+3. `vi.fn`, `vi.spyOn` and `vi.setConfig({ testTimeout })` work as usual. Use `vi.spyOn(object, 'method')` when you can replace a method on an object (for example `db` or `pool`). It needs no helper.
+4. After you add a mock, check that it is active: assert on the mock (for example `expect(sendMail).toHaveBeenCalled()`). A test that passes with a dead mock proves nothing.
