@@ -1,6 +1,6 @@
 ---
-name: brainstorming
-description: "Brainstorm an idea into an approved design before implementation. Run with /brainstorming before creating features, building components, adding functionality, or modifying behavior. Explores intent, requirements and design first."
+name: brainstorming-to-plan
+description: "Brainstorm an idea into an approved design before implementation. Run with /brainstorming-to-plan before creating features, building components, adding functionality, or modifying behavior. Explores intent, requirements and design first."
 disable-model-invocation: true
 ---
 
@@ -11,6 +11,14 @@ Help turn ideas into fully formed designs and specs through natural collaborativ
 Start by classifying how much process the request needs, then work
 through your path: understand the context, refine the idea, present a
 design, and get your human partner's approval.
+
+## Model
+
+Run this skill on **Opus 5.5**. This session designs and plans; a separate
+session on Sonnet 5.5 executes the saved plan. If the session runs on
+another model, tell your partner before the first question and ask them to
+switch (`/model`). Do not continue on a different model without their
+agreement.
 
 ## Establish Shared Understanding
 
@@ -28,8 +36,8 @@ recognize and correct, grounded in what they want to accomplish.
    can assess. Separate what they said from assumptions. Invite correction
    and incorporate their answer before treating this as the design brief.
 3. **Carry intent into the design.** Preserve the agreed understanding in
-   the selected path's design artifact: the written spec for architectural
-   work, or the in-chat design/probe for bounded work and spikes. Check
+   the selected path's design artifact: the approved in-chat design (then the
+   plan file) for architectural work, or the in-chat design/probe for bounded work and spikes. Check
    proposed features and technical choices against that understanding.
 
 When the request already supplies the purpose and constraints, reflect
@@ -44,9 +52,12 @@ selected path's prerequisites:
 
 - Spike: the human partner approves the question and probe.
 - Bounded: the human partner approves the short in-chat design.
-- Architectural: the human partner reviews and approves the written spec,
-  then reviews the written implementation plan. Conversational design approval only permits writing the spec;
-  written-spec approval only permits writing the implementation plan.
+- Architectural: the human partner approves the design in chat, then
+  chooses to continue to planning, then reviews and approves the plan file
+  in `.context/plans/`. Design approval only permits asking about the
+  planning step; the choice to continue only permits writing the plan.
+  Approval of the plan ends this skill. It never permits implementation in
+  this session.
 
 A reply approves the stage actually presented. Approval of an idea or
 feature scope does not approve artifacts that do not exist yet. Resume
@@ -81,7 +92,7 @@ override it:
 - **Architectural** — new projects, new subsystems, changes that
   restructure how components fit together or alter interfaces others
   depend on. Follow the full process: questions, approaches, sectioned
-  design, written spec, then the implementation plan.
+  design, then the handoff to the Plan agent and the plan file.
 
 When in doubt between two paths, take the heavier one. The ratchet is
 one-way: hidden complexity discovered mid-task upgrades the path —
@@ -92,14 +103,14 @@ stop, say so, and step up. Nothing downgrades mid-task.
 Every path ends with your human partner approving the required design
 before implementation. A bounded change may need only two sentences in
 chat. A new todo-list project is architectural and requires the written
-spec and planning handoffs. Scale the artifact to the selected path;
+design approval and the plan file. Scale the artifact to the selected path;
 complete that path's reviews before implementation.
 
 ## Red Flags
 
 | Thought | Reality |
 |---------|---------|
-| "This is too simple to need a design" | Follow the selected path: a bounded change gets a short chat design; an architectural change gets the written spec and planning handoffs. |
+| "This is too simple to need a design" | Follow the selected path: a bounded change gets a short chat design; an architectural change gets the approved design and the plan file. |
 | "I'll call it bounded and skip the spec" | Reaching for a label to skip work IS the doubt — take the heavier path. |
 | "It's bounded and the design is obvious — I'll start while they read it" | The gate is the approval, not the design's length. Present, then stop until you hear yes. |
 | "I understand this kind of app, so it's bounded" | Bounded measures the repo, not your familiarity. A new project has no existing flow — it is architectural. |
@@ -131,10 +142,11 @@ your path and complete them in order.
 2. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria
 3. **Propose 2-3 approaches** — with trade-offs and your recommendation
 4. **Present design** — in sections scaled to their complexity, get user approval after each section
-5. **Write design doc** — save to `docs/specs/YYYY-MM-DD-<topic>-design.md` and commit
-6. **Spec self-review** — quick inline check for placeholders, contradictions, ambiguity, scope (see below)
-7. **User reviews written spec** — ask user to review the spec file before proceeding
-8. **Transition to implementation** — write a step-by-step implementation plan, have the user approve it, then implement
+5. **Design self-review** — quick inline check for placeholders, contradictions, ambiguity, scope (see below)
+6. **Offer the planning step** — ask whether to continue to planning; stop if the answer is no
+7. **Hand off to the Plan agent** — send the full brainstorm brief (see below) to the `Plan` agent on Opus
+8. **Persist the plan** — save the returned plan to `.context/plans/<topic>.md`
+9. **User reviews the plan file** — wait for approval, then stop; execution is a new Sonnet 5.5 session
 
 ## Process Flow
 
@@ -152,10 +164,12 @@ digraph brainstorming {
     "Propose 2-3 approaches" [shape=box];
     "Present design sections" [shape=box];
     "User approves design?" [shape=diamond];
-    "Write design doc" [shape=box];
-    "Spec self-review\n(fix inline)" [shape=box];
-    "User reviews spec?" [shape=diamond];
-    "Write implementation plan" [shape=doublecircle];
+    "Design self-review\n(fix inline)" [shape=box];
+    "Continue to planning?" [shape=diamond];
+    "Plan agent (Opus) from brainstorm brief" [shape=box];
+    "Save plan to .context/plans/" [shape=box];
+    "User approves plan file?" [shape=diamond];
+    "Stop: execute in new Sonnet session" [shape=doublecircle];
     "Hidden complexity? Upgrade path" [shape=box];
 
     "Classify: spike / bounded / architectural" -> "Present question + probe (2-3 sentences)" [label="spike"];
@@ -172,17 +186,19 @@ digraph brainstorming {
     "Propose 2-3 approaches" -> "Present design sections";
     "Present design sections" -> "User approves design?";
     "User approves design?" -> "Present design sections" [label="no, revise"];
-    "User approves design?" -> "Write design doc" [label="yes"];
-    "Write design doc" -> "Spec self-review\n(fix inline)";
-    "Spec self-review\n(fix inline)" -> "User reviews spec?";
-    "User reviews spec?" -> "Write design doc" [label="changes requested"];
-    "User reviews spec?" -> "Write implementation plan" [label="approved"];
+    "User approves design?" -> "Design self-review\n(fix inline)" [label="yes"];
+    "Design self-review\n(fix inline)" -> "Continue to planning?";
+    "Continue to planning?" -> "Plan agent (Opus) from brainstorm brief" [label="yes"];
+    "Plan agent (Opus) from brainstorm brief" -> "Save plan to .context/plans/";
+    "Save plan to .context/plans/" -> "User approves plan file?";
+    "User approves plan file?" -> "Plan agent (Opus) from brainstorm brief" [label="changes requested"];
+    "User approves plan file?" -> "Stop: execute in new Sonnet session" [label="approved"];
 }
 ```
 
 **Terminal states are path-bound.** Architectural: the only next step
-after brainstorming is the written implementation plan — not
-implementation. Bounded: after
+after brainstorming is the plan file in `.context/plans/` — not
+implementation. Execution happens in a new session. Bounded: after
 approval, implementation proceeds directly through the normal
 development workflow; no plan document. Spike: the terminal state is a
 reported recommendation.
@@ -199,7 +215,7 @@ is the whole process.
 
 - Check out the current project state first (files, docs, recent commits)
 - Before asking detailed questions, assess scope: if the request describes multiple independent subsystems (e.g., "build a platform with chat, file storage, billing, and analytics"), flag this immediately. Don't spend questions refining details of a project that needs to be decomposed first.
-- If the project is too large for a single spec, help the user decompose into sub-projects: what are the independent pieces, how do they relate, what order should they be built? Then brainstorm the first sub-project through the normal design flow. Each sub-project gets its own spec → plan → implementation cycle.
+- If the project is too large for a single plan, help the user decompose into sub-projects: what are the independent pieces, how do they relate, what order should they be built? Then brainstorm the first sub-project through the normal design flow. Each sub-project gets its own design → plan → implementation cycle.
 - For appropriately-scoped projects, ask questions one at a time to refine the idea
 - Prefer multiple choice questions when possible, but open-ended is fine too
 - Only one question per message - if a topic needs more exploration, break it into multiple questions
@@ -235,30 +251,60 @@ is the whole process.
 
 ## After the Design (architectural path)
 
-**Documentation:**
+There is no separate spec file. The approved design lives in the chat and
+is passed to the Plan agent as a brief. The only file this skill writes is
+the plan.
 
-- Write the validated design (spec) to `docs/specs/YYYY-MM-DD-<topic>-design.md`
-  - (User preferences for spec location override this default)
-- Commit the design document to git
-
-**Spec Self-Review:**
-After writing the spec document, look at it with fresh eyes:
+**Design Self-Review:**
+After the user approves the last design section, look at the whole design
+with fresh eyes:
 
 1. **Placeholder scan:** Any "TBD", "TODO", incomplete sections, or vague requirements? Fix them.
 2. **Internal consistency:** Do any sections contradict each other? Does the architecture match the feature descriptions?
-3. **Scope check:** Is this focused enough for a single implementation plan, or does it need decomposition?
+3. **Scope check:** Is this focused enough for a single plan, or does it need decomposition?
 4. **Ambiguity check:** Could any requirement be interpreted two different ways? If so, pick one and make it explicit.
 
-Fix any issues inline. No need to re-review — just fix and move on.
+Fix any issues inline and tell the user what you changed. No need to
+re-review — just fix and move on.
+
+**Offer the planning step:**
+Ask with the question tool. Put "Continue to planning" first:
+
+> "The design is approved. Do you want to continue to the planning step now? The Plan agent will turn it into a plan file in `.context/plans/`."
+
+If the answer is no, stop. Say that the design is only in this chat and
+will be lost when the session ends.
+
+**Hand off to the Plan agent:**
+Call the `Agent` tool with `subagent_type: "Plan"` and `model: "opus"`.
+The agent starts with no memory of this chat, so the prompt must hold
+everything. Include:
+
+- The intent, who it is for, and the success criteria (the agreed understanding).
+- Every constraint, and every decision taken with the rejected options and why.
+- The approved design, section by section: architecture, components, data flow, error handling, testing.
+- What you found in the codebase: file paths and the existing patterns to follow.
+- Open questions the user left unanswered, marked as open (never as decided).
+- The plan rules of this repo: `CLAUDE.md` "How we work together" and `.context/guides/testing-policy.md`. Small vertical slices, each ending with something runnable. A plain-language overview at the start of each slice. Tests and docs alongside the code. A green Playwright e2e run at the end of each phase. The user makes the commits, so the plan suggests a commit message after each step. State the plan format of an existing plan in `.context/plans/` as the example to copy.
+- The order of work, files to touch per slice, the tests for each slice, and which `features/` document the finished work folds into.
+
+The plan must be complete enough for a fresh Sonnet 5.5 session to run it
+with no memory of this chat.
+
+**Persist the plan:**
+The Plan agent cannot write files. When it returns:
+
+1. Check the plan against the approved design. If it adds scope or drops a decision, fix it or send it back to the agent.
+2. Save it to `.context/plans/<topic>.md`.
+3. Add its row to the "Plans in flight" table in `.context/README.md`.
+
+Do not commit. The user commits.
 
 **User Review Gate:**
-After the spec review loop passes, ask the user to review the written spec before proceeding:
+Ask the user to review the plan file:
 
-> "Spec written and committed to `<path>`. Please review it and let me know if you want to make any changes before we start writing out the implementation plan."
+> "Plan saved to `.context/plans/<topic>.md`. Please review it and tell me what to change. When you approve it, start a new session on Sonnet 5.5 to run it."
 
-Wait for the user's response. If they request changes, make them and re-run the spec review loop. Only proceed once the user approves.
-
-**Implementation:**
-
-- Write a detailed implementation plan (exact files, ordered steps, tests), and get the user to approve it before implementing
-- Do NOT start implementing before the plan is approved.
+Wait for the user's response. If they ask for changes, update the plan (or
+call the Plan agent again with the changes) and ask again. After approval,
+stop. Do NOT implement in this session.
