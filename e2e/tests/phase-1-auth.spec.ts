@@ -84,8 +84,11 @@ test.describe.serial('Phase 1 — auth + app shell', () => {
 
         await expect(page).toHaveURL('/');
         await expect(page.getByRole('heading', { name: /Welcome, Kai Rebane/ })).toBeVisible();
-        await expect(page.getByRole('link', { name: 'words', exact: true })).toBeVisible();
-        await expect(page.getByRole('link', { name: 'add word' })).toHaveCount(0);
+        // Look only inside the navigation. A new account has no words, so the Home dashboard shows an
+        // "Add words to track your practice" link once its metrics load. That link is not a nav item.
+        const nav = page.getByRole('navigation');
+        await expect(nav.getByRole('link', { name: 'words', exact: true })).toBeVisible();
+        await expect(nav.getByRole('link', { name: 'add word' })).toHaveCount(0);
 
         // Log out from the Account page.
         await page.getByRole('link', { name: 'Account' }).click();
