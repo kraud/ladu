@@ -16,7 +16,12 @@ name: ladu-platform
 
 services:
   postgres:
-    image: postgres:15-alpine
+    # Pinned to an exact patch version on purpose. Compose only pulls an
+    # image that is missing, so a floating tag (`15-alpine`) stays on the
+    # version that was pulled first, and the server silently falls behind on
+    # security fixes. With a pin, Dependabot proposes each new patch version
+    # as a PR; after merge, the Ansible `platform` role pulls it.
+    image: postgres:15.20-alpine
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_SUPERUSER}

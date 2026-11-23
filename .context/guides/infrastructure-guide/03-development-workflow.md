@@ -186,3 +186,46 @@ cd /opt/ladu/staging   # or /opt/ladu/prod
 `<sha>` must be a commit whose images already exist in GHCR (i.e., it went
 through `build-and-push` at some point) — the script does `docker compose
 pull`, which fails outright if the tag doesn't exist.
+
+
+## Keeping the server patched
+
+Two kinds of software run on the VPS, and they are updated in different ways.
+
+**The operating system, Docker, containerd, runc and the kernel** update by
+themselves. Ansible (`roles/base`) tells `unattended-upgrades` to cover Debian
+**and** Docker's apt repository. The daily run starts between about 06:00 and
+07:00 UTC. When an update needs a reboot (a new kernel), the server reboots
+itself at `auto_reboot_time` (default 07:30 UTC, set in
+`roles/base/defaults/main.yml`). It does not reboot while someone is logged
+in over SSH. All containers use `restart: unless-stopped`, so they come back
+in a few minutes.
+
+**Postgres and the edge Caddy** do not update by themselves. Both are pinned
+to an exact version (`deploy/compose/platform.yml`, `deploy/caddy/Dockerfile`).
+This is on purpose: Compose only pulls an image that is missing, and Docker's
+layer cache keeps the first Caddy build forever, so a floating tag
+(`postgres:15-alpine`, `caddy:2-alpine`) silently fell behind. Dependabot opens
+a PR when a new version appears. To apply it:
+
+1. Merge the PR. (For Caddy, also change the `xcaddy build vX.Y.Z` argument in
+   `deploy/caddy/Dockerfile` to the same version, in the same PR.)
+2. Take a backup first when the PR changes Postgres: `/opt/ladu/backup/backup.sh`
+   on the VPS.
+3. Run `ansible-playbook site.yml` from an up-to-date `main` (add `--check`
+   first for a dry run). It is safe to repeat. It recreates only the
+   container whose image changed. Expect a short restart of that container.
+
+Checks you can run on the VPS at any time (they only read information):
+
+```bash
+docker exec ladu-platform-postgres-1 postgres --version
+docker exec ladu-platform-edge-1 caddy version
+apt list --upgradable 2>/dev/null          # anything waiting?
+ls /var/run/reboot-required                # a reboot is pending if this exists
+sudo unattended-upgrade --dry-run -d 2>&1 | grep -E "Allowed origins|Packages that will be upgraded"
+```
+
+The "Allowed origins" line must list a Docker origin. If it does not, the
+Docker repository is not covered, and Docker updates will not install by
+themselves.

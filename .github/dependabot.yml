@@ -30,7 +30,26 @@ updates:
     schedule:
       interval: "weekly"
 
-  # Docker base images: add one entry per directory once Phase B creates the
-  # Dockerfiles (backend/, frontend/, landing/, deploy/caddy/) — Dependabot's
-  # docker ecosystem needs an exact directory per Dockerfile, not a recursive
-  # scan, so there's nothing to point at yet.
+  # Docker images that run on the VPS and are pinned to an exact version: the
+  # edge Caddy (deploy/caddy/Dockerfile) and Postgres (deploy/compose/
+  # platform.yml). Nothing else keeps them current: CI neither rebuilds nor
+  # scans them, and Compose only pulls an image that is missing. Dependabot
+  # needs an exact directory per entry, not a recursive scan.
+  #
+  # The app images (backend/, frontend/, admin/, landing/) are not listed: they
+  # use floating base tags (`node:24-alpine`, `caddy:alpine`) that CI pulls
+  # fresh on every build and scans with Trivy.
+  - package-ecosystem: "docker"
+    directory: "/deploy/caddy"
+    schedule:
+      interval: "weekly"
+
+  # Dependabot's docker-compose support looks for files named like
+  # `docker-compose*.yml` or `compose*.yml`. Ours are named platform.yml and
+  # app.yml, so this entry may find nothing. Check the repository's Insights >
+  # Dependency graph > Dependabot tab after the first run. If it is not listed,
+  # the fix is to rename the file (and update the Ansible role that syncs it).
+  - package-ecosystem: "docker-compose"
+    directory: "/deploy/compose"
+    schedule:
+      interval: "weekly"

@@ -1,2 +1,10 @@
 ---
 swap_size_mb: 1024
+
+# Time (server timezone, UTC) at which the server reboots by itself, but only
+# when an update needs it (kernel updates). It must be later than the daily
+# unattended-upgrades run, which starts between about 06:00 and 07:00 (the
+# default apt-daily-upgrade.timer). An earlier time would push the reboot to
+# the next day. The nightly backup (03:00) and the Sunday restore test
+# (04:00) are finished by then.
+auto_reboot_time: "07:30"

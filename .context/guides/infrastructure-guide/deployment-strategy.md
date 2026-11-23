@@ -153,7 +153,7 @@ Everywhere: Node 24 from `.nvmrc`, npm cache, third-party actions pinned to a co
 ### GitHub repository settings
 
 - Ruleset on `main`: merge only through a PR, all CI checks required, no force-push. (You work alone, so do not require a review.)
-- `.github/dependabot.yml`: npm (weekly, grouped), GitHub Actions, Docker base images.
+- `.github/dependabot.yml`: npm (weekly, grouped), GitHub Actions, and the two pinned VPS images (edge Caddy, Postgres). The app images use floating base tags that CI rebuilds and scans.
 - CodeQL default setup, secret scanning, push protection (all free for public repos).
 - PR template with a short checklist (tests, docs, migration follows expand/contract).
 
@@ -207,7 +207,7 @@ New files:
 ### Phase C — Server and DNS as code (½–1 day) — ✅ done
 
 `deploy/ansible/` (inventory, `site.yml`, roles, Vault file):
-- `base`: `deploy` user (SSH key only), `PermitRootLogin no`, `PasswordAuthentication no`, unattended-upgrades, fail2ban, timezone, swap file (1 GB).
+- `base`: `deploy` user (SSH key only), `PermitRootLogin no`, `PasswordAuthentication no`, unattended-upgrades (Debian + Docker repositories, with an automatic reboot window for kernel updates), fail2ban, timezone, swap file (1 GB).
 - `firewall`: ufw default deny. Allow 22. Allow 80/443 **only from Cloudflare IP ranges** (the role downloads the ranges).
 - `docker`: Docker Engine + Compose plugin (installed via `deb822_repository`, not the now-deprecated `apt_repository`). Add `deploy` to the `docker` group. Note: this gives `deploy` root-level access, which is acceptable for this project.
 - `platform`: `/opt/ladu/{platform,staging,prod}`, platform `.env` from Vault, `platform.yml` up (via `community.docker.docker_compose_v2`), create DBs and users (via `community.docker.docker_container_exec`, since postgres publishes no port), log rotation for Docker. Also renders Caddy's `trusted_proxies` list (the TODO Phase B left) from the same live Cloudflare range fetch the `firewall` role uses, mounted in rather than baked into the image. Adds persistent `caddy_data`/`caddy_config` volumes so recreating `edge` doesn't burn Let's Encrypt's duplicate-certificate rate limit. Closes the "Docker bypasses ufw" gap with a `docker.service.d` drop-in that reapplies Cloudflare-only `DOCKER-USER` rules after every Docker start (Docker discards that chain's contents each time). `landing` was deliberately excluded from `platform.yml up` at this stage — no image existed in GHCR until Phase D's first deploy — Caddy still starts and gets its certificate fine; only the apex route would 502 until then, and the apex isn't part of this gate. (It gets its own task later — see "Switch the apex domain".)
