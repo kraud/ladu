@@ -28,6 +28,7 @@ const {
 const { accountBlock, recordLogin }: typeof import("../lib/accountAccess") = require("../lib/accountAccess");
 const { assertRegistrationAllowed, consumeInvite, enforceLoginGate, getLoginBlock, loginBlockMessage }: typeof import("../lib/accessGate") = require("../lib/accessGate");
 const { HttpError }: typeof import("../lib/httpError") = require("../lib/httpError");
+const { asDuplicateAccountError }: typeof import("../lib/duplicateAccount") = require("../lib/duplicateAccount");
 const { assertNotDemo }: typeof import("../lib/demo") = require("../lib/demo");
 const { termsAcceptance }: typeof import("../lib/terms") = require("../lib/terms");
 const { assertNamesAllowed }: typeof import("../lib/reservedNames") = require("../lib/reservedNames");
@@ -451,7 +452,9 @@ const signupComplete = asyncHandler(async (req: any, res: any) => {
       });
       return created;
     });
-  } catch (error) {
+  } catch (caught) {
+    // Same race as in registerUser: a unique-constraint failure becomes the normal 400.
+    const error = asDuplicateAccountError(caught);
     if (error instanceof HttpError) res.status(error.status);
     throw error;
   }

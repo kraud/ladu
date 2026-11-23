@@ -90,7 +90,6 @@ Details that code does not show at a glance:
 
 ## 6. Known defects and limits
 
-- **Data leak (Major, older than the admin work).** `backend/middleware/errorMiddleware.js` returns `err.message` for every 500. A database error carries the SQL text and its parameters. Seen in a registration race: the answer held the password hash of the account being registered. Also, registration checks "email in use" and then inserts, so two requests at the same moment give a 500 and not the normal 400. Not fixed.
 - Access is checked at Cloudflare, not at the VPS. Traffic with the host name `admin.` through another Cloudflare account would skip Access, and the staff login is then the only lock. Possible fix: check `Cf-Access-Jwt-Assertion` in Caddy or the backend.
 - No rate limit on staff login or on the password-change check. No "sign out everywhere" button for staff.
 - A failed purge job has no alert (the log file only). A Healthchecks.io ping is a possible step.

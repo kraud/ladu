@@ -1,18 +1,36 @@
+// What a client reads when nobody set a status, and so the real message is
+// unknown territory (a failed query, a bug). Never the real message: a
+// Drizzle/Postgres error message carries the SQL text and its parameters,
+// which can include a password hash.
+const UNEXPECTED_ERROR_MESSAGE = 'Internal server error';
+
 const errorHandler = (err, req, res, next) => {
-    // Handlers set a 4xx via res.status() before throwing; anything else is an
-    // unanticipated 500. Never leak err.stack to the client — only a stable
-    // message shape is returned.
-    const statusCode = res.statusCode >= 400 ? res.statusCode : 500;
+    // Handlers set a 4xx (or, rarely, a 5xx such as 503) via res.status() before
+    // throwing, with a message written for the client. Anything else is an
+    // unanticipated error. Never leak err.stack to the client.
+    const deliberate = res.statusCode >= 400;
+    const statusCode = deliberate ? res.statusCode : 500;
 
     res.status(statusCode);
+
+    let message = err.message;
+    if (!deliberate) {
+        message = UNEXPECTED_ERROR_MESSAGE;
+        // The real error stays on the server. Sentry reports it (see app.js);
+        // the log line covers setups without a DSN. Silent in tests, where
+        // forced errors are common.
+        if (process.env.NODE_ENV !== 'test') console.error(err);
+    }
+
     // `apiCode` is set on purpose by code that wants the client to react to a
     // specific case (for example a forced password change). It is not `err.code`,
     // which Node uses for system errors (ECONNRESET...) and must not be exposed.
-    const body = { message: err.message };
+    const body = { message };
     if (typeof err.apiCode === 'string') body.code = err.apiCode;
     res.json(body);
 }
 
 module.exports = {
     errorHandler,
+    UNEXPECTED_ERROR_MESSAGE,
 }

@@ -1217,3 +1217,74 @@ describe('Account badges on tags', () => {
         });
     });
 });
+
+// ===========================================================================
+// A label clash that slips past the pre-check (the race behind D13's unique index)
+// ===========================================================================
+// Two requests can pass the "label in use" check at the same moment. The unique
+// index then fails the second write (Postgres 23505). The answer must be the same
+// 409 as the pre-check gives, not a 500.
+//
+// The race is made on purpose, without mocks: a second connection inserts the
+// competing tag and keeps it uncommitted. The pre-check cannot see it, and the
+// request's own write waits on the unique index. It is committed only when
+// Postgres reports that a write is waiting, so the request fails on the index.
+describe('Tag label clash that passes the pre-check', () => {
+    let token, userId;
+
+    beforeEach(async () => {
+        const data = await registerAndLogin();
+        token = data.token;
+        userId = data.id;
+    });
+
+    const waitUntilAWriteWaits = async () => {
+        for (let i = 0; i < 100; i++) {
+            const { rows } = await pool.query(
+                `SELECT count(*)::int AS waiting FROM pg_stat_activity
+                 WHERE datname = current_database() AND wait_event_type = 'Lock'`,
+            );
+            if (rows[0].waiting > 0) return;
+            await new Promise((resolve) => setTimeout(resolve, 20));
+        }
+        throw new Error('No write waited for the competing tag');
+    };
+
+    const whileACompetingTagIsUncommitted = async (label, sendRequest) => {
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+            await client.query(`INSERT INTO tags (author_id, label, visibility) VALUES ($1, $2, 'Private')`, [userId, label]);
+            const answer = (async () => sendRequest())();
+            await waitUntilAWriteWaits();
+            await client.query('COMMIT');
+            return await answer;
+        } catch (err) {
+            await client.query('ROLLBACK').catch(() => {});
+            throw err;
+        } finally {
+            client.release();
+        }
+    };
+
+    const labelsOf = async () => (await db.select().from(tags).where(eq(tags.authorId, userId))).map((t) => t.label).sort();
+
+    it('answers 409 on create, and keeps no second tag', async () => {
+        const res = await whileACompetingTagIsUncommitted('kitchen', () => createTag(token, { label: 'Kitchen' }));
+
+        expect(res.statusCode).toBe(409);
+        expect(res.body.message).toBe('You already have a tag with this label.');
+        expect(await labelsOf()).toEqual(['kitchen']);
+    });
+
+    it('answers 409 on rename, and keeps the old label', async () => {
+        const created = await createTag(token, { label: 'Original' });
+        const res = await whileACompetingTagIsUncommitted('taken', () =>
+            request(app).patch(`/api/tags/${created.body.id}`).set('Authorization', `Bearer ${token}`).send({ label: 'Taken' }),
+        );
+
+        expect(res.statusCode).toBe(409);
+        expect(res.body.message).toBe('You already have a tag with this label.');
+        expect(await labelsOf()).toEqual(['Original', 'taken']);
+    });
+});
