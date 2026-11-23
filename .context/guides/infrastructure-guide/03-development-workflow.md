@@ -208,8 +208,9 @@ layer cache keeps the first Caddy build forever, so a floating tag
 (`postgres:15-alpine`, `caddy:2-alpine`) silently fell behind. Dependabot opens
 a PR when a new version appears. To apply it:
 
-1. Merge the PR. (For Caddy, also change the `xcaddy build vX.Y.Z` argument in
-   `deploy/caddy/Dockerfile` to the same version, in the same PR.)
+1. Merge the PR. (For Caddy, Dependabot changes both image tags in
+   `deploy/caddy/Dockerfile`. Check that they show the same version. The
+   compiled Caddy follows the builder tag, so nothing else needs a change.)
 2. Take a backup first when the PR changes Postgres: `/opt/ladu/backup/backup.sh`
    on the VPS.
 3. Run `ansible-playbook site.yml` from an up-to-date `main` (add `--check`
