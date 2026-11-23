@@ -923,13 +923,17 @@ const declineTagShare = asyncHandler(async (req: any, res: any) => {
 });
 
 /**
- * `err.code === '23505'` is Postgres' unique-violation code — the backstop
- * against a racing double-submit slipping past the pre-check below (D13's
- * own comment on the migration's unique index flags this exact window).
- * Anything else is rethrown for the normal error-handling middleware.
+ * `23505` is Postgres' unique-violation code — the backstop against a racing
+ * double-submit slipping past the pre-check below (D13's own comment on the
+ * migration's unique index flags this exact window). Drizzle wraps the Postgres
+ * error, so the code and the index name are on `err.cause`, not on `err`. Only
+ * the label index counts: another unique violation (a repeated word in
+ * `tag_words`) is not a label clash. Anything else is rethrown for the normal
+ * error-handling middleware.
  */
 const rethrowAsLabelConflict = (res: any, err: any): never => {
-  if (err?.code === "23505") {
+  const pgError = err?.cause ?? err;
+  if (pgError?.code === "23505" && pgError?.constraint === "tags_author_label_unique") {
     res.status(409);
     throw new Error("You already have a tag with this label.");
   }
