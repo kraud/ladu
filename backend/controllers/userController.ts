@@ -27,6 +27,7 @@ const { issueVerificationEmail, issuePasswordResetEmail }: typeof import("../lib
 const { accountBlock, recordLogin }: typeof import("../lib/accountAccess") = require("../lib/accountAccess");
 const { assertRegistrationAllowed, consumeInvite, enforceLoginGate, getLoginBlock }: typeof import("../lib/accessGate") = require("../lib/accessGate");
 const { HttpError }: typeof import("../lib/httpError") = require("../lib/httpError");
+const { asDuplicateAccountError }: typeof import("../lib/duplicateAccount") = require("../lib/duplicateAccount");
 const { assertCaptcha }: typeof import("../lib/captcha") = require("../lib/captcha");
 const { termsAcceptance }: typeof import("../lib/terms") = require("../lib/terms");
 const { assertNotDemo }: typeof import("../lib/demo") = require("../lib/demo");
@@ -329,7 +330,10 @@ const registerUser = asyncHandler(async (req: any, res: any) => {
       await consumeInvite(tx, email, gateMode);
       return { user: created, sendVerification: await issueVerificationEmail(created, tx) };
     }));
-  } catch (error) {
+  } catch (caught) {
+    // Two sign-ups at the same moment can pass the checks above; the unique constraint
+    // then fails the second insert. Answer it like the normal "already in use" 400.
+    const error = asDuplicateAccountError(caught);
     if (error instanceof HttpError) res.status(error.status);
     throw error;
   }
