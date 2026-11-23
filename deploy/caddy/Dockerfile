@@ -5,13 +5,18 @@
 # Self-contained — build context is deploy/caddy/ itself:
 #   docker build -f deploy/caddy/Dockerfile deploy/caddy/
 
-FROM caddy:2-builder-alpine AS builder
+# The Caddy version is pinned, in all three places below (builder tag,
+# `xcaddy build` argument, runtime tag), and they must match. Without a pin,
+# Docker's layer cache keeps the first binary that was built, and the proxy
+# silently falls behind on security fixes. Dependabot proposes the two image
+# tags; change the `xcaddy build` version by hand in the same PR.
+FROM caddy:2.11.9-builder-alpine AS builder
 
-RUN xcaddy build \
+RUN xcaddy build v2.11.9 \
     --with github.com/caddy-dns/cloudflare
 
 
-FROM caddy:2-alpine
+FROM caddy:2.11.9-alpine
 
 COPY --from=builder /usr/bin/caddy /usr/bin/caddy
 COPY Caddyfile /etc/caddy/Caddyfile

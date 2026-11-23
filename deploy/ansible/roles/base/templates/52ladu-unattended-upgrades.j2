@@ -1,0 +1,13 @@
+// Managed by Ansible (roles/base). Adds to Debian's own 50unattended-upgrades.
+
+// Also install updates from Docker's apt repository (docker-ce, containerd.io,
+// the Compose plugin). Debian's default only covers Debian's own repositories.
+Unattended-Upgrade::Origins-Pattern {
+    "origin=Docker,codename=${distro_codename},label=Docker CE";
+};
+
+// Reboot when an update needs it (for example a new kernel), at a fixed time.
+// The server reboots only if /var/run/reboot-required exists, and not while a
+// user is logged in. All containers use `restart: unless-stopped` and come back.
+Unattended-Upgrade::Automatic-Reboot "true";
+Unattended-Upgrade::Automatic-Reboot-Time "{{ auto_reboot_time }}";

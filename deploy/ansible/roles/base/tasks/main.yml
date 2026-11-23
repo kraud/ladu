@@ -58,6 +58,14 @@
     group: root
     mode: "0644"
 
+- name: Let unattended-upgrades cover Docker's repository and reboot when needed
+  ansible.builtin.template:
+    src: 52ladu-unattended-upgrades.j2
+    dest: /etc/apt/apt.conf.d/52ladu-unattended-upgrades
+    owner: root
+    group: root
+    mode: "0644"
+
 - name: Ensure the APT periodic-update timers are enabled
   ansible.builtin.systemd:
     name: "{{ item }}"
