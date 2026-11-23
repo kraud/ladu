@@ -1,6 +1,6 @@
 # App stack — one instance per environment, deployed by deploy/scripts/deploy.sh
 # (Phase D) against the same file twice: once with ENVIRONMENT=staging, once
-# with ENVIRONMENT=prod. Requires deploy/compose/platform.yml already running
+# with ENVIRONMENT=prod. Requires deploy/compose/docker-compose.platform.yml already running
 # (shares its `edge` network and its postgres) — see that file for why.
 #
 # Invoke with ENVIRONMENT, IMAGE_TAG (the commit SHA GHCR images are tagged

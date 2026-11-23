@@ -98,6 +98,11 @@ projects**, not one.
 
 ### `platform.yml` — one instance, for the whole VPS
 
+> **Two names, one file.** In the repo it is `deploy/compose/docker-compose.platform.yml`, because
+> Dependabot only reads compose files named `docker-compose*.yml` (it must see the pinned Postgres
+> version). Ansible copies it to the server as `/opt/ladu/platform/compose/platform.yml`. This guide
+> says `platform.yml` for the stack and for server paths.
+
 Brought up once by Ansible (not part of the per-commit deploy pipeline).
 Contains:
 
@@ -166,7 +171,7 @@ Cloudflare DNS/TLS   Installs Docker, sets up the        Runs deploy.sh,
  domain point at)      user, and — as one of its           Docker Compose
                         tasks — builds + starts             for app.yml
                         Caddy and Postgres                   only (web +
-                        (deploy/compose/platform.yml)        backend)
+                        (deploy/compose/docker-compose.platform.yml)        backend)
                               │
                               ▼
                         Caddy (the "edge" container)
@@ -223,7 +228,7 @@ symptom-specific guidance.
 |---|---|---|
 | `deploy/terraform/` | Cloudflare DNS records, TLS settings, Resend email-verification records | You, by hand, only when DNS/email records need to change. Remote state in HCP Terraform. |
 | `deploy/ansible/` | Server setup: users, SSH hardening, firewall, Docker install, the platform stack, backups | You, by hand (`ansible-playbook site.yml`), only when server *configuration* changes — not on every deploy. |
-| `deploy/compose/platform.yml` | The shared Postgres + Caddy + landing stack | Brought up by the Ansible `platform` role. |
+| `deploy/compose/docker-compose.platform.yml` | The shared Postgres + Caddy + landing stack | Brought up by the Ansible `platform` role. |
 | `deploy/compose/app.yml` | The per-environment web + backend stack | Brought up by `deploy.sh`, on every deploy. |
 | `deploy/caddy/` | Caddy's own Dockerfile + `Caddyfile` (routing rules) | Built as part of `platform.yml`. |
 | `deploy/scripts/deploy.sh` | Pulls images, runs migrations, swaps containers, health-checks, rolls back on failure | GitHub Actions, automatically, on every merge to `main`. |

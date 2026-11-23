@@ -32,7 +32,7 @@ updates:
 
   # Docker images that run on the VPS and are pinned to an exact version: the
   # edge Caddy (deploy/caddy/Dockerfile) and Postgres (deploy/compose/
-  # platform.yml). Nothing else keeps them current: CI neither rebuilds nor
+  # docker-compose.platform.yml). Nothing else keeps them current: CI neither rebuilds nor
   # scans them, and Compose only pulls an image that is missing. Dependabot
   # needs an exact directory per entry, not a recursive scan.
   #
@@ -44,11 +44,11 @@ updates:
     schedule:
       interval: "weekly"
 
-  # Dependabot's docker-compose support looks for files named like
-  # `docker-compose*.yml` or `compose*.yml`. Ours are named platform.yml and
-  # app.yml, so this entry may find nothing. Check the repository's Insights >
-  # Dependency graph > Dependabot tab after the first run. If it is not listed,
-  # the fix is to rename the file (and update the Ansible role that syncs it).
+  # Dependabot's docker-compose support only reads files named like
+  # `docker-compose*.yml` or `compose*.yml`. This is why the platform stack file is
+  # `docker-compose.platform.yml` in the repo (Ansible syncs it to the server as
+  # `platform.yml`). `app.yml` has no pinned third-party image, so it is not read.
+  # `docker-compose.local.yml` is read too, but it holds only local images.
   - package-ecosystem: "docker-compose"
     directory: "/deploy/compose"
     schedule:

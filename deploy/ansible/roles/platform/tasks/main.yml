@@ -24,9 +24,14 @@
     - /opt/ladu/staging
     - /opt/ladu/prod
 
+# The file has two names on purpose. In the repo it is docker-compose.platform.yml,
+# because Dependabot only reads compose files named `docker-compose*.yml` (it must
+# see the pinned Postgres version). On the server it stays platform.yml, so every
+# server path (the `files:` entries below, backup.sh, record-event.sh, the docs)
+# is unchanged.
 - name: Sync platform.yml
   ansible.posix.synchronize:
-    src: "{{ playbook_dir }}/../compose/platform.yml"
+    src: "{{ playbook_dir }}/../compose/docker-compose.platform.yml"
     dest: /opt/ladu/platform/compose/platform.yml
     delete: true
     perms: false

@@ -68,7 +68,7 @@ Internet → Cloudflare (proxy, TLS) → VPS :443 (only Cloudflare IPs allowed)
                                one user per DB)
 ```
 
-- **Platform stack** (`deploy/compose/platform.yml`, one instance): `edge` + `postgres`. They share a Docker network (`edge`).
+- **Platform stack** (`deploy/compose/docker-compose.platform.yml`, one instance): `edge` + `postgres`. They share a Docker network (`edge`).
 - **App stack** (`deploy/compose/app.yml`, one instance per environment): `web` + `backend`. Compose project names `ladu-staging` and `ladu-prod`. Settings: `IMAGE_TAG` and an env file.
 - **Edge Caddy** is a custom image built with `xcaddy` and the `caddy-dns/cloudflare` module. It gets certificates with the DNS-01 challenge, so certificates work behind the Cloudflare proxy.
 - The **`web` image** is Caddy serving `frontend/dist`: SPA fallback to `index.html`, `index.html` not cached, hashed assets cached as immutable. There is no nginx.
@@ -197,7 +197,7 @@ New files:
 - `frontend/Dockerfile`: multi-stage, Node build → `caddy:alpine` with `dist/` + a small Caddyfile.
 - `landing/`: static site (HTML/CSS, no framework for now — real content is still future work) + `landing/Dockerfile` (`caddy:alpine`).
 - `deploy/caddy/Dockerfile` (`xcaddy` + Cloudflare DNS module) and `deploy/caddy/Caddyfile` (host routing, `/api` → backend, security headers, `www` → apex redirect).
-- `deploy/compose/platform.yml`, `deploy/compose/app.yml`, `deploy/env/app.env.example`.
+- `deploy/compose/docker-compose.platform.yml`, `deploy/compose/app.yml`, `deploy/env/app.env.example`.
 - `.dockerignore` files: one at the repo root (build context for `backend`/`frontend`, which need the shared npm-workspaces lockfile) plus one each in `landing/` and `deploy/caddy/` (self-contained build contexts of their own).
 - **Two decisions the plan left open, resolved while building this phase:**
   - `landing` lives in `platform.yml` alongside `edge`/`postgres` (not `app.yml`) — it's a singleton with no staging/prod split, even though CI builds it per-commit like `backend`/`web` (§3).
@@ -446,7 +446,7 @@ frontend/Dockerfile
 landing/            static site + Dockerfile
 deploy/
   caddy/            Dockerfile, Caddyfile, .dockerignore
-  compose/          platform.yml, app.yml, docker-compose.local.yml + local.Caddyfile (local-testing only)
+  compose/          docker-compose.platform.yml, app.yml, docker-compose.local.yml + local.Caddyfile (local-testing only)
   env/              *.env.example
   scripts/          deploy.sh, backup.sh, restore-test.sh
   ansible/          inventory, site.yml, roles/, group_vars/ (Vault)

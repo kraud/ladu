@@ -1,23 +1,23 @@
 # LOCAL-TESTING ONLY override for the Phase B gate — layer this on top of
-# platform.yml and app.yml to run the whole stack locally without GHCR
+# docker-compose.platform.yml and app.yml to run the whole stack locally without GHCR
 # images or real Cloudflare/ACME. Never referenced by deploy.sh or Ansible.
 #
 # APEX_DOMAIN must resolve to loopback with no /etc/hosts edit — a
 # *.localhost domain (e.g. ladu.localhost) does that everywhere (Node,
 # curl, Chromium) per RFC 6761. EDGE_HTTP_PORT avoids needing root for the
-# privileged port 80 (see platform.yml).
+# privileged port 80 (see docker-compose.platform.yml).
 #
 # All three files together, in one project (simpler than mirroring
 # platform/app as separate real-world projects for a one-off local test):
 #   EDGE_HTTP_PORT=8080 APEX_DOMAIN=ladu.localhost ENVIRONMENT=prod \
 #   POSTGRES_SUPERUSER=ladu POSTGRES_SUPERUSER_PASSWORD=ladu_local_pw \
-#     docker compose -f platform.yml -f app.yml -f docker-compose.local.yml \
+#     docker compose -f docker-compose.platform.yml -f app.yml -f docker-compose.local.yml \
 #       -p ladu-local up -d --build
 #
 # The networks override below is needed only for this combined-invocation
-# style: app.yml marks `edge` external (expects platform.yml's separate
+# style: app.yml marks `edge` external (expects docker-compose.platform.yml's separate
 # project to have created it already), which — being the later file in a
-# three-file merge — would otherwise win over platform.yml's own
+# three-file merge — would otherwise win over docker-compose.platform.yml's own
 # (non-external, creating) definition of the same network key.
 
 services:
@@ -35,7 +35,7 @@ services:
     volumes:
       - ./local.Caddyfile:/etc/caddy/Caddyfile:ro
     # CLOUDFLARE_API_TOKEN isn't read by local.Caddyfile at all (no
-    # acme_dns), but platform.yml's environment block still interpolates
+    # acme_dns), but docker-compose.platform.yml's environment block still interpolates
     # it, so it must be set to *something* non-empty for `docker compose up`.
     environment:
       CLOUDFLARE_API_TOKEN: unused-locally
