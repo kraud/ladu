@@ -202,7 +202,7 @@ in over SSH. All containers use `restart: unless-stopped`, so they come back
 in a few minutes.
 
 **Postgres and the edge Caddy** do not update by themselves. Both are pinned
-to an exact version (`deploy/compose/platform.yml`, `deploy/caddy/Dockerfile`).
+to an exact version (`deploy/compose/docker-compose.platform.yml`, `deploy/caddy/Dockerfile`).
 This is on purpose: Compose only pulls an image that is missing, and Docker's
 layer cache keeps the first Caddy build forever, so a floating tag
 (`postgres:15-alpine`, `caddy:2-alpine`) silently fell behind. Dependabot opens

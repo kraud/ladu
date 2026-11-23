@@ -71,7 +71,7 @@ jobs:
           push: true
           # landing also gets a moving `latest` tag: it is not deployed per
           # commit like backend/web -- Ansible's `platform` role pulls it
-          # (deploy/compose/platform.yml, IMAGE_TAG defaults to `latest`).
+          # (deploy/compose/docker-compose.platform.yml, IMAGE_TAG defaults to `latest`).
           # Empty lines in `tags` are ignored, so the other two images get
           # only their SHA tag.
           tags: |
