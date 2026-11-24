@@ -43,6 +43,10 @@ services:
     # "always rebuild" would restart the edge on every run. The default is for
     # local use, where no hash exists.
     image: ladu-platform-edge:${EDGE_IMAGE_TAG:-local}
+    # Never try to pull this image: it exists only on this server. Without
+    # this line, Compose first asks a registry for a new tag, and prints
+    # "pull access denied" before it builds the image itself.
+    pull_policy: never
     build:
       context: ../caddy
     restart: unless-stopped
