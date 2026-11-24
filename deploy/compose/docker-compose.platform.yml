@@ -11,6 +11,7 @@
 # Variables (POSTGRES_SUPERUSER*, APEX_DOMAIN, CLOUDFLARE_API_TOKEN,
 # IMAGE_TAG) come from /opt/ladu/platform/.env, written by Ansible from
 # Vault (Phase C) — not deploy/env/app.env.example, which is app.yml's.
+# EDGE_IMAGE_TAG is the one value Ansible works out (a hash of deploy/caddy/).
 
 name: ladu-platform
 
@@ -35,6 +36,13 @@ services:
     # by Ansible, not here.
 
   edge:
+    # The tag is a hash of the files in deploy/caddy/ (Ansible writes it to
+    # .env as EDGE_IMAGE_TAG). Compose builds the image only when this tag is
+    # missing and recreates the container only when the tag changes. Two
+    # builds of unchanged files give different image IDs on Docker 29, so
+    # "always rebuild" would restart the edge on every run. The default is for
+    # local use, where no hash exists.
+    image: ladu-platform-edge:${EDGE_IMAGE_TAG:-local}
     build:
       context: ../caddy
     restart: unless-stopped
