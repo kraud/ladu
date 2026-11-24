@@ -216,6 +216,17 @@ a PR when a new version appears. To apply it:
 3. Run `ansible-playbook site.yml` from an up-to-date `main` (add `--check`
    first for a dry run). It is safe to repeat. It recreates only the
    container whose image changed. Expect a short restart of that container.
+   Compose alone does not restart a container when an image is rebuilt under
+   the same tag. So the `platform` role compares the image ID of the running
+   edge with the ID of the newest build, and recreates the edge when they
+   differ. A dry run shows this as "Recreate edge when it runs an older image".
+4. Check that the server runs the new image. These two commands must print the
+   same ID:
+
+   ```bash
+   docker image inspect ladu-platform-edge --format '{{.Id}}'
+   docker inspect ladu-platform-edge-1 --format '{{.Image}}'
+   ```
 
 Checks you can run on the VPS at any time (they only read information):
 
