@@ -136,8 +136,12 @@
 # (`policy`) builds only an image that does not exist yet, so after the first
 # run a changed Caddyfile (a new hostname, a new route) would never reach the
 # running proxy. With `always`, Docker's layer cache makes an unchanged run
-# fast, and Compose recreates the edge container only when the image changed.
-# Certificates survive that: they live in the `caddy_data` volume.
+# fast.
+# This task only BUILDS a new edge image. It does not restart the container:
+# Compose recreates a container only when its configuration changes, and a
+# rebuilt image under the same tag is not a configuration change. The next
+# three tasks after "Bring up landing" compare the image IDs and recreate the
+# edge when they differ.
 - name: Bring up postgres and edge
   community.docker.docker_compose_v2:
     project_src: /opt/ladu/platform/compose
@@ -170,6 +174,42 @@
     pull: always
     state: present
   become: false
+
+# Put a rebuilt edge image into service. Without these three tasks a new Caddy
+# version or a changed Caddyfile is built and then ignored: the old container
+# keeps running. The image ID is the test, so a run with nothing new restarts
+# nothing. Certificates survive a recreate: they live in the `caddy_data` volume.
+# Read-only lookups: they also run in --check mode, so a dry run shows
+# whether the edge will be recreated.
+- name: Look up the image that the edge tag points to
+  community.docker.docker_image_info:
+    name: ladu-platform-edge
+  register: edge_image
+  become: false
+
+- name: Look up the running edge container
+  community.docker.docker_container_info:
+    name: ladu-platform-edge-1
+  register: edge_container
+  become: false
+
+- name: Recreate edge when it runs an older image than the current build
+  community.docker.docker_compose_v2:
+    project_src: /opt/ladu/platform/compose
+    project_name: ladu-platform
+    files:
+      - platform.yml
+    env_files:
+      - ../.env
+    services:
+      - edge
+    recreate: always
+    state: present
+  become: false
+  when:
+    - edge_container.exists
+    - edge_image.images | length > 0
+    - edge_container.container.Image != edge_image.images[0].Id
 
 - name: Restart edge if the trusted-proxies list changed
   community.docker.docker_compose_v2:
