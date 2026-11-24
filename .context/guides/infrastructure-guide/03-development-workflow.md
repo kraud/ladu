@@ -216,16 +216,18 @@ a PR when a new version appears. To apply it:
 3. Run `ansible-playbook site.yml` from an up-to-date `main` (add `--check`
    first for a dry run). It is safe to repeat. It recreates only the
    container whose image changed. Expect a short restart of that container.
-   Compose alone does not restart a container when an image is rebuilt under
-   the same tag. So the `platform` role compares the image ID of the running
-   edge with the ID of the newest build, and recreates the edge when they
-   differ. A dry run shows this as "Recreate edge when it runs an older image".
-4. Check that the server runs the new image. These two commands must print the
-   same ID:
+   The edge image tag is a hash of the files in `deploy/caddy/`
+   (`ladu-platform-edge:<hash>`). A changed Dockerfile or Caddyfile gives a new
+   tag, so Compose builds the image and recreates the edge. If nothing changed,
+   nothing is built and nothing restarts, so a repeated run is quiet. (A
+   rebuild of unchanged files would give a new image ID on Docker 29 and
+   restart the edge on every run. That is why the tag is a hash.)
+4. Check that the server runs the new image. The tag of the image must be the
+   same as the tag in `.env`:
 
    ```bash
-   docker image inspect ladu-platform-edge --format '{{.Id}}'
-   docker inspect ladu-platform-edge-1 --format '{{.Image}}'
+   docker inspect ladu-platform-edge-1 --format '{{.Config.Image}}'
+   grep EDGE_IMAGE_TAG /opt/ladu/platform/.env
    ```
 
 Checks you can run on the VPS at any time (they only read information):
