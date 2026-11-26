@@ -1,6 +1,6 @@
 # Plan: Dependency updates (replaces Dependabot PR #139)
 
-Status: in progress. Written on 2026-11-26. PR 1 (#151), PR 2 (#154), PR 3 (#157), PR 4 (#159), PR 5 (#161) and PR 6 (#162) merged. The deploy of PR 2 failed and the hotfix (#156) repaired it (log 23).
+Status: in progress. Written on 2026-11-26. PR 1 (#151), PR 2 (#154), PR 3 (#157), PR 4 (#159), PR 5 (#161) and PR 6 (#162) merged. The deploy of PR 2 failed and the hotfix (#156) repaired it (log 23). PR 7 is built and checked locally; not merged yet.
 
 Goal: bring in the updates of PR #139 through small PRs. Each PR can be reviewed, tested and reverted alone. **Do not merge #139.**
 
@@ -17,7 +17,7 @@ Update this table when a PR opens and when it merges.
 | 4 | `bcryptjs` 3, `dotenv` 18, `concurrently` 10 | Low | Merged on 2026-11-26; CI and the production deploy passed | #159 |
 | 5 | Test tooling: `jsdom` 31, `msw` 3, `jest-dom` 8 | Medium | Merged on 2026-11-26; CI and the production deploy passed | #161 |
 | 6 | Vite 8 and `@vitejs/plugin-react` 6 | Medium | Merged on 2026-11-26; the production deploy passed | #162 |
-| 7 | `react-error-boundary` 6, `react-toastify` 11, `zustand` 5, `cn` 0.5 | Medium | In progress: step 3 of 4 | |
+| 7 | `react-error-boundary` 6, `react-toastify` 11, `zustand` 5, `cn` 0.5 | Medium | Checked locally; waits for the PR | |
 | 8 | React 19 | Medium | Not started | |
 | 9 | `@tanstack/react-table` 9 | Medium | Not started | |
 | 10 | `@hookform/resolvers` 7 | Medium | Not started | |
@@ -258,6 +258,17 @@ Done when: all checks pass and the visual checks are written in the PR.
 - The temporary browser test and its two users were removed.
 - Checks, all passed: `npm ci`; lint, typecheck, tests (2129 and 329) and build in `frontend` and `admin`; E2E 149. Both licence notices name version 5.1.0. Audit: 9 moderate, 0 high; production 0.
 
+**Result, step 4 (2026-11-26):**
+- `cn` 0.2.6 → 0.5.2 in `frontend` and `admin`. The release notes from 0.3.0 to 0.5.2 are on GitHub (log 12). The lockfile now holds two copies (log 39). No other package changed.
+- **Output:** old and new `cn` were compared on 261 different calls recorded from the frontend and admin tests, and on 30 984 class strings and pairs from the source. The recorded calls give identical results. 2 pairs differ only in repeated class names (log 40).
+- **Look:** 68 screenshots (main pages of the app and the admin, both themes, desktop and phone) before and after. 53 are identical. The other 15 also differ between two runs on the old version, or show data: times, row order and the random practice word. No style difference was seen.
+- The temporary tests and their accounts were removed.
+- Final checks of PR 7, all passed: `npm ci`; lint and typecheck (3 workspaces; no errors); both builds; backend 2996, frontend 2130, admin 329, E2E 149. One React version (18.3.1). Audit: 9 moderate, 0 high; production 0. Both licence notices name version 0.5.2.
+- The `backend`, `frontend` and `admin` images built. The backend image passed the CI load command and answered on a local database. Both app images hold the `cn` 0.5.2 notice.
+- Not run locally: the Trivy scan (CI runs it) and the `landing` image (not changed).
+
+**Also in this PR (user decision): log 38.** `PracticePage.tsx` now opens the sidebar in a layout effect, not during the render. A new test failed before the fix.
+
 ### PR 8: React 19
 
 Branch: `deps/08-react-19`
@@ -409,4 +420,7 @@ Issues found while checking #139 and writing this plan. Add new rows during the 
 | 35 | Minor | `react-toastify` 11 adds a keyboard shortcut: Alt+T (Option+T on a Mac) moves the focus to a visible toast. | Kept: it helps keyboard users. `hotKeys` on `ToastContainer` can change it. |
 | 36 | Minor | Present before this plan: a toast that starts as "Saving…" has no close button, and a click does not close it. It closes by itself after 5 seconds. Versions 10 and 11 do the same. | Deferred to a separate change (user decision): idea I-18. |
 | 37 | Blocker | `zustand` 5: a selector that returns a new list on each call loops. If the session ended while the tag dialog or the word form was open, React stopped with "Maximum update depth exceeded". All 2127 tests passed, but the run failed with 3 such errors. The type check did not show it. | PR 7: both selectors use one fixed empty list; 2 new tests. |
-| 38 | Minor | Present before this plan: the development build of `/practice` warns "Cannot update a component (`SidebarLayout`) while rendering a different component (`SetUp`)". The code in `PracticePage.tsx` changes the sidebar state during a render. Version 4 shows the same warning. | Open: user decision. |
+| 38 | Minor | Present before this plan: the development build of `/practice` warns "Cannot update a component (`SidebarLayout`) while rendering a different component (`SetUp`)". The code in `PracticePage.tsx` changes the sidebar state during a render. Version 4 shows the same warning. | PR 7 (user decision): fixed, with 1 new test. |
+| 39 | Minor | After the `cn` update the apps use 0.5.2, from `frontend/node_modules` and `admin/node_modules`. The `shadcn` development tool still asks for 0.2, so 0.2.6 stays at the root. | Accepted: the tool does not reach the app. Both app images built. |
+| 40 | Minor | Since `cn` 0.3.2, `animate-in` and `animate-out` are not merged. A joined menu class list can hold them twice. A repeated class has no effect. | Accepted. |
+| 41 | Minor | Present before this plan: on a 390 px phone screen, the practice card is too narrow for its second line. "No hint available" goes past the card, and the page is wider than the screen. Both `cn` versions show it. | Open: user decision. |
