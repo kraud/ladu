@@ -115,7 +115,7 @@ Ladu is an **npm-workspaces monorepo**.
 
 | Workspace | What it is | Main tech |
 |---|---|---|
-| [`backend/`](backend) | REST API, auth, exercise engine | Node 24, Express, Drizzle ORM, PostgreSQL, Jest |
+| [`backend/`](backend) | REST API, auth, exercise engine | Node 24, Express, Drizzle ORM, PostgreSQL, Vitest |
 | [`frontend/`](frontend) | The learner web app | React 18, Vite, TypeScript, Tailwind CSS 4, TanStack Query, Zustand, react-hook-form, i18next, Vitest, MSW |
 | [`admin/`](admin) | Staff dashboard (separate app) | React, Vite, Vitest |
 | [`landing/`](landing) | Public site and blog | Static HTML/CSS/JS, Markdown posts |
@@ -191,7 +191,7 @@ Full operator manual: [`.context/guides/infrastructure-guide/`](.context/guides/
 
 ## 🛠️ Getting started
 
-**You need:** Node 24 (see `.nvmrc`) and Docker.
+**You need:** Node 24.15 or newer 24.x (see `.nvmrc`) and Docker.
 
 ```bash
 # 1. Install dependencies for all workspaces

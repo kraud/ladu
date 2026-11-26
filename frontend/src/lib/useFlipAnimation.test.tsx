@@ -74,11 +74,11 @@ describe('useFlipAnimation', () => {
 
         // Invert: jumped back to the old position, transition disabled, before the frame plays.
         expect(b.style.transition).toBe('none');
-        expect(b.style.transform).toBe('translate(-40px, 0px)');
+        expect(b.style.transform).toBe('translate(-40px)');
 
         // Play: the captured rAF callback eases it back to its real (already-committed) position.
         rafCallback?.(0);
-        expect(b.style.transition).toBe('transform 200ms ease');
+        expect(b.style.transition).toBe('transform 200ms'); // jsdom drops the default `ease`
         expect(b.style.transform).toBe('');
     });
 
@@ -94,6 +94,6 @@ describe('useFlipAnimation', () => {
 
         expect(a.style.transform).toBe('');
         expect(c.style.transform).toBe('');
-        expect(b.style.transform).toBe('translate(-20px, 0px)');
+        expect(b.style.transform).toBe('translate(-20px)');
     });
 });

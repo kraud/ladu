@@ -115,27 +115,38 @@ describe('SidebarLayout — desktop', () => {
         /** The column: the wrapper that carries the page content. */
         const column = () => screen.getByText('Page content').parentElement as HTMLElement;
         const margin = (panel: string, width = '64rem') => `max(0px, calc((100% - ${width}) / 2 - ${panel} / 2))`;
+        /** jsdom simplifies the formula. `toHaveStyle` compares it with a computed (px) value, so it cannot be used. */
+        const asStored = (value: string) => {
+            const probe = document.createElement('div');
+            probe.style.marginLeft = value;
+            expect(probe.style.marginLeft).not.toBe('');
+            return probe.style.marginLeft;
+        };
+        const expectColumn = (maxWidth: string, marginLeft: string) => {
+            expect(column().style.maxWidth).toBe(maxWidth);
+            expect(column().style.marginLeft).toBe(asStored(marginLeft));
+        };
 
         it('open: half the panel is taken off the left margin', () => {
             renderLayout();
-            expect(column()).toHaveStyle({ maxWidth: '64rem', marginLeft: margin('16rem') });
+            expectColumn('64rem', margin('16rem'));
         });
 
         it('collapsed: half the rail', () => {
             useUiStore.getState().setSidebarCollapsed('review', true);
             renderLayout();
-            expect(column()).toHaveStyle({ maxWidth: '64rem', marginLeft: margin('3.5rem') });
+            expectColumn('64rem', margin('3.5rem'));
         });
 
         it('the wide panel and the wide column use their own widths', () => {
             renderLayout({ width: 'wide', wide: true });
-            expect(column()).toHaveStyle({ maxWidth: '80rem', marginLeft: margin('24rem', '80rem') });
+            expectColumn('80rem', margin('24rem', '80rem'));
         });
 
         it('on a phone there is no panel to make up for', () => {
             mockMobileViewport();
             renderLayout();
-            expect(column()).toHaveStyle({ maxWidth: '64rem', marginLeft: margin('0px') });
+            expectColumn('64rem', margin('0px'));
         });
     });
 

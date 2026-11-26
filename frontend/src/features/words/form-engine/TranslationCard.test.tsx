@@ -344,7 +344,7 @@ describe('TranslationCard — Verb', () => {
         // The infinitive is the autocomplete query field (a combobox since Slice E).
         const infinitive = screen.getByPlaceholderText('Type to autocomplete');
         const grid = infinitive.closest('.grid') as HTMLElement;
-        expect(grid.style.gridTemplateColumns).toBe('minmax(0, 1fr)');
+        expect(grid.style.gridTemplateColumns).toBe('minmax(0px, 1fr)');
         expect(grid.closest('[data-testid="horizontal-scroller"]')).toBeNull();
     });
 
@@ -354,7 +354,7 @@ describe('TranslationCard — Verb', () => {
         // The infinitive is the autocomplete query field (a combobox since Slice E).
         const infinitive = screen.getByPlaceholderText('Type to autocomplete');
         const grid = infinitive.closest('.grid') as HTMLElement;
-        expect(grid.style.gridTemplateColumns).toBe('repeat(2, minmax(0, 1fr))');
+        expect(grid.style.gridTemplateColumns).toBe('repeat(2, minmax(0px, 1fr))');
         expect(infinitive.closest('.col-span-2')).not.toBeNull();
         expect(grid.closest('[data-testid="horizontal-scroller"]')).toBeNull();
     });
@@ -595,6 +595,10 @@ describe('TranslationCard — Autocomplete integration (one case per language wi
     });
 });
 
+// The article and the word are two spans. A browser adds a space between them
+// (flex items); jsdom has no stylesheet in tests, so it reads them as inline text.
+const DIE_SEE_OPTION = /^die\s?See$/;
+
 describe('TranslationCard — type-ahead list on the query field (Slice E, D21)', () => {
     const DER_SEE = { entryId: '11111111-1111-1111-1111-111111111111', lemma: 'See', hint: 'der' };
     const DIE_SEE = { entryId: '22222222-2222-2222-2222-222222222222', lemma: 'See', hint: 'die' };
@@ -643,7 +647,7 @@ describe('TranslationCard — type-ahead list on the query field (Slice E, D21)'
     it('a click on a suggestion fills the card with that exact entry, and the footer shows it as applied', async () => {
         const { fake, user, field } = setup();
         await user.type(field, 'se');
-        await user.click(await screen.findByRole('option', { name: 'die See' }));
+        await user.click(await screen.findByRole('option', { name: DIE_SEE_OPTION }));
 
         await waitFor(() => expect(screen.getByRole('radio', { name: 'die' })).toBeChecked());
         expect(field).toHaveValue('See');
@@ -677,7 +681,7 @@ describe('TranslationCard — type-ahead list on the query field (Slice E, D21)'
         expect(screen.getByRole('radio', { name: 'der', hidden: true })).not.toBeChecked();
         expect(screen.getByLabelText('Plural nominative')).toHaveValue('');
 
-        await user.click(screen.getByRole('option', { name: 'die See' }));
+        await user.click(screen.getByRole('option', { name: DIE_SEE_OPTION }));
         await waitFor(() => expect(screen.getByRole('radio', { name: 'die' })).toBeChecked());
     });
 
@@ -692,7 +696,7 @@ describe('TranslationCard — type-ahead list on the query field (Slice E, D21)'
         renderWithProviders(<TranslationCard lang={Lang.DE} pos={PartOfSpeech.noun} />);
 
         await user.type(screen.getByRole('combobox', { name: 'Singular nominative' }), 'Polizei');
-        const option = await screen.findByRole('option', { name: 'die Polizei' });
+        const option = await screen.findByRole('option', { name: /^die\s?Polizei$/ });
         await new Promise((resolve) => setTimeout(resolve, 800));
         expect(option).toBeInTheDocument();
 
@@ -727,7 +731,7 @@ describe('TranslationCard — type-ahead list on the query field (Slice E, D21)'
     it('typing after a pick drops it: the lookup goes back to the main sense', async () => {
         const { fake, user, field } = setup();
         await user.type(field, 'se');
-        await user.click(await screen.findByRole('option', { name: 'die See' }));
+        await user.click(await screen.findByRole('option', { name: DIE_SEE_OPTION }));
         await waitFor(() => expect(screen.getByRole('radio', { name: 'die' })).toBeChecked());
 
         await user.type(field, '{Backspace}e');

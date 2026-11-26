@@ -12,6 +12,12 @@ const GROUPS: BarChartGroup[] = [
     { xLabel: '2026-08', values: [5, 2] },
 ];
 
+/** jsdom rounds a percentage to 4 decimals. */
+function expectPercent(value: string, fraction: number) {
+    expect(value).toMatch(/%$/);
+    expect(parseFloat(value)).toBeCloseTo(fraction * 100, 3);
+}
+
 describe('BarChart', () => {
     afterEach(() => {
         vi.useRealTimers();
@@ -67,10 +73,10 @@ describe('BarChart', () => {
         // The hit area must sit exactly on its bar, or the tooltip fires from the wrong place.
         rects.forEach((rect, index) => {
             const hit = hits[index]!;
-            expect(hit.style.left).toBe(`${(Number(rect.getAttribute('x')) / 640) * 100}%`);
-            expect(hit.style.top).toBe(`${(Number(rect.getAttribute('y')) / 240) * 100}%`);
-            expect(hit.style.width).toBe(`${(Number(rect.getAttribute('width')) / 640) * 100}%`);
-            expect(hit.style.height).toBe(`${(Number(rect.getAttribute('height')) / 240) * 100}%`);
+            expectPercent(hit.style.left, Number(rect.getAttribute('x')) / 640);
+            expectPercent(hit.style.top, Number(rect.getAttribute('y')) / 240);
+            expectPercent(hit.style.width, Number(rect.getAttribute('width')) / 640);
+            expectPercent(hit.style.height, Number(rect.getAttribute('height')) / 240);
         });
     });
 
