@@ -8,6 +8,7 @@ const { auditLog, staffAccounts }: typeof import('../../src/db/schema') = requir
 const { alias }: typeof import('drizzle-orm/pg-core') = require('drizzle-orm/pg-core');
 const { and, asc, desc, eq, gte, isNull, lt, sql }: typeof import('drizzle-orm') = require('drizzle-orm');
 const { isUuid }: typeof import('../userController') = require('../userController');
+const { refuseBracketKeys }: typeof import('../../lib/adminRequest') = require('../../lib/adminRequest');
 
 const DEFAULT_PAGE_SIZE = 25;
 const MAX_PAGE_SIZE = 100;
@@ -33,6 +34,7 @@ const readInstant = (res: any, name: string, value: unknown): Date | undefined =
 /** `GET /api/admin/audit` */
 const listAudit = asyncHandler(async (req: any, res: any) => {
   const q = req.query;
+  refuseBracketKeys(res, q);
 
   const page = q.page === undefined ? 1 : Number(single(q.page));
   const pageSize = q.pageSize === undefined ? DEFAULT_PAGE_SIZE : Number(single(q.pageSize));

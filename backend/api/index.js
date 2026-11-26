@@ -34,6 +34,7 @@ if (process.env.SENTRY_DSN) {
         dsn: process.env.SENTRY_DSN,
         environment: process.env.ENVIRONMENT || 'development',
         release: process.env.GIT_SHA,
+        ...require('../lib/sentry').sentryOptions,
     });
 }
 
@@ -68,7 +69,10 @@ const startServer = async () => {
     // pool can be injected via app.locals.
     app.locals.pgPool = pool;
 
-    app.listen(port, () => {
+    app.listen(port, (error) => {
+        // Express 5 passes a listen error (port in use) here. Throw it, so the process stops
+        // instead of staying alive without a server.
+        if (error) throw error;
         console.log(`Server started on port ${port}`);
     });
 };

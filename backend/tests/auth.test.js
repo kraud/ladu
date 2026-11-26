@@ -312,6 +312,13 @@ describe('GET /api/users/:id/verify/:token - Email Verification', () => {
 });
 
 describe('POST /api/users/login - Login', () => {
+    // Express 5 leaves `req.body` undefined without a body; app.js sets it to `{}`.
+    it('answers 400, not 500, to a request with no body', async () => {
+        const res = await request(app).post('/api/users/login');
+
+        expect(res.status).toBe(400);
+    });
+
     beforeEach(async () => {
         await registerUser();
     });

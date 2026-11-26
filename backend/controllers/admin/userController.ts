@@ -23,6 +23,7 @@ const { and, asc, desc, eq, gt, ilike, isNotNull, isNull, or, sql }: typeof impo
   require('drizzle-orm');
 const { hasPermission }: typeof import('../../lib/adminPermissions') = require('../../lib/adminPermissions');
 const { isUuid }: typeof import('../userController') = require('../userController');
+const { refuseBracketKeys }: typeof import('../../lib/adminRequest') = require('../../lib/adminRequest');
 const { hardDeleteUser }: typeof import('../../lib/userPurge') = require('../../lib/userPurge');
 import type { Tx } from '../../lib/userPurge';
 const { issueVerificationEmail, issuePasswordResetEmail }: typeof import('../../lib/accountEmails') = require('../../lib/accountEmails');
@@ -70,6 +71,7 @@ const single = (value: unknown): string | undefined => (typeof value === 'string
 /** `GET /api/admin/users` */
 const listUsers = asyncHandler(async (req: any, res: any) => {
   const q = req.query;
+  refuseBracketKeys(res, q);
 
   const page = q.page === undefined ? 1 : Number(single(q.page));
   const pageSize = q.pageSize === undefined ? DEFAULT_PAGE_SIZE : Number(single(q.pageSize));
