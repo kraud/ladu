@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { getRouteApi, Link } from '@tanstack/react-router';
 import {
@@ -255,17 +255,25 @@ function SetUp({
     const savedSessions = useSavedSessions();
     const savedConfigs = useConfigs();
     const [opened, setOpened] = useState(() => creating);
+    // Set when the page itself opened New configuration, because both lists are empty.
+    const [openedEmpty, setOpenedEmpty] = useState(false);
     if (!opened && !savedSessions.isPending && !savedConfigs.isPending) {
         setOpened(true);
         if (savedSessions.isSuccess && savedSessions.data.length === 0) {
             if (savedConfigs.isSuccess && savedConfigs.data.length === 0) {
-                useUiStore.getState().setSidebarCollapsed('practice', false);
+                setOpenedEmpty(true);
                 setCreating(true);
             } else {
                 setTab('configs');
             }
         }
     }
+
+    // The panel opens expanded here too. A store change must not happen during a render (the sidebar reads the
+    // store); a layout effect still runs before the browser paints.
+    useLayoutEffect(() => {
+        if (openedEmpty) useUiStore.getState().setSidebarCollapsed('practice', false);
+    }, [openedEmpty]);
 
     function openNewConfiguration() {
         setEditing(null);
