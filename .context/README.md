@@ -129,6 +129,7 @@ migrates its own database `keelapp_e2e`. Details: [`e2e/README.md`](../e2e/READM
 
 | Path | What it is | Authority |
 |------|-----------|-----------|
+| `.context/plans/dependency-updates.md` | The updates of Dependabot PR #139 as 13 small PRs, in order, with a progress table, decisions and a review log. Written 2026-11-26. | **Planned** |
 | `.context/plans/french-pronominal-type-ahead.md` | Fix plan V10: the French type-ahead does not offer "se laver". Written 2026-10-27, not built. | **Planned** |
 | `.context/plans/manual-production-release.md` | Manual production releases (tags, GitHub Releases, approval gate). Research done 2026-10-12; not started. | **Working record** |
 | `.context/plans/postgres-major-upgrade.md` | Postgres 15 → 17 on the VPS, local dev and CI, with dump and restore and a rollback. Written 2026-11-23 after the closed Dependabot PR #143; planned for the first half of 2027, not started. | **Planned** |
