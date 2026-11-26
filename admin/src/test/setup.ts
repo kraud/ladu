@@ -8,23 +8,8 @@ import { cleanupRenderedApps } from './renderApp';
 // jsdom's scrollTo throws "Not implemented"; TanStack Router calls it on navigation.
 Object.defineProperty(window, 'scrollTo', { value: () => {}, writable: true, configurable: true });
 
-// jsdom has no PointerEvent; Base UI's Button re-dispatches one on click.
-if (typeof window.PointerEvent === 'undefined') {
-    class PointerEventPolyfill extends MouseEvent {
-        pointerId: number;
-        pointerType: string;
-        constructor(type: string, params: PointerEventInit = {}) {
-            super(type, params);
-            this.pointerId = params.pointerId ?? 0;
-            this.pointerType = params.pointerType ?? '';
-        }
-    }
-    // @ts-expect-error — a test-only polyfill, not a spec-complete PointerEvent.
-    window.PointerEvent = PointerEventPolyfill;
-}
-
 // The app must never reach the real network in a test.
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+beforeAll(() => server.listen({ onUnhandledFrame: 'error' }));
 
 afterEach(() => {
     cleanupRenderedApps();

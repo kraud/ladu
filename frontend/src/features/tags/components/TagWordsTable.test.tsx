@@ -80,7 +80,10 @@ describe('TagWordsTable — rendering rows', () => {
         const langHeaders = container.querySelectorAll('th.lang-col');
         expect(langHeaders).toHaveLength(3);
         langHeaders.forEach((th) => {
-            expect((th as HTMLElement).style.width).toBe(`${100 / 3}%`);
+            // jsdom rounds a percentage to 4 decimals.
+            const { width } = (th as HTMLElement).style;
+            expect(width).toMatch(/%$/);
+            expect(parseFloat(width)).toBeCloseTo(100 / 3, 3);
         });
     });
 });

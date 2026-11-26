@@ -1,6 +1,6 @@
 # Plan: Dependency updates (replaces Dependabot PR #139)
 
-Status: in progress. Written on 2026-11-26. PR 1 (#151), PR 2 (#154) and PR 3 (#157) merged. The deploy of PR 2 failed and the hotfix (#156) repaired it (log 23). PR 4 is built and checked locally; not merged yet.
+Status: in progress. Written on 2026-11-26. PR 1 (#151), PR 2 (#154), PR 3 (#157) and PR 4 (#159) merged. The deploy of PR 2 failed and the hotfix (#156) repaired it (log 23). PR 5 is built and checked locally; not merged yet.
 
 Goal: bring in the updates of PR #139 through small PRs. Each PR can be reviewed, tested and reverted alone. **Do not merge #139.**
 
@@ -14,8 +14,8 @@ Update this table when a PR opens and when it merges.
 | 2 | All minor and patch updates; remove `@dnd-kit` | Low | Merged on 2026-11-26. Its deploy failed; live since #156 (log 23) | #154 |
 | 2a | Hotfix: the backend image lacked `drizzle-orm` | Low | Merged on 2026-11-26; CI and the production deploy passed | #156 |
 | 3 | Express 5; stop sending request data to Sentry | Medium | Merged on 2026-11-26; CI and the production deploy passed | #157 |
-| 4 | `bcryptjs` 3, `dotenv` 18, `concurrently` 10 | Low | Checked locally; waits for the PR | |
-| 5 | Test tooling: `jsdom` 31, `msw` 3, `jest-dom` 8 | Medium | Not started | |
+| 4 | `bcryptjs` 3, `dotenv` 18, `concurrently` 10 | Low | Merged on 2026-11-26; CI and the production deploy passed | #159 |
+| 5 | Test tooling: `jsdom` 31, `msw` 3, `jest-dom` 8 | Medium | Checked locally; waits for the PR | |
 | 6 | Vite 8 and `@vitejs/plugin-react` 6 | Medium | Not started | |
 | 7 | `react-error-boundary` 6, `react-toastify` 11, `zustand` 5, `cn` 0.5 | Medium | Not started | |
 | 8 | React 19 | Medium | Not started | |
@@ -170,6 +170,8 @@ Done when: all checks pass and the backend image builds and starts in CI.
 - Checks, all passed: lint and typecheck (3 workspaces; no errors), both builds, backend 2996, frontend 2127, admin 329, E2E 149. One React version (18.3.1). Audit: 9 moderate, 0 high; production 0. The first E2E run failed 1 test (log 26).
 - Not run locally: the Trivy scan (CI runs it).
 
+**Merged** as #159 on 2026-11-26. CI and the deploy passed.
+
 ### PR 5: Test tooling
 
 Branch: `deps/05-test-tooling`
@@ -182,6 +184,16 @@ Branch: `deps/05-test-tooling`
    - Cookie handling changed. Check handlers that read cookies.
 
 Done when: the test counts are equal to `main`, and no test was removed or skipped.
+
+**Result (2026-11-26):**
+- `jsdom` 24.1.3 → 31.0.1, `msw` 2.15.0 → 3.0.7, `@testing-library/jest-dom` 6.10.0 → 8.0.0; `@testing-library/dom` 10.4.2 added. `engines.node` is `>=24.15 <25`. In the lockfile, no production package changed.
+- `jest-dom` is not Jest: it supplies the element checks and runs on Vitest.
+- **`jsdom`:** 14 frontend tests failed because of the new CSS engine (logs 28, 29). Only test code changed for them. Admin had no failure.
+- **`msw`:** `onUnhandledRequest` is now `onUnhandledFrame`. In both apps, a temporary test with an unhandled request failed, with `fetch` and with `XMLHttpRequest`. The files with fake timers pass. No handler reads cookies. The imports from `msw` still work.
+- The `PointerEvent` substitute in both `test/setup.ts` files was removed (log 30).
+- The backend image built, passed the CI load command, and started against a temporary database (health check `ok`).
+- Checks, all passed: lint and typecheck (3 workspaces; no errors), both builds, backend 2996, frontend 2127, admin 329 (the same counts as before), E2E 149. One React version (18.3.1). Audit: 9 moderate, 0 high; production 0.
+- Not run locally: the `web`, `admin` and `landing` image builds and the Trivy scan (CI runs them).
 
 ### PR 6: Vite 8
 
@@ -349,3 +361,8 @@ Issues found while checking #139 and writing this plan. Add new rows during the 
 | 25 | Minor | The merge of #157 refreshed the open #155, and Dependabot opened #158 in its place (the same cause as log 24). | The user closes #158 while no Dependabot job is running. Check after the next weekly run that no new one appears. |
 | 26 | Minor | E2E `practice-change-configuration` failed once: the new name was added after the old one ("Morning drillMorning drill (9)"). It then passed 20 times alone and in a second full run. This PR changes no frontend code or package. Probable cause, not proven: the test types while the dialog is still moving the focus. | PR 4 (user decision): the test waits until the name field has the focus. |
 | 27 | Minor | Present before this plan: a password with half of a UTF-16 pair (`\ud800`) makes `bcryptjs` throw, in version 2.4.3 and in 3.0.3. The login code does not catch it, so the answer is 500. A normal keyboard cannot type such text. | Deferred (user decision): idea I-17. |
+| 28 | Moderate | `jsdom` 31 writes style values in a different form (`translate(-40px)`, `minmax(0px, 1fr)`, percentages with 4 decimals, a simplified `calc`, no default `ease`). 10 tests failed. `toHaveStyle` cannot compare the sidebar margin: it compares the `rem` formula with a `px` value. | PR 5: the tests expect the new form. The sidebar tests compare the stored style. |
+| 29 | Moderate | `jsdom` 31 reports a `span` as `inline`, so a name made of two spans has no space in tests (`dieSee`). 4 tests failed. The same change could make a "not present" check pass for the wrong reason. | PR 5: the 4 tests accept both forms. A temporary run with the old behaviour (`inline` read as `block`) showed no hidden failure in `frontend` or `admin`. |
+| 30 | Minor | `jsdom` has `PointerEvent` since version 27, so the substitute in the test setup never ran. | Removed. |
+| 31 | Minor | `README.md` said that the backend uses Jest, and asked for any Node 24. | PR 5: it says Vitest and Node 24.15 or newer. |
+| 32 | Minor | `engines.node` gives only a warning. `.nvmrc` stays `24`; an old local Node 24 can break the tests. CI used 24.22.3 in the last run. | Accepted. |
