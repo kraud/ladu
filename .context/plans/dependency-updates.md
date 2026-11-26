@@ -1,6 +1,6 @@
 # Plan: Dependency updates (replaces Dependabot PR #139)
 
-Status: not started. Written on 2026-11-26. No file has been changed yet.
+Status: in progress. Written on 2026-11-26. PR 1 is built and checked locally (2026-11-26); not merged yet.
 
 Goal: bring in the updates of PR #139 through small PRs. Each PR can be reviewed, tested and reverted alone. **Do not merge #139.**
 
@@ -10,7 +10,7 @@ Update this table when a PR opens and when it merges.
 
 | PR | Content | Risk | State | GitHub PR |
 |---|---|---|---|---|
-| 1 | Security fixes; pause Dependabot npm updates | Low | Not started | |
+| 1 | Security fixes; pause Dependabot npm updates | Low | Checked locally; waits for the PR. Branch `docs/dependency-update-plan` (it also holds this plan) | |
 | 2 | All minor and patch updates; remove `@dnd-kit` | Low | Not started | |
 | 3 | Express 5 | Medium | Not started | |
 | 4 | `bcryptjs` 3, `dotenv` 18, `concurrently` 10 | Low | Not started | |
@@ -69,7 +69,7 @@ PRs 3 and 4 do not depend on PRs 5 to 11. You can move them if you want.
 
 ### PR 1: Security fixes and Dependabot pause
 
-Branch: `deps/01-security`
+Branch: `docs/dependency-update-plan` (the user put PR 1 together with the plan, so a documentation change does not wait for its own PR).
 
 1. In `backend/package.json`, set `nodemon` to `^3`.
 2. Run `npm install`, then `npm audit fix` (no `--force`).
@@ -78,9 +78,17 @@ Branch: `deps/01-security`
 5. **User, on GitHub:** close #139 without a merge, after this PR merges.
 6. **User, on the Mac:** update Node to 24.22.3 or newer.
 
-Expected audit (tried on a copy, 2026-11-26): 6 moderate, 0 high. The rest comes from `esbuild` (through `drizzle-kit`) and `minimatch` (through `nodemon` 3.1.14).
-
 Done when: 0 high advisories and #139 is closed.
+
+**Result (2026-11-26, steps 1 to 4):**
+- Audit: 21 entries (5 high, 16 moderate) → **9 moderate, 0 high**. Production: 0 before and after.
+- The remaining entries come from `esbuild` (through `drizzle-kit`) and `minimatch` (through `nodemon` 3.1.14 and `shadcn`).
+- The first trial gave 6, without the 7-day rule. The rule installed `shadcn` 4.23.0; 4.23.1 (released 2026-11-25) removes the other 3 entries. PR 2 can take it from 2026-12-02.
+- Main moves: `nodemon` 2.0.22 → 3.1.14, `zod` 3.25.76 → 4.6.7, `shadcn` 4.21.0 → 4.23.0, `eslint` 10.10.0 → 10.15.0, `typescript-eslint` 8.70.0 → 8.73.0, `drizzle-kit` 0.31.10 → 0.31.11, `ip-address` 10.7.2 → 10.7.6. One production package moved: `semver` under `jsonwebtoken`, 7.8.5 → 7.8.6.
+- Platform binaries in the lockfile: 151 before and after (none lost).
+- Checks, all passed: lint and typecheck (3 workspaces; the same lint warnings as `main`), both builds, backend 2991, frontend 2127, admin 329, E2E 149. One React version (18.3.1). `nodemon` restarted the backend after a file change.
+- `npm ls --all` reports `date-fns` as invalid. `main` has the same message.
+- Not run locally: the Docker image builds and the Trivy scan (CI runs them).
 
 ### PR 2: Minor and patch updates; remove `@dnd-kit`
 
