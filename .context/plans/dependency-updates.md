@@ -1,6 +1,6 @@
 # Plan: Dependency updates (replaces Dependabot PR #139)
 
-Status: in progress. Written on 2026-11-26. PR 1 merged (#151). PR 2 is built and checked locally; not merged yet.
+Status: in progress. Written on 2026-11-26. PR 1 (#151) and PR 2 (#154) merged. The deploy of PR 2 failed and the hotfix (#156) repaired it (log 23). PR 3 is built and checked locally; not merged yet.
 
 Goal: bring in the updates of PR #139 through small PRs. Each PR can be reviewed, tested and reverted alone. **Do not merge #139.**
 
@@ -11,8 +11,9 @@ Update this table when a PR opens and when it merges.
 | PR | Content | Risk | State | GitHub PR |
 |---|---|---|---|---|
 | 1 | Security fixes; pause Dependabot npm updates | Low | Merged on 2026-11-26 | #151 |
-| 2 | All minor and patch updates; remove `@dnd-kit` | Low | Checked locally; waits for the PR | |
-| 3 | Express 5 | Medium | Not started | |
+| 2 | All minor and patch updates; remove `@dnd-kit` | Low | Merged on 2026-11-26. Its deploy failed; live since #156 (log 23) | #154 |
+| 2a | Hotfix: the backend image lacked `drizzle-orm` | Low | Merged on 2026-11-26; CI and the production deploy passed | #156 |
+| 3 | Express 5; stop sending request data to Sentry | Medium | Checked locally; waits for the PR | |
 | 4 | `bcryptjs` 3, `dotenv` 18, `concurrently` 10 | Low | Not started | |
 | 5 | Test tooling: `jsdom` 31, `msw` 3, `jest-dom` 8 | Medium | Not started | |
 | 6 | Vite 8 and `@vitejs/plugin-react` 6 | Medium | Not started | |
@@ -61,6 +62,8 @@ PRs 3 and 4 do not depend on PRs 5 to 11. You can move them if you want.
   - `npm ls react react-dom` shows **one** version of each
   - `npm audit` is not worse than before the PR
 - Check the installed result, not only the lockfile: run `npm ci` after a lockfile change.
+- After a lockfile change, build the backend image and start it. A green image build does not prove that the app loads (log 23).
+- After a merge, check that the `Deploy` workflow passed.
 - Write the versions, the audit count and any surprise in "Review log".
 - Suggest a commit message after each step. The user makes the branches and commits.
 - **A merge to `main` deploys to production after the staging smoke test.** Check the change locally first. To roll back, revert the PR.
@@ -130,6 +133,18 @@ Branch: `deps/03-express-5`
 Do not remove `express-async-handler` in this PR.
 
 Done when: all checks pass, including E2E for the word list filters, Google sign-in and the admin pages.
+
+**Added during the work (user decision, 2026-11-26): the Sentry data leak** (log 21).
+- `backend/lib/sentry.ts`: `beforeSend` removes the request body, the cookies and the `authorization` and `cookie` headers; `markRefusal` keeps 4xx refusals out of the reports.
+- `backend/tests/sentry.test.js` runs the real SDK. Both tests failed before the fix.
+
+**Result (2026-11-26):**
+- `express` 4.22.3 → 5.3.0. Only Express and its own packages changed in the lockfile.
+- From the migration guide, three items touch our code: the query parser (D1), `req.body`, and the `listen` callback (log 20). The other items do not: no removed API, no old method signature, no special route syntax, no static files.
+- The 3 expected tests failed on Express 5 before the changes (2 admin tests, 1 empty body).
+- On a running server: a busy port stops the process with `EADDRINUSE`; Sentry receives a 500 report and nothing for a 400.
+- Checks, all passed (2026-11-26): lint and typecheck (3 workspaces; the same lint warnings), both builds, backend 2996, frontend 2127, admin 329, E2E 149. One React version. Audit: 9 moderate, 0 high; production 0.
+- Not run locally: the Docker image builds and the Trivy scan (CI runs them).
 
 ### PR 4: Backend small majors
 
@@ -236,9 +251,9 @@ Branch: `deps/12-sentry-11`
 **The main risk is privacy.** In version 10, extra data was off by default. In version 11 it is **on** by default: request and response bodies (this includes passwords), cookies, headers, query values (this can include tokens), user data, database query data and local variables.
 
 1. `@sentry/node` and `@sentry/react` 11.
-2. In `backend/api/index.js` and `frontend/src/main.tsx`, set `dataCollection` as in decision D2. Do this in the same commit as the version change.
-3. Write a test that proves it: start the SDK with a fake transport, cause an error on a request that holds a password and a token, and check that the event contains neither.
-4. `Sentry.setupExpressErrorHandler(app)` (`app.js:75`) is deprecated. The SDK now captures route errors itself. Remove it only if a test shows that 5xx errors arrive and 4xx errors do not.
+2. In `backend/lib/sentry.ts` (`sentryOptions`) and `frontend/src/main.tsx`, set `dataCollection` as in decision D2. Do this in the same commit as the version change. PR 3 already removes the body, the cookies and the login token from backend reports; keep that behaviour.
+3. Extend `backend/tests/sentry.test.js` (made in PR 3) with query values, user data and local variables. Add the same kind of test for the frontend if it can send request data. Also decide about the two items that stay after PR 3 (log 22).
+4. `Sentry.setupExpressErrorHandler(app)` (`app.js`) is deprecated. The SDK now captures route errors itself, possibly before `markRefusal` runs, and then reports 4xx again. `tests/sentry.test.js` must show that 5xx errors arrive and 4xx errors do not.
 5. Instrumentation changed. Check that errors still arrive with `Sentry.init()` before `require('../app')`.
 6. Tracing is off today. Do not turn it on.
 7. Compare `landing/privacy.html` (Sentry text) with what is sent now.
@@ -275,6 +290,7 @@ Confirmed by the user on 2026-11-26.
 
 ## Traps
 
+- **npm can move a package to `backend/node_modules`.** The backend image must copy that folder too (log 23).
 - **Two React copies** (PR 8, and any lockfile change). Check `npm ls react react-dom`.
 - **Sentry 11 sends more data by default** (PR 12). Never merge the version change without `dataCollection`.
 - **A green build can hide wrong licence notices** (PR 6).
@@ -313,4 +329,9 @@ Issues found while checking #139 and writing this plan. Add new rows during the 
 | 17 | Minor | After `npm update`, the root `typescript` is 5.9.3 (before: 6.0.3). The backend type check still uses 6.0.3; lint in all workspaces now parses with 5.9.3. | Accepted: lint results did not change. |
 | 18 | Minor | A Dependabot "recreate" job made #153 although npm updates are paused. | The user closes #153. Check after the next weekly run that no new one appears. |
 | 19 | Minor | `tsc` on `e2e/` reports one unused variable (`language-french-forms.spec.ts:423`). CI does not type-check `e2e/`. | Not changed (not part of this update). |
+| 20 | Moderate | Express 5 gives a `listen` error to the callback. With a busy port, the server printed "Server started" and stayed alive. Not seen in the plan. | PR 3: `api/index.js` throws the error. |
+| 21 | Major | Present on `main` before this plan: the backend sent the request body (login passwords), the login token and the cookies to Sentry, also for 4xx refusals. | PR 3 (user decision). Old events in Sentry are for the user to check and delete. |
+| 22 | Moderate | Still sent in a backend crash report: the database error text with its values (it can hold an email, a password hash or words), and the URL and query string (a verification link holds a token in its path). `landing/privacy.html` says reports hold no vocabulary content. | Open. Decide in PR 12, or earlier. |
+| 23 | Blocker | The deploy of PR 2 failed at the staging migration: `Cannot find module 'drizzle-orm/node-postgres'`. `npm update` moved `drizzle-orm` into `backend/node_modules`, and `backend/Dockerfile` copied only the root folder. CI builds the image but does not run it. Staging and production stayed on the PR 1 release. | Fixed in #156 (user decision: own PR): the Dockerfile copies both folders, and a CI step loads the app inside the image. A replay shows that `npm update --save` moved the package. Only one copy exists; why npm moved it is not known. The PR 2 lockfile report listed the move, but the display command hid those lines. |
+| 24 | Minor | #153 was still open when PR 2 merged. Dependabot refreshed it as #155. | The user closes #155. With no open npm PR, nothing is left to refresh (check after the next weekly run). |
 

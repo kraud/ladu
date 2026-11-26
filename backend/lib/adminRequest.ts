@@ -13,6 +13,17 @@ export const readReason = (body: unknown, required = false): string => {
   return reason;
 };
 
+/**
+ * Refuses a query key such as `staff[]`. The query parser keeps it as a key of that name, so the
+ * filter would be ignored and the list would come back unfiltered.
+ */
+export const refuseBracketKeys = (res: any, query: object): void => {
+  if (Object.keys(query).some((key) => key.includes('['))) {
+    res.status(400);
+    throw new Error('Invalid filter');
+  }
+};
+
 /** Runs `work`; an `HttpError` becomes the response status (the shared error handler reads it from `res`). */
 export const withStatus = async <T>(res: any, work: () => Promise<T>): Promise<T> => {
   try {

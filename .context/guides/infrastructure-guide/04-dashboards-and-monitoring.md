@@ -181,11 +181,15 @@ always filter down to "just production" or "just this specific deploy."
   (via `window.onerror`), not just handled `try/catch` blocks you
   explicitly report.
 
-**Normal:** an occasional expected error (e.g. a 401 from an invalid token,
-a 400 from bad user input) is fine and not something to act on reflexively —
-Sentry captures anything that reaches the Express error handler or an
-uncaught frontend exception, which includes plenty of "working as intended"
-noise. What's worth attention is a *new* issue appearing right after a
+**What the backend reports** (`backend/lib/sentry.ts`, tested by
+`backend/tests/sentry.test.js`): crashes (5xx) only. A refusal (4xx, such as a
+wrong password) is not reported. A report holds no request body, no cookies and
+no login token. Backend reports made before this rule (2026-11-26) can hold all
+three.
+
+**Normal:** an occasional expected error is fine and not something to act on
+reflexively, mostly on the frontend, where Sentry captures any uncaught
+exception. What's worth attention is a *new* issue appearing right after a
 deploy, or one whose occurrence count is climbing.
 
 **A structural note:** the frontend's `web` image is shared between staging

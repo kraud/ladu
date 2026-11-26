@@ -2,6 +2,7 @@ const express = require('express')
 const asyncHandler = require('express-async-handler')
 const Sentry = require('@sentry/node')
 const { errorHandler } = require('./middleware/errorMiddleware')
+const { markRefusal } = require('./lib/sentry')
 const { pool } = require('./src/db')
 
 const app = express()
@@ -35,6 +36,12 @@ if (corsOrigins.length > 0) {
 app.use('/api/practice/sessions', express.json({ limit: '1mb' }))
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
+// Express 5 leaves `req.body` undefined when no parser ran (no body, or another content type).
+// Handlers read fields from it directly and then answer their own 400.
+app.use((req, res, next) => {
+    req.body ??= {}
+    next()
+})
 
 app.get('/', (req, res) => res.status(200).json({ message: 'Hello world!' }))
 
@@ -71,7 +78,8 @@ app.use('/api/admin', require('./routes/admin'))
 
 // Must come after every route (needs to see thrown errors) and before
 // errorHandler (which formats the response) — reports 5xx-worthy errors to
-// Sentry without changing what the client receives.
+// Sentry without changing what the client receives (lib/sentry.ts).
+app.use(markRefusal)
 Sentry.setupExpressErrorHandler(app)
 
 app.use(errorHandler)
