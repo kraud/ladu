@@ -25,7 +25,7 @@ import path from 'node:path';
 import dotenv from 'dotenv';
 import pg from 'pg';
 
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../../.env'), quiet: true });
 
 // ---------------------------------------------------------------------------
 // Settings

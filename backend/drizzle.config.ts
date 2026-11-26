@@ -5,7 +5,7 @@ import * as path from 'path';
 // Load environment variables from the root .env file.
 // Using path.resolve ensures this works whether invoked from
 // the repo root (via npm run db:studio) or from the backend/ directory.
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../.env'), quiet: true });
 
 const connectionString =
     process.env.NODE_ENV === 'test'
