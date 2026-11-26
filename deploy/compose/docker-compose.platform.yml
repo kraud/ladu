@@ -22,7 +22,7 @@ services:
     # version that was pulled first, and the server silently falls behind on
     # security fixes. With a pin, Dependabot proposes each new patch version
     # as a PR; after merge, the Ansible `platform` role pulls it.
-    image: postgres:15.20-alpine
+    image: postgres:19.0-alpine
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_SUPERUSER}
