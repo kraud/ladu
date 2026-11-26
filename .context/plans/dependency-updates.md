@@ -1,6 +1,6 @@
 # Plan: Dependency updates (replaces Dependabot PR #139)
 
-Status: in progress. Written on 2026-11-26. PR 1 (#151), PR 2 (#154), PR 3 (#157), PR 4 (#159) and PR 5 (#161) merged. The deploy of PR 2 failed and the hotfix (#156) repaired it (log 23). PR 6 is built and checked locally; not merged yet.
+Status: in progress. Written on 2026-11-26. PR 1 (#151), PR 2 (#154), PR 3 (#157), PR 4 (#159), PR 5 (#161) and PR 6 (#162) merged. The deploy of PR 2 failed and the hotfix (#156) repaired it (log 23).
 
 Goal: bring in the updates of PR #139 through small PRs. Each PR can be reviewed, tested and reverted alone. **Do not merge #139.**
 
@@ -16,8 +16,8 @@ Update this table when a PR opens and when it merges.
 | 3 | Express 5; stop sending request data to Sentry | Medium | Merged on 2026-11-26; CI and the production deploy passed | #157 |
 | 4 | `bcryptjs` 3, `dotenv` 18, `concurrently` 10 | Low | Merged on 2026-11-26; CI and the production deploy passed | #159 |
 | 5 | Test tooling: `jsdom` 31, `msw` 3, `jest-dom` 8 | Medium | Merged on 2026-11-26; CI and the production deploy passed | #161 |
-| 6 | Vite 8 and `@vitejs/plugin-react` 6 | Medium | Checked locally; waits for the PR | |
-| 7 | `react-error-boundary` 6, `react-toastify` 11, `zustand` 5, `cn` 0.5 | Medium | Not started | |
+| 6 | Vite 8 and `@vitejs/plugin-react` 6 | Medium | Merged on 2026-11-26; the production deploy passed | #162 |
+| 7 | `react-error-boundary` 6, `react-toastify` 11, `zustand` 5, `cn` 0.5 | Medium | In progress: step 1 of 4 | |
 | 8 | React 19 | Medium | Not started | |
 | 9 | `@tanstack/react-table` 9 | Medium | Not started | |
 | 10 | `@hookform/resolvers` 7 | Medium | Not started | |
@@ -222,9 +222,11 @@ Done when: all checks pass, the notices are correct, and the images build and pa
 - Checks, all passed: lint and typecheck (3 workspaces; no errors), both builds, backend 2996, frontend 2127, admin 329, E2E 149. One React version (18.3.1). Audit: 9 moderate, 0 high; production 0.
 - Not run locally: the `landing` image (not changed).
 
+**Merged** as #162 on 2026-11-26. The `Deploy` workflow passed. CI on `main` was still running when this was written.
+
 ### PR 7: Small React libraries
 
-Branch: `deps/07-react-libs`
+Branch: `deps/07-small-react-libraries`
 
 Make one commit for each library.
 
@@ -234,6 +236,12 @@ Make one commit for each library.
 4. `cn` 0.5 (`frontend` and `admin`). I found no changelog. Read the package source or releases first. Compare the main pages by eye. Needs Node 22 or newer.
 
 Done when: all checks pass and the visual checks are written in the PR.
+
+**Result, step 1 (2026-11-26):**
+- `react-error-boundary` 4.1.2 → 6.1.6 in `frontend` and `admin`. In the lockfile, only this package changed, and its own copy of `@babel/runtime` 7 left.
+- `error` now has the type `unknown`. `ErrorState.tsx` already tests it with `instanceof Error`, and the admin fallback does not read it. No code change.
+- A temporary test in each app made a screen crash: the root error panel appeared, and "Try again" showed the screen again.
+- Checks, all passed: `npm ci`; lint, typecheck, tests (2127 and 329) and build in `frontend` and `admin`. Both licence notices name version 6.1.6. Audit: 9 moderate, 0 high; production 0. E2E runs after step 4.
 
 ### PR 8: React 19
 
