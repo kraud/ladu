@@ -377,8 +377,13 @@ test.describe.serial('Phase 4 — tags', () => {
             await pageA.getByRole('button', { name: 'Edit', exact: true }).click();
             const dialog = pageA.getByRole('dialog');
             await dialog.getByRole('radio', { name: /^Public/ }).click();
+            // Wait for this save's answer: the toast of the Private save has the same text and
+            // can still be on screen.
+            const madePublic = pageA.waitForResponse(
+                (res) => res.request().method() === 'PATCH' && new URL(res.url()).pathname.startsWith('/api/tags/'),
+            );
             await dialog.getByRole('button', { name: 'Save changes' }).click();
-            await expect(pageA.getByText('"Kitchen Words" updated')).toBeVisible();
+            expect((await madePublic).ok()).toBeTruthy();
         });
 
         await test.step("B's access returns automatically — no re-follow needed", async () => {
