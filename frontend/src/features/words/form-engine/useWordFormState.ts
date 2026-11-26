@@ -65,8 +65,11 @@ function initialState(options: UseWordFormStateOptions, userLanguages: readonly 
     };
 }
 
+/** One fixed list: a store selector must return the same value on each call (zustand 5). */
+const NO_LANGUAGES: string[] = [];
+
 export function useWordFormState(options: UseWordFormStateOptions = {}) {
-    const userLanguages = useAuthStore((s) => s.user?.languages ?? []);
+    const userLanguages = useAuthStore((s) => s.user?.languages ?? NO_LANGUAGES);
     // Hydration runs once, off the props present at mount — `WordForm` remounts
     // (via a `key`) rather than re-hydrating a live form on `initialWord` swap.
     const [seed] = useState(() => initialState(options, userLanguages));

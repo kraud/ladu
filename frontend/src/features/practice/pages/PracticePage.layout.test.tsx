@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderApp } from '@/test/render';
@@ -54,6 +54,21 @@ afterEach(() => {
 });
 
 const renderPractice = () => renderApp({ initialEntry: '/practice', session: SESSION });
+
+// Keep this block first: React reports each such pair of components only once in a test file.
+describe('PracticePage — an empty account', () => {
+    it('opens New configuration with the sidebar expanded, without a render warning', async () => {
+        const consoleError = vi.spyOn(console, 'error');
+        setUp();
+        useUiStore.getState().setSidebarCollapsed('practice', true);
+        await renderPractice();
+
+        const panel = await screen.findByRole('complementary', { name: 'Selected words' });
+        expect(panel).not.toHaveAttribute('data-collapsed');
+        expect(consoleError.mock.calls.filter(([message]) => String(message).startsWith('Warning: Cannot update a component'))).toEqual([]);
+        consoleError.mockRestore();
+    });
+});
 
 describe('PracticePage — list badges', () => {
     it('has two badges in this order, and Ongoing sessions is the one open at first', async () => {

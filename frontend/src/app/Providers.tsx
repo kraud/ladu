@@ -22,7 +22,6 @@ import { RouterProvider } from '@tanstack/react-router';
 import { I18nextProvider } from 'react-i18next';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import i18n from '@/i18n';
 import { queryClient } from '@/app/query-client';
 import { router } from '@/app/router';
