@@ -1,6 +1,6 @@
 # Plan: Dependency updates (replaces Dependabot PR #139)
 
-Status: in progress. Written on 2026-11-26. PR 1 (#151), PR 2 (#154), PR 3 (#157) and PR 4 (#159) merged. The deploy of PR 2 failed and the hotfix (#156) repaired it (log 23). PR 5 is built and checked locally; not merged yet.
+Status: in progress. Written on 2026-11-26. PR 1 (#151), PR 2 (#154), PR 3 (#157), PR 4 (#159) and PR 5 (#161) merged. The deploy of PR 2 failed and the hotfix (#156) repaired it (log 23). PR 6 is built and checked locally; not merged yet.
 
 Goal: bring in the updates of PR #139 through small PRs. Each PR can be reviewed, tested and reverted alone. **Do not merge #139.**
 
@@ -15,8 +15,8 @@ Update this table when a PR opens and when it merges.
 | 2a | Hotfix: the backend image lacked `drizzle-orm` | Low | Merged on 2026-11-26; CI and the production deploy passed | #156 |
 | 3 | Express 5; stop sending request data to Sentry | Medium | Merged on 2026-11-26; CI and the production deploy passed | #157 |
 | 4 | `bcryptjs` 3, `dotenv` 18, `concurrently` 10 | Low | Merged on 2026-11-26; CI and the production deploy passed | #159 |
-| 5 | Test tooling: `jsdom` 31, `msw` 3, `jest-dom` 8 | Medium | Checked locally; waits for the PR | |
-| 6 | Vite 8 and `@vitejs/plugin-react` 6 | Medium | Not started | |
+| 5 | Test tooling: `jsdom` 31, `msw` 3, `jest-dom` 8 | Medium | Merged on 2026-11-26; CI and the production deploy passed | #161 |
+| 6 | Vite 8 and `@vitejs/plugin-react` 6 | Medium | Checked locally; waits for the PR | |
 | 7 | `react-error-boundary` 6, `react-toastify` 11, `zustand` 5, `cn` 0.5 | Medium | Not started | |
 | 8 | React 19 | Medium | Not started | |
 | 9 | `@tanstack/react-table` 9 | Medium | Not started | |
@@ -195,6 +195,8 @@ Done when: the test counts are equal to `main`, and no test was removed or skipp
 - Checks, all passed: lint and typecheck (3 workspaces; no errors), both builds, backend 2996, frontend 2127, admin 329 (the same counts as before), E2E 149. One React version (18.3.1). Audit: 9 moderate, 0 high; production 0.
 - Not run locally: the `web`, `admin` and `landing` image builds and the Trivy scan (CI runs them).
 
+**Merged** as #161 on 2026-11-26. CI and the deploy passed.
+
 ### PR 6: Vite 8
 
 Branch: `deps/06-vite-8`
@@ -206,6 +208,19 @@ Branch: `deps/06-vite-8`
 5. Open the built app (`vite preview`). Check each main page, the language change and both themes. CommonJS import behaviour changed, so a runtime error is possible with a green build.
 
 Done when: all checks pass, the notices are correct, and the images build and pass Trivy.
+
+**Result (2026-11-26):**
+- `vite` 7.3.8 → 8.3.8, `@vitejs/plugin-react` 4.7.0 → 6.3.0. The tests also run on Vite 8 (log 33). No `build.target` (D3).
+- **New minimum browsers:** Chrome 111, Edge 111, Firefox 114, Safari 16.4 (before: 107, 107, 104, 16.0).
+- **Lockfile:** Rollup and its platform packages left; Rolldown came in. `esbuild` 0.28.2 moved from under `tsx` to the root (same version), and `drizzle-kit` has its own copy of 0.25.12. No optional platform package is missing.
+- **Licence notices:** both files are identical to the files of the Vite 7 build (47 and 22 packages). With a bundled package set to GPL for a test, both builds stopped.
+- In both `vite.config.ts` files: `import.meta.dirname`, and the file extension on the plugin import. Vite 8 warned about both.
+- **File sizes (gzip):** JavaScript 480.00 → 466.80 kB (app) and 176.81 → 170.91 kB (admin); CSS +0.1 kB each. The build is about 7 times faster.
+- **Built app (`vite preview`):** the full E2E suite passed on it (149), with a temporary config change. Temporary checks opened 7 pages in 5 languages and both themes, with no console error, page error or failed request, and the admin login page in both themes.
+- **Look:** 72 screenshots of the old and new builds were compared pixel by pixel. 62 are identical. The other 10 differ only at the animated hand icon on the home page.
+- The three images (`backend`, `frontend`, `admin`) built and passed Trivy (HIGH and CRITICAL). The backend image passed the CI load command and started against a temporary database.
+- Checks, all passed: lint and typecheck (3 workspaces; no errors), both builds, backend 2996, frontend 2127, admin 329, E2E 149. One React version (18.3.1). Audit: 9 moderate, 0 high; production 0.
+- Not run locally: the `landing` image (not changed).
 
 ### PR 7: Small React libraries
 
@@ -366,3 +381,5 @@ Issues found while checking #139 and writing this plan. Add new rows during the 
 | 30 | Minor | `jsdom` has `PointerEvent` since version 27, so the substitute in the test setup never ran. | Removed. |
 | 31 | Minor | `README.md` said that the backend uses Jest, and asked for any Node 24. | PR 5: it says Vitest and Node 24.15 or newer. |
 | 32 | Minor | `engines.node` gives only a warning. `.nvmrc` stays `24`; an old local Node 24 can break the tests. CI used 24.22.3 in the last run. | Accepted. |
+| 33 | Moderate | The install left two Vite versions: the apps built with 8, while Vitest, `msw` and `@tailwindcss/vite` used 7. Nothing reported an error. | PR 6: `npm update vite --min-release-age=7`. `npm ls vite` shows one version. |
+| 34 | Minor | The bundle holds a small helper file of Rolldown and one of Vite (both MIT). The notices list only files from `node_modules`, so they do not name these two. The Vite 7 build also had helper files that were not listed. | Open: user decision. |
