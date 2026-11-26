@@ -1,6 +1,6 @@
 # Plan: Dependency updates (replaces Dependabot PR #139)
 
-Status: in progress. Written on 2026-11-26. PR 1 (#151) and PR 2 (#154) merged. **The deploy of PR 2 failed (log 23): merge the hotfix before PR 3.** PR 3 is built and checked locally; not merged yet.
+Status: in progress. Written on 2026-11-26. PR 1 (#151) and PR 2 (#154) merged. The deploy of PR 2 failed and the hotfix (#156) repaired it (log 23). PR 3 is built and checked locally; not merged yet.
 
 Goal: bring in the updates of PR #139 through small PRs. Each PR can be reviewed, tested and reverted alone. **Do not merge #139.**
 
@@ -11,8 +11,8 @@ Update this table when a PR opens and when it merges.
 | PR | Content | Risk | State | GitHub PR |
 |---|---|---|---|---|
 | 1 | Security fixes; pause Dependabot npm updates | Low | Merged on 2026-11-26 | #151 |
-| 2 | All minor and patch updates; remove `@dnd-kit` | Low | Merged on 2026-11-26. Its deploy failed (log 23) | #154 |
-| 2a | Hotfix: the backend image lacked `drizzle-orm` | Low | Open. Branch `hotfix/backend-image`; merge before PR 3 | |
+| 2 | All minor and patch updates; remove `@dnd-kit` | Low | Merged on 2026-11-26. Its deploy failed; live since #156 (log 23) | #154 |
+| 2a | Hotfix: the backend image lacked `drizzle-orm` | Low | Merged on 2026-11-26; CI and the production deploy passed | #156 |
 | 3 | Express 5; stop sending request data to Sentry | Medium | Checked locally; waits for the PR | |
 | 4 | `bcryptjs` 3, `dotenv` 18, `concurrently` 10 | Low | Not started | |
 | 5 | Test tooling: `jsdom` 31, `msw` 3, `jest-dom` 8 | Medium | Not started | |
@@ -332,6 +332,6 @@ Issues found while checking #139 and writing this plan. Add new rows during the 
 | 20 | Moderate | Express 5 gives a `listen` error to the callback. With a busy port, the server printed "Server started" and stayed alive. Not seen in the plan. | PR 3: `api/index.js` throws the error. |
 | 21 | Major | Present on `main` before this plan: the backend sent the request body (login passwords), the login token and the cookies to Sentry, also for 4xx refusals. | PR 3 (user decision). Old events in Sentry are for the user to check and delete. |
 | 22 | Moderate | Still sent in a backend crash report: the database error text with its values (it can hold an email, a password hash or words), and the URL and query string (a verification link holds a token in its path). `landing/privacy.html` says reports hold no vocabulary content. | Open. Decide in PR 12, or earlier. |
-| 23 | Blocker | The deploy of PR 2 failed at the staging migration: `Cannot find module 'drizzle-orm/node-postgres'`. `npm update` moved `drizzle-orm` into `backend/node_modules`, and `backend/Dockerfile` copied only the root folder. CI builds the image but does not run it. Staging and production stayed on the PR 1 release. | Hotfix PR (user decision): the Dockerfile copies both folders, and a CI step loads the app inside the image. |
+| 23 | Blocker | The deploy of PR 2 failed at the staging migration: `Cannot find module 'drizzle-orm/node-postgres'`. `npm update` moved `drizzle-orm` into `backend/node_modules`, and `backend/Dockerfile` copied only the root folder. CI builds the image but does not run it. Staging and production stayed on the PR 1 release. | Fixed in #156 (user decision: own PR): the Dockerfile copies both folders, and a CI step loads the app inside the image. A replay shows that `npm update --save` moved the package. Only one copy exists; why npm moved it is not known. The PR 2 lockfile report listed the move, but the display command hid those lines. |
 | 24 | Minor | #153 was still open when PR 2 merged. Dependabot refreshed it as #155. | The user closes #155. With no open npm PR, nothing is left to refresh (check after the next weekly run). |
 
