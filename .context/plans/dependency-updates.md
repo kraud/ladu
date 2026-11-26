@@ -1,6 +1,6 @@
 # Plan: Dependency updates (replaces Dependabot PR #139)
 
-Status: in progress. Written on 2026-11-26. PR 1 is built and checked locally (2026-11-26); not merged yet.
+Status: in progress. Written on 2026-11-26. PR 1 merged (#151). PR 2 is built and checked locally; not merged yet.
 
 Goal: bring in the updates of PR #139 through small PRs. Each PR can be reviewed, tested and reverted alone. **Do not merge #139.**
 
@@ -10,8 +10,8 @@ Update this table when a PR opens and when it merges.
 
 | PR | Content | Risk | State | GitHub PR |
 |---|---|---|---|---|
-| 1 | Security fixes; pause Dependabot npm updates | Low | Checked locally; waits for the PR. Branch `docs/dependency-update-plan` (it also holds this plan) | |
-| 2 | All minor and patch updates; remove `@dnd-kit` | Low | Not started | |
+| 1 | Security fixes; pause Dependabot npm updates | Low | Merged on 2026-11-26 | #151 |
+| 2 | All minor and patch updates; remove `@dnd-kit` | Low | Checked locally; waits for the PR | |
 | 3 | Express 5 | Medium | Not started | |
 | 4 | `bcryptjs` 3, `dotenv` 18, `concurrently` 10 | Low | Not started | |
 | 5 | Test tooling: `jsdom` 31, `msw` 3, `jest-dom` 8 | Medium | Not started | |
@@ -76,9 +76,12 @@ Branch: `docs/dependency-update-plan` (the user put PR 1 together with the plan,
 3. In `.github/dependabot.yml`, in the root npm entry only, set `open-pull-requests-limit: 0`, with a comment that points to this plan. This stops version updates. Security updates continue.
 4. Run `npm run dev` and change a backend file. `nodemon` must restart the server.
 5. **User, on GitHub:** close #139 without a merge, after this PR merges.
-6. **User, on the Mac:** update Node to 24.22.3 or newer.
 
 Done when: 0 high advisories and #139 is closed.
+
+**Merged** as #151 on 2026-11-26. CI and the deploy passed. Dependabot closed #139 itself. A "recreate" job that started before that close opened #153 in its place; close it by hand.
+
+Not part of this PR, but done on the same day: the user updated Node on the Mac to 24.22.3 (security release of 2026-11-11).
 
 **Result (2026-11-26, steps 1 to 4):**
 - Audit: 21 entries (5 high, 16 moderate) → **9 moderate, 0 high**. Production: 0 before and after.
@@ -101,6 +104,15 @@ Branch: `deps/02-minor-patch`
 5. Look at the language libraries (`english-verbs-*`, `german-*`, `spanish-verbs`, `rosaenlg-gender-es`, 3.3 → 3.4 and 5.3 → 5.4). `services/dictionary/generators.ts` uses them, so new data can change generated forms. A failing dictionary test is a real finding, not noise.
 
 Done when: all checks pass, and `npm outdated` shows only the majors of this plan.
+
+**Result (2026-11-26):**
+- `@dnd-kit` removed. `@types/node` is `^24.19.2` in `backend` and `e2e`. `npm outdated` (with the 7-day rule) shows only majors.
+- Main moves: `@sentry/*` 10.75 → 10.78, `@tanstack/react-query` 5.102 → 5.108, `@tanstack/react-router` 1.170.33 → 1.170.46, `@base-ui/react` 1.8 → 1.9, `i18next` 26.3 → 26.7, `react-hook-form` 7.87 → 7.92, `axios` 1.20 → 1.21, `nodemailer` 10.1 → 10.6, `pg` 8.22 → 8.23, `drizzle-orm` 0.45.2 → 0.45.4, `@playwright/test` 1.63 → 1.65, `tsx` 4.22 → 4.23.
+- **Word forms** were compared before and after for about 76 000 words (the full German and English dictionaries, a sample for Spanish). Spanish and German nouns: identical. German verbs: identical after the adapter fix (log 14). English verbs: 196 changed (log 15).
+- Lockfile side effects, all from upstream ranges: `@base-ui/react` now takes `@babel/runtime` 8; the new `rollup` no longer lists `@napi-rs/lzma-linux-x64-gnu`.
+- Audit: 9 moderate, 0 high. Production: 0.
+- Checks, all passed: lint and typecheck (3 workspaces; the same lint warnings as before), both builds, backend 2993, frontend 2127, admin 329, E2E 149. One React version (18.3.1). The first E2E run failed 2 tests (log 16).
+- Not run locally: the Docker image builds and the Trivy scan (CI runs them).
 
 ### PR 3: Express 5
 
@@ -295,3 +307,10 @@ Issues found while checking #139 and writing this plan. Add new rows during the 
 | 11 | Minor | `@types/bcryptjs` is not needed with `bcryptjs` 3. | PR 4. |
 | 12 | Minor | `cn` 0.2 → 0.5 has no changelog that I found. | PR 7 step 4. |
 | 13 | Minor | After PR 3, other routes ignore a key such as `tag[]=x` (Express 4 read it as a list). The apps send repeated keys without brackets, so they are not affected. | Accepted: D1 covers only the two admin routes. |
+| 14 | Blocker | `german-verbs-dict` 3.4 returns a separable verb in two parts. The adapter kept only the first, so 3534 verbs lost the prefix in present and simple past. No test failed. | PR 2: `generators.ts` joins the parts; new test `tests/unit/dictionaryGenerators.test.js`. Output equals the old one. Using the prefix on the form is deferred idea I-16. |
+| 15 | Minor | The new English library changes the simple past of 196 verbs. Most are fixes ("stoped" → "stopped"). Four old valid forms change: bet → "betted", input → "inputted", wet → "wetted", slit → "slitted" (wrong). It is only a fallback after the lexicon. | Accepted by the user on 2026-11-26. |
+| 16 | Moderate | E2E race in `phase-3-review` and `phase-4-tags`: the toast of the save before satisfied the check, and the test left the page before the next request. The trace of `phase-3-review` has no request for the second word. | PR 2: both tests wait for the server's answer. |
+| 17 | Minor | After `npm update`, the root `typescript` is 5.9.3 (before: 6.0.3). The backend type check still uses 6.0.3; lint in all workspaces now parses with 5.9.3. | Accepted: lint results did not change. |
+| 18 | Minor | A Dependabot "recreate" job made #153 although npm updates are paused. | The user closes #153. Check after the next weekly run that no new one appears. |
+| 19 | Minor | `tsc` on `e2e/` reports one unused variable (`language-french-forms.spec.ts:423`). CI does not type-check `e2e/`. | Not changed (not part of this update). |
+

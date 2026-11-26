@@ -181,7 +181,7 @@ Slices (each one ends with something runnable):
 
 ### Phase 7 — Tag shares + Account + polish
 - **§8.3**: `tag_shares` table; share/accept/decline endpoints; server-side transactional clone **preserving translations + cases** (fixes the data-loss bug); `canViewTag` authz helper enforced on getTagById/followTag/clone; `createTag` sets `authorId` server-side; `public` → `visibility` enum. One accept mutation (DisplayTag's clone button and the hub entry collapse into it).
-- Account (profile, DnD language order on @dnd-kit, preferences); remaining shared components; polish backlog: code-split audit, staleTime policy (migration plan Phase 8 table), LoadingScreen consolidation (n/a — new code), SpinningText/ImageCarousel as CSS if cheap, else keep motion for those two.
+- Account (profile, DnD language order on @dnd-kit, preferences; `@dnd-kit` was removed on 2026-11-26 because nothing imported it, so add it again if this work uses it); remaining shared components; polish backlog: code-split audit, staleTime policy (migration plan Phase 8 table), LoadingScreen consolidation (n/a — new code), SpinningText/ImageCarousel as CSS if cheap, else keep motion for those two.
 - **Gate**: §8.2/§8.3 intentional-deltas each have a green verification; full-suite green.
 - **e2e** (`phase-7-tag-shares.spec.ts`, two browser contexts): user A shares a tag → user B accepts → B gets an independent editable clone whose words keep every translation + case (the data-loss bug); a non-viewer is refused on `getTagById`/`followTag`/clone; Account language-order drag persists.
 
