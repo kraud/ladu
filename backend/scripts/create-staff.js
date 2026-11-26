@@ -24,7 +24,7 @@ require('tsx/cjs');
 
 const path = require('path');
 if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config({ path: path.resolve(__dirname, '../../.env'), override: true });
+    require('dotenv').config({ path: path.resolve(__dirname, '../../.env'), override: true, quiet: true });
 }
 
 const readline = require('readline');

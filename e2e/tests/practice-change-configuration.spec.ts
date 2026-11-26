@@ -70,6 +70,8 @@ test('a saved configuration opens under its own name; Save waits for a change; U
     // Save as copy: a second configuration; the first stays as it is.
     await amount.fill('9');
     await save.click();
+    // The dialog moves the focus to the name field when it opens. Type only after that.
+    await expect(dialog.getByLabel(/Name/)).toBeFocused();
     await dialog.getByLabel(/Name/).fill('Morning drill (9)');
     await dialog.getByRole('button', { name: 'Save as copy' }).click();
     await expect(page.getByRole('heading', { level: 1, name: 'Morning drill (9)' })).toBeVisible();

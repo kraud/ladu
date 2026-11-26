@@ -23,7 +23,7 @@ const { Pool } = require('pg');
 const { drizzle } = require('drizzle-orm/node-postgres');
 const { migrate } = require('drizzle-orm/node-postgres/migrator');
 const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env'), quiet: true });
 
 // Resolve the test database URL — must be set in .env
 const connectionString = process.env.TEST_DATABASE_URL;

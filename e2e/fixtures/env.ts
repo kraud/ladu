@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 import { config } from 'dotenv';
 
 // The repo-root `.env` (the backend reads the same file). Only the database URL is taken from it.
-config({ path: fileURLToPath(new URL('../../.env', import.meta.url)) });
+config({ path: fileURLToPath(new URL('../../.env', import.meta.url)), quiet: true });
 
 export const E2E_API_URL = process.env.E2E_API_URL ?? 'http://localhost:5101';
 export const E2E_BASE_URL = process.env.E2E_BASE_URL ?? 'http://localhost:5273';

@@ -24,10 +24,10 @@
   "license": "MIT",
   "dependencies": {
     "@sentry/node": "^10.78.0",
-    "bcryptjs": "^2.4.3",
+    "bcryptjs": "^3.0.3",
     "colors": "^1.4.0",
     "cors": "^2.8.6",
-    "dotenv": "^16.6.1",
+    "dotenv": "^18.0.10",
     "drizzle-orm": "^0.45.2",
     "english-verbs-gerunds": "^3.4.0",
     "english-verbs-helper": "^3.4.0",
@@ -48,7 +48,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",

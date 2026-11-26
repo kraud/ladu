@@ -1,6 +1,6 @@
 # Plan: Dependency updates (replaces Dependabot PR #139)
 
-Status: in progress. Written on 2026-11-26. PR 1 (#151) and PR 2 (#154) merged. The deploy of PR 2 failed and the hotfix (#156) repaired it (log 23). PR 3 is built and checked locally; not merged yet.
+Status: in progress. Written on 2026-11-26. PR 1 (#151), PR 2 (#154) and PR 3 (#157) merged. The deploy of PR 2 failed and the hotfix (#156) repaired it (log 23). PR 4 is built and checked locally; not merged yet.
 
 Goal: bring in the updates of PR #139 through small PRs. Each PR can be reviewed, tested and reverted alone. **Do not merge #139.**
 
@@ -13,8 +13,8 @@ Update this table when a PR opens and when it merges.
 | 1 | Security fixes; pause Dependabot npm updates | Low | Merged on 2026-11-26 | #151 |
 | 2 | All minor and patch updates; remove `@dnd-kit` | Low | Merged on 2026-11-26. Its deploy failed; live since #156 (log 23) | #154 |
 | 2a | Hotfix: the backend image lacked `drizzle-orm` | Low | Merged on 2026-11-26; CI and the production deploy passed | #156 |
-| 3 | Express 5; stop sending request data to Sentry | Medium | Checked locally; waits for the PR | |
-| 4 | `bcryptjs` 3, `dotenv` 18, `concurrently` 10 | Low | Not started | |
+| 3 | Express 5; stop sending request data to Sentry | Medium | Merged on 2026-11-26; CI and the production deploy passed | #157 |
+| 4 | `bcryptjs` 3, `dotenv` 18, `concurrently` 10 | Low | Checked locally; waits for the PR | |
 | 5 | Test tooling: `jsdom` 31, `msw` 3, `jest-dom` 8 | Medium | Not started | |
 | 6 | Vite 8 and `@vitejs/plugin-react` 6 | Medium | Not started | |
 | 7 | `react-error-boundary` 6, `react-toastify` 11, `zustand` 5, `cn` 0.5 | Medium | Not started | |
@@ -146,6 +146,8 @@ Done when: all checks pass, including E2E for the word list filters, Google sign
 - Checks, all passed (2026-11-26): lint and typecheck (3 workspaces; the same lint warnings), both builds, backend 2996, frontend 2127, admin 329, E2E 149. One React version. Audit: 9 moderate, 0 high; production 0.
 - Not run locally: the Docker image builds and the Trivy scan (CI runs them).
 
+**Merged** as #157 on 2026-11-26. CI and the deploy passed.
+
 ### PR 4: Backend small majors
 
 Branch: `deps/04-backend-majors`
@@ -157,6 +159,16 @@ Branch: `deps/04-backend-majors`
 3. `concurrently` 10 (root). Run `npm run dev` and `npm run dev:admin`.
 
 Done when: all checks pass and the backend image builds and starts in CI.
+
+**Result (2026-11-26):**
+- `bcryptjs` 2.4.3 → 3.0.3, `dotenv` 16.6.1 → 18.0.10, `concurrently` 7.6.0 → 10.0.7. `@types/bcryptjs` removed. In the lockfile, only these packages and the packages of `concurrently` changed. `backend/node_modules` holds the same two packages as before.
+- **Passwords:** old and new `bcryptjs` were compared on 616 passwords (accents, emoji, more than 72 bytes). Each version reads the hashes of the other, and bad inputs give the same results.
+- **Logins:** a learner and a staff account made with the old code (`$2a$` hashes) logged in on the new code; wrong passwords answered 400. A new account got a `$2b$` hash, and version 2.4.3 read it.
+- **`dotenv`:** version 18 prints a line on each load, also in production, where there is no `.env` file. All 11 loads now use `quiet: true`. Versions 16 and 18 read the root `.env` and 12 special line forms in the same way.
+- `npm run dev` and `npm run dev:admin` started the API, the app and the `/api` proxy. Ctrl-C freed the ports.
+- The backend image built, passed the CI load command, and started against a local database.
+- Checks, all passed: lint and typecheck (3 workspaces; no errors), both builds, backend 2996, frontend 2127, admin 329, E2E 149. One React version (18.3.1). Audit: 9 moderate, 0 high; production 0. The first E2E run failed 1 test (log 26).
+- Not run locally: the Trivy scan (CI runs it).
 
 ### PR 5: Test tooling
 
@@ -334,4 +346,6 @@ Issues found while checking #139 and writing this plan. Add new rows during the 
 | 22 | Moderate | Still sent in a backend crash report: the database error text with its values (it can hold an email, a password hash or words), and the URL and query string (a verification link holds a token in its path). `landing/privacy.html` says reports hold no vocabulary content. | Open. Decide in PR 12, or earlier. |
 | 23 | Blocker | The deploy of PR 2 failed at the staging migration: `Cannot find module 'drizzle-orm/node-postgres'`. `npm update` moved `drizzle-orm` into `backend/node_modules`, and `backend/Dockerfile` copied only the root folder. CI builds the image but does not run it. Staging and production stayed on the PR 1 release. | Fixed in #156 (user decision: own PR): the Dockerfile copies both folders, and a CI step loads the app inside the image. A replay shows that `npm update --save` moved the package. Only one copy exists; why npm moved it is not known. The PR 2 lockfile report listed the move, but the display command hid those lines. |
 | 24 | Minor | #153 was still open when PR 2 merged. Dependabot refreshed it as #155. | The user closes #155. With no open npm PR, nothing is left to refresh (check after the next weekly run). |
-
+| 25 | Minor | The merge of #157 refreshed the open #155, and Dependabot opened #158 in its place (the same cause as log 24). | The user closes #158 while no Dependabot job is running. Check after the next weekly run that no new one appears. |
+| 26 | Minor | E2E `practice-change-configuration` failed once: the new name was added after the old one ("Morning drillMorning drill (9)"). It then passed 20 times alone and in a second full run. This PR changes no frontend code or package. Probable cause, not proven: the test types while the dialog is still moving the focus. | PR 4 (user decision): the test waits until the name field has the focus. |
+| 27 | Minor | Present before this plan: a password with half of a UTF-16 pair (`\ud800`) makes `bcryptjs` throw, in version 2.4.3 and in 3.0.3. The login code does not catch it, so the answer is 500. A normal keyboard cannot type such text. | Deferred (user decision): idea I-17. |
