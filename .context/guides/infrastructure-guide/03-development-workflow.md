@@ -68,7 +68,7 @@ all required by the ruleset before merge is allowed:
 | `backend` | Jest, against a fresh ephemeral Postgres |
 | `frontend` | Vitest + a real `vite build` |
 | `e2e` | The full Playwright suite (every `phase-*.spec.ts`) against a real backend + frontend + fresh Postgres, all spun up inside the runner |
-| `images` | Builds all three Docker images and scans each with Trivy for HIGH/CRITICAL CVEs with a known fix |
+| `images` | Builds the Docker images and scans each with Trivy for HIGH/CRITICAL CVEs with a known fix. It also loads the app inside the backend image, so a missing package fails here and not at deploy time |
 
 If any of these is red, the merge button is disabled — there's nothing to
 argue with, just fix it and push again.

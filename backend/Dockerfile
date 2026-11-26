@@ -15,7 +15,12 @@ COPY e2e/package.json e2e/package.json
 
 # tsx is a runtime dependency (backend/api/index.js requires 'tsx/cjs' to run
 # .ts controllers directly) — safe to omit devDependencies.
-RUN npm ci --omit=dev --workspace=backend
+#
+# npm puts most packages in the root node_modules, and some in
+# backend/node_modules (for example when another workspace needs another
+# version). The runtime stage copies both; `mkdir` keeps its COPY valid when
+# the second folder is empty.
+RUN npm ci --omit=dev --workspace=backend && mkdir -p backend/node_modules
 
 
 FROM node:24-alpine AS runtime
@@ -33,6 +38,7 @@ RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack 
     /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
 
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/backend/node_modules ./backend/node_modules
 COPY --from=deps /app/package.json ./package.json
 
 # Only the source the running server needs — no tests/, vitest.config.mts,
