@@ -44,7 +44,7 @@ export interface NoticesOptions {
 
 /** The package a bundled module file belongs to, or null if it is not from node_modules. */
 export function packageFromModuleId(id: string): { name: string; root: string } | null {
-    // `\0` marks Rollup virtual modules; `?query` is added by some plugins.
+    // `\0` marks virtual modules of the bundler; `?query` is added by some plugins.
     if (id.startsWith('\0')) return null;
     const clean = id.split('?')[0].replace(/\\/g, '/');
     const at = clean.lastIndexOf(NODE_MODULES);
