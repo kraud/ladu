@@ -142,8 +142,13 @@ test.describe.serial('Phase 3 — form engine, autocomplete, Review', () => {
         await page.getByLabel('Infinitive').fill('laufen');
         await closeTypeAheadList(page);
 
+        // Wait for this save's answer: the noun's identical toast can still be on screen, and
+        // leaving the page before the request is sent would lose the verb.
+        const verbSaved = page.waitForResponse(
+            (res) => res.request().method() === 'POST' && new URL(res.url()).pathname === '/api/words',
+        );
         await page.getByRole('button', { name: 'Save' }).click();
-        await expect(page.getByText('Word was created successfully')).toBeVisible();
+        expect((await verbSaved).ok()).toBeTruthy();
 
         // --- Review: filter survives a reload, then numbered pages, page size and sort ---
         await page.goto('/words');

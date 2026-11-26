@@ -87,9 +87,15 @@ export const spanishNoun: DictionaryAdapter = async (query) =>
 
 export const germanVerb: DictionaryAdapter = async (query) => {
     const verb = query.toLowerCase();
-    // [0] is the single form; for compound tenses [1] is the main verb after the auxiliary ("habe", "getanzt").
+    // For compound tenses [1] is the main verb after the auxiliary ("habe", "getanzt").
     const conjugate = (tense: string, person: number, number: 'S' | 'P', aux?: string): string[] =>
         GermanVerbsLib.getConjugation(GermanVerbsDict, verb, tense, person, number, aux);
+    // A simple tense is one form, or [form, prefix] for a separable verb ("stehe", "auf").
+    // The app stores it joined ("aufstehe"), as the lexicon does.
+    const simple = (tense: string, person: number, number: 'S' | 'P'): string => {
+        const [form, prefix = ''] = conjugate(tense, person, number);
+        return prefix + form;
+    };
     const slots: [slot: string, person: number, number: 'S' | 'P'][] = [
         ['1s', 1, 'S'], ['2s', 2, 'S'], ['3s', 3, 'S'], ['1pl', 1, 'P'], ['2pl', 2, 'P'], ['3pl', 3, 'P'],
     ];
@@ -97,10 +103,10 @@ export const germanVerb: DictionaryAdapter = async (query) => {
         status: 'found',
         cases: toCases([
             ['infinitiveDE', query],
-            ...slots.map(([slot, p, n]): [string, string] => [`indicativePresent${slot}DE`, conjugate('PRASENS', p, n)[0]]),
+            ...slots.map(([slot, p, n]): [string, string] => [`indicativePresent${slot}DE`, simple('PRASENS', p, n)]),
             ...slots.map(([slot, p, n]): [string, string] => [`indicativePerfect${slot}DE`, conjugate('PERFEKT', p, n, 'HABEN')[1]]),
             ...slots.map(([slot, p, n]): [string, string] => [`indicativeSimpleFuture${slot}DE`, conjugate('FUTUR1', p, n)[1]]),
-            ...slots.map(([slot, p, n]): [string, string] => [`indicativeSimplePast${slot}DE`, conjugate('PRATERITUM', p, n)[0]]),
+            ...slots.map(([slot, p, n]): [string, string] => [`indicativeSimplePast${slot}DE`, simple('PRATERITUM', p, n)]),
         ]),
     }));
 };
