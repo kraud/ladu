@@ -17,7 +17,7 @@ Update this table when a PR opens and when it merges.
 | 4 | `bcryptjs` 3, `dotenv` 18, `concurrently` 10 | Low | Merged on 2026-11-26; CI and the production deploy passed | #159 |
 | 5 | Test tooling: `jsdom` 31, `msw` 3, `jest-dom` 8 | Medium | Merged on 2026-11-26; CI and the production deploy passed | #161 |
 | 6 | Vite 8 and `@vitejs/plugin-react` 6 | Medium | Merged on 2026-11-26; the production deploy passed | #162 |
-| 7 | `react-error-boundary` 6, `react-toastify` 11, `zustand` 5, `cn` 0.5 | Medium | In progress: step 1 of 4 | |
+| 7 | `react-error-boundary` 6, `react-toastify` 11, `zustand` 5, `cn` 0.5 | Medium | In progress: step 2 of 4 | |
 | 8 | React 19 | Medium | Not started | |
 | 9 | `@tanstack/react-table` 9 | Medium | Not started | |
 | 10 | `@hookform/resolvers` 7 | Medium | Not started | |
@@ -222,7 +222,7 @@ Done when: all checks pass, the notices are correct, and the images build and pa
 - Checks, all passed: lint and typecheck (3 workspaces; no errors), both builds, backend 2996, frontend 2127, admin 329, E2E 149. One React version (18.3.1). Audit: 9 moderate, 0 high; production 0.
 - Not run locally: the `landing` image (not changed).
 
-**Merged** as #162 on 2026-11-26. The `Deploy` workflow passed. CI on `main` was still running when this was written.
+**Merged** as #162 on 2026-11-26. The `Deploy` workflow passed. CI on `main` passed too.
 
 ### PR 7: Small React libraries
 
@@ -242,6 +242,13 @@ Done when: all checks pass and the visual checks are written in the PR.
 - `error` now has the type `unknown`. `ErrorState.tsx` already tests it with `instanceof Error`, and the admin fallback does not read it. No code change.
 - A temporary test in each app made a screen crash: the root error panel appeared, and "Try again" showed the screen again.
 - Checks, all passed: `npm ci`; lint, typecheck, tests (2127 and 329) and build in `frontend` and `admin`. Both licence notices name version 6.1.6. Audit: 9 moderate, 0 high; production 0. E2E runs after step 4.
+
+**Result, step 2 (2026-11-26):**
+- `react-toastify` 10.0.6 → 11.2.0. In the lockfile, only this package changed. The CSS import left `Providers.tsx`: the library now adds its own styles. The app sets no Content Security Policy, so nothing blocks them.
+- Look: the loading, success (with the action button) and error toasts were compared before and after, in both themes, on desktop and phone. The one difference found: more inner space (8 → 14 px), and on desktop the toast is 8 px wider. The action button opens the new word.
+- Plain toasts with long messages, phone: the close button does not cover the text; it closes the toast, and a click on the toast closes it too.
+- The temporary browser tests for these checks were removed.
+- Checks, all passed: `npm ci`; lint, typecheck, tests (2127) and build in `frontend`; E2E 149. The licence notices name version 11.2.0. Audit: 9 moderate, 0 high; production 0.
 
 ### PR 8: React 19
 
@@ -391,3 +398,5 @@ Issues found while checking #139 and writing this plan. Add new rows during the 
 | 32 | Minor | `engines.node` gives only a warning. `.nvmrc` stays `24`; an old local Node 24 can break the tests. CI used 24.22.3 in the last run. | Accepted. |
 | 33 | Moderate | The install left two Vite versions: the apps built with 8, while Vitest, `msw` and `@tailwindcss/vite` used 7. Nothing reported an error. | PR 6: `npm update vite --min-release-age=7`. `npm ls vite` shows one version. |
 | 34 | Minor | The bundle holds a small helper file of Rolldown and one of Vite (both MIT). The notices list only files from `node_modules`, so they do not name these two. The Vite 7 build also had helper files that were not listed. | Open: user decision. |
+| 35 | Minor | `react-toastify` 11 adds a keyboard shortcut: Alt+T (Option+T on a Mac) moves the focus to a visible toast. | Kept: it helps keyboard users. `hotKeys` on `ToastContainer` can change it. |
+| 36 | Minor | Present before this plan: a toast that starts as "Saving…" has no close button, and a click does not close it. It closes by itself after 5 seconds. Versions 10 and 11 do the same. | Open: user decision. |
