@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from '@/test/render';
 import { server } from '@/test/msw/server';
 import { makeWordHandlers, type SeedWord } from '@/test/msw/wordHandlers';
 import { futureToken } from '@/test/tokens';
+import { useAuthStore } from '@/stores/authStore';
 import { PartOfSpeech, Lang } from '@/ts/enums';
 import { WordPicker, type PickedWord } from './WordPicker';
 
@@ -49,6 +50,17 @@ function Harness({
 }
 
 describe('WordPicker — basics', () => {
+    it('stays usable when the session ends while the picker is open', async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [verbSeed('run', 'w1')] }).handlers);
+        renderWithProviders(<Harness />, { session: SESSION });
+        await screen.findByText('run');
+
+        act(() => useAuthStore.getState().clearSession());
+
+        // No account: no own words to offer.
+        expect(screen.queryByText('run')).not.toBeInTheDocument();
+    });
+
     it("lists the caller's own words and excludes other users' words", async () => {
         server.use(
             ...makeWordHandlers({

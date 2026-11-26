@@ -17,7 +17,7 @@ Update this table when a PR opens and when it merges.
 | 4 | `bcryptjs` 3, `dotenv` 18, `concurrently` 10 | Low | Merged on 2026-11-26; CI and the production deploy passed | #159 |
 | 5 | Test tooling: `jsdom` 31, `msw` 3, `jest-dom` 8 | Medium | Merged on 2026-11-26; CI and the production deploy passed | #161 |
 | 6 | Vite 8 and `@vitejs/plugin-react` 6 | Medium | Merged on 2026-11-26; the production deploy passed | #162 |
-| 7 | `react-error-boundary` 6, `react-toastify` 11, `zustand` 5, `cn` 0.5 | Medium | In progress: step 2 of 4 | |
+| 7 | `react-error-boundary` 6, `react-toastify` 11, `zustand` 5, `cn` 0.5 | Medium | In progress: step 3 of 4 | |
 | 8 | React 19 | Medium | Not started | |
 | 9 | `@tanstack/react-table` 9 | Medium | Not started | |
 | 10 | `@hookform/resolvers` 7 | Medium | Not started | |
@@ -250,6 +250,14 @@ Done when: all checks pass and the visual checks are written in the PR.
 - The temporary browser tests for these checks were removed.
 - Checks, all passed: `npm ci`; lint, typecheck, tests (2127) and build in `frontend`; E2E 149. The licence notices name version 11.2.0. Audit: 9 moderate, 0 high; production 0.
 
+**Result, step 3 (2026-11-26):**
+- `zustand` 4.5.7 → 5.1.0 in `frontend` and `admin`. In the lockfile, only this package changed. It does not install `use-sync-external-store` now; other packages still do.
+- **Defect found and fixed (log 37):** two selectors in `WordPicker.tsx` and `useWordFormState.ts` returned a new empty list on each call. Two new tests failed on version 5 before the fix. The other selectors return a stored value or a simple value.
+- **Saved browser data:** a login and a practice session (open, and left) saved by version 4 loaded on version 5. Reload, leave, resume and sign out worked. Version 5 saves the same format, so a revert needs no data change.
+- **The first state:** with an empty browser, both versions save the same data (the login store writes an empty session; the practice store writes nothing).
+- The temporary browser test and its two users were removed.
+- Checks, all passed: `npm ci`; lint, typecheck, tests (2129 and 329) and build in `frontend` and `admin`; E2E 149. Both licence notices name version 5.1.0. Audit: 9 moderate, 0 high; production 0.
+
 ### PR 8: React 19
 
 Branch: `deps/08-react-19`
@@ -399,4 +407,6 @@ Issues found while checking #139 and writing this plan. Add new rows during the 
 | 33 | Moderate | The install left two Vite versions: the apps built with 8, while Vitest, `msw` and `@tailwindcss/vite` used 7. Nothing reported an error. | PR 6: `npm update vite --min-release-age=7`. `npm ls vite` shows one version. |
 | 34 | Minor | The bundle holds a small helper file of Rolldown and one of Vite (both MIT). The notices list only files from `node_modules`, so they do not name these two. The Vite 7 build also had helper files that were not listed. | Open: user decision. |
 | 35 | Minor | `react-toastify` 11 adds a keyboard shortcut: Alt+T (Option+T on a Mac) moves the focus to a visible toast. | Kept: it helps keyboard users. `hotKeys` on `ToastContainer` can change it. |
-| 36 | Minor | Present before this plan: a toast that starts as "Saving…" has no close button, and a click does not close it. It closes by itself after 5 seconds. Versions 10 and 11 do the same. | Open: user decision. |
+| 36 | Minor | Present before this plan: a toast that starts as "Saving…" has no close button, and a click does not close it. It closes by itself after 5 seconds. Versions 10 and 11 do the same. | Deferred to a separate change (user decision): idea I-18. |
+| 37 | Blocker | `zustand` 5: a selector that returns a new list on each call loops. If the session ended while the tag dialog or the word form was open, React stopped with "Maximum update depth exceeded". All 2127 tests passed, but the run failed with 3 such errors. The type check did not show it. | PR 7: both selectors use one fixed empty list; 2 new tests. |
+| 38 | Minor | Present before this plan: the development build of `/practice` warns "Cannot update a component (`SidebarLayout`) while rendering a different component (`SetUp`)". The code in `PracticePage.tsx` changes the sidebar state during a render. Version 4 shows the same warning. | Open: user decision. |

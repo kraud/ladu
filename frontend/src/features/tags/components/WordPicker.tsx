@@ -90,10 +90,13 @@ function availableTranslationsSummary(row: WordSimpleBE, languages: readonly Lan
         .join(' - ');
 }
 
+/** One fixed list: a store selector must return the same value on each call (zustand 5). */
+const NO_LANGUAGES: string[] = [];
+
 export function WordPicker({ selected, onSelectedChange, excludeIds, onGoToReview }: WordPickerProps) {
     const { t } = useTranslation();
     const userId = useAuthStore((s) => s.user?.id ?? '');
-    const userLanguages = useAuthStore((s) => s.user?.languages ?? []);
+    const userLanguages = useAuthStore((s) => s.user?.languages ?? NO_LANGUAGES);
     const languages = useMemo(() => accountLanguageOrder(userLanguages), [userLanguages]);
 
     const [query, setQuery] = useState('');

@@ -21,6 +21,15 @@ beforeEach(() => {
 });
 
 describe('useWordFormState — create mode', () => {
+    it('stays usable when the session ends while the form is open', () => {
+        seedSession(['English', 'Spanish']);
+        const { result } = renderHook(() => useWordFormState());
+
+        act(() => useAuthStore.getState().clearSession());
+
+        expect(result.current.availableLanguages).toEqual([]);
+    });
+
     it('starts empty and seeds partOfSpeech from defaultPartOfSpeech', () => {
         seedSession(['English', 'Spanish']);
         const { result } = renderHook(() => useWordFormState({ defaultPartOfSpeech: PartOfSpeech.noun }));
