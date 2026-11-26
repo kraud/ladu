@@ -6,6 +6,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    # PAUSED: 0 stops version-update PRs only. Security-update PRs have their
+    # own limit and keep arriving. The updates are done by hand, in order
+    # (.context/plans/dependency-updates.md). Its last PR removes this line.
+    open-pull-requests-limit: 0
     groups:
       npm-dependencies:
         patterns:
