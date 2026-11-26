@@ -41,8 +41,12 @@ facing broke.
 script's output directly (it logs both Drizzle's own error and the
 underlying Postgres error via `err.cause`).
 
-**Common causes seen before:** a migration assumes it owns something it
-doesn't (Postgres 15 stopped auto-granting `CREATE` on the `public` schema
+**Common causes seen before:** `Cannot find module '…'` means the image
+lacks a package, not that a migration is wrong. It happened on 2026-11-26:
+npm moved `drizzle-orm` into `backend/node_modules` and the Dockerfile copied
+only the root folder. `backend/Dockerfile` now copies both, and the CI
+`images` job loads the app inside the built image. Also: a migration assumes
+it owns something it doesn't (Postgres 15 stopped auto-granting `CREATE` on the `public` schema
 to non-owners — already fixed for the standard case, but a *new* schema or
 unusual grant could hit the same class of issue); a migration that isn't
 actually expand/contract-safe against what's currently deployed.
