@@ -21,6 +21,21 @@ function placeholderFor(t: TFunction, category: string): string | undefined {
     return t(`practice:card.placeholder.${category}`, { defaultValue: '' }) || undefined;
 }
 
+/** "language · word type · form". It wraps, so a long form name never makes the page wider than a phone. */
+function FormDescription({ form, partOfSpeech }: { form: Exercise['prompt']; partOfSpeech: Exercise['partOfSpeech'] }) {
+    const { t } = useTranslation();
+    return (
+        <span className="flex min-w-0 flex-wrap items-center gap-x-2 text-sm text-muted-foreground">
+            <FlagIcon lang={form.language} />
+            {languageName(form.language)}
+            <span aria-hidden>·</span>
+            {t(partOfSpeechLabelKey(partOfSpeech))}
+            <span aria-hidden>·</span>
+            {caseLabel(t, partOfSpeech, form.caseName)}
+        </span>
+    );
+}
+
 /**
  * One exercise (Part C §C.4): the prompt, the task, the answer control and the
  * feedback. It is keyed by exercise in the parent, so its state is per card.
@@ -56,14 +71,7 @@ export function ExerciseCard({
     return (
         <article className="card card-pad flex flex-col gap-5" aria-label={t(partOfSpeechLabelKey(partOfSpeech))}>
             <section className="flex flex-col gap-1">
-                <span className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <FlagIcon lang={prompt.language} />
-                    {languageName(prompt.language)}
-                    <span aria-hidden>·</span>
-                    {t(partOfSpeechLabelKey(partOfSpeech))}
-                    <span aria-hidden>·</span>
-                    {caseLabel(t, partOfSpeech, prompt.caseName)}
-                </span>
+                <FormDescription form={prompt} partOfSpeech={partOfSpeech} />
                 <p className="text-2xl font-semibold break-words" data-testid="prompt">
                     {promptPronoun && <span className="mr-2 text-muted-foreground">{promptPronoun}</span>}
                     {prompt.value}
@@ -71,18 +79,11 @@ export function ExerciseCard({
             </section>
 
             <section className="flex flex-col gap-3">
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                     {question ? (
                         <span className="text-sm font-medium">{question}</span>
                     ) : (
-                        <span className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <FlagIcon lang={expected.language} />
-                            {languageName(expected.language)}
-                            <span aria-hidden>·</span>
-                            {t(partOfSpeechLabelKey(partOfSpeech))}
-                            <span aria-hidden>·</span>
-                            {caseLabel(t, partOfSpeech, expected.caseName)}
-                        </span>
+                        <FormDescription form={expected} partOfSpeech={partOfSpeech} />
                     )}
                     <HintButton
                         available={!!exercise.hint}
