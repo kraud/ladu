@@ -1,11 +1,5 @@
 import { useMemo } from 'react';
-import {
-    flexRender,
-    getCoreRowModel,
-    useReactTable,
-    type OnChangeFn,
-    type RowSelectionState,
-} from '@tanstack/react-table';
+import { flexRender, useTable, type OnChangeFn, type RowSelectionState } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 import { PlusIcon } from '@phosphor-icons/react';
 import { EmptyState } from '@/components/common/EmptyState';
@@ -19,6 +13,7 @@ import { buildWordColumns } from './columns';
 import type { LanguageSort } from './useLanguageSort';
 import { isPlainRowClick } from './rowClick';
 import { useRowPress } from './useRowPress';
+import { wordTableFeatures } from './wordTable';
 
 const SKELETON_ROWS = 8;
 
@@ -151,16 +146,13 @@ export function ReviewTable({
         [languages, userId, userName, showGender, showProgress, compact, showOwner, showPos, t, onOpenCell, onOpenTags, sort, onSort],
     );
 
-    const table = useReactTable({
+    const table = useTable({
+        features: wordTableFeatures,
         data: rows,
         columns,
         getRowId: (row) => row.id,
-        getCoreRowModel: getCoreRowModel(),
         state: { rowSelection },
         onRowSelectionChange,
-        manualPagination: true,
-        manualFiltering: true,
-        manualSorting: true,
     });
 
     // Phone: long press selects, and once something is selected a tap toggles (the cells' own buttons stay quiet).
@@ -247,7 +239,7 @@ export function ReviewTable({
                                             }
                                           : {})}
                                   >
-                                      {row.getVisibleCells().map((cell) => (
+                                      {row.getAllCells().map((cell) => (
                                           <td key={cell.id} className={cellClassName(cell.column.id)}>
                                               {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                           </td>

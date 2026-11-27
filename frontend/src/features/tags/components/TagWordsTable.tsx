@@ -25,14 +25,7 @@
  */
 import { useMemo, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-    flexRender,
-    getCoreRowModel,
-    useReactTable,
-    type ColumnDef,
-    type OnChangeFn,
-    type RowSelectionState,
-} from '@tanstack/react-table';
+import { flexRender, useTable, type OnChangeFn, type RowSelectionState } from '@tanstack/react-table';
 import { MagnifyingGlassIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ErrorState } from '@/components/common/ErrorState';
@@ -50,6 +43,7 @@ import {
 import type { LanguageSort } from '@/features/words/review/useLanguageSort';
 import { isPlainRowClick } from '@/features/words/review/rowClick';
 import { useRowPress } from '@/features/words/review/useRowPress';
+import { wordTableFeatures, type WordColumnDef } from '@/features/words/review/wordTable';
 import { useIsMobile } from '@/lib/useMediaQuery';
 import type { LangKey, WordSimpleBE } from '@/features/words/types';
 
@@ -179,14 +173,13 @@ export function TagWordsTable({
     // Stable between renders: the other columns are rebuilt on every render, which re-mounts their cells, and a
     // checkbox that re-mounts loses the keyboard focus after a Space press.
     const selectColumn = useMemo(() => buildSelectColumn(t), [t]);
-    const columns: ColumnDef<WordSimpleBE>[] = [
+    const columns: WordColumnDef[] = [
         // Desktop: a checkbox column. On a phone rows are selected by a long press.
         ...(selectable && !isMobile ? [selectColumn] : []),
         ...(showRemoveColumn
             ? [
                   {
                       id: 'remove',
-                      size: 44,
                       header: '',
                       cell: ({ row }: { row: { original: WordSimpleBE } }) => {
                           const label = headlineLabel(row.original, languages);
@@ -208,7 +201,7 @@ export function TagWordsTable({
                               </Tooltip>
                           );
                       },
-                  } satisfies ColumnDef<WordSimpleBE>,
+                  } satisfies WordColumnDef,
               ]
             : []),
         ...(showOwner ? [buildOwnerColumn(t, userId, userName)] : []),
@@ -216,15 +209,13 @@ export function TagWordsTable({
         ...languageColumns,
     ];
 
-    const table = useReactTable({
+    const table = useTable({
+        features: wordTableFeatures,
         data: rows,
         columns,
         getRowId: (row) => row.id,
-        getCoreRowModel: getCoreRowModel(),
         state: { rowSelection: selectable ? rowSelection : {} },
         onRowSelectionChange,
-        manualPagination: true,
-        manualFiltering: true,
     });
     const hasSelection = selectable && Object.values(rowSelection ?? {}).some(Boolean);
     const rowPress = useRowPress(hasSelection);
@@ -407,7 +398,7 @@ export function TagWordsTable({
                                                       : undefined,
                                               })}
                                     >
-                                        {row.getVisibleCells().map((cell) => {
+                                        {row.getAllCells().map((cell) => {
                                             const isLangCol = cell.column.id.startsWith('lang_');
                                             const isShrinkCol =
                                                 cell.column.id === 'partOfSpeech' ||
