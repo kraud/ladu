@@ -27,7 +27,7 @@ onboarding switch on, walks the flow, and checks Skip.
 
 ## Prerequisites
 
-Same as the backend Jest suite, plus a browser download:
+Same as the backend Vitest suite, plus a browser download:
 
 ```bash
 npm run docker:up        # local Postgres (host :5433)

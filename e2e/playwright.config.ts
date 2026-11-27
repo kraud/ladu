@@ -11,7 +11,7 @@ import { E2E_ADMIN_URL, E2E_API_URL, E2E_BASE_URL, EKI_STUB_URL, OIDC_STUB_URL, 
  * so a running `npm run dev` does not get in the way. One `*.spec.ts` per phase's vertical slice —
  * see `.context/roadmap.md` §5 (phase gates) and §6.
  *
- * Prerequisites (NOT managed here — same ones the backend Jest suite needs):
+ * Prerequisites (NOT managed here — same ones the backend Vitest suite needs):
  *   1. `npm run docker:up`      — local Postgres (host :5433)
  *   2. the repo-root `.env`     — JWT secret, mail creds, DB URL (the e2e database `keelapp_e2e` is
  *                                 created and migrated by the run itself)

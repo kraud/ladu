@@ -43,7 +43,7 @@ const isFromDatabase = (error: any): boolean => !!error && (typeof error.severit
 /** `Sentry.init` settings. By default the SDK collects almost everything about a request. */
 export const sentryOptions = {
   // No bodies, cookies, query values, user data, database data or local variables. Headers
-  // stay, and the SDK hides the sensitive ones (dependency-updates.md, decision D2).
+  // stay, and the SDK hides the sensitive ones (operator guide 04, "Sentry").
   dataCollection: {
     userInfo: false,
     cookies: false,

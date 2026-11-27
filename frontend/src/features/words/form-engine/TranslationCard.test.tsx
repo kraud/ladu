@@ -728,6 +728,19 @@ describe('TranslationCard — type-ahead list on the query field (Slice E, D21)'
         await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument());
     });
 
+    it('an answer that arrives after the focus left the field opens no list', async () => {
+        const { fake, user, field } = setup();
+        await user.type(field, 'se');
+        // Before the list pause ends, so before the answer.
+        await user.tab();
+        expect(field).not.toHaveFocus();
+
+        await waitFor(() => expect(fake.suggestionRequests).not.toEqual([]));
+        // Time for the answer to be drawn.
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    });
+
     it('typing after a pick drops it: the lookup goes back to the main sense', async () => {
         const { fake, user, field } = setup();
         await user.type(field, 'se');

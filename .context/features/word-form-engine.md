@@ -81,7 +81,7 @@ Phase 3 (D1 to D7 taken 2026-09-12; the rest during the build). Only the decisio
 
 - `WordPage` back navigation: `router.history.back()` does nothing useful on a direct landing (bookmark or `page.goto`) and can unload the page with the toast. Use `useCanGoBack()` and fall back to `navigate({ to: '/' })`. Review deep links and the cell dialog's close path need the same.
 - `e2e/fixtures/db.ts` keeps a pg `Pool` per worker process, and each spec's `afterAll` calls `closePool()`. With `--workers=1` (the CI shape) one spec would kill the pool for the others. The pool is lazy and re-created, so that case is fixed. Keep it lazy.
-- shadcn primitives can lack `forwardRef` under React 18 with RHF `Controller`: wrap them.
+- shadcn primitives from the React 18 time use `forwardRef` for the RHF `Controller`. React 19 passes `ref` as a prop (idea I-20).
 - The three Estonian dictionary endpoints of the old app could hang (they logged an error and sent no response). Estonian lookups now go through the single dictionary route (see the autocomplete strategy).
 - Engine over-abstraction was the main risk. Keep each addition driven by a named form that needs it.
 

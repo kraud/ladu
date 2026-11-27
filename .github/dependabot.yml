@@ -6,20 +6,23 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    # PAUSED: 0 stops version-update PRs only. Security-update PRs have their
-    # own limit and keep arriving. The updates are done by hand, in order
-    # (.context/plans/dependency-updates.md). Its last PR removes this line.
-    open-pull-requests-limit: 0
+    # Minor and patch updates arrive together in one PR. A major update is not
+    # in the group, so it arrives alone and can be reviewed and reverted alone.
+    # Update rules: .context/guides/infrastructure-guide/03-development-workflow.md
     groups:
-      npm-dependencies:
+      npm-minor-patch:
         patterns:
           - "*"
+        update-types:
+          - "minor"
+          - "patch"
     ignore:
-      # ts-jest doesn't support TypeScript 7's compiler API yet (TS7 split
-      # it into a native/Rust implementation) — a major bump here breaks
-      # every backend Jest suite outright. Drop this once ts-jest adds
-      # support, or the repo migrates off ts-jest.
+      # TypeScript majors are a planned change: typescript-eslint accepts only
+      # TypeScript below 6.1 today.
       - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      # The Node types must match the Node major that runs the app (Node 24).
+      - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
 
   # landing/ is not an npm workspace (own lockfile, for the blog build), so
@@ -57,3 +60,9 @@ updates:
     directory: "/deploy/compose"
     schedule:
       interval: "weekly"
+    ignore:
+      # A new Postgres major cannot read the old data files, so a merge breaks
+      # the database on the VPS. It needs a dump and restore
+      # (.context/plans/postgres-major-upgrade.md). Patch updates still arrive.
+      - dependency-name: "postgres"
+        update-types: ["version-update:semver-major"]

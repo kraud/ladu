@@ -22,7 +22,7 @@ export default tseslint.config(
     },
     rules: {
       // Only the two long-stable rules — the rest of the plugin's "recommended"
-      // set targets React Compiler readiness, which doesn't apply (React 18.3, no compiler).
+      // set targets React Compiler readiness, which doesn't apply (no compiler).
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
       "@typescript-eslint/no-unused-vars": [

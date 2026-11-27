@@ -36,7 +36,7 @@ function scrub<T>(value: T, seen = new Set<object>()): T {
 /** `Sentry.init` settings. By default the SDK collects almost everything it can see. */
 export const sentryOptions = {
     // No bodies, cookies, query values or user data (so Sentry does not store the IP address).
-    // Headers stay (dependency-updates.md, decision D2).
+    // Headers stay (operator guide 04, "Sentry").
     dataCollection: {
         userInfo: false,
         cookies: false,

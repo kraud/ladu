@@ -42,6 +42,7 @@ Code map: API `backend/controllers/admin/`, `backend/routes/admin/`; helpers `ba
 - Reason is required for ban, delete, purge, staff disable and badge grant or revoke. It is optional for the others. The typed username is checked on the server too.
 - `users.verified` means "email verified". The badge feature never uses the word "verified" in code or fields. The learner UI shows the word "Verified" only in the `/tags` checkbox.
 - Statistics use UTC days. A week starts on Monday. "Users" means accounts that are not deleted. An account that was purged disappears from past counts (the page says so).
+- The list routes for users and the audit log answer 400 to a query key with a bracket, such as `status[]` (`refuseBracketKeys`). The app uses the simple query parser, which would ignore that filter and return all rows. Rejected: the extended query parser.
 - Retention: `login_events` 90 days, `user_activity_days` 400 days. The nightly purge (cron 03:30 UTC, after the 03:00 backup) deletes both. `landing/privacy.html` says so.
 
 ## 3. Roles

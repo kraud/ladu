@@ -19,7 +19,7 @@ purpose and — critically — none of them can see another's data.
 Both run in one Docker Postgres container your machine starts with
 `npm run docker:up`. They're two separate databases inside that one
 container — dev is what you poke at while building a feature, test is what
-Jest tears down and rebuilds on every run (`init-test-db.sh`).
+Vitest tears down and rebuilds on every run (`init-test-db.sh`).
 
 **To open a SQL shell:**
 
@@ -308,7 +308,7 @@ admin panel: **Access → Demo** (`/access?tab=demo`). Nothing to deploy.
   **When:** after the merge, once `deploy.yml` has deployed the environment — the script and the
   demo columns (migrations 0027 + 0028) only exist on the server from that deploy on. Then seed
   staging, then production, and only after that turn the demo on (admin panel, staging first).
-  Nothing breaks in between: the demo is off by default. The tests never need this step: Jest
+  Nothing breaks in between: the demo is off by default. The tests never need this step: Vitest
   seeds its own template, and the e2e start-up (locally and in the CI `e2e` job) runs
   `npm run demo:template`.
 
