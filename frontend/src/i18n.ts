@@ -42,9 +42,8 @@ i18n
         ],
         supportedLngs: ['en', 'es', 'de', 'ee', 'fr'],
         nonExplicitSupportedLngs: true,
-        backend: {
-            load: 'languageOnly',
-        },
+        // A top-level option: `es-ES` loads the files of `es` (there are no files per region).
+        load: 'languageOnly',
         interpolation: {
             escapeValue: false,
         },
