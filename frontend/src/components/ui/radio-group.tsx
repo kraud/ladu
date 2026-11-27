@@ -5,8 +5,8 @@ import { cn } from "cn"
 
 /**
  * Both wrapped in forwardRef (the generated parts aren't) so RHF's
- * `Controller`/`field.ref` can attach — same React 18 lesson as
- * `input.tsx` / `button.tsx`.
+ * `Controller`/`field.ref` can attach, like `input.tsx` / `button.tsx`.
+ * React 19 passes `ref` as a normal prop, so the wrappers are optional.
  */
 const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupPrimitive.Props>(
   ({ className, ...props }, ref) => {

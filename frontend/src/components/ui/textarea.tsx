@@ -4,8 +4,8 @@ import { cn } from "cn"
 /**
  * Plain native `<textarea>` — Base UI ships no textarea primitive.
  * Wrapped in forwardRef so RHF's `Controller`/`field.ref` can attach,
- * matching the `input.tsx` / Phase 1 lesson (React 18, not React 19
- * ref-as-prop).
+ * like `input.tsx`. React 19 passes `ref` as a normal prop, so the wrapper
+ * is optional.
  */
 const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<"textarea">>(
   ({ className, ...props }, ref) => {
