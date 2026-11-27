@@ -5,8 +5,8 @@ import { CheckIcon } from "@phosphor-icons/react"
 
 /**
  * Wrapped in forwardRef (the generated component wasn't) so RHF's
- * `Controller`/`field.ref` can attach — same React 18 lesson as
- * `input.tsx` / `button.tsx`.
+ * `Controller`/`field.ref` can attach, like `input.tsx` / `button.tsx`.
+ * React 19 passes `ref` as a normal prop, so the wrapper is optional.
  */
 const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxPrimitive.Root.Props>(
   ({ className, ...props }, ref) => {

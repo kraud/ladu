@@ -5,7 +5,8 @@ import { cn } from "cn"
 /**
  * Tabs for switching between lists that share one place (Practice's saved
  * configurations / saved sessions). Only the active panel is mounted. All
- * parts are wrapped in forwardRef (React 18), like the other ui parts.
+ * parts are wrapped in forwardRef, like the other ui parts. React 19 passes
+ * `ref` as a normal prop, so the wrappers are optional.
  */
 const Tabs = React.forwardRef<HTMLDivElement, TabsPrimitive.Root.Props>(
   ({ className, ...props }, ref) => (

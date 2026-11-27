@@ -40,10 +40,9 @@ const buttonVariants = cva(
   }
 )
 
-// Wrapped in forwardRef (the generated component wasn't) so consumers that
-// hand it a ref work under React 18 — notably `sheet.tsx`'s `SheetPrimitive.Close`
-// rendering a `<Button>`, and any future RHF `Controller`. The base-nova preset
-// otherwise assumes React 19's ref-as-prop.
+// Wrapped in forwardRef (the generated component wasn't) for consumers that
+// hand it a ref. React 19 passes `ref` as a normal prop, so the wrapper is
+// optional.
 const Button = React.forwardRef<
   HTMLButtonElement,
   ButtonPrimitive.Props & VariantProps<typeof buttonVariants>

@@ -5,10 +5,9 @@ import { cn } from "cn"
 /**
  * Wrapped in forwardRef (the generated component wasn't) so
  * react-hook-form's `Controller`/`field.ref` can attach — required for
- * RHF to focus the first invalid field on failed validation (see
- * form.test.tsx, which caught the "Function components cannot be given
- * refs" warning this fixes). shadcn's base-nova preset otherwise assumes
- * React 19's ref-as-prop; this project is pinned to React 18.
+ * RHF to focus the first invalid field on failed validation. React 19
+ * passes `ref` as a normal prop (shadcn's base-nova preset relies on that),
+ * so the wrapper is optional.
  */
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
   ({ className, type, ...props }, ref) => {

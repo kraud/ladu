@@ -43,7 +43,7 @@ export function NotFoundPage() {
     }, [t]);
     const [index, setIndex] = useState(0);
     const [fading, setFading] = useState(false);
-    const swapTimer = useRef<ReturnType<typeof setTimeout>>();
+    const swapTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
     useEffect(() => {
         const cycle = setInterval(() => {
