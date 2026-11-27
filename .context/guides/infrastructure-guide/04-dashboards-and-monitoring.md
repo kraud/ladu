@@ -177,15 +177,34 @@ always filter down to "just production" or "just this specific deploy."
 - Filter by `environment:production` to see only what's affecting real
   users; by `release:<sha>` to check "did the deploy I just shipped
   introduce anything new."
-- The frontend project also captures genuinely uncaught browser exceptions
-  (via `window.onerror`), not just handled `try/catch` blocks you
-  explicitly report.
+- The frontend project captures uncaught browser errors and screen crashes. An
+  error that our code handles with `try/catch` is not reported.
 
-**What the backend reports** (`backend/lib/sentry.ts`, tested by
-`backend/tests/sentry.test.js`): crashes (5xx) only. A refusal (4xx, such as a
-wrong password) is not reported. A report holds no request body, no cookies and
-no login token. Backend reports made before this rule (2026-11-26) can hold all
-three.
+**What is reported.** The rules are in two files, each with a test that runs the
+real SDK: `backend/lib/sentry.ts` (`backend/tests/sentry.test.js`) and
+`frontend/src/lib/sentry.ts` (`sentry.test.tsx`).
+
+- Backend: crashes (5xx) only. A refusal (4xx, such as a wrong password) is not
+  reported.
+- App: errors that nothing catches, and screen crashes that an error panel
+  catches.
+- The app also sends a **session** message each time it loads (random id,
+  release, browser). Sentry uses it for the "crash-free sessions" figure.
+  `landing/privacy.html` says this.
+- Never sent: request bodies, cookies, query values, user data, IP address,
+  local variables, database values, the tokens of emailed links and of the
+  Google sign-in, the word in a dictionary address, console lines and clicks.
+
+To debug, you therefore have the stack trace, the requests and page changes
+before the crash, and for a database error the SQL text without its values.
+
+**Before you change these rules, or update the SDK:** a new major version can
+collect more by default (version 11 did). Run both tests, and add a case for each
+new kind of data.
+
+**Old reports.** Reports made before 2026-11-26 can hold request bodies,
+passwords, cookies and login tokens. Reports made before Sentry 11 (PR 12 of the
+dependency update) can hold link tokens, words and database values.
 
 **Normal:** an occasional expected error is fine and not something to act on
 reflexively, mostly on the frontend, where Sentry captures any uncaught

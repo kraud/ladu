@@ -20,7 +20,15 @@ COPY e2e/package.json e2e/package.json
 # backend/node_modules (for example when another workspace needs another
 # version). The runtime stage copies both; `mkdir` keeps its COPY valid when
 # the second folder is empty.
-RUN npm ci --omit=dev --workspace=backend && mkdir -p backend/node_modules
+#
+# @sentry/node also installs build tools: Sentry's bundler plugins and its
+# command-line tool (`sentry`, licence FSL-1.1, not open source). The server does
+# not load them, so the image does not ship them. CI starts Sentry inside the
+# image to prove that.
+RUN npm ci --omit=dev --workspace=backend && mkdir -p backend/node_modules \
+    && for dir in node_modules backend/node_modules; do \
+        rm -rf "$dir/sentry" "$dir/.bin/sentry" "$dir/@sentry/bundler-plugins"; \
+    done
 
 
 FROM node:24-alpine AS runtime

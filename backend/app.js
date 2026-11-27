@@ -1,8 +1,7 @@
 const express = require('express')
 const asyncHandler = require('express-async-handler')
-const Sentry = require('@sentry/node')
 const { errorHandler } = require('./middleware/errorMiddleware')
-const { markRefusal } = require('./lib/sentry')
+const { reportCrash } = require('./lib/sentry')
 const { pool } = require('./src/db')
 
 const app = express()
@@ -77,10 +76,9 @@ app.use('/api/onboarding', require('./routes/onboardingRoutes'))
 app.use('/api/admin', require('./routes/admin'))
 
 // Must come after every route (needs to see thrown errors) and before
-// errorHandler (which formats the response) — reports 5xx-worthy errors to
-// Sentry without changing what the client receives (lib/sentry.ts).
-app.use(markRefusal)
-Sentry.setupExpressErrorHandler(app)
+// errorHandler (which formats the response) — reports crashes to Sentry
+// without changing what the client receives (lib/sentry.ts).
+app.use(reportCrash)
 
 app.use(errorHandler)
 
