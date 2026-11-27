@@ -12,7 +12,7 @@
   <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg" />
   <img alt="Node 24" src="https://img.shields.io/badge/node-24-339933?logo=node.js&logoColor=white" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white" />
-  <img alt="React 18" src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black" />
+  <img alt="React 19" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black" />
   <img alt="PostgreSQL 15" src="https://img.shields.io/badge/PostgreSQL-15-4169E1?logo=postgresql&logoColor=white" />
   <img alt="Tested with Playwright" src="https://img.shields.io/badge/e2e-Playwright-2EAD33?logo=playwright&logoColor=white" />
 </p>
@@ -116,7 +116,7 @@ Ladu is an **npm-workspaces monorepo**.
 | Workspace | What it is | Main tech |
 |---|---|---|
 | [`backend/`](backend) | REST API, auth, exercise engine | Node 24, Express, Drizzle ORM, PostgreSQL, Vitest |
-| [`frontend/`](frontend) | The learner web app | React 18, Vite, TypeScript, Tailwind CSS 4, TanStack Query, Zustand, react-hook-form, i18next, Vitest, MSW |
+| [`frontend/`](frontend) | The learner web app | React 19, Vite, TypeScript, Tailwind CSS 4, TanStack Query, Zustand, react-hook-form, i18next, Vitest, MSW |
 | [`admin/`](admin) | Staff dashboard (separate app) | React, Vite, Vitest |
 | [`landing/`](landing) | Public site and blog | Static HTML/CSS/JS, Markdown posts |
 | [`e2e/`](e2e) | Full-stack browser tests | Playwright |
@@ -215,7 +215,7 @@ The backend needs a `backend/.env` file. Use the existing variables in the repo 
 |---|---|
 | `npm run dev` | Backend and frontend together |
 | `npm run dev:admin` | Backend and admin app together |
-| `npm test` | Backend tests (Jest) |
+| `npm test` | Backend tests (Vitest) |
 | `npm test -w frontend` | Frontend tests (Vitest) |
 | `npm run e2e:install` | One-time: download the browser for Playwright |
 | `npm run test:e2e` | Full-stack end-to-end tests |

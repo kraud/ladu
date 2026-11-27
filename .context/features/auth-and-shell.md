@@ -39,7 +39,9 @@ Code map: `frontend/src/api/` (one axios client), `stores/` (Zustand session and
 - `noUnusedLocals` and `noUnusedParameters` are on, and `build` runs `tsc -b`. Generated shadcn components can carry unused props. Trim them. Do not relax the compiler options.
 - A second i18next namespace needs the Suspense boundary of the app plumbing, or the app throws.
 - `ee` is not an ISO code for Estonian (`et` is). The language detector never finds it. This was carried over on purpose. Do not change it without a migration.
-- `button.tsx` is wrapped in `forwardRef` (React 18 ref support, first needed by `sheet.tsx`).
+- `button.tsx` is wrapped in `forwardRef` (first needed by `sheet.tsx` on React 18). React 19 does not need it; the cleanup is idea I-20.
+- The first wait for the language files uses `app/LanguageGate.tsx`, not `<Suspense>`: React 19 keeps a Suspense fallback for at least 300 ms.
+- Browser target: no `build.target` setting. The Vite 8 default applies (Chrome 111, Edge 111, Firefox 114, Safari 16.4). Rejected: keeping the older values.
 - The phone bottom nav takes `--bottom-nav-h` (0 on a desktop, a fixed 66px below 920px in `globals.css`; never build it on `env(safe-area-inset-bottom)`, which moves when the phone browser toolbar collapses). `AppShell` pads the page by it. Every bar fixed to the bottom of the window must sit at `bottom-(--bottom-nav-h)`, not `bottom-0` (`SidebarLayout`'s footer does). A height written as `100dvh - …` must subtract it too. Gate: `e2e/tests/section-title-alignment.spec.ts`.
 
 ## 4. Open items

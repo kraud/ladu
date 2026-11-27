@@ -28,6 +28,17 @@ Three entries showed "UNKNOWN": our own `frontend` and `admin` workspaces (no `l
 
 Dev-only, not shipped: `lightningcss*` (MPL-2.0, 12 entries) and `caniuse-lite` (CC-BY-4.0). MPL-2.0 covers only changes to its own files. It does not affect the CSS it produces.
 
+**Re-run on 2026-11-27**, after the dependency updates. No GPL, AGPL, LGPL, "UNKNOWN" or "SEE LICENSE" entry.
+
+| What | Packages | Licences |
+|---|---|---|
+| backend (`npm ls`) | 148 | MIT 117, Apache-2.0 11, ISC 7, BlueOak-1.0.0 6, BSD-3 3, BSD-2 2, MIT-0 1, FSL-1.1 1 |
+| backend image (what it ships) | 152 | MIT 121, Apache-2.0 12, ISC 7, BlueOak-1.0.0 6, BSD-3 3, BSD-2 2, MIT-0 1 |
+| frontend (`npm ls`) | 98 | MIT 91, Apache-2.0 3, BSD-2 1, BSD-3 1, Unlicense 1, MIT-or-CC0 1 |
+| admin (`npm ls`) | 59 | MIT 57, Apache-2.0 1, Unlicense 1 |
+
+The notices files list 48 packages (web app) and 24 (admin). The FSL package (finding 14) is not in the image.
+
 ## 4. Findings by item
 
 Risk: **Low** = keep a notice or credit. **Medium** = act before launch.
@@ -48,6 +59,7 @@ Risk: **Low** = keep a notice or credit. **Medium** = act before launch.
 | 12 | **Ansible, Caddy, Postgres, Trivy, Playwright** | GPL-3 (Ansible), Apache-2.0, PostgreSQL licence. Tools and runtimes only. | None | None. |
 | 13 | **`marked`** (landing blog build, added 2026-10-06) | MIT. Used only while the landing image is built, in a Node stage that is not part of the final image. Nothing from it is shipped to visitors, so it needs no notice. It has its own lockfile (`landing/package-lock.json`) and a Dependabot entry. | None | None. |
 | 14 | **Sentry command-line tool** (`sentry`, added 2026-11-27) | FSL-1.1-Apache-2.0: source-available, not open source. It forbids a competing product; each version becomes Apache-2.0 after 2 years. `@sentry/node` 11 installs it as a dependency of its bundler plugins. Our code does not load it. | Low | **Done:** `backend/Dockerfile` removes it (and `@sentry/bundler-plugins`) from the image, so we do not distribute it. It stays in development installs. Check again after a Sentry update. |
+| 15 | **BlueOak-1.0.0 packages** (`glob`, `minimatch`, `minipass`, `path-scurry`, `lru-cache`, `@isaacs/nonrecursive-glob-match`; added with Sentry 11) | A permissive licence. Whoever receives a copy must also get the licence text or a link to it. Each package ships its licence file, and it is in the backend image. | Low | None. |
 
 ## 5. Outside services
 
@@ -99,6 +111,8 @@ The licence data changes with each dependency update. To repeat the check:
 1. For each workspace run `npm ls --workspace <name> --omit=dev --all --json`.
 2. Read the `license` field of each package in `node_modules`.
 3. Compare the result with the table in section 3. A GPL, AGPL, LGPL, "UNKNOWN" or "SEE LICENSE" entry needs a review.
+
+For `frontend`, step 1 ends with an error about `ajv` (an optional peer of `@hookform/resolvers`); the list is complete. The backend image can differ from the list, so also read the packages inside the built image.
 
 A CI job for this is a good later slice.
 

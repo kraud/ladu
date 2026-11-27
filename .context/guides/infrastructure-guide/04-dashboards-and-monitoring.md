@@ -194,6 +194,8 @@ real SDK: `backend/lib/sentry.ts` (`backend/tests/sentry.test.js`) and
 - Never sent: request bodies, cookies, query values, user data, IP address,
   local variables, database values, the tokens of emailed links and of the
   Google sign-in, the word in a dictionary address, console lines and clicks.
+- Headers are sent. The SDK hides the sensitive ones.
+- Tracing is off.
 
 To debug, you therefore have the stack trace, the requests and page changes
 before the crash, and for a database error the SQL text without its values.

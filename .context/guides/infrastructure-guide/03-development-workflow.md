@@ -58,20 +58,25 @@ not a guest/AP-isolated network.
 
 ### 3. Open a PR
 
-Pushing the branch and opening a PR triggers `ci.yml` — six independent jobs,
-all required by the ruleset before merge is allowed:
+Pushing the branch and opening a PR triggers `ci.yml` — eight independent jobs.
+The ruleset requires five of them before merge is allowed: `lint`, `typecheck`,
+`backend`, `frontend` and `e2e`. It does **not** require `admin`, `landing` or
+`images` (checked 2026-11-27), so look at those yourself.
 
 | Job | What it checks |
 |---|---|
-| `lint` | ESLint, both workspaces |
+| `lint` | ESLint, `backend`, `frontend` and `admin` |
 | `typecheck` | `tsc --noEmit` (backend) / `tsc -b` (frontend) |
-| `backend` | Jest, against a fresh ephemeral Postgres |
+| `backend` | Vitest, against a fresh ephemeral Postgres |
 | `frontend` | Vitest + a real `vite build` |
+| `admin` | Vitest + a real build of the admin app |
+| `landing` | Blog tests + the blog build |
 | `e2e` | The full Playwright suite (every `phase-*.spec.ts`) against a real backend + frontend + fresh Postgres, all spun up inside the runner |
 | `images` | Builds the Docker images and scans each with Trivy for HIGH/CRITICAL CVEs with a known fix. It also loads the app inside the backend image, so a missing package fails here and not at deploy time |
 
-If any of these is red, the merge button is disabled — there's nothing to
-argue with, just fix it and push again.
+If a required job is red, the merge button is disabled — there's nothing to
+argue with, just fix it and push again. A red job that is not required needs the
+same treatment, but nothing stops the merge.
 
 ### 4. Merge
 
@@ -187,6 +192,54 @@ cd /opt/ladu/staging   # or /opt/ladu/prod
 through `build-and-push` at some point) — the script does `docker compose
 pull`, which fails outright if the tag doesn't exist.
 
+
+## Updating dependencies
+
+Dependabot (`.github/dependabot.yml`) opens the update PRs each week.
+
+| Update | What arrives |
+|---|---|
+| npm minor and patch, root workspaces | One grouped PR |
+| npm major, root workspaces | One PR for each package |
+| `landing/`, GitHub Actions, the edge Caddy image | Their own PRs |
+| Postgres patch | A PR (see "Keeping the server patched") |
+| Major of TypeScript, `@types/node` or Postgres | Nothing. Each is a planned change |
+
+Security updates arrive when GitHub finds an advisory.
+
+**Before you merge an npm PR:**
+
+- Check the release dates. Wait until each new release is **7 days old**, to
+  reduce the risk of a malicious release. Dependabot does not do this. By hand,
+  add `--min-release-age=7` to `npm install` and `npm update`.
+- Use `npm`, not manual edits of `package-lock.json`. Then run `npm ci`: a green
+  run can use old installed packages.
+- Run lint and typecheck (`backend`, `frontend`, `admin`), the three test suites,
+  both builds and `npm run test:e2e`.
+- `npm ls react react-dom` and `npm ls vite` show **one** version of each.
+  `react` and `react-dom` change in `frontend/` and `admin/` together. If two
+  copies stay, run `npm dedupe`.
+- `npm audit` is not worse than before. Do not use `--force`: it proposes an old
+  `drizzle-kit`.
+- After a lockfile change, build the backend image and **start it**. npm can move
+  a package to `backend/node_modules`, and a built image does not prove that the
+  app loads.
+- Run the licence check again (`research/licence-study.md`, section 8).
+
+**One major at a time.** Read the release notes of every version in between. Known
+places that need care:
+
+| Package | Check |
+|---|---|
+| `@sentry/*` | A major can collect more data by default. See "Sentry" in `04-dashboards-and-monitoring.md` |
+| `english-verbs-*`, `german-*`, `spanish-verbs`, `rosaenlg-gender-es` | New data can change word forms, also in a minor release. A failing dictionary test is a real finding |
+| `react-i18next`, `i18next` | Change them together |
+| `@vitejs/plugin-react`, `vite` | Change them together. Compare both `THIRD-PARTY-NOTICES.txt` files before and after |
+| `zustand` | A selector that returns a new list or object on each call loops. Return a stored value |
+| `jsdom` | It can change style values and element roles in tests. It needs Node 24.15 or newer |
+
+**After the merge:** check that the `Deploy` workflow and CI on `main` passed. To
+roll back, revert the PR.
 
 ## Keeping the server patched
 
