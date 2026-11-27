@@ -16,7 +16,10 @@
  *
  * Getting out of the way (D21, changed in Slice H): an open list covers the card footer, where "Use
  * autocomplete values" appears, and hides the rest of the page from assistive technology (the
- * combobox pattern). So the list closes on a pick, Escape, Tab and a click outside. It does NOT
+ * combobox pattern). So the list closes on a pick, Escape, Tab, a click outside, and when the field
+ * loses the focus. The last rule covers an answer that arrives after the user left the field: the
+ * list would open there, and nothing would close it. A press on the list itself moves the focus
+ * into the list for a moment, so that move does not close it. The list does NOT
  * close by itself when the user has typed a whole word that is in the list (even when it is the
  * only match): the user can still click it, and a pick fills the card with that exact entry, the
  * same as the button. A word that is not in the list shows no list, so the button is free.
@@ -24,7 +27,7 @@
  * Not slower to type in (design commandment 1): the text reaches the form on every key press as
  * before; only the list request waits for a short pause (`SUGGEST_DEBOUNCE_MS`).
  */
-import { forwardRef, useState, type ComponentProps } from 'react';
+import { forwardRef, useRef, useState, type ComponentProps } from 'react';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Input } from '@/components/ui/input';
 import { MIN_PREFIX_LENGTH, useDictionarySuggestions } from '@/features/autocomplete/hooks';
@@ -51,10 +54,11 @@ export interface TypeAheadInputProps
 }
 
 export const TypeAheadInput = forwardRef<HTMLInputElement, TypeAheadInputProps>(function TypeAheadInput(
-    { config, value, onValueChange, ...inputProps },
+    { config, value, onValueChange, onBlur, ...inputProps },
     ref
 ) {
     const [open, setOpen] = useState(false);
+    const popupRef = useRef<HTMLDivElement>(null);
 
     const prefix = useDebouncedCallback(value, SUGGEST_DEBOUNCE_MS);
     const enabled = prefix.trim().length >= MIN_PREFIX_LENGTH;
@@ -77,10 +81,20 @@ export const TypeAheadInput = forwardRef<HTMLInputElement, TypeAheadInputProps>(
             open={open && items.length > 0}
             onOpenChange={setOpen}
         >
-            <Autocomplete.Input ref={ref} render={<Input />} autoComplete="off" {...inputProps} />
+            <Autocomplete.Input
+                ref={ref}
+                render={<Input />}
+                autoComplete="off"
+                {...inputProps}
+                onBlur={(event) => {
+                    if (!popupRef.current?.contains(event.relatedTarget)) setOpen(false);
+                    onBlur?.(event);
+                }}
+            />
             <Autocomplete.Portal>
                 <Autocomplete.Positioner side="bottom" align="start" sideOffset={4} className="isolate z-50">
                     <Autocomplete.Popup
+                        ref={popupRef}
                         data-testid="type-ahead-list"
                         className="max-h-72 w-(--anchor-width) min-w-48 overflow-y-auto rounded-lg border border-(--border) bg-popover p-1 text-popover-foreground shadow-md"
                     >

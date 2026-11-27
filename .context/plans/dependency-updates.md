@@ -1,6 +1,6 @@
 # Plan: Dependency updates (replaces Dependabot PR #139)
 
-Status: in progress. Written on 2026-11-26. PR 1 (#151), PR 2 (#154), PR 3 (#157), PR 4 (#159), PR 5 (#161), PR 6 (#162), PR 7 (#163), PR 8 (#164), PR 9 (#165), PR 10 (#166) and PR 11 (#167) merged. The deploy of PR 2 failed and the hotfix (#156) repaired it (log 23). PR 12 is built and checked locally; not merged yet.
+Status: in progress. Written on 2026-11-26. PR 1 (#151), PR 2 (#154), PR 3 (#157), PR 4 (#159), PR 5 (#161), PR 6 (#162), PR 7 (#163), PR 8 (#164), PR 9 (#165), PR 10 (#166) PR 11 (#167) and PR 12 (#168) merged. The deploy of PR 2 failed and the hotfix (#156) repaired it (log 23).
 
 Goal: bring in the updates of PR #139 through small PRs. Each PR can be reviewed, tested and reverted alone. **Do not merge #139.**
 
@@ -22,7 +22,7 @@ Update this table when a PR opens and when it merges.
 | 9 | `@tanstack/react-table` 9 | Medium | Merged on 2026-11-27 | #165 |
 | 10 | `@hookform/resolvers` 7 | Medium | Merged on 2026-11-27; CI and the production deploy passed | #166 |
 | 11 | i18next 27 and `react-i18next` 18 | Medium | Merged on 2026-11-27; the production deploy passed | #167 |
-| 12 | Sentry 11 (backend and frontend) | **High (privacy)** | Checked locally; waits for the PR | |
+| 12 | Sentry 11 (backend and frontend) | **High (privacy)** | Merged on 2026-11-27; the production deploy passed | #168 |
 | 13 | Close the plan; turn Dependabot on again | Low | Not started | |
 
 ## Starting point (checked on 2026-11-26)
@@ -415,6 +415,8 @@ Done when: the privacy test passes, and a real staging event shows no sensitive 
 - The three images (`backend`, `frontend`, `admin`) built and passed Trivy (HIGH and CRITICAL). The backend image passed the CI load command, migrated a temporary database and answered `/api/health`.
 - Audit: 9 moderate, 0 high; production 0. One React version (19.3.1).
 
+**Merged** as #168 on 2026-11-27. The `Deploy` workflow passed. CI on `main` failed: one E2E test failed 3 times, 111 passed and 37 did not run (log 56).
+
 **User, after the merge:**
 1. Check that the `Deploy` workflow passed.
 2. Cause one test error on staging and read the full event in Sentry (step 8).
@@ -524,7 +526,7 @@ Issues found while checking #139 and writing this plan. Add new rows during the 
 | 53 | Minor | Language codes: `EN` or `EE` now give that language (before: `EE` gave English). A code with unsafe characters or more than 128 characters is refused, and the app uses English. | Accepted. |
 | 54 | Minor | `t()` on a key group now returns the key, not the sentence "returned an object instead of string". The only call on a group (`not-found.tsx`) asks for the object and gets it. | Accepted. |
 | 55 | Moderate | Present before this plan: `load: 'languageOnly'` is inside the `backend` options in `src/i18n.ts`, so `i18next` ignores it. With a browser language such as `en-US` and no saved choice, the app also asks for 14 files under `/locales/en-US/`, which do not exist, and saves `en-US`. Then it uses `en`. Production answers such a path with status 200 and the HTML page. The text is correct. Old and new versions do the same. | PR 11 (user decision): fixed, with 1 new test. Rejected: a separate PR, or an idea for later. |
-| 56 | Minor | E2E `phase-3-5-dashboard` failed once, after the fix of log 55: after 30 seconds, the test did not find the Save button, which the screenshot shows. Two suggestion lists were open. It then passed 15 times in sequence (30 of 30 tests) and in a second full run. Probable cause, not proven: an open list hides the rest of the page from the test. | Not changed. Check if it fails again. |
+| 56 | Minor | E2E `phase-3-5-dashboard` failed once, after the fix of log 55: after 30 seconds, the test did not find the Save button, which the screenshot shows. Two suggestion lists were open. It then passed 15 times in sequence (30 of 30 tests) and in a second full run. Probable cause, not proven: an open list hides the rest of the page from the test. | It failed again on CI after the merge of #168 (3 of 3 attempts). PR 13: closed by the fix of log 65. |
 | 57 | Blocker | Sentry 11 captures a route error before `markRefusal` runs, so a 4xx refusal was reported. Without `setupExpressErrorHandler` it was reported too. | PR 12: the automatic Express capture is off, and `reportCrash` reports. |
 | 58 | Major | With default settings, Sentry 11 sends the user's IP address from the backend, and tells Sentry to infer it for the app. | PR 12: `userInfo: false` (D2). |
 | 59 | Major | Present before this plan: reports held reset and verification tokens in the path. The app's reports could also hold the login token or ticket of the Google sign-in (`/auth/callback#token=`). D2 does not remove these. | PR 12 (user decision): both apps replace them. Rejected: a separate PR. |
@@ -533,3 +535,4 @@ Issues found while checking #139 and writing this plan. Add new rows during the 
 | 62 | Moderate | `@sentry/node` 11 installs `sentry` 0.49.0 (about 22 MB, licence FSL-1.1, not open source) and bundler plugins (about 20 MB). The server does not load them. | PR 12 (user decision): the backend image removes both. Rejected: accept and record. |
 | 63 | Moderate | Present before this plan, found by a new test: a body that is not valid JSON got 500. | PR 12 (user decision): 400 with a fixed message (`errorMiddleware.js`). Rejected: an idea for later. |
 | 64 | Moderate | Present before this plan: the app sends a session message on each load, but `landing/privacy.html` said that Sentry gets reports when something breaks. | PR 12 (user decision): the page says it. Rejected: turn sessions off. |
+| 65 | Blocker | The cause of log 56, present on `main`: the type-ahead list opened when its answer came after the focus had left the field. It stayed open and hid the rest of the page from assistive technology and from the test, **Save word** included. A temporary test reproduced it, with and without a server delay. | PR 13 (user decision): the list closes when its field loses the focus, except for a move into the list. 1 new test. Rejected: a separate PR, or a change of the E2E test only. |
