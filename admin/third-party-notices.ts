@@ -9,7 +9,8 @@ import type { Plugin } from 'vite';
  * licence text to travel with every copy we hand out. The JavaScript goes to
  * every visitor's browser, and Vite strips comments, so the texts would be
  * lost. This plugin lists the packages that are really inside the bundle (not
- * every dependency) with their licence files. See `.context/research/licence-study.md`.
+ * every dependency) with their licence files. It also lists the build tools that
+ * put helper code of their own into the bundle. See `.context/research/licence-study.md`.
  *
  * It also fails the build when a bundled package is under a strong-copyleft
  * licence (GPL, AGPL, LGPL, SSPL, BUSL), so one cannot ship by accident.
@@ -21,6 +22,17 @@ import type { Plugin } from 'vite';
 const NODE_MODULES = '/node_modules/';
 const LICENCE_FILE = /^(licen[cs]e|copying|notice)([.-].*)?$/i;
 const COPYLEFT = /\b(A?GPL|LGPL|SSPL|BUSL)/i;
+
+/**
+ * Helper code that a build tool writes into the bundle. Its module id is virtual
+ * (it has no `node_modules` path), so the tool is named here.
+ */
+const BUILD_HELPERS: { prefix: string; name: string; extraFiles?: string[]; stopAt?: string }[] = [
+    // The second file holds the licences of the projects that Rolldown took code from.
+    { prefix: '\0rolldown/', name: 'rolldown', extraFiles: ['THIRD-PARTY-LICENSE'] },
+    // The rest of Vite's licence file is about code that runs only in Vite itself.
+    { prefix: '\0vite/', name: 'vite', stopAt: '# Licenses of bundled dependencies' },
+];
 
 export interface NoticeEntry {
     name: string;
@@ -74,7 +86,7 @@ function findPackageDir(name: string, fromDir: string): string | null {
     }
 }
 
-function readEntry(root: string): NoticeEntry {
+function readEntry(root: string, { extraFiles = [], stopAt }: { extraFiles?: string[]; stopAt?: string } = {}): NoticeEntry {
     const pkg = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8')) as {
         name?: string;
         version?: string;
@@ -90,9 +102,12 @@ function readEntry(root: string): NoticeEntry {
             : (pkg.license?.type ?? pkg.licenses?.map((l) => l.type).join(' OR ') ?? 'UNKNOWN');
     const repo = typeof pkg.repository === 'string' ? pkg.repository : pkg.repository?.url;
     const texts = readdirSync(root)
-        .filter((file) => LICENCE_FILE.test(file))
+        .filter((file) => LICENCE_FILE.test(file) || extraFiles.includes(file))
         .sort()
-        .map((file) => ({ file, text: readFileSync(path.join(root, file), 'utf8').trim() }))
+        .map((file) => {
+            const full = readFileSync(path.join(root, file), 'utf8');
+            return { file, text: (stopAt ? full.split(stopAt)[0] : full).trim() };
+        })
         .filter((item) => item.text.length > 0);
     return {
         name: pkg.name ?? path.basename(root),
@@ -141,25 +156,34 @@ export function thirdPartyNotices(options: NoticesOptions): Plugin {
         apply: 'build',
         generateBundle(_output, bundle) {
             const roots = new Set<string>();
+            const helpers = new Set<(typeof BUILD_HELPERS)[number]>();
             for (const item of Object.values(bundle)) {
                 if (item.type !== 'chunk') continue;
                 for (const [id, info] of Object.entries(item.modules)) {
                     if (info.renderedLength === 0) continue; // tree-shaken away
                     const pkg = packageFromModuleId(id);
-                    if (pkg) roots.add(pkg.root);
+                    if (pkg) {
+                        roots.add(pkg.root);
+                    } else if (id.startsWith('\0')) {
+                        const helper = BUILD_HELPERS.find((item) => id.startsWith(item.prefix));
+                        if (helper) helpers.add(helper);
+                        else this.warn(`third-party-notices: unknown helper module "${id.slice(1)}" is not in the notices`);
+                    }
                 }
             }
-            for (const name of options.extraPackages ?? []) {
+            const dirOf = (name: string) => {
                 const dir = findPackageDir(name, process.cwd());
                 if (!dir) this.error(`third-party-notices: package "${name}" not found`);
-                roots.add(dir);
-            }
+                return dir;
+            };
+            for (const name of options.extraPackages ?? []) roots.add(dirOf(name));
 
             const byKey = new Map<string, NoticeEntry>();
-            for (const root of roots) {
-                const entry = readEntry(root);
-                byKey.set(`${entry.name}@${entry.version}`, entry);
-            }
+            const found = [
+                ...[...roots].map((root) => readEntry(root)),
+                ...[...helpers].map((helper) => readEntry(dirOf(helper.name), helper)),
+            ];
+            for (const entry of found) byKey.set(`${entry.name}@${entry.version}`, entry);
             const entries = [...byKey.values()].sort((a, b) => a.name.localeCompare(b.name));
 
             for (const entry of entries) {
