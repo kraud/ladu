@@ -225,7 +225,9 @@ jobs:
           build-args: ${{ matrix.build-args }}
       # A build can succeed while a package is missing from the final image, and
       # then the deploy fails. Load what the deploy runs: the migrator and the app.
-      # No database is needed, because nothing connects while the app loads.
+      # No database is needed, because nothing connects while the app loads. Sentry
+      # starts too (with an address that answers nothing), because the image leaves
+      # out some of its packages (backend/Dockerfile).
       - name: Load the app inside ladu-backend
         if: matrix.image == 'backend'
         run: >-
@@ -233,7 +235,7 @@ jobs:
           -e DATABASE_URL=postgresql://ci:ci@127.0.0.1:1/ci
           -e JWT_SECRET=ci
           ladu-backend:ci
-          node -e "require('tsx/cjs'); require('drizzle-orm/node-postgres/migrator'); require('./app'); process.exit(0)"
+          node -e "require('tsx/cjs'); require('@sentry/node').init({ dsn: 'http://ci@127.0.0.1:9/1', ...require('./lib/sentry').sentryOptions }); require('drizzle-orm/node-postgres/migrator'); require('./app'); process.exit(0)"
       - name: Scan ladu-${{ matrix.image }} for vulnerabilities
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:

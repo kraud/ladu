@@ -1,6 +1,6 @@
 # Plan: Dependency updates (replaces Dependabot PR #139)
 
-Status: in progress. Written on 2026-11-26. PR 1 (#151), PR 2 (#154), PR 3 (#157), PR 4 (#159), PR 5 (#161), PR 6 (#162), PR 7 (#163), PR 8 (#164), PR 9 (#165) and PR 10 (#166) merged. The deploy of PR 2 failed and the hotfix (#156) repaired it (log 23). PR 11 is built and checked locally; not merged yet.
+Status: in progress. Written on 2026-11-26. PR 1 (#151), PR 2 (#154), PR 3 (#157), PR 4 (#159), PR 5 (#161), PR 6 (#162), PR 7 (#163), PR 8 (#164), PR 9 (#165), PR 10 (#166) and PR 11 (#167) merged. The deploy of PR 2 failed and the hotfix (#156) repaired it (log 23). PR 12 is built and checked locally; not merged yet.
 
 Goal: bring in the updates of PR #139 through small PRs. Each PR can be reviewed, tested and reverted alone. **Do not merge #139.**
 
@@ -21,8 +21,8 @@ Update this table when a PR opens and when it merges.
 | 8 | React 19 | Medium | Merged on 2026-11-27; CI and the production deploy passed | #164 |
 | 9 | `@tanstack/react-table` 9 | Medium | Merged on 2026-11-27 | #165 |
 | 10 | `@hookform/resolvers` 7 | Medium | Merged on 2026-11-27; CI and the production deploy passed | #166 |
-| 11 | i18next 27 and `react-i18next` 18 | Medium | Checked locally; waits for the PR | |
-| 12 | Sentry 11 (backend and frontend) | **High (privacy)** | Not started | |
+| 11 | i18next 27 and `react-i18next` 18 | Medium | Merged on 2026-11-27; the production deploy passed | #167 |
+| 12 | Sentry 11 (backend and frontend) | **High (privacy)** | Checked locally; waits for the PR | |
 | 13 | Close the plan; turn Dependabot on again | Low | Not started | |
 
 ## Starting point (checked on 2026-11-26)
@@ -381,9 +381,11 @@ Done when: all checks pass, and the five languages were opened in the browser.
 - In the browser, with 5 browser languages and 2 saved codes, the app asked only for existing folders, and the language change worked. No console warning or error. The saved code stays as before (for example `en-US`).
 - After the fix: lint, typecheck, frontend tests 2140 and build passed; app JavaScript 491.78 kB (gzip). The `frontend` image built again and passed Trivy. The first E2E run failed 1 test (log 56); the second passed 149.
 
+**Merged** as #167 on 2026-11-27. The `Deploy` workflow passed.
+
 ### PR 12: Sentry 11
 
-Branch: `deps/12-sentry-11`
+Branch: `deps/12-sentry`
 
 **The main risk is privacy.** In version 10, extra data was off by default. In version 11 it is **on** by default: request and response bodies (this includes passwords), cookies, headers, query values (this can include tokens), user data, database query data and local variables.
 
@@ -398,6 +400,25 @@ Branch: `deps/12-sentry-11`
 9. Check if a screen crash that an error panel catches reaches Sentry (log 44).
 
 Done when: the privacy test passes, and a real staging event shows no sensitive data.
+
+**Changes to the steps (2026-11-27):** step 4 became log 57. Steps 3 and 9 grew (logs 59 to 61 and 44). The user made the decisions of logs 59, 60, 44, 62, 63 and 64.
+
+**Result (2026-11-27):**
+- `@sentry/node` and `@sentry/react` 10.78.0 → 11.15.0. The 7-day rule skipped newer releases.
+- **Settings:** `backend/lib/sentry.ts` and the new `frontend/src/lib/sentry.ts` set `dataCollection` (D2), remove console lines (app: clicks too), replace the secret parts of addresses, and remove database values. In the backend, `reportCrash` replaces `markRefusal` and `setupExpressErrorHandler`. In the app, `onCaughtError` reports the crashes that an error panel catches.
+- **Tests:** `backend/tests/sentry.test.js` has 10 cases (before: 2). New `frontend/src/lib/sentry.test.tsx` has 8. With empty settings, 9 backend cases and all 8 app cases fail.
+- **Initialization (step 5):** `Sentry.init()` before `require('../app')` still works. No `--import` or `--require` is needed. Tracing stays off.
+- **Local real run:** the backend image sent one report for a real crash to a local receiver, and none for a 400 or for a body that is not JSON. The built app sent its reports to a local receiver after a crash on the reset page and on the sign-in return page. No test secret, IP address or user data was in them.
+- **Lockfile:** 30 packages added and 13 removed in the production tree. The OpenTelemetry instrumentation packages left. `oxc-parser` (with its platform packages), `glob`, `sentry` and the bundler plugins came in (log 62). `web-vitals` 6.2.3 came in under the browser SDK; the build does not include it.
+- **Backend image:** it does not ship `sentry` or `@sentry/bundler-plugins`. The CI load step now also starts Sentry inside the image.
+- **Licence notices:** the version lines of the Sentry packages changed. **File size (gzip):** app JavaScript +3.3 kB (same measure before and after).
+- The three images (`backend`, `frontend`, `admin`) built and passed Trivy (HIGH and CRITICAL). The backend image passed the CI load command, migrated a temporary database and answered `/api/health`.
+- Audit: 9 moderate, 0 high; production 0. One React version (19.3.1).
+
+**User, after the merge:**
+1. Check that the `Deploy` workflow passed.
+2. Cause one test error on staging and read the full event in Sentry (step 8).
+3. Delete the old events that can hold sensitive data (logs 21, 59 and 60).
 
 ### PR 13: Close the plan
 
@@ -469,7 +490,7 @@ Issues found while checking #139 and writing this plan. Add new rows during the 
 | 19 | Minor | `tsc` on `e2e/` reports one unused variable (`language-french-forms.spec.ts:423`). CI does not type-check `e2e/`. | Not changed (not part of this update). |
 | 20 | Moderate | Express 5 gives a `listen` error to the callback. With a busy port, the server printed "Server started" and stayed alive. Not seen in the plan. | PR 3: `api/index.js` throws the error. |
 | 21 | Major | Present on `main` before this plan: the backend sent the request body (login passwords), the login token and the cookies to Sentry, also for 4xx refusals. | PR 3 (user decision). Old events in Sentry are for the user to check and delete. |
-| 22 | Moderate | Still sent in a backend crash report: the database error text with its values (it can hold an email, a password hash or words), and the URL and query string (a verification link holds a token in its path). `landing/privacy.html` says reports hold no vocabulary content. | Open. Decide in PR 12, or earlier. |
+| 22 | Moderate | Still sent in a backend crash report: the database error text with its values (it can hold an email, a password hash or words), and the URL and query string (a verification link holds a token in its path). `landing/privacy.html` says reports hold no vocabulary content. | Closed in PR 12 (logs 59 and 60). |
 | 23 | Blocker | The deploy of PR 2 failed at the staging migration: `Cannot find module 'drizzle-orm/node-postgres'`. `npm update` moved `drizzle-orm` into `backend/node_modules`, and `backend/Dockerfile` copied only the root folder. CI builds the image but does not run it. Staging and production stayed on the PR 1 release. | Fixed in #156 (user decision: own PR): the Dockerfile copies both folders, and a CI step loads the app inside the image. A replay shows that `npm update --save` moved the package. Only one copy exists; why npm moved it is not known. The PR 2 lockfile report listed the move, but the display command hid those lines. |
 | 24 | Minor | #153 was still open when PR 2 merged. Dependabot refreshed it as #155. | The user closes #155. With no open npm PR, nothing is left to refresh (check after the next weekly run). |
 | 25 | Minor | The merge of #157 refreshed the open #155, and Dependabot opened #158 in its place (the same cause as log 24). | The user closes #158 while no Dependabot job is running. Check after the next weekly run that no new one appears. |
@@ -491,7 +512,7 @@ Issues found while checking #139 and writing this plan. Add new rows during the 
 | 41 | Minor | Present before this plan: on a 390 px phone screen, the practice card is too narrow for its second line. "No hint available" goes past the card, and the page is wider than the screen. Both `cn` versions show it. | Open: user decision. |
 | 42 | Moderate | React 19 keeps a `Suspense` fallback for at least 300 ms. At start, the app waited for the language files with `Suspense`, so the first screen came later, also in production. Local production build, `/login`: content after 123 ms (React 18) and 410 ms (React 19); the files were ready after about 110 ms. All tests passed. The change between `/login` and `/register` did not change (11 ms), and the first screen of the admin changed little (52 → 65 ms). Page changes after the login were not timed. | PR 8 (user decision): `LanguageGate` shows the loading screen until i18next is ready. Measured: 129 ms. |
 | 43 | Minor | Development only: pages load about 0.6 s slower, and the local E2E run takes longer. `/login`: app about 290 → 1221 ms (927 ms with the gate), admin 194 → 836 ms. A CPU profile of the admin shows 549 ms in `createElement`: React 19 records a call stack for new elements. Probable source, not proven: the icon library creates thousands of elements when it loads. | Deferred (user decision): idea I-19. |
-| 44 | Minor | From reading the code, not tested: a screen crash that an error panel catches does not reach Sentry, on React 18 or 19. | Check in PR 12 (step 9). |
+| 44 | Minor | From reading the code, not tested: a screen crash that an error panel catches does not reach Sentry, on React 18 or 19. | Confirmed by a test. PR 12 (user decision): `onCaughtError` reports these crashes. |
 | 45 | Minor | The bundles are about 23 kB (gzip) larger in each app. They are production builds with one React version, so the growth comes with React. | Accepted. |
 | 46 | Moderate | The "Select all" checkbox. Version 8 counted the selected words of all pages, so it was empty with some rows of the page selected and enough words selected on other pages, and half when only other pages had a selection. Version 9 shows half for any selection on any page. | PR 9 (user decision): only the page on screen counts. A click does what it did before. |
 | 47 | Minor | In version 9, a table method or option exists only with its feature. `getVisibleCells`, `size` and the `manual…` options belong to features that we do not use. | PR 9: `getAllCells` (no column can be hidden); `size` (never read) and the `manual…` options removed. |
@@ -504,3 +525,11 @@ Issues found while checking #139 and writing this plan. Add new rows during the 
 | 54 | Minor | `t()` on a key group now returns the key, not the sentence "returned an object instead of string". The only call on a group (`not-found.tsx`) asks for the object and gets it. | Accepted. |
 | 55 | Moderate | Present before this plan: `load: 'languageOnly'` is inside the `backend` options in `src/i18n.ts`, so `i18next` ignores it. With a browser language such as `en-US` and no saved choice, the app also asks for 14 files under `/locales/en-US/`, which do not exist, and saves `en-US`. Then it uses `en`. Production answers such a path with status 200 and the HTML page. The text is correct. Old and new versions do the same. | PR 11 (user decision): fixed, with 1 new test. Rejected: a separate PR, or an idea for later. |
 | 56 | Minor | E2E `phase-3-5-dashboard` failed once, after the fix of log 55: after 30 seconds, the test did not find the Save button, which the screenshot shows. Two suggestion lists were open. It then passed 15 times in sequence (30 of 30 tests) and in a second full run. Probable cause, not proven: an open list hides the rest of the page from the test. | Not changed. Check if it fails again. |
+| 57 | Blocker | Sentry 11 captures a route error before `markRefusal` runs, so a 4xx refusal was reported. Without `setupExpressErrorHandler` it was reported too. | PR 12: the automatic Express capture is off, and `reportCrash` reports. |
+| 58 | Major | With default settings, Sentry 11 sends the user's IP address from the backend, and tells Sentry to infer it for the app. | PR 12: `userInfo: false` (D2). |
+| 59 | Major | Present before this plan: reports held reset and verification tokens in the path. The app's reports could also hold the login token or ticket of the Google sign-in (`/auth/callback#token=`). D2 does not remove these. | PR 12 (user decision): both apps replace them. Rejected: a separate PR. |
+| 60 | Major | Present before this plan: reports could hold words or personal data from console lines, click breadcrumbs (button labels) and database error text. | PR 12 (user decision): all three removed. Rejected: only the database values, or only a new privacy text. |
+| 61 | Major | Present before this plan, found during PR 12: the dictionary addresses (ours and Ekilex) hold the word. | PR 12: replaced, under the decision of log 60. |
+| 62 | Moderate | `@sentry/node` 11 installs `sentry` 0.49.0 (about 22 MB, licence FSL-1.1, not open source) and bundler plugins (about 20 MB). The server does not load them. | PR 12 (user decision): the backend image removes both. Rejected: accept and record. |
+| 63 | Moderate | Present before this plan, found by a new test: a body that is not valid JSON got 500. | PR 12 (user decision): 400 with a fixed message (`errorMiddleware.js`). Rejected: an idea for later. |
+| 64 | Moderate | Present before this plan: the app sends a session message on each load, but `landing/privacy.html` said that Sentry gets reports when something breaks. | PR 12 (user decision): the page says it. Rejected: turn sessions off. |

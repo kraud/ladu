@@ -4,6 +4,7 @@ import * as Sentry from '@sentry/react';
 import { Providers } from './app/Providers';
 import { gitSha, sentryDsn } from './env';
 import './i18n';
+import { rootOptions, sentryOptions } from './lib/sentry';
 import './styles.css';
 import { initTheme } from './lib/theme';
 
@@ -17,9 +18,10 @@ Sentry.init({
     dsn: sentryDsn,
     environment: window.location.hostname.startsWith('staging.') ? 'staging' : 'production',
     release: gitSha,
+    ...sentryOptions,
 });
 
-createRoot(document.getElementById('root') as HTMLElement).render(
+createRoot(document.getElementById('root') as HTMLElement, rootOptions).render(
     <StrictMode>
         <Providers />
     </StrictMode>,

@@ -25,8 +25,8 @@ if (process.env.NODE_ENV !== 'production') {
 // inert — init() patches Node's http/https modules for its default
 // integrations regardless of whether a DSN is configured, which is exactly
 // the kind of global side effect the test suite (SENTRY_DSN unset) doesn't
-// want. Sentry.captureException() elsewhere (setupExpressErrorHandler in
-// app.js) is a documented no-op when the SDK was never initialized, so
+// want. Sentry.captureException() elsewhere (reportCrash in
+// lib/sentry.ts) is a documented no-op when the SDK was never initialized, so
 // skipping init() entirely here is safe.
 const Sentry = require('@sentry/node');
 if (process.env.SENTRY_DSN) {

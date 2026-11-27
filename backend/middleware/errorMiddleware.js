@@ -4,17 +4,23 @@
 // which can include a password hash.
 const UNEXPECTED_ERROR_MESSAGE = 'Internal server error';
 
+const INVALID_BODY_MESSAGE = 'Invalid request body';
+
 const errorHandler = (err, req, res, next) => {
     // Handlers set a 4xx (or, rarely, a 5xx such as 503) via res.status() before
     // throwing, with a message written for the client. Anything else is an
     // unanticipated error. Never leak err.stack to the client.
     const deliberate = res.statusCode >= 400;
-    const statusCode = deliberate ? res.statusCode : 500;
+    // The body parsers refuse a request before any handler runs: the status is on
+    // the error, and `expose` marks it as the client's fault. Their messages can
+    // quote the body, so the client gets a fixed one.
+    const badBody = !deliberate && err.expose === true && err.status >= 400 && err.status < 500;
+    const statusCode = deliberate ? res.statusCode : badBody ? err.status : 500;
 
     res.status(statusCode);
 
-    let message = err.message;
-    if (!deliberate) {
+    let message = badBody ? INVALID_BODY_MESSAGE : err.message;
+    if (!deliberate && !badBody) {
         message = UNEXPECTED_ERROR_MESSAGE;
         // The real error stays on the server. Sentry reports it (see app.js);
         // the log line covers setups without a DSN. Silent in tests, where

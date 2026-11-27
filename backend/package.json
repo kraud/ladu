@@ -23,7 +23,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@sentry/node": "^10.78.0",
+    "@sentry/node": "^11.15.0",
     "bcryptjs": "^3.0.3",
     "colors": "^1.4.0",
     "cors": "^2.8.6",
