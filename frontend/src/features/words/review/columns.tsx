@@ -1,4 +1,3 @@
-import type { ColumnDef } from '@tanstack/react-table';
 import { ArrowDownIcon, ArrowUpIcon, PlusIcon } from '@phosphor-icons/react';
 import type { TFunction } from 'i18next';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -7,9 +6,10 @@ import { TagChip } from '@/components/common/TagChip';
 import { avatarInitials } from '@/lib/avatar';
 import { partOfSpeechLabelKey } from '@/lib/words';
 import { PartOfSpeech } from '@/ts/enums';
-import type { LangKey, WordSimpleBE } from '@/features/words/types';
+import type { LangKey } from '@/features/words/types';
 import { WordCell } from './WordCell';
 import type { LanguageSort } from './useLanguageSort';
+import type { WordColumnDef } from './wordTable';
 
 /** `Noun` -> `"review:table.posAbbr.noun"`, mirroring `lib/words.ts`'s `partOfSpeechLabelKey`. Exported for `FilterBar`'s PoS chips (Slice 7), same abbreviations as the Type column. */
 export function posAbbrKey(pos: PartOfSpeech): string {
@@ -93,14 +93,12 @@ function SortHeader({
  * for the same reason as `buildLanguageColumns` below: `WordPicker` and
  * `TagWordsTable` (`features/tags/components/`, .context/features/tags.md D18/Slice 6)
  * each need this exact abbreviation column without Review's own select/owner
- * column alongside it. `size` differs slightly per host (a picker's compact
- * row vs. Review's own column width), so it's the one parameter.
+ * column alongside it.
  */
-export function buildPartOfSpeechColumn(t: TFunction, size = 44): ColumnDef<WordSimpleBE> {
+export function buildPartOfSpeechColumn(t: TFunction): WordColumnDef {
     return {
         id: 'partOfSpeech',
         accessorKey: 'partOfSpeech',
-        size,
         header: '',
         cell: ({ row }) => (
             <span className="pos-abbr" title={t(partOfSpeechLabelKey(row.original.partOfSpeech))}>
@@ -118,7 +116,7 @@ export function buildPartOfSpeechColumn(t: TFunction, size = 44): ColumnDef<Word
  * column, which is shaped around `RowSelectionState` + a bulk-action bar,
  * not that table's own row shape.
  */
-export function buildLanguageColumns(options: BuildLanguageColumnsOptions): ColumnDef<WordSimpleBE>[] {
+export function buildLanguageColumns(options: BuildLanguageColumnsOptions): WordColumnDef[] {
     const { languages, userId, showGender, showProgress, editable, onOpenCell, sort, onSort, t } = options;
 
     return languages.map((langKey) => ({
@@ -156,7 +154,7 @@ export function buildTagsColumn(
     t: TFunction,
     userId: string,
     onOpenTags?: (wordId: string) => void,
-): ColumnDef<WordSimpleBE> {
+): WordColumnDef {
     return {
         id: 'tags',
         header: () => t('review:table.tags'),
@@ -193,10 +191,9 @@ export function buildTagsColumn(
 }
 
 /** The owner dot: the user's initials on their own words, "G" on a word that belongs to someone else. */
-export function buildOwnerColumn(t: TFunction, userId: string, userName: string): ColumnDef<WordSimpleBE> {
+export function buildOwnerColumn(t: TFunction, userId: string, userName: string): WordColumnDef {
     return {
         id: 'owner',
-        size: 32,
         header: '',
         cell: ({ row }) => {
             const isOwn = row.original.user === userId;
@@ -215,16 +212,17 @@ export function buildOwnerColumn(t: TFunction, userId: string, userName: string)
 /**
  * The checkbox column: a header checkbox (select the page) and one checkbox per row. Desktop only —
  * on a phone rows are selected by a long press (`useRowPress`). Shared by `/words` and `/tag/:id`.
+ *
+ * The header checkbox shows the page on screen only: words selected on other pages do not change it.
  */
-export function buildSelectColumn(t: TFunction): ColumnDef<WordSimpleBE> {
+export function buildSelectColumn(t: TFunction): WordColumnDef {
     return {
         id: 'select',
-        size: 44,
         header: ({ table }) => (
             <Checkbox
-                checked={table.getIsAllRowsSelected()}
-                indeterminate={table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()}
-                onCheckedChange={(checked) => table.toggleAllRowsSelected(Boolean(checked))}
+                checked={table.getIsAllPageRowsSelected()}
+                indeterminate={table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()}
+                onCheckedChange={(checked) => table.toggleAllPageRowsSelected(Boolean(checked))}
                 aria-label={t('review:table.selectAll')}
             />
         ),
@@ -243,7 +241,7 @@ export function buildSelectColumn(t: TFunction): ColumnDef<WordSimpleBE> {
  * select (desktop) -> owner -> Type -> one column per language -> Tags (D1), in that order. The owner
  * and Type columns come and go with their display switches.
  */
-export function buildWordColumns(options: BuildColumnsOptions): ColumnDef<WordSimpleBE>[] {
+export function buildWordColumns(options: BuildColumnsOptions): WordColumnDef[] {
     const { languages, userId, userName, showGender, showProgress, selectable, showOwner, showPos, t, onOpenCell, onOpenTags, sort, onSort } =
         options;
 
@@ -252,7 +250,7 @@ export function buildWordColumns(options: BuildColumnsOptions): ColumnDef<WordSi
     return [
         ...(selectable ? [buildSelectColumn(t)] : []),
         ...(showOwner ? [buildOwnerColumn(t, userId, userName)] : []),
-        ...(showPos ? [buildPartOfSpeechColumn(t, 52)] : []),
+        ...(showPos ? [buildPartOfSpeechColumn(t)] : []),
         ...languageColumns,
         buildTagsColumn(t, userId, onOpenTags),
     ];

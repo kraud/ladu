@@ -1,6 +1,6 @@
 # Plan: Dependency updates (replaces Dependabot PR #139)
 
-Status: in progress. Written on 2026-11-26. PR 1 (#151), PR 2 (#154), PR 3 (#157), PR 4 (#159), PR 5 (#161), PR 6 (#162) and PR 7 (#163) merged. The deploy of PR 2 failed and the hotfix (#156) repaired it (log 23). PR 8 is built and checked locally; not merged yet.
+Status: in progress. Written on 2026-11-26. PR 1 (#151), PR 2 (#154), PR 3 (#157), PR 4 (#159), PR 5 (#161), PR 6 (#162), PR 7 (#163) and PR 8 (#164) merged. The deploy of PR 2 failed and the hotfix (#156) repaired it (log 23). PR 9 is built and checked locally; not merged yet.
 
 Goal: bring in the updates of PR #139 through small PRs. Each PR can be reviewed, tested and reverted alone. **Do not merge #139.**
 
@@ -18,8 +18,8 @@ Update this table when a PR opens and when it merges.
 | 5 | Test tooling: `jsdom` 31, `msw` 3, `jest-dom` 8 | Medium | Merged on 2026-11-26; CI and the production deploy passed | #161 |
 | 6 | Vite 8 and `@vitejs/plugin-react` 6 | Medium | Merged on 2026-11-26; the production deploy passed | #162 |
 | 7 | `react-error-boundary` 6, `react-toastify` 11, `zustand` 5, `cn` 0.5 | Medium | Merged on 2026-11-26; CI and the production deploy passed | #163 |
-| 8 | React 19 | Medium | Checked locally; waits for the PR | |
-| 9 | `@tanstack/react-table` 9 | Medium | Not started | |
+| 8 | React 19 | Medium | Merged on 2026-11-27; CI and the production deploy passed | #164 |
+| 9 | `@tanstack/react-table` 9 | Medium | Checked locally; waits for the PR | |
 | 10 | `@hookform/resolvers` 7 | Medium | Not started | |
 | 11 | i18next 27 and `react-i18next` 18 | Medium | Not started | |
 | 12 | Sentry 11 (backend and frontend) | **High (privacy)** | Not started | |
@@ -295,16 +295,29 @@ Done when: all checks pass.
 - Final checks, all passed: `npm ci`; lint and typecheck (3 workspaces; no errors); both builds; backend 2996, frontend 2132, admin 329, E2E 149 (3.5 minutes). One React version (19.3.1). Audit: 9 moderate, 0 high; production 0.
 - Not run locally: the `landing` image (not changed) and the E2E suite on the built apps (the production build was opened only on the public pages).
 
+**Merged** as #164 on 2026-11-27. The `Deploy` workflow passed. CI on `main` passed too.
+
 ### PR 9: TanStack Table 9
 
-Branch: `deps/09-react-table-9`
+Branch: `deps/09-react-table`
 
 1. Use the new API. Do not use `useLegacyTable` (deprecated, temporary).
 2. Files: `words/review/ReviewTable.tsx`, `words/review/columns.tsx`, `words/review/useWordSelection.ts`, `tags/components/TagWordsTable.tsx`, and their two test files.
 3. Main changes: `useReactTable` → `useTable`; a required `features` object (`tableFeatures`); row models move into it; `ColumnDef` needs the feature type first; row methods cannot be destructured.
 4. Test by hand: select rows, select all, selection across pages, the half-selected checkbox, sorting, the phone view.
 
-Done when: all checks pass and the selection behaviour is the same as before.
+Done when: all checks pass and the selection behaviour is the same as before, except the "Select all" checkbox (log 46).
+
+**Result (2026-11-27):**
+- `@tanstack/react-table` and `@tanstack/table-core` 8.21.3 → 9.3.1. In the lockfile, only these two packages changed. They use the same `@tanstack/store` copy as the router.
+- Both tables use `useTable` with one feature, row selection (new file `words/review/wordTable.ts`). `useWordSelection.ts` and `TagWordsTable.test.tsx` did not need a change.
+- **"Select all" checkbox (log 46):** it now shows the page on screen. 7 new tests; 2 of them fail with the version 9 default rule.
+- **Browser comparison:** one temporary script ran on the old code and on the new code (`/words` and `/tag/:id`, desktop and phone, 60 words on 2 pages). It checked: rows, "Select all", "(+ all pages)", selection across pages, the Space key focus, sorting, remove mode, long press, tap, cell classes and the console. The only differences are the 7 places where the header checkbox follows the new rule. 10 of 12 screenshots are identical byte for byte; the other 2 show no difference by eye. The script was removed.
+- **Licence notices:** only the two version lines changed.
+- **File size (gzip):** app JavaScript 493.47 → 490.03 kB.
+- The three images (`backend`, `frontend`, `admin`) built and passed Trivy (HIGH and CRITICAL). The backend image passed the CI load command, migrated a temporary database and answered `/api/health`.
+- Final checks, all passed: `npm ci`; lint and typecheck (3 workspaces; no errors); both builds; backend 2996, frontend 2139, admin 329, E2E 149 (3.4 minutes). One React version (19.3.1). Audit: 9 moderate, 0 high; production 0.
+- Not run locally: the `landing` image (not changed).
 
 ### PR 10: Form resolvers
 
@@ -443,3 +456,6 @@ Issues found while checking #139 and writing this plan. Add new rows during the 
 | 43 | Minor | Development only: pages load about 0.6 s slower, and the local E2E run takes longer. `/login`: app about 290 → 1221 ms (927 ms with the gate), admin 194 → 836 ms. A CPU profile of the admin shows 549 ms in `createElement`: React 19 records a call stack for new elements. Probable source, not proven: the icon library creates thousands of elements when it loads. | Deferred (user decision): idea I-19. |
 | 44 | Minor | From reading the code, not tested: a screen crash that an error panel catches does not reach Sentry, on React 18 or 19. | Check in PR 12 (step 9). |
 | 45 | Minor | The bundles are about 23 kB (gzip) larger in each app. They are production builds with one React version, so the growth comes with React. | Accepted. |
+| 46 | Moderate | The "Select all" checkbox. Version 8 counted the selected words of all pages, so it was empty with some rows of the page selected and enough words selected on other pages, and half when only other pages had a selection. Version 9 shows half for any selection on any page. | PR 9 (user decision): only the page on screen counts. A click does what it did before. |
+| 47 | Minor | In version 9, a table method or option exists only with its feature. `getVisibleCells`, `size` and the `manual…` options belong to features that we do not use. | PR 9: `getAllCells` (no column can be hidden); `size` (never read) and the `manual…` options removed. |
+| 48 | Minor | Version 9 types a selected row as `true` only (before: `boolean`). The app code already stored only `true`. | PR 9: only a test helper needed the type. |

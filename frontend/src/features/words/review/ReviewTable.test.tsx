@@ -138,6 +138,46 @@ describe('ReviewTable — selection', () => {
     });
 });
 
+describe('ReviewTable — the "Select all" checkbox shows the page on screen', () => {
+    const rows = [makeRow({ id: 'word-a' }), makeRow({ id: 'word-b' })];
+    const selected = (...ids: string[]): RowSelectionState => Object.fromEntries(ids.map((id) => [id, true as const]));
+
+    it.each([
+        { name: 'nothing is selected', ids: [], state: 'false' },
+        { name: 'one row of the page is selected', ids: ['word-a'], state: 'mixed' },
+        { name: 'one row of the page and a word of another page are selected', ids: ['word-a', 'other-1'], state: 'mixed' },
+        { name: 'only words of other pages are selected', ids: ['other-1'], state: 'false' },
+        { name: 'every row of the page is selected', ids: ['word-a', 'word-b'], state: 'true' },
+        { name: 'every row of the page and a word of another page are selected', ids: ['word-a', 'word-b', 'other-1'], state: 'true' },
+    ])('is "$state" when $name', ({ ids, state }) => {
+        renderWithProviders(<ReviewTable {...baseProps} rows={rows} rowSelection={selected(...ids)} />);
+        expect(screen.getByRole('checkbox', { name: 'Select all rows' })).toHaveAttribute('aria-checked', state);
+    });
+
+    it('selects and unselects the rows of the page, and keeps a word of another page selected', async () => {
+        const user = userEvent.setup();
+        function Table() {
+            const [rowSelection, setRowSelection] = useState<RowSelectionState>(selected('other-1'));
+            return (
+                <>
+                    <output>{Object.keys(rowSelection).sort().join(' ')}</output>
+                    <ReviewTable {...baseProps} rows={rows} rowSelection={rowSelection} onRowSelectionChange={setRowSelection} />
+                </>
+            );
+        }
+        renderWithProviders(<Table />);
+        const selectAll = screen.getByRole('checkbox', { name: 'Select all rows' });
+
+        await user.click(selectAll);
+        expect(screen.getByRole('status')).toHaveTextContent('other-1 word-a word-b');
+        expect(selectAll).toHaveAttribute('aria-checked', 'true');
+
+        await user.click(selectAll);
+        expect(screen.getByRole('status')).toHaveTextContent(/^other-1$/);
+        expect(selectAll).toHaveAttribute('aria-checked', 'false');
+    });
+});
+
 describe('ReviewTable — a click on the row opens the word', () => {
     const row = makeRow({ id: 'word-a', dataEN: 'apple', storedLanguages: ['English'] });
 
