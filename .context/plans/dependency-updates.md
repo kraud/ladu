@@ -1,6 +1,6 @@
 # Plan: Dependency updates (replaces Dependabot PR #139)
 
-Status: in progress. Written on 2026-11-26. PR 1 (#151), PR 2 (#154), PR 3 (#157), PR 4 (#159), PR 5 (#161), PR 6 (#162), PR 7 (#163), PR 8 (#164) and PR 9 (#165) merged. The deploy of PR 2 failed and the hotfix (#156) repaired it (log 23). PR 10 is built and checked locally; not merged yet.
+Status: in progress. Written on 2026-11-26. PR 1 (#151), PR 2 (#154), PR 3 (#157), PR 4 (#159), PR 5 (#161), PR 6 (#162), PR 7 (#163), PR 8 (#164), PR 9 (#165) and PR 10 (#166) merged. The deploy of PR 2 failed and the hotfix (#156) repaired it (log 23). PR 11 is built and checked locally; not merged yet.
 
 Goal: bring in the updates of PR #139 through small PRs. Each PR can be reviewed, tested and reverted alone. **Do not merge #139.**
 
@@ -20,8 +20,8 @@ Update this table when a PR opens and when it merges.
 | 7 | `react-error-boundary` 6, `react-toastify` 11, `zustand` 5, `cn` 0.5 | Medium | Merged on 2026-11-26; CI and the production deploy passed | #163 |
 | 8 | React 19 | Medium | Merged on 2026-11-27; CI and the production deploy passed | #164 |
 | 9 | `@tanstack/react-table` 9 | Medium | Merged on 2026-11-27 | #165 |
-| 10 | `@hookform/resolvers` 7 | Medium | Checked locally; waits for the PR | |
-| 11 | i18next 27 and `react-i18next` 18 | Medium | Not started | |
+| 10 | `@hookform/resolvers` 7 | Medium | Merged on 2026-11-27; CI and the production deploy passed | #166 |
+| 11 | i18next 27 and `react-i18next` 18 | Medium | Checked locally; waits for the PR | |
 | 12 | Sentry 11 (backend and frontend) | **High (privacy)** | Not started | |
 | 13 | Close the plan; turn Dependabot on again | Low | Not started | |
 
@@ -344,6 +344,8 @@ Done when: all checks pass without `any` and without `@ts-ignore`.
 - Final checks, all passed: `npm ci`; lint and typecheck (3 workspaces; no errors); both builds; backend 2996, frontend 2139, admin 329, E2E 149 (3.5 minutes). One React version (19.3.1). Audit: 9 moderate, 0 high; production 0.
 - Not run locally: the `landing` image (not changed).
 
+**Merged** as #166 on 2026-11-27. The `Deploy` workflow passed. CI on `main` passed too.
+
 ### PR 11: i18n
 
 Branch: `deps/11-i18n`
@@ -357,6 +359,27 @@ Branch: `deps/11-i18n`
 4. The new types check interpolation values by default. Fix the errors; do not turn the check off without a reason.
 
 Done when: all checks pass, and the five languages were opened in the browser.
+
+**Result (2026-11-27):**
+- `i18next` 26.7.2 → 27.2.2, `react-i18next` 15.7.4 → 18.0.3. The 7-day rule skipped newer releases. The update needed no source change.
+- **Lockfile:** `html-parse-stringify` 3.1.0 → 4.0.1, and `void-elements` left. `ajv` 6 and 4 packages under it changed their flag from `dev` to `devOptional` (same versions).
+- **Release notes:** read for all versions in between (`react-i18next` 16, 17 and 18; `i18next` 26.8 to 27.2).
+- **Text comparison:** a temporary test ran on the old and new versions. It called every key of the 5 languages with and without values and with 6 counts, asked for every key group, rendered the 3 `<Trans>` texts, and tried 23 language codes. Of 65 719 results, 1644 differ. All come from logs 51 to 54.
+- **Empty strings:** the only empty values are 15 `examples` entries, which no screen reads (log 51).
+- **HTML entities:** no language file holds one, and the only value inside a `<Trans>` is a number.
+- **Interpolation types:** the type check passed. Our keys have no types, so the new rule checks nothing.
+- **Browser comparison:** one temporary script ran on both versions: the public pages with 12 values of `?lng=`, 4 saved language codes, and the signed-in pages in 5 languages. Of 140 captures (text, labels, `<html lang>`, loaded files), 1 differs: a saved code `EE` (log 53). No console warning or error. 35 of 40 screenshots are identical; the other 5 show the account page with a random user name and email (checked by position, and by eye for English).
+- `ee` loads the Estonian files, and `<html lang>` is `et`. A bad `?lng=` value is ignored, as before.
+- **Licence notices:** 47 → 46 packages (`void-elements` left). The new `html-parse-stringify` is MIT. **File size (gzip):** app JavaScript 490.11 → 491.79 kB.
+- The temporary test, script and accounts were removed.
+- The three images (`backend`, `frontend`, `admin`) built and passed Trivy (HIGH and CRITICAL). The backend image passed the CI load command, migrated a temporary database and answered `/api/health`.
+- Checks of the update, all passed: `npm ci`; lint and typecheck (3 workspaces; no errors); both builds; backend 2996, frontend 2139, admin 329, E2E 149. One React version (19.3.1). Audit: 9 moderate, 0 high; production 0.
+- Not run locally: the `landing` image (not changed).
+
+**Also in this PR (user decision): log 55.** `load: 'languageOnly'` is now a top-level option in `src/i18n.ts`. The empty `backend` options left.
+- New test `src/i18n.test.ts` uses the real setup. It failed before the fix (it asked for `es-ES`).
+- In the browser, with 5 browser languages and 2 saved codes, the app asked only for existing folders, and the language change worked. No console warning or error. The saved code stays as before (for example `en-US`).
+- After the fix: lint, typecheck, frontend tests 2140 and build passed; app JavaScript 491.78 kB (gzip). The `frontend` image built again and passed Trivy. The first E2E run failed 1 test (log 56); the second passed 149.
 
 ### PR 12: Sentry 11
 
@@ -475,3 +498,9 @@ Issues found while checking #139 and writing this plan. Add new rows during the 
 | 48 | Minor | Version 9 types a selected row as `true` only (before: `boolean`). The app code already stored only `true`. | PR 9: only a test helper needed the type. |
 | 49 | Minor | `@hookform/resolvers` 7 names `ajv` 8 as an optional peer (we use only `yup`). The lint tools install `ajv` 6, so `npm ls` reports one `invalid` entry (`main`: none). The backend image now installs 6 packages that it does not use: `ajv` 6, `fast-deep-equal`, `fast-json-stable-stringify`, `json-schema-traverse`, `punycode` and `uri-js` (about 2 MB; MIT and BSD-2-Clause). Version 5.9.2 names the same peer and gives the same placement. | Accepted by the user. Rejected: `ajv` 8 as a frontend development dependency (clean `npm ls` and 1 extra package, but no code uses it). |
 | 50 | Minor | Step 2 prefers types taken from the schema. The 2 schema files write each type and mark the schema with `yup.ObjectSchema<Type>`. Version 7 accepts this, and the type check still compares both. | PR 10: not changed. No form changes a value to another type, so the input and output types are the same. |
+| 51 | Minor | `i18next` 27 treats an empty translation as missing. The 15 empty values are `examples` entries (3 word types, 5 languages, English too). `t()` now returns the key for them. The app does not read them. | Accepted: no setting changed. |
+| 52 | Minor | When a plural form is missing, `i18next` 27.1 takes the `_other` form of the same language. Spanish and French use the form `many` for exact millions: before, such a count showed the English text. | Accepted: it is a fix. |
+| 53 | Minor | Language codes: `EN` or `EE` now give that language (before: `EE` gave English). A code with unsafe characters or more than 128 characters is refused, and the app uses English. | Accepted. |
+| 54 | Minor | `t()` on a key group now returns the key, not the sentence "returned an object instead of string". The only call on a group (`not-found.tsx`) asks for the object and gets it. | Accepted. |
+| 55 | Moderate | Present before this plan: `load: 'languageOnly'` is inside the `backend` options in `src/i18n.ts`, so `i18next` ignores it. With a browser language such as `en-US` and no saved choice, the app also asks for 14 files under `/locales/en-US/`, which do not exist, and saves `en-US`. Then it uses `en`. Production answers such a path with status 200 and the HTML page. The text is correct. Old and new versions do the same. | PR 11 (user decision): fixed, with 1 new test. Rejected: a separate PR, or an idea for later. |
+| 56 | Minor | E2E `phase-3-5-dashboard` failed once, after the fix of log 55: after 30 seconds, the test did not find the Save button, which the screenshot shows. Two suggestion lists were open. It then passed 15 times in sequence (30 of 30 tests) and in a second full run. Probable cause, not proven: an open list hides the rest of the page from the test. | Not changed. Check if it fails again. |
