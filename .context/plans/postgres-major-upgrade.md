@@ -31,7 +31,7 @@ Goal: the VPS, local dev and CI all run the same newer Postgres major version, w
 | Target version | **17**. It keeps the old data path (`/var/lib/postgresql/data`), has had more patch releases, and is supported until November 2029. 18 changes the data path (`/var/lib/postgresql/18/docker`) and needs a different volume mount. 18 is also an option later (support until November 2030). |
 | Method | Dump and restore into a **new volume**. Keep the old volume until prod has run well for one week. |
 | Downtime | Accept a short outage (about 10 to 30 minutes, to be measured on staging). Ladu has no uptime promise and the data is small. |
-| Dependabot rule | Add an `ignore` for the major version in `.github/dependabot.yml` (see slice 5), so the rule is in the repo and not only in Dependabot's own settings. |
+| Dependabot rule | Done on 2026-11-27: `.github/dependabot.yml` ignores Postgres majors. Patch PRs keep arriving. |
 
 ## Slices
 
@@ -48,8 +48,7 @@ Each slice ends with something runnable. Suggest a commit message after each sli
    5. Restore roles, then each database. Reload the autocomplete lexicon (`02-environments-and-databases.md`, section "The autocomplete lexicon").
    6. Start the app containers. Run the staging smoke test. Check `/api/health` on prod.
    7. Do **not** remove the old volume yet.
-5. **Dependabot and docs.**
-   - In `.github/dependabot.yml`, in the `docker-compose` entry, add an `ignore` rule for `postgres` with `update-types: ["version-update:semver-major"]`, and a comment: a major bump needs a dump and restore, see this plan. Patch PRs keep arriving.
+5. **Docs.**
    - Update `01-architecture-overview.md:109`, `03-development-workflow.md:208`, `02-environments-and-databases.md` (section 3, CI), `05-troubleshooting-playbook.md:45`, `deployment-strategy.md` (`:26`, `:84`, `:354`, `:488`) and `.context/README.md:169`. Add a "How to upgrade Postgres" section to the guide with the commands that worked.
 6. **Clean up, one week later.** If `ladu_prod` ran well and the nightly backup and the weekly restore test are both green on 17, remove the old volume. Then fold this plan into the guide, write the record in `archive/`, and delete this file.
 
@@ -69,7 +68,7 @@ Every slice ends with a green CI run. Slices 1 and 2 also need a green `npm run 
 - **Roles are not in a dump.** Restoring a database without `ladu_prod` and `ladu_staging` first gives permission errors. Restore the roles first.
 - **`public` schema rights.** Since Postgres 15, only the schema owner can create tables in `public` (the first live migration failed on this: `deployment-strategy.md:275`). The restored databases keep their owners, but check this after the restore by running a migration on staging.
 - **`restore-test.sh` hard-codes the image** (`postgres:15-alpine`, line 38). Change it with the VPS, or the weekly check tests the wrong version.
-- **Dependabot may offer the next major version.** The closed PR ignored only major 18. The next scan may propose 16 or 17 as a new major PR. The same rule applies: do not merge it. Slice 5 sets one permanent rule in the repo.
+- **Dependabot ignores Postgres majors** (`.github/dependabot.yml`, since 2026-11-27). It does not propose the new version, so choose it and change the files by hand. Keep the rule after the upgrade.
 - **Client and server versions.** `pg_dump` must be the same version as the server or newer. The VPS runs it inside the container, so this is safe there. On the laptop, check `pg_dump --version` if you dump by hand.
 
 ## Not in scope
