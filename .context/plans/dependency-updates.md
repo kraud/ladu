@@ -1,6 +1,6 @@
 # Plan: Dependency updates (replaces Dependabot PR #139)
 
-Status: in progress. Written on 2026-11-26. PR 1 (#151), PR 2 (#154), PR 3 (#157), PR 4 (#159), PR 5 (#161), PR 6 (#162), PR 7 (#163) and PR 8 (#164) merged. The deploy of PR 2 failed and the hotfix (#156) repaired it (log 23). PR 9 is built and checked locally; not merged yet.
+Status: in progress. Written on 2026-11-26. PR 1 (#151), PR 2 (#154), PR 3 (#157), PR 4 (#159), PR 5 (#161), PR 6 (#162), PR 7 (#163), PR 8 (#164) and PR 9 (#165) merged. The deploy of PR 2 failed and the hotfix (#156) repaired it (log 23). PR 10 is built and checked locally; not merged yet.
 
 Goal: bring in the updates of PR #139 through small PRs. Each PR can be reviewed, tested and reverted alone. **Do not merge #139.**
 
@@ -19,8 +19,8 @@ Update this table when a PR opens and when it merges.
 | 6 | Vite 8 and `@vitejs/plugin-react` 6 | Medium | Merged on 2026-11-26; the production deploy passed | #162 |
 | 7 | `react-error-boundary` 6, `react-toastify` 11, `zustand` 5, `cn` 0.5 | Medium | Merged on 2026-11-26; CI and the production deploy passed | #163 |
 | 8 | React 19 | Medium | Merged on 2026-11-27; CI and the production deploy passed | #164 |
-| 9 | `@tanstack/react-table` 9 | Medium | Checked locally; waits for the PR | |
-| 10 | `@hookform/resolvers` 7 | Medium | Not started | |
+| 9 | `@tanstack/react-table` 9 | Medium | Merged on 2026-11-27 | #165 |
+| 10 | `@hookform/resolvers` 7 | Medium | Checked locally; waits for the PR | |
 | 11 | i18next 27 and `react-i18next` 18 | Medium | Not started | |
 | 12 | Sentry 11 (backend and frontend) | **High (privacy)** | Not started | |
 | 13 | Close the plan; turn Dependabot on again | Low | Not started | |
@@ -319,6 +319,8 @@ Done when: all checks pass and the selection behaviour is the same as before, ex
 - Final checks, all passed: `npm ci`; lint and typecheck (3 workspaces; no errors); both builds; backend 2996, frontend 2139, admin 329, E2E 149 (3.4 minutes). One React version (19.3.1). Audit: 9 moderate, 0 high; production 0.
 - Not run locally: the `landing` image (not changed).
 
+**Merged** as #165 on 2026-11-27. The `Deploy` workflow passed. CI on `main` passed too.
+
 ### PR 10: Form resolvers
 
 Branch: `deps/10-form-resolvers`
@@ -329,6 +331,18 @@ Branch: `deps/10-form-resolvers`
 4. Test each form: validation messages and the sent data (login, register, reset, Google forms, access request, account, word form).
 
 Done when: all checks pass without `any` and without `@ts-ignore`.
+
+**Result (2026-11-27):**
+- `@hookform/resolvers` 3.10.0 → 7.0.7. The 7-day rule skipped 7.0.8 and 7.0.9. **No source file changed.** No `any` and no `@ts-ignore` was added.
+- **Lockfile:** the package moved from the root to `frontend/node_modules`, and `@standard-schema/utils` 0.3.0 came in. Some packages of `ajv` 8 and `zod` changed their flag from `dev` to `devOptional` (same versions) (log 49).
+- **Types:** the 9 forms with a written type infer the same types as before. The type check still rejects a form type that does not match its schema (temporary file, old and new version). In the word form, one unused type changed (`any` → `unknown`). The written types stay (log 50).
+- **Adapter comparison:** a temporary test gave the same inputs to versions 3 and 7: 9 form schemas and 30 word form configurations, 28 860 runs (23 224 with errors). Values and errors were identical. A control case (a field named `toString`) showed a difference, so the test can find one.
+- **Browser comparison:** one temporary script ran on both versions: login, register, both password reset forms, both Google forms, access request, account details, languages, and the word form (noun and verb). In 40 steps, the messages, the disabled buttons, the invalid fields, the focus and the 10 sent requests were identical. The server answers to the form requests were replaced by a refusal, so the script did not test what follows a success.
+- Both temporary tests and the test account were removed.
+- **Licence notices:** only the version line changed. **File size (gzip):** app JavaScript 490.03 → 490.11 kB.
+- The three images (`backend`, `frontend`, `admin`) built and passed Trivy (HIGH and CRITICAL). The backend image passed the CI load command, migrated a temporary database and answered `/api/health`.
+- Final checks, all passed: `npm ci`; lint and typecheck (3 workspaces; no errors); both builds; backend 2996, frontend 2139, admin 329, E2E 149 (3.5 minutes). One React version (19.3.1). Audit: 9 moderate, 0 high; production 0.
+- Not run locally: the `landing` image (not changed).
 
 ### PR 11: i18n
 
@@ -459,3 +473,5 @@ Issues found while checking #139 and writing this plan. Add new rows during the 
 | 46 | Moderate | The "Select all" checkbox. Version 8 counted the selected words of all pages, so it was empty with some rows of the page selected and enough words selected on other pages, and half when only other pages had a selection. Version 9 shows half for any selection on any page. | PR 9 (user decision): only the page on screen counts. A click does what it did before. |
 | 47 | Minor | In version 9, a table method or option exists only with its feature. `getVisibleCells`, `size` and the `manual…` options belong to features that we do not use. | PR 9: `getAllCells` (no column can be hidden); `size` (never read) and the `manual…` options removed. |
 | 48 | Minor | Version 9 types a selected row as `true` only (before: `boolean`). The app code already stored only `true`. | PR 9: only a test helper needed the type. |
+| 49 | Minor | `@hookform/resolvers` 7 names `ajv` 8 as an optional peer (we use only `yup`). The lint tools install `ajv` 6, so `npm ls` reports one `invalid` entry (`main`: none). The backend image now installs 6 packages that it does not use: `ajv` 6, `fast-deep-equal`, `fast-json-stable-stringify`, `json-schema-traverse`, `punycode` and `uri-js` (about 2 MB; MIT and BSD-2-Clause). Version 5.9.2 names the same peer and gives the same placement. | Accepted by the user. Rejected: `ajv` 8 as a frontend development dependency (clean `npm ls` and 1 extra package, but no code uses it). |
+| 50 | Minor | Step 2 prefers types taken from the schema. The 2 schema files write each type and mark the schema with `yup.ObjectSchema<Type>`. Version 7 accepts this, and the type check still compares both. | PR 10: not changed. No form changes a value to another type, so the input and output types are the same. |
