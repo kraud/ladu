@@ -1,6 +1,6 @@
 /**
- * Full-page loading state. Doubles as the i18n `<Suspense>` fallback in
- * `app/Providers.tsx` and as a route-level pending UI. Fixed height, no
+ * Full-page loading state. Used by `LanguageGate` and the `<Suspense>` fallback in
+ * `app/Providers.tsx`, and as a route-level pending UI. Fixed height, no
  * interactivity — never a spinner covering content that could load on its own.
  */
 export function LoadingScreen({ label = 'Loading…' }: { label?: string }) {

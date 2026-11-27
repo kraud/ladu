@@ -4,12 +4,13 @@
  *   ErrorBoundary            catches render crashes from everything below
  *   └ QueryClientProvider    server-state cache
  *     └ I18nextProvider      the shared i18next instance
- *       └ Suspense           REQUIRED — i18next `useSuspense` defaults to true;
- *         │                  the first lazy namespace throws without a boundary
- *         ├ RouterProvider   owns all rendering from here
- *         ├ DemoTransition   the demo start screen; outside the router, so it
- *         │                  stays on screen across the route change (D18)
- *         └ ToastContainer   bottom-center, one host for the whole app
+ *       └ LanguageGate       the loading screen until the first language files are in
+ *         └ Suspense         REQUIRED — i18next `useSuspense` defaults to true; a
+ *           │                namespace that is not loaded throws without a boundary
+ *           ├ RouterProvider owns all rendering from here
+ *           ├ DemoTransition the demo start screen; outside the router, so it
+ *           │                stays on screen across the route change (D18)
+ *           └ ToastContainer bottom-center, one host for the whole app
  *
  * The 401 interceptor in `api/client.ts` can't import the router (cycle), so it
  * exposes `onUnauthorized`; `UnauthorizedRedirect` below is the subscriber that
@@ -25,6 +26,7 @@ import { ToastContainer } from 'react-toastify';
 import i18n from '@/i18n';
 import { queryClient } from '@/app/query-client';
 import { router } from '@/app/router';
+import { LanguageGate } from '@/app/LanguageGate';
 import { onUnauthorized } from '@/api/client';
 import { LoadingScreen } from '@/components/common/LoadingScreen';
 import { ErrorState } from '@/components/common/ErrorState';
@@ -51,17 +53,19 @@ export function Providers() {
         <ErrorBoundary FallbackComponent={ErrorState}>
             <QueryClientProvider client={queryClient}>
                 <I18nextProvider i18n={i18n}>
-                    <Suspense fallback={<LoadingScreen />}>
-                        <UnauthorizedRedirect />
-                        <RouterProvider router={router} />
-                        <DemoTransition />
-                        <ToastContainer
-                            position="bottom-center"
-                            newestOnTop
-                            closeOnClick
-                            theme={theme}
-                        />
-                    </Suspense>
+                    <LanguageGate i18n={i18n}>
+                        <Suspense fallback={<LoadingScreen />}>
+                            <UnauthorizedRedirect />
+                            <RouterProvider router={router} />
+                            <DemoTransition />
+                            <ToastContainer
+                                position="bottom-center"
+                                newestOnTop
+                                closeOnClick
+                                theme={theme}
+                            />
+                        </Suspense>
+                    </LanguageGate>
                 </I18nextProvider>
             </QueryClientProvider>
         </ErrorBoundary>

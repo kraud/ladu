@@ -1,6 +1,6 @@
 # Plan: Dependency updates (replaces Dependabot PR #139)
 
-Status: in progress. Written on 2026-11-26. PR 1 (#151), PR 2 (#154), PR 3 (#157), PR 4 (#159), PR 5 (#161) and PR 6 (#162) merged. The deploy of PR 2 failed and the hotfix (#156) repaired it (log 23). PR 7 is built and checked locally; not merged yet.
+Status: in progress. Written on 2026-11-26. PR 1 (#151), PR 2 (#154), PR 3 (#157), PR 4 (#159), PR 5 (#161), PR 6 (#162) and PR 7 (#163) merged. The deploy of PR 2 failed and the hotfix (#156) repaired it (log 23). PR 8 is built and checked locally; not merged yet.
 
 Goal: bring in the updates of PR #139 through small PRs. Each PR can be reviewed, tested and reverted alone. **Do not merge #139.**
 
@@ -17,8 +17,8 @@ Update this table when a PR opens and when it merges.
 | 4 | `bcryptjs` 3, `dotenv` 18, `concurrently` 10 | Low | Merged on 2026-11-26; CI and the production deploy passed | #159 |
 | 5 | Test tooling: `jsdom` 31, `msw` 3, `jest-dom` 8 | Medium | Merged on 2026-11-26; CI and the production deploy passed | #161 |
 | 6 | Vite 8 and `@vitejs/plugin-react` 6 | Medium | Merged on 2026-11-26; the production deploy passed | #162 |
-| 7 | `react-error-boundary` 6, `react-toastify` 11, `zustand` 5, `cn` 0.5 | Medium | Checked locally; waits for the PR | |
-| 8 | React 19 | Medium | Not started | |
+| 7 | `react-error-boundary` 6, `react-toastify` 11, `zustand` 5, `cn` 0.5 | Medium | Merged on 2026-11-26; CI and the production deploy passed | #163 |
+| 8 | React 19 | Medium | Checked locally; waits for the PR | |
 | 9 | `@tanstack/react-table` 9 | Medium | Not started | |
 | 10 | `@hookform/resolvers` 7 | Medium | Not started | |
 | 11 | i18next 27 and `react-i18next` 18 | Medium | Not started | |
@@ -269,6 +269,8 @@ Done when: all checks pass and the visual checks are written in the PR.
 
 **Also in this PR (user decision): log 38.** `PracticePage.tsx` now opens the sidebar in a layout effect, not during the render. A new test failed before the fix.
 
+**Merged** as #163 on 2026-11-26. CI and the deploy passed.
+
 ### PR 8: React 19
 
 Branch: `deps/08-react-19`
@@ -280,6 +282,18 @@ Branch: `deps/08-react-19`
 5. Check the browser console on the main pages for new warnings.
 
 Done when: all checks pass.
+
+**Result (2026-11-27):**
+- `react` and `react-dom` 18.3.1 → 19.3.1, `@types/react` and `@types/react-dom` → 19.3.0, in `frontend` and `admin`. The 7-day rule skipped `@types/react` 19.3.3.
+- **The trap of #139 appeared:** after `npm install`, React 18 stayed at the root. `npm dedupe` removed it. In the lockfile, the other changes only move packages to the root (same versions), except `@babel/runtime` at the root (8.1.2 → 7.29.14; `@base-ui/react` accepts both). `types/prop-types` and `loose-envify` left.
+- **Code:** one type error (`useRef` in `not-found.tsx`). A search found no removed API in `frontend/src` or `admin/src`. `forwardRef` stays (new React APIs are not in scope); 8 comments that named React 18 were corrected.
+- **First screen (log 42):** new `app/LanguageGate.tsx`, with 2 tests. One test fails without the gate. The tests cannot measure the delay; the measurements are in log 42.
+- **Console:** during the full E2E run, React 18 and 19 gave the same browser console messages (25, all from expected 4xx answers). The test runs printed no React warning.
+- **Licence notices:** only `react`, `react-dom` and `scheduler` (0.23.2 → 0.28.0) changed.
+- **File sizes (gzip):** JavaScript 470.34 → 493.47 kB (app) and 171.01 → 193.78 kB (admin) (log 45). CSS did not change.
+- The three images (`backend`, `frontend`, `admin`) built and passed Trivy (HIGH and CRITICAL). The backend image passed the CI load command, migrated a temporary database and answered `/api/health`.
+- Final checks, all passed: `npm ci`; lint and typecheck (3 workspaces; no errors); both builds; backend 2996, frontend 2132, admin 329, E2E 149 (3.5 minutes). One React version (19.3.1). Audit: 9 moderate, 0 high; production 0.
+- Not run locally: the `landing` image (not changed) and the E2E suite on the built apps (the production build was opened only on the public pages).
 
 ### PR 9: TanStack Table 9
 
@@ -331,6 +345,7 @@ Branch: `deps/12-sentry-11`
 6. Tracing is off today. Do not turn it on.
 7. Compare `landing/privacy.html` (Sentry text) with what is sent now.
 8. Check with a real test error in a local run with a test DSN, then on staging. Read the full event in Sentry.
+9. Check if a screen crash that an error panel catches reaches Sentry (log 44).
 
 Done when: the privacy test passes, and a real staging event shows no sensitive data.
 
@@ -424,3 +439,7 @@ Issues found while checking #139 and writing this plan. Add new rows during the 
 | 39 | Minor | After the `cn` update the apps use 0.5.2, from `frontend/node_modules` and `admin/node_modules`. The `shadcn` development tool still asks for 0.2, so 0.2.6 stays at the root. | Accepted: the tool does not reach the app. Both app images built. |
 | 40 | Minor | Since `cn` 0.3.2, `animate-in` and `animate-out` are not merged. A joined menu class list can hold them twice. A repeated class has no effect. | Accepted. |
 | 41 | Minor | Present before this plan: on a 390 px phone screen, the practice card is too narrow for its second line. "No hint available" goes past the card, and the page is wider than the screen. Both `cn` versions show it. | Open: user decision. |
+| 42 | Moderate | React 19 keeps a `Suspense` fallback for at least 300 ms. At start, the app waited for the language files with `Suspense`, so the first screen came later, also in production. Local production build, `/login`: content after 123 ms (React 18) and 410 ms (React 19); the files were ready after about 110 ms. All tests passed. The change between `/login` and `/register` did not change (11 ms), and the first screen of the admin changed little (52 → 65 ms). Page changes after the login were not timed. | PR 8 (user decision): `LanguageGate` shows the loading screen until i18next is ready. Measured: 129 ms. |
+| 43 | Minor | Development only: pages load about 0.6 s slower, and the local E2E run takes longer. `/login`: app about 290 → 1221 ms (927 ms with the gate), admin 194 → 836 ms. A CPU profile of the admin shows 549 ms in `createElement`: React 19 records a call stack for new elements. Probable source, not proven: the icon library creates thousands of elements when it loads. | Deferred (user decision): idea I-19. |
+| 44 | Minor | From reading the code, not tested: a screen crash that an error panel catches does not reach Sentry, on React 18 or 19. | Check in PR 12 (step 9). |
+| 45 | Minor | The bundles are about 23 kB (gzip) larger in each app. They are production builds with one React version, so the growth comes with React. | Accepted. |
